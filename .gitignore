@@ -1,0 +1,4 @@
+.shadow-cljs
+.idea
+public/js
+node_modules
