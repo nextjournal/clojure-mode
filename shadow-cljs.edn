@@ -4,7 +4,4 @@
  :builds {:app {:target :browser
                 :output-dir "public/js"
                 :asset-path "/js"
-                :modules {:main {:init-fn codemirror-next.clojure/render}}
-               :js-options
-                {:resolve {#_#_"lezer-clojure" {:target :npm
-                                            :require "lezer-clojure/dist/index.cjs"}}}}}}
+                :modules {:main {:init-fn codemirror-next.clojure/render}}}}}

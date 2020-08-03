@@ -1,20 +1,50 @@
 (ns codemirror-next.clojure.node
-  (:refer-clojure :exclude [coll? ancestors string? empty? regexp?])
-  (:require [clojure.core :as core]
+  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name type])
+  (:require ["lezer-tree" :as lz-tree]
+            ["lezer" :as lezer]
+            [clojure.core :as core]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]))
 
-(defn ^string type-name [node]
-  (if (core/string? node) node (j/!get-in node [:type :name])))
+(def brackets {"(" ")"
+               "[" "]"
+               "{" "}"
+               \" \"})
+
+(def closing-brackets
+  (zipmap (reverse (map val brackets))
+          (reverse (map key brackets))))
+
+(def all-brackets (set (concat (keys brackets) (vals brackets))))
+
+(defn error? [^js node]
+  (.prop node lz-tree/NodeProp.error))
+
+(defn ^string name [^js node]
+  (if (core/string? node)
+    node
+    (or (.-name node)
+        (.. node -type -name))))
+
+(defn type [^js node]
+  (cond-> node
+    (not (instance? lezer/NodeType node))
+    .-type))
 
 (defn coll? [node]
   (j/get (j/obj "Set" true
                 "Map" true
                 "List" true
-                "Vector" true) (type-name node) false))
+                "Vector" true) (name node) false))
 
-(defn string? [node] (identical? "String" (type-name node)))
-(defn regexp? [node] (identical? "RegExp" (type-name node)))
+(defn string? [node] (identical? "String" (name node)))
+(defn regexp? [node] (identical? "RegExp" (name node)))
+
+(j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
+  (boolean
+   (when-let [closing (brackets (name firstChild))]
+     (and (= closing (name lastChild))
+          (not= (.-end firstChild) (.-end lastChild))))))
 
 (defn prefix-parent? [type-name]
   (j/get (j/obj "Ignored" true
@@ -25,7 +55,7 @@
 
 (defn left-edge-width [node]
   (j/get #js{:Set 2
-             :RegExp 2} (type-name node) 1))
+             :RegExp 2} (name node) 1))
 
 (defn right-edge-width [node] 1)
 
@@ -55,10 +85,11 @@
   ([^js subtree]
    (child-subtrees subtree (.-start subtree))))
 
-(defn empty? [^js node]
-  (let [name (type-name node)]
-    (prn name (regexp? name) (== 3 (- (.-end node) (.-start node))))
-    (cond (coll? name) (core/empty? (child-subtrees node))
-          (string? name) (== 2 (- (.-end node) (.-start node)))
-          (regexp? name) (== 3 (- (.-end node) (.-start node)))
+(defn empty?
+  "Node only contains whitespace"
+  [^js node]
+  (let [type-name (name node)]
+    (cond (coll? type-name) (core/empty? (remove (comp all-brackets name) (child-subtrees node)))
+          (string? type-name) (== (.. node -firstChild -end) (.. node -lastChild -start))
           :else false)))
+

@@ -12,22 +12,22 @@ listContents {
   anyList { Operator? expression* }
 }
 
-list { "(" listContents ")" }
-List { list }
+List { "(" listContents ")" }
 Vector { "[" expression* "]" }
-map { "{" expression* "}" }
-Map { map }
+Map { "{" expression* "}" }
+AnonymousFunction { "#(" listContents ")" }
+
 
 @skip {} {
-  AnonymousFunction { "#" list }
+  Set { "#" Map }
   NamespacedMap { "#" Keyword Map }
-  RegExp { "#" string }
-  Set { "#" map }
+  RegExp { "#" String }
   Var { "#'" Symbol }
   ReaderConditional { "#?" (List | Deref) }
   DataLiteral { "#" ident }
   SymbolicValue { "##" simpleIdent }
   Meta { ("^" | "#^") expression}
+  String { '"' stringContents? '"' }
 }
 
 DocString { !docString String }
@@ -41,6 +41,19 @@ Symbol { ident }
 Operator { !operator ident }
 
 @tokens {
+
+
+  "["
+  "{"
+  "("
+  "#{"
+  "#("
+  "]"
+  "}"
+  ")"
+  "#"
+  '"'
+
   whitespace { (std.whitespace | ",")+ }
 
   LineComment { ";" ![\n]* }
@@ -63,11 +76,9 @@ Operator { !operator ident }
   }
   @precedence { Number, ident }
 
-  string {
-    '"' (!["] | "\\" _)* '"'?
+  stringContents {
+    (!["] | "\\" _)+
   }
-
-  String { string }
 
   Character { "\\" (std.asciiLetter | std.digit | "@")+ }
 

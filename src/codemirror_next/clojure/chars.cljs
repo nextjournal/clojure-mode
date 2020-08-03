@@ -16,8 +16,15 @@
     (.slice next 0 (text/codePointSize (text/codePointAt next 0)))))
 
 (defn prev-char [^js doc ^number pos]
-  (prn :pos pos)
   (if (pos-int? pos)
     (.sliceString doc (dec pos) pos)
     ""))
 
+(def whitespace? (->> [" " \n \r ","]
+                      (map #(.charCodeAt ^string % 0))
+                      (set)))
+
+(comment
+ ;; is there a way to iterate from a position, character by character?
+ (defn pos-when [doc dir pred]
+   ))

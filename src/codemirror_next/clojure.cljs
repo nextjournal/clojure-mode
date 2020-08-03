@@ -14,14 +14,37 @@
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.keymap :as keymap]
             [codemirror-next.clojure.indent :as indent]
-            [shadow.resource :as rc]))
+            [shadow.resource :as rc]
+            [codemirror-next.test-utils :as test-utils]))
 
 (def parser
   (lg/buildParser
+   #_"@top[name=Program] { expression* }
+
+expression { Symbol | Set | Map }
+Map { \"{\" expression* \"}\" }
+
+
+Set { \"#{\" expression* \"}\" }
+
+
+@tokens {
+  whitespace { (std.whitespace | \",\")+ }
+  Symbol { std.asciiLetter+ }
+  \"{\" \"}\"
+}"
    (rc/inline "./clojure/clojure.grammar")))
 
 (comment
- (tap> (.parse parser "## #")))
+ (-> (.parse parser "\" ")
+     ;.-firstChild
+     ;.-firstChild
+     ;(.prop lz-tree/NodeProp.error)
+
+     ;.-type
+     ;.-error
+     ;(.prop)
+     ))
 
 (def start-widths
   #js{:Set 2})
@@ -58,28 +81,30 @@
   :hello #_ :ignored ;; ignore next form
   #\"[A-Z]\" ;; regex
   ^{:meta/data 'is-data} 'too
-  (if (test? demo)
-    (inc demo)
+  (if (test? <demo>)
+    (inc demo)|
     (dec demo)))
   #
     [ ]
+    #\"a\"
 "))
 
 (defonce prev-views (atom []))
 
 (defn mount-editor! [dom-selector initial-value]
-  (let [state (.create EditorState
-                       (j/lit {:doc initial-value
-                               :extensions [clojure-syntax
-                                            (bracketMatching)
-                                            highlight/defaultHighlighter
-                                            (multipleSelections)
-                                            close-brackets/extension
-                                            (keymap (keymap/ungroup keymap/default-keymap))]}))]
+  (let [state (test-utils/make-state initial-value
+                                     #js[clojure-syntax
+                                         (bracketMatching)
+                                         highlight/defaultHighlighter
+                                         (multipleSelections)
+                                         close-brackets/extension
+                                         (keymap (keymap/ungroup keymap/default-keymap))])]
     (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
          (new EditorView)
          (swap! prev-views conj))))
 
 (defn ^:dev/after-load render []
   (doseq [v @prev-views] (j/call v :destroy))
-  (mount-editor! "#editor" (sample-text)))
+  (mount-editor! "#editor" (sample-text))
+  (.focus (last @prev-views)))
+
