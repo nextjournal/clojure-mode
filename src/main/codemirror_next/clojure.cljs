@@ -32,20 +32,6 @@
      ;(.prop)
      ))
 
-(def start-widths
-  #js{:Set 2})
-
-(j/defn indent-node-props [^:js {type-name :name :as type}]
-  (j/fn [^:js {:as context :keys [unit ^js node ^js state]}]
-    (let [node-indent (- (.-start node)
-                         (.. state -doc (lineAt (.-start node)) -from))]
-      (case type-name
-        "List" (+ node-indent
-                  (if (= "Operator" (j/get-in node [:firstChild :type :name]))
-                    unit
-                    1))
-        (+ node-indent (j/get start-widths type-name 1))))))
-
 (def clojure-syntax
   (new syntax/LezerSyntax
        (.withProps parser
@@ -82,7 +68,8 @@
                             highlight/defaultHighlighter
                             (multipleSelections)
                             close-brackets/extension
-                            (keymap (keymap/ungroup keymap/default-keymap))])
+                            (keymap (keymap/ungroup keymap/default-keymap))
+                            indent/extension-after-keyup])
 
 (defn mount-editor! [dom-selector initial-value]
   (let [state (test-utils/make-state default-extensions initial-value )]
