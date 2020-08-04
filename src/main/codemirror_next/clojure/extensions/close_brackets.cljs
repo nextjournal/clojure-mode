@@ -12,7 +12,8 @@
             [codemirror-next.clojure.selections :as sel]
             [codemirror-next.clojure.node :as node]
             [codemirror-next.clojure.chars :as chars]
-            [codemirror-next.clojure.util :as u :refer [from-to]]))
+            [codemirror-next.clojure.util :as u :refer [from-to]]
+            [codemirror-next.test-utils :as test-utils]))
 
 (defn guard [x f] (when (f x) x))
 
@@ -63,7 +64,7 @@
                     ;; stop cursor at inner-left of collection
                     (j/lit {:range (sel/cursor pos)})))
                 (j/lit {:range (sel/cursor (dec pos))
-                        :changes (from-to (dec pos) pos)}))))))))
+                        :changes (from-to (max 0 (dec pos)) pos)}))))))))
 
 (defn insertion
   "Returns a `change` that inserts string `s` at position `from` and moves cursor to end of insertion."
@@ -72,26 +73,27 @@
                     :from from}
           :range (sel/cursor (+ from (count s)))}))
 
-(defn handle-open [^EditorState state ^string open ^string close]
-  (update-ranges state
-    (j/fn [^:js {:keys [from to head anchor empty]}]
-      (or (cond (not empty)                                 ;; wrap selections with brackets
-                (j/lit {:changes [{:insert open :from from}
-                                  {:insert close :from to}]
-                        :range (sel/range (+ anchor (count open)) (+ head (count open)))})
-                (= open \")
-                (let [node| (.. state -tree (resolve from -1))
-                      no|de (.. state -tree (resolve from))]
-                  (cond
-                    ;; if inside an unclosed string, close it
-                    (and (node/string? node|)
-                         (not (node/balanced? node|))) (insertion head \")
+(defn handle-open [^EditorState state ^string open]
+  (let [^string close (node/brackets open)]
+    (update-ranges state
+      (j/fn [^:js {:keys [from to head anchor empty]}]
+        (or (cond (not empty)                               ;; wrap selections with brackets
+                  (j/lit {:changes [{:insert open :from from}
+                                    {:insert close :from to}]
+                          :range (sel/range (+ anchor (count open)) (+ head (count open)))})
+                  (= open \")
+                  (let [node| (.. state -tree (resolve from -1))
+                        no|de (.. state -tree (resolve from))]
+                    (cond
+                      ;; if inside an unclosed string, close it
+                      (and (node/string? node|)
+                           (not (node/balanced? node|))) (insertion head \")
 
-                    ;; if inside a balanced string, insert an escaped "
-                    (node/string? no|de) (insertion head "\\\""))))
-          (j/lit {:changes {:insert (str open close)
-                            :from head}
-                  :range (sel/cursor (+ head (count open)))})))))
+                      ;; if inside a balanced string, insert an escaped "
+                      (node/string? no|de) (insertion head "\\\""))))
+            (j/lit {:changes {:insert (str open close)
+                              :from head}
+                    :range (sel/cursor (+ head (count open)))}))))))
 
 (j/defn handle-close [^:js {:as state :keys [doc]
                             {:keys [primaryIndex ranges]} :selection}]
@@ -117,7 +119,7 @@
                                    (dispatch-some view
                                      (cond
                                        (node/brackets key-name)
-                                       (handle-open state key-name (node/brackets key-name))
+                                       (handle-open state key-name)
 
                                        (node/closing-brackets key-name)
                                        (handle-close state))))))}))

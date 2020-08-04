@@ -36,7 +36,7 @@ Set { \"#{\" expression* \"}\" }
    (rc/inline "./clojure/clojure.grammar")))
 
 (comment
- (-> (.parse parser "\" ")
+ (-> (.parse parser "(")
      ;.-firstChild
      ;.-firstChild
      ;(.prop lz-tree/NodeProp.error)
@@ -91,14 +91,15 @@ Set { \"#{\" expression* \"}\" }
 
 (defonce prev-views (atom []))
 
+(def extensions #js[clojure-syntax
+                    (bracketMatching)
+                    highlight/defaultHighlighter
+                    (multipleSelections)
+                    close-brackets/extension
+                    (keymap (keymap/ungroup keymap/default-keymap))])
+
 (defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state initial-value
-                                     #js[clojure-syntax
-                                         (bracketMatching)
-                                         highlight/defaultHighlighter
-                                         (multipleSelections)
-                                         close-brackets/extension
-                                         (keymap (keymap/ungroup keymap/default-keymap))])]
+  (let [state (test-utils/make-state initial-value extensions)]
     (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
          (new EditorView)
          (swap! prev-views conj))))
