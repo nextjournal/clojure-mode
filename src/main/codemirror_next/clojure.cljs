@@ -13,7 +13,7 @@
             [cljs.pprint :as pp]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.keymap :as keymap]
-            [codemirror-next.clojure.indent :as indent]
+            [codemirror-next.clojure.extensions.indent :as indent]
             [shadow.resource :as rc]
             [codemirror-next.test-utils :as test-utils]))
 
@@ -69,7 +69,7 @@
                             (multipleSelections)
                             close-brackets/extension
                             (keymap (keymap/ungroup keymap/default-keymap))
-                            indent/extension-after-keyup])
+                            #_indent/extension-after-keyup])
 
 (defn mount-editor! [dom-selector initial-value]
   (let [state (test-utils/make-state default-extensions initial-value )]

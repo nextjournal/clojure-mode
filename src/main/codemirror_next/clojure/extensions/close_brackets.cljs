@@ -16,9 +16,6 @@
             [codemirror-next.test-utils :as test-utils]
             [codemirror-next.clojure.commands :as commands]))
 
-(defn guard [x f] (when (f x) x))
-
-
 (j/defn handle-backspace
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"

@@ -2,8 +2,61 @@
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
             ["@codemirror/next/history" :as history :refer [historyKeymap]]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
-            [codemirror-next.clojure.indent :as indent]
-            [applied-science.js-interop :as j]))
+            [codemirror-next.clojure.extensions.indent :as indent]
+            [applied-science.js-interop :as j]
+            [codemirror-next.clojure.util :as u]
+            [codemirror-next.clojure.selections :as sel]
+            [codemirror-next.clojure.node :as node]))
+
+(j/defn unwrap [^:js {:keys [^js state dispatch]}]
+  (dispatch
+   (u/update-ranges state
+     (j/fn [^:js {:as range :keys [from to empty]}]
+       (or
+        (when empty
+          (when-let [nearest-balanced-coll
+                     (some-> (.resolve (.-tree state) from -1)
+                             (node/closest node/coll?)
+                             (u/guard node/balanced?))]
+            (j/lit
+             {:range (sel/cursor (dec from))
+              :changes [(node/range (.-firstChild nearest-balanced-coll))
+                        (node/range (.-lastChild nearest-balanced-coll))]})))
+        #js{:range range}))))
+  true)
+
+(j/defn kill [^:js {:keys [^js state dispatch]}]
+  (dispatch
+   (u/update-ranges state
+     (j/fn [^:js {:as range :keys [from to empty]}]
+       (or (when empty
+             (let [node (.resolve (.-tree state) from)
+                   parent (node/closest node #(or (node/coll? %)
+                                                  (= "Program" (node/name %))))
+                   line-end (.-to (.lineAt (.-doc state) from))
+                   next-children (when parent (node/child-subtrees parent from))
+                   last-child-on-line
+                   (when parent (some->> next-children
+                                         (take-while (every-pred
+                                                      #(<= (.-start ^js %) line-end)))
+                                         last))
+                   end (cond (node/string? node) (dec (.-end node))
+                             last-child-on-line (if (node/closing-brackets (node/name last-child-on-line))
+                                                  (.-start last-child-on-line)
+                                                  (.-end last-child-on-line))
+                             (some-> (first next-children)
+                                     .-start
+                                     (> line-end)) (-> (first next-children) .-start))]
+               (when end
+                 (j/lit
+                  {:range (sel/cursor from)
+                   :changes {:from from
+                             :to end}}))))
+           (when-not empty
+             #js{:range (sel/cursor from)
+                 :changes (u/from-to from to)})
+           #js{:range range}))))
+  true)
 
 (def index
   "Mapping of keyword-id to command functions"
@@ -71,6 +124,8 @@
    :redoSelection history/redoSelection
 
    :indent indent/indent
+   :unwrap unwrap
+   :kill (fn [x] (#'kill x))
    })
 
 (def reverse-index

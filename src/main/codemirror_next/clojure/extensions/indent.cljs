@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure.indent
+(ns codemirror-next.clojure.extensions.indent
   (:require ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
             ["@codemirror/next/view" :as view]
@@ -80,7 +80,6 @@
   (.domEventHandlers view/EditorView
                      #js{:keyup
                          (j/fn [_ ^:js {:as ^js view :keys [state]}]
-                           (prn :will-dispatch)
                            (indent #js{:state state
                                        :dispatch #(.dispatch view %)})
                            nil)}))

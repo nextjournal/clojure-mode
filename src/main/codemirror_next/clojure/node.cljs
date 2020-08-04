@@ -1,5 +1,5 @@
 (ns codemirror-next.clojure.node
-  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name type])
+  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name type range])
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
             [clojure.core :as core]
@@ -93,3 +93,5 @@
           (string? type-name) (== (.. node -firstChild -end) (.. node -lastChild -start))
           :else false)))
 
+(defn range [^js node]
+  (u/from-to (.-start node) (.-end node)))

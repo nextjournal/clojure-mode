@@ -106,8 +106,7 @@
    :cursorDocStart
    [{:mac "Cmd-ArrowUp", :shift :selectDocStart}
     {:key "Mod-Home", :shift :selectDocStart}
-    {:mac "Alt-<"}],
-   :deleteToLineEnd [{:mac "Ctrl-k"}]})
+    {:mac "Alt-<"}]})
 
 (def paredit-keymap
   {:cursorSyntaxLeft
@@ -115,7 +114,11 @@
    :cursorSyntaxRight
    [{:key "Alt-ArrowRight" :shift :selectSyntaxRight}]
    :indent
-   [{:key "Alt-Tab"}]})
+   [{:key "Alt-Tab"}]
+   :unwrap
+   [{:key "Alt-s" :preventDefault true}]
+   :kill
+   [{:key "Ctrl-k" :preventDefault true}]})
 
 (def default-keymap
   (merge-with conj builtin-keymap paredit-keymap))
