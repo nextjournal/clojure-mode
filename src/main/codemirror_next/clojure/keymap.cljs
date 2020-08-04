@@ -1,77 +1,8 @@
 (ns codemirror-next.clojure.keymap
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
-
             ["@codemirror/next/history" :as history :refer [historyKeymap]]
-            [clojure.set :as set]))
-
-(def builtin-commands
-  "Mapping of keyword-id to command functions"
-  {:cursorSyntaxLeft commands/cursorSyntaxLeft
-   :selectSyntaxLeft commands/selectSyntaxLeft
-   :cursorSyntaxRight commands/cursorSyntaxRight
-   :selectSyntaxRight commands/selectSyntaxRight
-   :moveLineUp commands/moveLineUp
-   :copyLineUp commands/copyLineUp
-   :moveLineDown commands/moveLineDown
-   :copyLineDown commands/copyLineDown
-   :simplifySelection commands/simplifySelection
-   :selectLine commands/selectLine
-   :selectParentSyntax commands/selectParentSyntax
-   :indentLess commands/indentLess
-   :indentMore commands/indentMore
-   :indentSelection commands/indentSelection
-   :deleteLine commands/deleteLine
-   :cursorMatchingBracket commands/cursorMatchingBracket
-   :cursorCharLeft commands/cursorCharLeft
-   :selectCharLeft commands/selectCharLeft
-   :cursorGroupLeft commands/cursorGroupLeft
-   :selectGroupLeft commands/selectGroupLeft
-   :cursorLineStart commands/cursorLineStart
-   :selectLineStart commands/selectLineStart
-   :cursorCharRight commands/cursorCharRight
-   :selectCharRight commands/selectCharRight
-   :cursorGroupRight commands/cursorGroupRight
-   :selectGroupRight commands/selectGroupRight
-   :cursorLineEnd commands/cursorLineEnd
-   :selectLineEnd commands/selectLineEnd
-   :cursorLineUp commands/cursorLineUp
-   :selectLineUp commands/selectLineUp
-   :cursorDocStart commands/cursorDocStart
-   :selectDocStart commands/selectDocStart
-   :cursorPageUp commands/cursorPageUp
-   :selectPageUp commands/selectPageUp
-   :cursorLineDown commands/cursorLineDown
-   :selectLineDown commands/selectLineDown
-   :cursorDocEnd commands/cursorDocEnd
-   :selectDocEnd commands/selectDocEnd
-   :cursorPageDown commands/cursorPageDown
-   :selectPageDown commands/selectPageDown
-   :cursorLineBoundaryBackward commands/cursorLineBoundaryBackward
-   :selectLineBoundaryBackward commands/selectLineBoundaryBackward
-   :cursorLineBoundaryForward commands/cursorLineBoundaryForward
-   :selectLineBoundaryForward commands/selectLineBoundaryForward
-   :insertNewlineAndIndent commands/insertNewlineAndIndent
-   :selectAll commands/selectAll
-   :deleteCharBackward commands/deleteCharBackward
-   :deleteCharForward commands/deleteCharForward
-   :deleteGroupBackward commands/deleteGroupBackward
-   :deleteGroupForward commands/deleteGroupForward
-   :cursorGroupBackward commands/cursorGroupBackward
-   :selectGroupBackward commands/selectGroupBackward
-   :cursorGroupForward commands/cursorGroupForward
-   :selectGroupForward commands/selectGroupForward
-   :splitLine commands/splitLine
-   :transposeChars commands/transposeChars
-   :deleteToLineEnd commands/deleteToLineEnd
-
-   :undo history/undo
-   :redo history/redo
-   :undoSelection history/undoSelection
-   :redoSelection history/redoSelection})
-
-(def commands-fn-index
-  "Lookup keyword-id by function"
-  (reduce-kv #(assoc %1 %3 %2) {} builtin-commands))
+            [clojure.set :as set]
+            [codemirror-next.clojure.commands :as cmd]))
 
 (defn update-some
   "Updates keys of map when key has value"
@@ -82,8 +13,8 @@
                  (dissoc m k))) m updates))
 
 ;; (de)serializing commands from keyword-id to function
-(defn serialize [command] (update-some command {:run commands-fn-index :shift commands-fn-index}))
-(defn deserialize [command] (update-some command {:run builtin-commands :shift builtin-commands}))
+(defn serialize [command] (update-some command {:run cmd/reverse-index :shift cmd/reverse-index}))
+(defn deserialize [command] (update-some command {:run cmd/index :shift cmd/index}))
 
 (do
   (defn group
@@ -183,7 +114,7 @@
    [{:key "Alt-ArrowLeft" :shift :selectSyntaxLeft}]
    :cursorSyntaxRight
    [{:key "Alt-ArrowRight" :shift :selectSyntaxRight}]
-   :indentSelection
+   :indent
    [{:key "Alt-Tab"}]})
 
 (def default-keymap

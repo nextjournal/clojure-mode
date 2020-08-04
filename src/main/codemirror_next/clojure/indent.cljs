@@ -1,9 +1,11 @@
 (ns codemirror-next.clojure.indent
   (:require ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
+            ["@codemirror/next/commands" :as commands]
             [codemirror-next.clojure.node :as node]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.commands :as commands]))
+            [codemirror-next.clojure.util :as u]
+            ))
 
 ;; CodeMirror references
 ;; IndentContext https://codemirror.net/6/docs/ref/#state.IndentContext
@@ -51,7 +53,7 @@
                                   (let [v (f context pos)]
                                     (if (> v -1) (reduced v) out)))
                                 -1)))]
-    (commands/update-lines state dispatch
+    (u/update-lines state dispatch
       (fn [from value]
         (let [indent (get-indentation context from)]
           (when-not (< indent 0)
@@ -59,8 +61,14 @@
                   expected-spaces (indent-spaces indent)]
               (when-not (identical? current-spaces expected-spaces)
                 (j/!set updated from indent)
-                #js{:from from :to (+ from (count current-spaces)) :insert expected-spaces}))))))))
+                #js{:from from :to (+ from (count current-spaces)) :insert expected-spaces}))))))
+    true))
+
+(j/defn indent [^:js {:as arg :keys [^js state dispatch]}]
+  (if (u/something-selected? state)
+   (commands/indentSelection arg)
+   (indent-all arg)))
 
 (j/defn prefix-all [prefix ^:js {:keys [^js state dispatch]}]
-  (commands/update-lines state dispatch
+  (u/update-lines state dispatch
     (fn [from _ _] #js{:from from :insert prefix})))

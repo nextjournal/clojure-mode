@@ -1,35 +1,78 @@
 (ns codemirror-next.clojure.commands
-  (:require ["@codemirror/next/state" :refer [EditorState IndentContext]]
+  (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
+            ["@codemirror/next/history" :as history :refer [historyKeymap]]
+            ["@codemirror/next/state" :refer [EditorState IndentContext]]
+            [codemirror-next.clojure.indent :as indent]
             [applied-science.js-interop :as j]))
 
-(defn dispatch-some
-  "If passed a transaction, dispatch to view and return true to stop processing commands."
-  [^view/EditorView view tr]
-  (if (some? tr)
-    (do (.dispatch view tr)
-        true)
-    false))
+(def index
+  "Mapping of keyword-id to command functions"
+  {:cursorSyntaxLeft commands/cursorSyntaxLeft
+   :selectSyntaxLeft commands/selectSyntaxLeft
+   :cursorSyntaxRight commands/cursorSyntaxRight
+   :selectSyntaxRight commands/selectSyntaxRight
+   :moveLineUp commands/moveLineUp
+   :copyLineUp commands/copyLineUp
+   :moveLineDown commands/moveLineDown
+   :copyLineDown commands/copyLineDown
+   :simplifySelection commands/simplifySelection
+   :selectLine commands/selectLine
+   :selectParentSyntax commands/selectParentSyntax
+   :indentLess commands/indentLess
+   :indentMore commands/indentMore
+   :indentSelection commands/indentSelection
+   :deleteLine commands/deleteLine
+   :cursorMatchingBracket commands/cursorMatchingBracket
+   :cursorCharLeft commands/cursorCharLeft
+   :selectCharLeft commands/selectCharLeft
+   :cursorGroupLeft commands/cursorGroupLeft
+   :selectGroupLeft commands/selectGroupLeft
+   :cursorLineStart commands/cursorLineStart
+   :selectLineStart commands/selectLineStart
+   :cursorCharRight commands/cursorCharRight
+   :selectCharRight commands/selectCharRight
+   :cursorGroupRight commands/cursorGroupRight
+   :selectGroupRight commands/selectGroupRight
+   :cursorLineEnd commands/cursorLineEnd
+   :selectLineEnd commands/selectLineEnd
+   :cursorLineUp commands/cursorLineUp
+   :selectLineUp commands/selectLineUp
+   :cursorDocStart commands/cursorDocStart
+   :selectDocStart commands/selectDocStart
+   :cursorPageUp commands/cursorPageUp
+   :selectPageUp commands/selectPageUp
+   :cursorLineDown commands/cursorLineDown
+   :selectLineDown commands/selectLineDown
+   :cursorDocEnd commands/cursorDocEnd
+   :selectDocEnd commands/selectDocEnd
+   :cursorPageDown commands/cursorPageDown
+   :selectPageDown commands/selectPageDown
+   :cursorLineBoundaryBackward commands/cursorLineBoundaryBackward
+   :selectLineBoundaryBackward commands/selectLineBoundaryBackward
+   :cursorLineBoundaryForward commands/cursorLineBoundaryForward
+   :selectLineBoundaryForward commands/selectLineBoundaryForward
+   :insertNewlineAndIndent commands/insertNewlineAndIndent
+   :selectAll commands/selectAll
+   :deleteCharBackward commands/deleteCharBackward
+   :deleteCharForward commands/deleteCharForward
+   :deleteGroupBackward commands/deleteGroupBackward
+   :deleteGroupForward commands/deleteGroupForward
+   :cursorGroupBackward commands/cursorGroupBackward
+   :selectGroupBackward commands/selectGroupBackward
+   :cursorGroupForward commands/cursorGroupForward
+   :selectGroupForward commands/selectGroupForward
+   :splitLine commands/splitLine
+   :transposeChars commands/transposeChars
+   :deleteToLineEnd commands/deleteToLineEnd
 
-(defn update-ranges
-  "Applies `f` to each range in `state` (see `changeByRange`)"
-  [^js state f]
-  (.update state (.changeByRange state f) #js{:scrollIntoView true}))
+   :undo history/undo
+   :redo history/redo
+   :undoSelection history/undoSelection
+   :redoSelection history/redoSelection
 
-(defn update-lines
-  [^js state dispatch f]
-  (let [iterator (.. state -doc (iterLines 0))]
-    (loop [result (.next iterator)
-           changes #js[]
-           from-pos 0
-           line-num 1]
-      (j/let [^:js {:keys [done ^string value]} result]
-        (if done
-          (dispatch (.update state #js{:changes (.changes state changes)}))
-          (recur (.next iterator)
-                 (if-let [change (f from-pos value state)]
-                   (j/push! changes change)
-                   changes)
-                 (+ from-pos 1 (count value))
-                 (inc line-num)))))))
+   :indent indent/indent
+   })
 
-
+(def reverse-index
+  "Lookup keyword-id by function"
+  (reduce-kv #(assoc %1 %3 %2) {} index))

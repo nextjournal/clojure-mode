@@ -2,7 +2,6 @@
   (:require [cljs.test :refer [is are testing deftest]]
             [codemirror-next.clojure :as cm-clojure]
             [codemirror-next.test-utils :as test-utils]
-            [codemirror-next.clojure.keymap :as keymap :refer [builtin-commands]]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.commands :as commands]
             [codemirror-next.clojure.indent :as indent]))
@@ -42,7 +41,7 @@
 (deftest indentSelection
 
   (are [input expected]
-    (= (apply-cmd (:indentSelection builtin-commands) (str "<" input ">"))
+    (= (apply-cmd (:indentSelection commands/index) (str "<" input ">"))
        (str "<" expected ">"))
     " ()" "()"                                              ;; top-level => 0 indent
     "()[\n]" "()[\n   ]"

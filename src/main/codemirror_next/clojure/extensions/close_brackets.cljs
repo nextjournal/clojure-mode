@@ -23,7 +23,7 @@
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
   [^:js {:as ^EditorState state :keys [doc]}]
-  (commands/update-ranges state
+  (u/update-ranges state
     (j/fn [^:js {:as range :keys [head empty anchor]}]
       (j/let [^:js {:as range pos :from} (from-to head anchor)]
         (if (not empty)
@@ -64,7 +64,7 @@
 
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (node/brackets open)]
-    (commands/update-ranges state
+    (u/update-ranges state
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (or (cond (not empty)                               ;; wrap selections with brackets
                   (j/lit {:changes [{:insert open :from from}
@@ -102,10 +102,10 @@
                          (j/fn [^:js {:as event :keys [metaKey ctrlKey keyCode]} ^:js {:as view :keys [state]}]
                            (cond (or metaKey ctrlKey) false
                                  ;; backspace
-                                 (== 8 keyCode) (commands/dispatch-some view (handle-backspace state))
+                                 (== 8 keyCode) (u/dispatch-some view (handle-backspace state))
                                  :else
                                  (let [^string key-name (keyName event)]
-                                   (commands/dispatch-some view
+                                   (u/dispatch-some view
                                      (cond
                                        (node/brackets key-name)
                                        (handle-open state key-name)
