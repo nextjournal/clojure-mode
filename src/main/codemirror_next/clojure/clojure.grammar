@@ -7,6 +7,8 @@ Discard { "#_" expression }
 @precedence { docString @left, operator @left}
 
 listContents {
+  defList  { defLike  VarName (DocString expression+ | expression+)? } |
+  defnList { defnLike VarName DocString? Map? (Vector expression* | List { "(" Vector expression* ")"}+) } |
   anyList { Operator? expression* }
 }
 
