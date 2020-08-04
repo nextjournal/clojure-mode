@@ -88,3 +88,11 @@
 
 
     ))
+
+(deftest unwrap
+  (are [input expected]
+    (= (apply-cmd commands/unwrap input)
+       expected)
+    "(|)" "|"
+    "[a | b]" "a | b"
+    "a|b" "a|b"))
