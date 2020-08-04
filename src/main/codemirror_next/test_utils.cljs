@@ -1,5 +1,4 @@
 (ns codemirror-next.test-utils
-  (:refer-clojure :exclude [test])
   (:require ["@codemirror/next/state" :refer [EditorState EditorSelection Extension StateCommand]]
             [applied-science.js-interop :as j]
             [clojure.string :as str]))
@@ -7,7 +6,7 @@
 ;; (de)serialize cursors| and <selections> for testing
 
 
-(defn make-state [doc & [extensions]]
+(defn make-state [extensions doc]
   (let [[doc ranges] (->> (re-seq #"\||<[^>]*?>|[^<>|]+" doc)
                           (reduce (fn [[^string doc ranges] match]
                                     (cond (= match "|")
@@ -39,27 +38,15 @@
                      (str (subs doc 0 from) "<" (subs doc from to) ">" (subs doc to)))) doc))))
 
 (comment
- (-> (make-state "<a>b|c<d\n>a<b>c|" #js[])
+ (-> (make-state #js[] "<a>b|c<d\n>a<b>c|")
      (state-str)
      (= "<a>b|c<d\n>a<b>c|")))
 
-(defn after [extensions cmd doc]
-  (let [state (make-state doc extensions)]
-    (state-str (cond
-                 (fn? cmd) (.-state (cmd state))
-                 (instance? StateCommand cmd)
-                 (let [!state (atom state)]
-                   (cmd #js{:state @!state
-                            :dispatch (fn [^js tr] (reset! !state (.-state tr)))})
-                   @!state)))))
+(defn apply-cmd [extensions cmd doc]
+  (state-str (let [!state (atom (make-state extensions doc))]
+               (cmd #js{:state @!state
+                        :dispatch (fn [^js tr] (reset! !state (.-state tr)))})
+               @!state)))
 
-(defn test [f extensions & pairs]
-  (->> (partition 2 pairs)
-       (reduce (fn [out [before expected]]
-                 (let [actual (after extensions f before)]
-                   (if (= expected actual)
-                     out
-                     (conj out {:before before
-                                :expected expected
-                                :actual actual})))) [])
-       (#(or (seq %) true))))
+(defn apply-f [extensions cmd doc]
+  (state-str (.-state (cmd (make-state extensions doc)))))

@@ -3,17 +3,29 @@
             [codemirror-next.clojure.node :as node]
             [applied-science.js-interop :as j]))
 
+;; CodeMirror references
+;; IndentContext https://codemirror.net/6/docs/ref/#state.IndentContext
+;; indentation facet: https://codemirror.net/6/docs/ref/#state.EditorState%5Eindentation
+;; indentation commands: https://codemirror.net/6/docs/ref/#commands.indentSelection
+
+;; Clojure formatting reference
+;; https://tonsky.me/blog/clojurefmt/
+
 (j/defn indent-node-props [^:js {type-name :name :as type}]
-        (j/fn [^:js {:as context :keys [unit node ^js state]}]
-              (if-some [closest-coll (node/closest node (comp node/coll? node/name))]
-                (let [node-indent (- (.-start closest-coll)
-                                     (.. state -doc (lineAt (.-start closest-coll)) -from))]
-                  (+ node-indent
-                     (if (and (= (node/name closest-coll) "List")
-                              (= "Operator" (j/get-in closest-coll [:firstChild :type :name])))
-                       unit
-                       (node/left-edge-width type-name))))
-                -1)))
+  (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
+    (cond (= "Program" type-name)
+          0
+
+          (node/coll? type-name)
+          (let [start-pos (.. node -firstChild -end)]
+            (cond-> (.column context start-pos)
+              (and (= "List" (node/name node))
+                   (= "Operator" (some-> node
+                                         (.childAfter (.-end (.-firstChild node)))
+                                         node/name)))
+              (+ 1)))
+          :else -1)))
 
 (def props (.add syntax/indentNodeProp
                  indent-node-props))
+

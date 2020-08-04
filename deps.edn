@@ -2,4 +2,4 @@
          "src/test"]
  :deps {applied-science/js-interop {:mvn/version "0.2.5"}
         org.clojure/clojurescript {:mvn/version "1.10.773"}
-        thheller/shadow-cljs {:mvn/version "2.10.17"}}}
+        thheller/shadow-cljs {:mvn/version "2.10.19"}}}

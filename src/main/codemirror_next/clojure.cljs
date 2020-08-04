@@ -85,7 +85,7 @@
                             (keymap (keymap/ungroup keymap/default-keymap))])
 
 (defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state initial-value default-extensions)]
+  (let [state (test-utils/make-state default-extensions initial-value )]
     (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
          (new EditorView)
          (swap! prev-views conj))))
