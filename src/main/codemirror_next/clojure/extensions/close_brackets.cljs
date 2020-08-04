@@ -13,28 +13,17 @@
             [codemirror-next.clojure.node :as node]
             [codemirror-next.clojure.chars :as chars]
             [codemirror-next.clojure.util :as u :refer [from-to]]
-            [codemirror-next.test-utils :as test-utils]))
+            [codemirror-next.test-utils :as test-utils]
+            [codemirror-next.clojure.commands :as commands]))
 
 (defn guard [x f] (when (f x) x))
 
-(defn dispatch-some
-  "If passed a transaction, dispatch to view and return true to stop processing commands."
-  [^view/EditorView view tr]
-  (if (some? tr)
-    (do (.dispatch view tr)
-        true)
-    false))
-
-(defn update-ranges
-  "Applies `f` to each range in `state` (see `changeByRange`)"
-  [^js state f]
-  (.update state (.changeByRange state f) #js{:scrollIntoView true}))
 
 (j/defn handle-backspace
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
   [^:js {:as ^EditorState state :keys [doc]}]
-  (update-ranges state
+  (commands/update-ranges state
     (j/fn [^:js {:as range :keys [head empty anchor]}]
       (j/let [^:js {:as range pos :from} (from-to head anchor)]
         (if (not empty)
@@ -75,7 +64,7 @@
 
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (node/brackets open)]
-    (update-ranges state
+    (commands/update-ranges state
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (or (cond (not empty)                               ;; wrap selections with brackets
                   (j/lit {:changes [{:insert open :from from}
@@ -113,10 +102,10 @@
                          (j/fn [^:js {:as event :keys [metaKey ctrlKey keyCode]} ^:js {:as view :keys [state]}]
                            (cond (or metaKey ctrlKey) false
                                  ;; backspace
-                                 (== 8 keyCode) (dispatch-some view (handle-backspace state))
+                                 (== 8 keyCode) (commands/dispatch-some view (handle-backspace state))
                                  :else
                                  (let [^string key-name (keyName event)]
-                                   (dispatch-some view
+                                   (commands/dispatch-some view
                                      (cond
                                        (node/brackets key-name)
                                        (handle-open state key-name)

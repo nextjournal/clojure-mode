@@ -3,7 +3,9 @@
             [codemirror-next.clojure :as cm-clojure]
             [codemirror-next.test-utils :as test-utils]
             [codemirror-next.clojure.keymap :as keymap :refer [builtin-commands]]
-            [codemirror-next.clojure.extensions.close-brackets :as close-brackets]))
+            [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
+            [codemirror-next.clojure.commands :as commands]
+            [codemirror-next.clojure.indent :as indent]))
 
 ;; TODO
 ;; set up testing flow
@@ -12,24 +14,24 @@
 (def apply-cmd (partial test-utils/apply-cmd cm-clojure/default-extensions))
 
 (deftest close-brackets
-  (are [before after]
-    (= (apply-f #(close-brackets/handle-open % "(") before)
-       after)
+  (are [input expected]
+    (= (apply-f #(close-brackets/handle-open % "(") input)
+       expected)
     "|" "(|)"
     "(|" "((|)"
     "|(" "(|)("
     "|)" "(|))"
     "#|" "#(|)")
 
-  (are [before after]
-    (= (apply-f #(close-brackets/handle-open % \") before) after)
+  (are [input expected]
+    (= (apply-f #(close-brackets/handle-open % \") input) expected)
     "|" "\"|\""                                             ;; auto-close strings
     "\"|\"" "\"\\\"|\"")                                    ;; insert quoted " inside strings
 
 
-  (are [before after]
-    (= (apply-f close-brackets/handle-backspace before)
-       after)
+  (are [input expected]
+    (= (apply-f close-brackets/handle-backspace input)
+       expected)
     "|" "|"
     "(|" "|"
     "()|" "(|)"
@@ -37,10 +39,11 @@
     "[[]]|" "[[]|]"
     ))
 
-(deftest indentation
-  (are [before after]
-    (= (apply-cmd (:indentSelection builtin-commands) (str "<" before ">"))
-       (str "<" after ">"))
+(deftest indentSelection
+
+  (are [input expected]
+    (= (apply-cmd (:indentSelection builtin-commands) (str "<" input ">"))
+       (str "<" expected ">"))
     " ()" "()"                                              ;; top-level => 0 indent
     "()[\n]" "()[\n   ]"
     "(\n)" "(\n )"
@@ -48,4 +51,28 @@
     "(0\n)" "(0\n )"                                        ;; number is not operator
     "(:a\n)" "(:a\n )"                                      ;; keyword is not operator
     "(a\n\nb)" "(a\n  \n  b)"                               ;; empty lines get indent
-    ))
+    )
+
+  (testing "prefix-all"
+    (are [before after]
+      (= (apply-cmd (partial indent/prefix-all "a") before)
+         after)
+      "z|z\nzz|\n|zz" "az|z\nazz|\n|azz"
+      "z<z>\nz<z>" "az<z>\naz<z>"
+
+      )))
+
+(deftest indent-all
+  (testing "indent-all"
+    (are [input expected]
+      (= (apply-cmd indent/indent-all input)
+         expected)
+      "| ()" "|()"                                          ;; top-level => 0 indent
+      "|()[\n]" "|()[\n   ]"
+      "|(\n)" "|(\n )"
+      "(<b>\n)" "(<b>\n  )"                                   ;; operator gets extra indent
+      "|(0\nx<)>" "|(0\n x<)>"                                    ;; number is not operator
+      "<(:a\n)>" "<(:a\n )>"                                  ;; keyword is not operator
+      "|(a\n\nb)" "|(a\n  \n  b)"                           ;; empty lines get indent
+
+      )))
