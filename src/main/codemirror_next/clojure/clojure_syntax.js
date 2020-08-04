@@ -6,7 +6,7 @@ export const foldNodeProps = {
 }
 
 export const styleTags = {
-    Var: "variableName definition",
+    "VarName/Symbol": "variableName definition",
     Def: "atom",
     Defn: "atom",
     Boolean: "atom",
