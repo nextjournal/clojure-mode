@@ -19,20 +19,6 @@
 
 (def parser
   (lg/buildParser
-   #_"@top[name=Program] { expression* }
-
-expression { Symbol | Set | Map }
-Map { \"{\" expression* \"}\" }
-
-
-Set { \"#{\" expression* \"}\" }
-
-
-@tokens {
-  whitespace { (std.whitespace | \",\")+ }
-  Symbol { std.asciiLetter+ }
-  \"{\" \"}\"
-}"
    (rc/inline "./clojure/clojure.grammar")))
 
 (comment
@@ -91,15 +77,15 @@ Set { \"#{\" expression* \"}\" }
 
 (defonce prev-views (atom []))
 
-(def extensions #js[clojure-syntax
-                    (bracketMatching)
-                    highlight/defaultHighlighter
-                    (multipleSelections)
-                    close-brackets/extension
-                    (keymap (keymap/ungroup keymap/default-keymap))])
+(def default-extensions #js[clojure-syntax
+                            (bracketMatching)
+                            highlight/defaultHighlighter
+                            (multipleSelections)
+                            close-brackets/extension
+                            (keymap (keymap/ungroup keymap/default-keymap))])
 
 (defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state initial-value extensions)]
+  (let [state (test-utils/make-state initial-value default-extensions)]
     (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
          (new EditorView)
          (swap! prev-views conj))))
@@ -108,4 +94,5 @@ Set { \"#{\" expression* \"}\" }
   (doseq [v @prev-views] (j/call v :destroy))
   (mount-editor! "#editor" (sample-text))
   (.focus (last @prev-views)))
+
 

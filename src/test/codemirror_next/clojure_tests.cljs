@@ -7,25 +7,33 @@
 ;; TODO
 ;; set up testing flow
 
-(test-utils/test #(close-brackets/handle-open % "(") cm-clojure/extensions
-                 "|" "(|)"
-                 "(|" "((|)"
-                 "|(" "(|)("
-                 "|)" "(|))"
-                 "#|" "#(|)")
+(def update-state (partial test-utils/after cm-clojure/default-extensions))
 
-(test-utils/test #(close-brackets/handle-open % \") cm-clojure/extensions
-                 "|" "\"|\""
-                 "\"|\"" "\"\\\"|\""
-                 )
+(deftest close-brackets
+  (are [before after]
+    (= (update-state #(close-brackets/handle-open % "(") before)
+       after)
+    "|" "(|)"
+    "(|" "((|)"
+    "|(" "(|)("
+    "|)" "(|))"
+    "#|" "#(|)")
 
-(test-utils/test close-brackets/handle-backspace cm-clojure/extensions
-                 "|" "|"
-                 "(|" "|"
-                 "()|" "(|)"
-                 "#|()" "|()"
-                 "[[]]|" "[[]|]"
-                 )
+  (are [before after]
+    (= (update-state #(close-brackets/handle-open % \") before) after)
+    "|" "\"|\""                                             ;; auto-close strings
+    "\"|\"" "\"\\\"|\"")                                    ;; insert quoted " inside strings
+
+
+  (are [before after]
+    (= (update-state close-brackets/handle-backspace before)
+       after)
+    "|" "|"
+    "(|" "|"
+    "()|" "(|)"
+    "#|()" "|()"
+    "[[]]|" "[[]|]"
+    ))
 
 
 

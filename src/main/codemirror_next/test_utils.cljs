@@ -43,7 +43,7 @@
      (state-str)
      (= "<a>b|c<d\n>a<b>c|")))
 
-(defn after [doc extensions cmd]
+(defn after [extensions cmd doc]
   (let [state (make-state doc extensions)]
     (state-str (cond
                  (fn? cmd) (.-state (cmd state))
@@ -56,7 +56,7 @@
 (defn test [f extensions & pairs]
   (->> (partition 2 pairs)
        (reduce (fn [out [before expected]]
-                 (let [actual (after before extensions f)]
+                 (let [actual (after extensions f before)]
                    (if (= expected actual)
                      out
                      (conj out {:before before
