@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@codemirror/next@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.8.0.tgz#60d2f9045bb3a1bbed56167634d6d5907516fea7"
-  integrity sha512-bDKoKh8hGxTFRdGEJtVYiefb4Zj/sSOEZhjwWb4+G0kYt1EOkYkZiYzndqwPgB6hjyG+STyS1lDYASia5pOvRA==
+"@codemirror/next@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.9.0.tgz#82d32ab6c61d1822e8120d9241ba07194e6cca9d"
+  integrity sha512-75wSesCiV7WiwEi3oCQvub8Fuuh3oKIl66IUOuaR+9+tQt7c16oX3GzobMxkZah95YrybZHwgW2YYDK631XRmw==
   dependencies:
     lezer "^0.9.0"
     lezer-css "^0.9.0"
