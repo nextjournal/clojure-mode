@@ -17,8 +17,10 @@
           0
 
           (node/coll? type-name)
-          (let [start-pos (.. node -firstChild -end)]
-            (cond-> (.column context start-pos)
+          (let [left-bracket-end (.. node -firstChild -end)]
+            (cond-> (.column context left-bracket-end)
+              ;; start at the inner-left edge of the coll.
+              ;; if it's a list beginning with a symbol, add 1 space.
               (and (= "List" (node/name node))
                    (= "Operator" (some-> node
                                          (.childAfter (.-end (.-firstChild node)))
