@@ -18,7 +18,8 @@
             [shadow.resource :as rc]
             [codemirror-next.test-utils :as test-utils]
             [codemirror-next.clojure.selections :as sel]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:require-macros [codemirror-next.build :as build]))
 
 (def parser
   (lg/buildParser
@@ -77,17 +78,23 @@
 (defn ^:dev/after-load render []
   (doseq [v @prev-views] (j/call v :destroy))
   (mount-editor! "#editor" (sample-text))
-  (j/assoc! (js/document.getElementById "keymap")
+  (j/assoc! (js/document.getElementById "docs")
             :innerHTML
-            (tag :table
-                 (->> keymap/paredit-keymap
-                      (reduce-kv (fn [out command [{:keys [key shift]}]]
-                                   (str out
-                                        (tag :tr
-                                             (tag :td (tag :b (name command)))
-                                             (tag :td key)
-                                             (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))))) ""))
-                 "</table>"))
+            (tag :div
+              (tag :table
+                (->> keymap/paredit-keymap
+                     (reduce-kv (fn [out command [{:keys [key shift]}]]
+                                  (str out
+                                       (tag :tr
+                                         (tag :td (tag :b (name command)))
+                                         (tag :td key)
+                                         (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))))) ""))
+                "</table>")
+              (tag :pre
+                (-> (build/slurp "README.md")
+                    (str/split #"----")
+                    second))
+              ))
   (.focus (last @prev-views)))
 
 
