@@ -16,7 +16,7 @@
   (are [input expected]
     (= (apply-f #(close-brackets/handle-open % "(") input)
        expected)
-    "|" "(|)"
+    "|" "(|)"                                               ;; auto-close brackets
     "(|" "((|)"
     "|(" "(|)("
     "|)" "(|))"
@@ -32,9 +32,9 @@
     (= (apply-f close-brackets/handle-backspace input)
        expected)
     "|" "|"
-    "(|" "|"
-    "()|" "(|)"
-    "#|()" "|()"
+    "(|" "|"                                                ;; delete an unbalanced paren
+    "()|" "(|)"                                             ;; enter a form from the right (do not "unbalance")
+    "#|()" "|()"                                            ;; delete prefix form
     "[[]]|" "[[]|]"
     ))
 
@@ -44,11 +44,11 @@
     (= (apply-cmd (:indentSelection commands/index) (str "<" input ">"))
        (str "<" expected ">"))
     " ()" "()"                                              ;; top-level => 0 indent
-    "()[\n]" "()[\n   ]"
+    "()[\n]" "()[\n   ]"                                    ;; closing-bracket 1 space in front of opening-bracket
     "(\n)" "(\n )"
-    "(b\n)" "(b\n  )"                                       ;; operator gets extra indent
-    "(0\n)" "(0\n )"                                        ;; number is not operator
-    "(:a\n)" "(:a\n )"                                      ;; keyword is not operator
+    "(b\n)" "(b\n  )"                                       ;; operator gets extra indent (symbol in 1st position)
+    "(0\n)" "(0\n )"                                        ;; a number is not operator
+    "(:a\n)" "(:a\n )"                                      ;; a keyword is not operator
     "(a\n\nb)" "(a\n  \n  b)"                               ;; empty lines get indent
     )
 
@@ -61,17 +61,17 @@
 
       )))
 
-(deftest indent-all
+(deftest indent-all                                         ;; same as indentSelection but applies to entire doc
   (are [input expected]
     (= (apply-cmd indent/indent-all input)
        expected)
-    "| ()" "|()"                                            ;; top-level => 0 indent
+    "| ()" "|()"
     "|()[\n]" "|()[\n   ]"
     "|(\n)" "|(\n )"
-    "(<b>\n)" "(<b>\n  )"                                   ;; operator gets extra indent
-    "|(0\nx<)>" "|(0\n x<)>"                                ;; number is not operator
-    "<(:a\n)>" "<(:a\n )>"                                  ;; keyword is not operator
-    "|(a\n\nb)" "|(a\n  \n  b)"                             ;; empty lines get indent
+    "(<b>\n)" "(<b>\n  )"
+    "|(0\nx<)>" "|(0\n x<)>"
+    "<(:a\n)>" "<(:a\n )>"
+    "|(a\n\nb)" "|(a\n  \n  b)"
 
     ))
 
