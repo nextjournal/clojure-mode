@@ -102,20 +102,35 @@
 
 (def paredit-keymap
   {:indent
-   [{:key "Alt-Tab"}]
+   [{:key "Alt-Tab"
+     :doc "Indent document (or selection)"}]
    :unwrap
-   [{:key "Alt-s" :preventDefault true}]
+   [{:key "Alt-s"
+     :doc "Splice contents of collection into parent"
+     :preventDefault true}]
    :kill
-   [{:key "Ctrl-k" :preventDefault true}]
+   [{:key "Ctrl-k"
+     :doc "Remove all forms from cursor to end of line"
+     :preventDefault true}]
    :nav-left
-   [{:key "Alt-ArrowLeft" :shift :nav-select-left :preventDefault true}]
+   [{:key "Alt-ArrowLeft"
+     :shift :nav-select-left
+     :doc "Move cursor one unit to the left (shift: selects this region)"
+     :preventDefault true}]
    :nav-right
-   [{:key "Alt-ArrowRight" :shift :nav-select-right :preventDefault true}]
+   [{:key "Alt-ArrowRight"
+     :shift :nav-select-right
+     :doc "Move cursor one unit to the right (shift: selects this region)"
+     :preventDefault true}]
    :slurp-forward
-   [{:key "Mod-Shift-ArrowRight" :preventDefault true}
+   [{:key "Mod-Shift-ArrowRight"
+     :doc "Expand collection to include form to the right"
+     :preventDefault true}
     {:key "Mod-Shift-k" :preventDefault true}]
    :barf-forward
-   [{:key "Mod-Shift-ArrowLeft" :preventDefault true}
+   [{:key "Mod-Shift-ArrowLeft"
+     :doc "Shrink collection, ejecting one form to the right"
+     :preventDefault true}
     {:key "Mod-Shift-j" :preventDefault true}]})
 
 (def default-keymap

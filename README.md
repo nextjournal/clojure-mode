@@ -12,6 +12,7 @@ In progress:
 - [ ] Format whitespace (necessary for commands like Slurp to behave nicely)
 
 Next:
+
 - Expand/contract region
 
 Done

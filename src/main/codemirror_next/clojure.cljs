@@ -73,7 +73,8 @@
          (swap! prev-views conj))))
 
 (defn tag [tag & s]
-  (str "<" (name tag) ">" (apply str s) "</" (name tag) ">"))
+  (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
+    (str "<" (name tag) (reduce-kv #(str %1 " " (name %2) "=" "'" %3 "'") "" opts) ">" (apply str s) "</" (name tag) ">")))
 
 (defn ^:dev/after-load render []
   (doseq [v @prev-views] (j/call v :destroy))
@@ -81,14 +82,15 @@
   (j/assoc! (js/document.getElementById "docs")
             :innerHTML
             (tag :div
-              (tag :table
+              (tag :table {:cellpadding 5}
                 (->> keymap/paredit-keymap
-                     (reduce-kv (fn [out command [{:keys [key shift]}]]
+                     (reduce-kv (fn [out command [{:keys [key shift doc]}]]
                                   (str out
                                        (tag :tr
                                          (tag :td (tag :b (name command)))
                                          (tag :td key)
-                                         (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))))) ""))
+                                         (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))
+                                         (tag :td doc)))) ""))
                 "</table>")
               (tag :pre
                 (-> (build/slurp "README.md")
