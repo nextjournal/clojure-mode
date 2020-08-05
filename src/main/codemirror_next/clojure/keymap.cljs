@@ -16,33 +16,33 @@
 (defn serialize [command] (update-some command {:run cmd/reverse-index :shift cmd/reverse-index}))
 (defn deserialize [command] (update-some command {:run cmd/index :shift cmd/index}))
 
-(do
-  (defn group
-    "Returns a grouped map of bindings for a list of CodeMirror keymap entries"
-    [commands]
-    (->> commands
-         (map serialize)
-         (reduce (fn [out {:as cmd :keys [run]}]
-                   (update out run (fnil conj []) (dissoc cmd :run))) {})))
 
-  (defn ungroup
-    "Returns a list of CodeMirror keymap entries for a grouped map of bindings"
-    [commands]
-    (->> commands
-         (reduce-kv
-          (fn [out k bindings]
-            (into out (map #(deserialize (assoc % :run k)) bindings))) [])
-         (clj->js)))
+(defn group
+  "Returns a grouped map of bindings for a list of CodeMirror keymap entries"
+  [commands]
+  (->> commands
+       (map serialize)
+       (reduce (fn [out {:as cmd :keys [run]}]
+                 (update out run (fnil conj []) (dissoc cmd :run))) {})))
 
-  (comment
-   (->> [commands/standardKeymap historyKeymap]
-        (mapcat #(js->clj % :keywordize-keys true))
-        group
-        cljs.pprint/pprint)))
+(defn ungroup
+  "Returns a list of CodeMirror keymap entries for a grouped map of bindings"
+  [commands]
+  (->> commands
+       (reduce-kv
+        (fn [out k bindings]
+          (into out (map #(deserialize (assoc % :run k)) bindings))) [])
+       (clj->js)))
+
+(comment
+ (->> [commands/standardKeymap historyKeymap]
+      (mapcat #(js->clj % :keywordize-keys true))
+      group
+      cljs.pprint/pprint))
 
 (def builtin-keymap
   {:cursorLineStart
-   [{:mac "Cmd-ArrowLeft", :shift :selectLineStart}
+   [{:mac "Cmd-ArrowLeft"}
     {:mac "Ctrl-a", :shift :selectLineStart}],
    :cursorLineDown
    [{:key "ArrowDown", :shift :selectLineDown}
@@ -55,10 +55,6 @@
    :insertNewlineAndIndent [{:key "Enter"}],
    :cursorLineBoundaryBackward
    [{:key "Home", :shift :selectLineBoundaryBackward}],
-   :cursorGroupLeft
-   [{:key "Mod-ArrowLeft",
-     :mac "Alt-ArrowLeft",
-     :shift :selectGroupLeft}],
    :deleteCharForward [{:key "Delete"} {:mac "Ctrl-d"}],
    :cursorCharLeft
    [{:key "ArrowLeft", :shift :selectCharLeft}
@@ -84,12 +80,8 @@
    [{:mac "Ctrl-ArrowUp", :shift :selectPageUp}
     {:key "PageUp", :shift :selectPageUp}
     {:mac "Alt-v"}],
-   :cursorGroupRight
-   [{:key "Mod-ArrowRight",
-     :mac "Alt-ArrowRight",
-     :shift :selectGroupRight}],
    :cursorLineEnd
-   [{:mac "Cmd-ArrowRight", :shift :selectLineEnd}
+   [{:mac "Cmd-ArrowRight"}
     {:mac "Ctrl-e", :shift :selectLineEnd}],
    :cursorGroupForward [{:mac "Alt-f", :shift :selectGroupForward}],
    :undoSelection [{:key "Mod-u", :preventDefault true}],
@@ -109,19 +101,27 @@
     {:mac "Alt-<"}]})
 
 (def paredit-keymap
-  {:cursorSyntaxLeft
-   [{:key "Alt-ArrowLeft" :shift :selectSyntaxLeft}]
-   :cursorSyntaxRight
-   [{:key "Alt-ArrowRight" :shift :selectSyntaxRight}]
-   :indent
+  {:indent
    [{:key "Alt-Tab"}]
    :unwrap
    [{:key "Alt-s" :preventDefault true}]
    :kill
-   [{:key "Ctrl-k" :preventDefault true}]})
+   [{:key "Ctrl-k" :preventDefault true}]
+   :nav-left
+   [{:key "Alt-ArrowLeft" :shift :nav-select-left :preventDefault true}]
+   :nav-right
+   [{:key "Alt-ArrowRight" :shift :nav-select-right :preventDefault true}]
+   :slurp-forward
+   [{:key "Mod-Shift-ArrowRight" :preventDefault true}
+    {:key "Mod-Shift-k" :preventDefault true}]
+   :barf-forward
+   [{:key "Mod-Shift-ArrowLeft" :preventDefault true}
+    {:key "Mod-Shift-j" :preventDefault true}]})
 
 (def default-keymap
-  (merge-with conj builtin-keymap paredit-keymap))
+  (merge-with conj (dissoc builtin-keymap
+                           :cursorGroupRight
+                           :cursorGroupLeft) paredit-keymap))
 
 (comment
  (ungroup default-keymap))

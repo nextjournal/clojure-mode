@@ -6,57 +6,125 @@
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.node :as node]))
+            [codemirror-next.clojure.node :as n]))
 
-(j/defn unwrap [^:js {:keys [^js state dispatch]}]
-  (dispatch
-   (u/update-ranges state
-     (j/fn [^:js {:as range :keys [from to empty]}]
-       (or
+(defn cmd-wrap [f]
+  (j/fn [^:js {:keys [^js state dispatch]}]
+    (dispatch (f state))
+    true))
+
+(defn unwrap [state]
+  (u/update-ranges state
+    (j/fn [^:js {:as range :keys [from to empty]}]
+      (when empty
+        (when-let [nearest-balanced-coll
+                   (some-> (.resolve (.-tree state) from -1)
+                           (n/closest n/coll?)
+                           (u/guard n/balanced?))]
+          {:range (sel/cursor (dec from))
+           :changes [(n/range (.-firstChild nearest-balanced-coll))
+                     (n/range (.-lastChild nearest-balanced-coll))]})))))
+
+(defn kill [^js state]
+  (u/update-ranges state
+    (j/fn [^:js {:as range :keys [from to empty]}]
+      (or (when empty
+            (let [node (.resolve (.-tree state) from)
+                  parent (n/closest node #(or (n/coll? %)
+                                              (= "Program" (n/name %))))
+                  line-end (.-to (.lineAt (.-doc state) from))
+                  next-children (when parent (n/child-subtrees parent from 1))
+                  last-child-on-line
+                  (when parent (some->> next-children
+                                        (take-while (every-pred
+                                                     #(<= (.-start ^js %) line-end)))
+                                        last))
+                  end (cond (n/string? node) (dec (.-end node))
+                            last-child-on-line (if (n/closing-bracket? last-child-on-line)
+                                                 (.-start last-child-on-line)
+                                                 (.-end last-child-on-line))
+                            (some-> (first next-children)
+                                    .-start
+                                    (> line-end)) (-> (first next-children) .-start))]
+              (when end
+                {:range (sel/cursor from)
+                 :changes {:from from
+                           :to end}})))
+          (when-not empty
+            {:range (sel/cursor from)
+             :changes (u/from-to from to)})))))
+
+(defn nav-position [state from dir]
+  (or (some-> (n/closest (.. state -tree (resolve from))
+                         #(or (n/coll? %)
+                              (n/top? %)))
+              (n/child-subtrees from dir)
+              first
+              (j/get (case dir -1 :start 1 :end)))
+      (sel/in-doc (+ from dir) state)))
+
+(defn nav [dir]
+  (fn [state]
+    (u/update-ranges state
+      (j/fn [^:js {:as range :keys [from to empty]}]
+        (if empty
+          {:range (sel/cursor (nav-position state from dir))}
+          {:range (sel/cursor (j/get (u/from-to from to) (case dir -1 :from 1 :to)))})))))
+
+(defn nav-select [dir]
+  (fn [^js state]
+    (u/update-ranges state
+      (j/fn [^:js {:as range :keys [from to empty]}]
+        (if empty
+          {:range (n/balanced-range state from (nav-position state from dir))}
+          {:range (j/let [^:js {:keys [from to]} (u/from-to from to)]
+                    (case dir
+                      1 (n/balanced-range state from (nav-position state to dir))
+                      -1 (n/balanced-range state (nav-position state from dir) to)))})))))
+
+(defn balance-ranges [^js state]
+  (u/update-ranges state
+    (j/fn [^:js {:keys [from to empty]}]
+      (when-not empty
+        {:range (n/balanced-range state from to)}))))
+
+(defn slurp [direction]
+  (fn [^js state]
+    (u/update-ranges state
+      (j/fn [^:js {:as range :keys [from to empty]}]
         (when empty
-          (when-let [nearest-balanced-coll
-                     (some-> (.resolve (.-tree state) from -1)
-                             (node/closest node/coll?)
-                             (u/guard node/balanced?))]
-            (j/lit
-             {:range (sel/cursor (dec from))
-              :changes [(node/range (.-firstChild nearest-balanced-coll))
-                        (node/range (.-lastChild nearest-balanced-coll))]})))
-        #js{:range range}))))
-  true)
+          (when-let [parent (n/closest (n/resolve state from) (every-pred n/coll?
+                                                                          #(not (case direction 1 (some-> (n/right %) n/closing-bracket?)
+                                                                                                -1 (some-> (n/left %) n/opening-bracket?)))))]
+            (when-let [target (case direction 1 (n/right parent)
+                                              2 (n/left parent))]
+              {:range range
+               :changes [(n/range target)
+                         (case direction
+                           1
+                           {:from (-> parent n/down-rightmost n/start)
+                            :insert (str " " (n/string state target))}
+                           -1
+                           {:from (-> parent n/down n/end)
+                            :insert (str (n/string state target) " ")})]})))))))
 
-(j/defn kill [^:js {:keys [^js state dispatch]}]
-  (dispatch
-   (u/update-ranges state
-     (j/fn [^:js {:as range :keys [from to empty]}]
-       (or (when empty
-             (let [node (.resolve (.-tree state) from)
-                   parent (node/closest node #(or (node/coll? %)
-                                                  (= "Program" (node/name %))))
-                   line-end (.-to (.lineAt (.-doc state) from))
-                   next-children (when parent (node/child-subtrees parent from))
-                   last-child-on-line
-                   (when parent (some->> next-children
-                                         (take-while (every-pred
-                                                      #(<= (.-start ^js %) line-end)))
-                                         last))
-                   end (cond (node/string? node) (dec (.-end node))
-                             last-child-on-line (if (node/closing-brackets (node/name last-child-on-line))
-                                                  (.-start last-child-on-line)
-                                                  (.-end last-child-on-line))
-                             (some-> (first next-children)
-                                     .-start
-                                     (> line-end)) (-> (first next-children) .-start))]
-               (when end
-                 (j/lit
-                  {:range (sel/cursor from)
-                   :changes {:from from
-                             :to end}}))))
-           (when-not empty
-             #js{:range (sel/cursor from)
-                 :changes (u/from-to from to)})
-           #js{:range range}))))
-  true)
+(defn barf [direction]
+  (fn [^js state]
+    (u/update-ranges state
+      (j/fn [^:js {:as range :keys [from to empty]}]
+        (when empty
+          (when-let [parent (n/closest (n/resolve state from) n/coll?)]
+            (when-let [target (case direction 1 (some-> parent n/down-rightmost n/left (u/guard (complement n/bracket?)))
+                                              2 (some-> parent n/down n/right (u/guard (complement n/bracket?))))]
+              {:range range
+               :changes [(n/range target)
+                         (case direction
+                           1
+                           {:from (n/end parent)
+                            :insert (str " " (n/string state target))}
+                           -1
+                           {:from (n/start parent)
+                            :insert (str (n/string state target) " ")})]})))))))
 
 (def index
   "Mapping of keyword-id to command functions"
@@ -124,8 +192,16 @@
    :redoSelection history/redoSelection
 
    :indent indent/indent
-   :unwrap unwrap
-   :kill (fn [x] (#'kill x))
+   :unwrap (cmd-wrap #'unwrap)
+   :kill (cmd-wrap #'kill)
+   :nav-right (cmd-wrap (nav 1))
+   :nav-left (cmd-wrap (nav -1))
+   :nav-select-right (cmd-wrap (nav-select 1))
+   :nav-select-left (cmd-wrap (nav-select -1))
+   :slurp-forward (cmd-wrap (slurp 1))
+   :slurp-backward (cmd-wrap (slurp -1))
+   :barf-forward (cmd-wrap (barf 1))
+   :barf-backward (cmd-wrap (barf -1))
    })
 
 (def reverse-index

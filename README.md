@@ -10,9 +10,11 @@ In progress:
   - odd error recovery behaviour - a `#` token can't be deleted
 
 Next
-- Kill (remove all children of current node starting on current line)
-- Navigate left/right by sexp
-- GitHub Action to publish demo site to github.io
-- Expand/contract region
-- Unwrap current collection
+
 - Slurp
+- Navigate left/right by sexp
+- Expand/contract region
+- [x] Unwrap current collection
+- [x] Kill (remove all children of current node starting on current line)
+- [x] GitHub Action to publish demo site to github.io
+

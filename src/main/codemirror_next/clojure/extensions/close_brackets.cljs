@@ -25,8 +25,8 @@
       (j/let [^:js {:as range pos :from} (from-to head anchor)]
         (if (not empty)
           ;; delete selections as normal
-          (j/lit {:range (sel/cursor pos)
-                  :changes range})
+          {:range (sel/cursor pos)
+           :changes range}
           (let [^js node| (.resolve (.-tree state) pos -1)  ;; node immediately to the left of cursor
                 name| (node/name node|)
                 ^js parent (.-parent node|)]
@@ -36,7 +36,7 @@
                   (not (some-> parent node/balanced?)) nil
 
                   ;; entering right edge of collection
-                  (and (node/closing-brackets name|)
+                  (and (node/closing-bracket? node|)
                        (== pos (.-end parent)))
                   (j/lit {:range (sel/cursor (dec pos))})
 
@@ -49,15 +49,15 @@
                             :changes [(from-to (.-start parent) (.-end parent))]})
                     ;; stop cursor at inner-left of collection
                     (j/lit {:range (sel/cursor pos)})))
-                (j/lit {:range (sel/cursor (dec pos))
-                        :changes (from-to (max 0 (dec pos)) pos)}))))))))
+                {:range (sel/cursor (dec pos))
+                 :changes (from-to (max 0 (dec pos)) pos)})))))))
 
 (defn insertion
   "Returns a `change` that inserts string `s` at position `from` and moves cursor to end of insertion."
   [from ^string s]
-  (j/lit {:changes {:insert s
-                    :from from}
-          :range (sel/cursor (+ from (count s)))}))
+  {:changes {:insert s
+             :from from}
+   :range (sel/cursor (+ from (count s)))})
 
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (node/brackets open)]
@@ -77,9 +77,9 @@
 
                       ;; if inside a balanced string, insert an escaped "
                       (node/string? no|de) (insertion head "\\\""))))
-            (j/lit {:changes {:insert (str open close)
-                              :from head}
-                    :range (sel/cursor (+ head (count open)))}))))))
+            {:changes {:insert (str open close)
+                       :from head}
+             :range (sel/cursor (+ head (count open)))})))))
 
 (j/defn handle-close [^:js {:as state :keys [doc]
                             {:keys [primaryIndex ranges]} :selection}]

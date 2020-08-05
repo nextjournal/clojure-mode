@@ -77,22 +77,63 @@
 
 (deftest kill
   (are [input expected]
-    (= (apply-cmd commands/kill input)
+    (= (apply-f commands/kill input)
        expected)
-    "| ()\nx" "|\nx"                                              ;; top-level
+    "| ()\nx" "|\nx"                                        ;; top-level
     " \"ab|c\" " " \"ab|\" "                                ;; kill to end of string
     ;" \"|a\nb\"" " \"|\nb\"" ;; TODO - stop at newline within string
     "(|)" "(|)"                                             ;; no-op in empty coll
     "(| x y [])" "(|)"                                      ;; kill all coll contents
     "a| \nb" "a|b"                                          ;; bring next line up
 
-
     ))
 
 (deftest unwrap
   (are [input expected]
-    (= (apply-cmd commands/unwrap input)
+    (= (apply-f commands/unwrap input)
        expected)
     "(|)" "|"
     "[a | b]" "a | b"
     "a|b" "a|b"))
+
+(deftest nav
+  (are [input dir expected]
+    (= (apply-f (commands/nav dir) input)
+       expected)
+    "|()" 1 "()|"
+    "()|" -1 "|()"
+    "a|b" 1 "ab|"
+    "a|b" -1 "|ab"
+    "| ab" 1 " ab|"
+    "ab |" -1 "|ab "
+    "(|)" 1 "()|"
+    "(|)" -1 "|()"
+    "a|\nb" 1 "a\nb|"))
+
+(deftest nav-select
+  (are [input dir expected]
+    (= (apply-f (commands/nav-select dir) input)
+       expected)
+    "|()" 1 "<()>"
+    "()|" -1 "<()>"
+    "a|b" 1 "a<b>"
+    "(|)" 1 "<()>"
+    "\"a|b\"" 1 "<\"ab\">"
+    "a|b" -1 "<a>b"
+    "| ab" 1 "< ab>"
+    "ab |" -1 "<ab >"
+    "(|)" 1 "<()>"
+    "(|)" -1 "<()>"
+    "a|\nb" 1 "a<\nb>"
+    ))
+
+(deftest balance-ranges
+  (are [input expected]
+    (= (apply-f commands/balance-ranges input)
+       expected)
+    "<a>" "<a>"
+    "a<bc>" "a<bc>"
+    " \"a<\"> " " <\"a\"> "
+    "(<)>" "<()>"
+    "(<a) b>" "<(a) b>"
+    ))

@@ -2,6 +2,7 @@
   (:require ["./clojure/clojure_syntax.js" :as clj-syntax]
             ["@codemirror/next/closebrackets" :refer [closeBrackets]]
             ["@codemirror/next/highlight" :as highlight]
+            ["@codemirror/next/history" :refer [history]]
             ["@codemirror/next/matchbrackets" :refer [bracketMatching]]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
@@ -10,27 +11,18 @@
             ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
             [applied-science.js-interop :as j]
-            [cljs.pprint :as pp]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.keymap :as keymap]
             [codemirror-next.clojure.extensions.indent :as indent]
+            [codemirror-next.clojure.node :as n]
             [shadow.resource :as rc]
-            [codemirror-next.test-utils :as test-utils]))
+            [codemirror-next.test-utils :as test-utils]
+            [codemirror-next.clojure.selections :as sel]
+            [clojure.string :as str]))
 
 (def parser
   (lg/buildParser
    (rc/inline "./clojure/clojure.grammar")))
-
-(comment
- (-> (.parse parser "(")
-     ;.-firstChild
-     ;.-firstChild
-     ;(.prop lz-tree/NodeProp.error)
-
-     ;.-type
-     ;.-error
-     ;(.prop)
-     ))
 
 (def clojure-syntax
   (new syntax/LezerSyntax
@@ -58,12 +50,14 @@
     (dec demo)))
   #
     [ ]
-    #\"a\"
-"))
+    #\"a\""
+       )
+  )
 
 (defonce prev-views (atom []))
 
-(def default-extensions #js[clojure-syntax
+(def default-extensions #js[(history)
+                            clojure-syntax
                             (bracketMatching)
                             highlight/defaultHighlighter
                             (multipleSelections)
@@ -72,14 +66,39 @@
                             #_indent/extension-after-keyup])
 
 (defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state default-extensions initial-value )]
+  (let [state (test-utils/make-state default-extensions initial-value)]
     (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
          (new EditorView)
          (swap! prev-views conj))))
 
+(defn tag [tag & s]
+  (str "<" (name tag) ">" (apply str s) "</" (name tag) ">"))
+
 (defn ^:dev/after-load render []
   (doseq [v @prev-views] (j/call v :destroy))
   (mount-editor! "#editor" (sample-text))
+  (j/assoc! (js/document.getElementById "keymap")
+            :innerHTML
+            (tag :table
+                 (->> keymap/paredit-keymap
+                      (reduce-kv (fn [out command [{:keys [key shift]}]]
+                                   (str out
+                                        (tag :tr
+                                             (tag :td (tag :b (name command)))
+                                             (tag :td key)
+                                             (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))))) ""))
+                 "</table>"))
   (.focus (last @prev-views)))
 
 
+(comment
+ (let [tree (.-tree (test-utils/make-state default-extensions "ab"))
+       from 1
+       to 2
+       from-node (.. tree (resolve from 1))
+       to-node (.. tree (resolve to -1))
+       nodes-between (n/nodes-between from-node to-node)
+       ]
+   (map n/name nodes-between)
+
+   ))

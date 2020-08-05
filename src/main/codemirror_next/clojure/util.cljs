@@ -17,7 +17,10 @@
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
   [^js state f]
-  (.update state (.changeByRange state f) #js{:scrollIntoView true}))
+  (.update state (.changeByRange state
+                                 (fn [range]
+                                   (or (clj->js (f range))
+                                       #js{:range range}))) #js{:scrollIntoView true}))
 
 (defn update-lines
   [^js state dispatch f]
