@@ -137,3 +137,10 @@
     "(<)>" "<()>"
     "(<a) b>" "<(a) b>"
     ))
+
+(deftest slurp
+  (are [input dir expected]
+    (= (apply-f (commands/slurp dir) input) expected)
+    "(|) a" 1 "(| a) "
+    "((|)) a" 1 "((|) a) "
+    "(|a)" -1 "a (|)"))

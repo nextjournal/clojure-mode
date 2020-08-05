@@ -88,6 +88,9 @@
       (when-not empty
         {:range (n/balanced-range state from to)}))))
 
+(defn update-range-by-changes [update-map]
+  )
+
 (defn slurp [direction]
   (fn [^js state]
     (u/update-ranges state
@@ -97,16 +100,20 @@
                                                                           #(not (case direction 1 (some-> (n/right %) n/closing-bracket?)
                                                                                                 -1 (some-> (n/left %) n/opening-bracket?)))))]
             (when-let [target (case direction 1 (n/right parent)
-                                              2 (n/left parent))]
-              {:range range
-               :changes [(n/range target)
-                         (case direction
-                           1
-                           {:from (-> parent n/down-rightmost n/start)
-                            :insert (str " " (n/string state target))}
-                           -1
-                           {:from (-> parent n/down n/end)
-                            :insert (str (n/string state target) " ")})]})))))))
+                                              -1 (-> parent n/down n/right (u/guard (complement n/closing-bracket?))))]
+              (let [^js changes (->> [(n/range target)
+                                      (case direction
+                                        1
+                                        {:from (-> parent n/down-rightmost n/start)
+                                         :insert (str " " (n/string state target))}
+                                        -1
+                                        {:from (-> parent n/start)
+                                         :insert (str (n/string state target) " ")})]
+                                     clj->js
+                                     (.changes state))
+                    pos (.mapPos changes from)]
+                {:range (sel/cursor pos)
+                 :changes changes}))))))))
 
 (defn barf [direction]
   (fn [^js state]
