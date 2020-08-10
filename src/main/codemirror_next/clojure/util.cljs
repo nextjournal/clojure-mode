@@ -31,17 +31,19 @@
                                        #js{:range range}))) #js{:scrollIntoView true}))
 
 (defn update-lines
-  [^js state dispatch f]
+  [^js state dispatch f & [{:keys [from to]
+                            :or {from 0}}]]
   (let [iterator (.. state -doc (iterLines 0))]
     (loop [result (.next iterator)
            changes #js[]
-           from-pos 0
+           from-pos from
            line-num 1]
       (j/let [^:js {:keys [done ^string value]} result]
-        (if done
+        (if (or done
+                (> from to))
           (dispatch (.update state #js{:changes (.changes state changes)}))
           (recur (.next iterator)
-                 (if-let [change (f from-pos value state)]
+                 (if-let [change (f from-pos value line-num)]
                    (j/push! changes change)
                    changes)
                  (+ from-pos 1 (count value))

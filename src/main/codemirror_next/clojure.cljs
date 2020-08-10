@@ -101,13 +101,8 @@
 
 
 (comment
- (let [tree (.-tree (test-utils/make-state default-extensions "ab"))
-       from 1
-       to 2
-       from-node (.. tree (resolve from 1))
-       to-node (.. tree (resolve to -1))
-       nodes-between (n/nodes-between from-node to-node)
-       ]
-   (map n/name nodes-between)
+ (let [state (test-utils/make-state default-extensions "(a )")
+       tree (.-tree state)]
+   (n/terminal-nodes tree 0 (.. state -doc -length))
 
    ))

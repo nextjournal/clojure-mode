@@ -75,6 +75,27 @@
 
     ))
 
+(deftest format-all
+  (are [input expected]
+    (= (apply-cmd indent/format-all input)
+       expected)
+    "a  :b  3 |" "a :b 3 |"                                 ;; remove extra spaces
+    "(|a )" "(|a)"
+    "| ( )" "|()"
+    "|()a" "|() a"                                          ;; add needed spaces
+    "()  |a" "() |a"                                        ;; cursor position
+    "()|  a" "()| a"
+    "() | a" "() |a"
+    "|()[\n]" "|() [\n   ]"
+    "|(\n )" "|(\n )"
+    "(<b>\n)" "(<b>\n  )"
+    "<(:a\n)>" "<(:a\n )>"
+    "|(a\n\nb)" "|(a\n  \n  b)"
+    "|\"a\"" "|\"a\""
+    "#_a|" "#_a|"
+    "#| []" "#| []"
+    ))
+
 (deftest kill
   (are [input expected]
     (= (apply-f commands/kill input)

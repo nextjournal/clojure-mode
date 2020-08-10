@@ -40,11 +40,20 @@
     (not (instance? lezer/NodeType node))
     .-type))
 
-(defn coll? [node]
+(defn coll-name? [type-name]
   (j/get (j/obj "Set" true
                 "Map" true
                 "List" true
-                "Vector" true) (name node) false))
+                "Vector" true) type-name false))
+
+(defn coll? [node]
+  (coll-name? (name node)))
+
+(defn terminal? [node]
+  (let [n (name node)]
+    (case n
+      ("Program") false
+      (not (coll-name? n)))))
 
 (defn top? [node] (nil? (.-parent node)))
 
@@ -131,6 +140,18 @@
     @found
     ))
 
+(defn terminal-nodes [^js node from to]
+  (let [found (atom [])]
+    (.iterate node #js{:from from
+                       :to to
+                       :enter (fn [type start end]
+                                (if (and (terminal? type)
+                                         (not (error? type)))
+                                  (do (swap! found conj #js[(name type) start end])
+                                      false)
+                                  js/undefined))})
+    @found))
+
 (defn getter [^keyword k]
   (fn [o] (j/get o k)))
 
@@ -166,7 +187,7 @@
             (eq? from to) 0)
       cmp)))
 
-(defn prefer [preference [L C R ]]
+(defn prefer [preference [L C R]]
   (case preference
     :left (or L C)
     :right (or R C)))
