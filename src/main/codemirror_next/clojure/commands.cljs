@@ -88,9 +88,6 @@
       (when-not empty
         {:range (n/balanced-range state from to)}))))
 
-(defn update-range-by-changes [update-map]
-  )
-
 (defn slurp [direction]
   (fn [^js state]
     (u/update-ranges state
@@ -100,20 +97,23 @@
                                                                           #(not (case direction 1 (some-> (n/right %) n/closing-bracket?)
                                                                                                 -1 (some-> (n/left %) n/opening-bracket?)))))]
             (when-let [target (case direction 1 (n/right parent)
-                                              -1 (-> parent n/down n/right (u/guard (complement n/closing-bracket?))))]
-              (let [^js changes (->> [(n/range target)
-                                      (case direction
-                                        1
-                                        {:from (-> parent n/down-rightmost n/start)
-                                         :insert (str " " (n/string state target))}
-                                        -1
-                                        {:from (-> parent n/start)
-                                         :insert (str (n/string state target) " ")})]
-                                     clj->js
-                                     (.changes state))
-                    pos (.mapPos changes from)]
-                {:range (sel/cursor pos)
-                 :changes changes}))))))))
+                                              -1 (-> parent n/first-child n/right (u/guard (complement n/closing-bracket?))))]
+              {:map-cursor from
+               :changes (case direction
+                          1
+                          [{:from (-> target n/end)
+                            :insert (n/name (n/last-child parent))}
+                           (-> parent
+                               n/last-child
+                               n/range
+                               (j/assoc! :insert " "))]
+                          -1
+                          [(-> parent
+                               n/first-child
+                               n/range
+                               (j/assoc! :insert " "))
+                           {:from (n/end target)
+                            :insert (str " " (n/name (n/first-child parent)))}])})))))))
 
 (defn barf [direction]
   (fn [^js state]
@@ -121,17 +121,23 @@
       (j/fn [^:js {:as range :keys [from to empty]}]
         (when empty
           (when-let [parent (n/closest (n/resolve state from) n/coll?)]
-            (when-let [target (case direction 1 (some-> parent n/down-rightmost n/left (u/guard (complement n/bracket?)))
-                                              2 (some-> parent n/down n/right (u/guard (complement n/bracket?))))]
-              {:range range
-               :changes [(n/range target)
-                         (case direction
-                           1
-                           {:from (n/end parent)
-                            :insert (str " " (n/string state target))}
-                           -1
-                           {:from (n/start parent)
-                            :insert (str (n/string state target) " ")})]})))))))
+            (when-let [target (case direction 1 (some-> parent n/last-child n/left (u/guard (complement n/bracket?)))
+                                              -1 (some-> parent n/first-child n/right (u/guard (complement n/bracket?))))]
+              {:map-cursor from
+               :changes
+               (case direction
+                 1
+                 [(-> (n/range (n/last-child parent))
+                      (j/assoc! :insert " "))
+                  {:from (-> target n/left n/end)
+                   :insert (str (n/name (n/last-child parent)) " ")}]
+                 -1
+                 [{:from (-> target n/end)
+                   :insert (str " " (-> parent n/first-child n/name))}
+                  (-> parent
+                      n/first-child
+                      n/range
+                      (j/assoc! :insert " "))])})))))))
 
 (def index
   "Mapping of keyword-id to command functions"

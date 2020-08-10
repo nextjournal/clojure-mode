@@ -1,5 +1,6 @@
 (ns codemirror-next.clojure.util
-  (:require [applied-science.js-interop :as j]))
+  (:require [applied-science.js-interop :as j]
+            [codemirror-next.clojure.selections :as sel]))
 
 (defn guard [x f] (when (f x) x))
 
@@ -14,12 +15,19 @@
         true)
     false))
 
+(defn map-cursor [^js state update-map]
+  (if-let [pos (when (map? update-map) (:map-cursor update-map))]
+    (let [^js changes (.changes state (clj->js (:changes update-map)))]
+      #js{:range (sel/cursor (.mapPos changes pos))
+          :changes changes})
+    (clj->js update-map)))
+
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
   [^js state f]
   (.update state (.changeByRange state
                                  (fn [range]
-                                   (or (clj->js (f range))
+                                   (or (map-cursor state (f range))
                                        #js{:range range}))) #js{:scrollIntoView true}))
 
 (defn update-lines

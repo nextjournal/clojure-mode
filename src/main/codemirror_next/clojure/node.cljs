@@ -146,10 +146,10 @@
 (defn right [^js node]
   (.childAfter (.-parent node) (end node)))
 
-(defn down [^js node]
+(defn first-child [^js node]
   (.-firstChild node))
 
-(defn down-rightmost [^js node]
+(defn last-child [^js node]
   (.-lastChild node))
 
 (defn up [^js node]
@@ -177,7 +177,7 @@
   (when-not (eq? node to-node)
     (case (compare (start to-node) (start node))
       0 (cond (ancestor? to-node node) (up node)
-              (ancestor? node to-node) (down node))
+              (ancestor? node to-node) (first-child node))
       -1 (if (ancestor? node to-node)
            (.-lastChild node)
            (or (left node)

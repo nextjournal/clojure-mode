@@ -141,6 +141,13 @@
 (deftest slurp
   (are [input dir expected]
     (= (apply-f (commands/slurp dir) input) expected)
-    "(|) a" 1 "(| a) "
-    "((|)) a" 1 "((|) a) "
-    "(|a)" -1 "a (|)"))
+    "(|) a" 1 "(|  a)"
+    "((|)) a" 1 "((|)  a)"
+    "(|a)" -1 " |a ()"))
+
+(deftest barf
+  (are [input dir expected]
+    (= (apply-f (commands/barf dir) input) expected)
+    "(|a)" 1 "(|) a "
+    "(|a)" -1 " |a ()"
+    "((|)a)" 1 "((|)a)"))
