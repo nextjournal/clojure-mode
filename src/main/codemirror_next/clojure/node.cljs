@@ -59,6 +59,7 @@
 
 (defn string? [node] (identical? "String" (name node)))
 (defn regexp? [node] (identical? "RegExp" (name node)))
+(defn line-comment? [node] (identical? "LineComment" (name node)))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
   (boolean
@@ -164,8 +165,14 @@
 (defn left [^js node]
   (.childBefore (.-parent node) (start node)))
 
+(defn lefts [^js node]
+  (take-while identity (iterate left (left node))))
+
 (defn right [^js node]
   (.childAfter (.-parent node) (end node)))
+
+(defn rights [^js node]
+  (take-while identity (iterate right (right node))))
 
 (defn first-child [^js node]
   (.-firstChild node))

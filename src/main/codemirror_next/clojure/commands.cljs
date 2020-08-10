@@ -96,8 +96,8 @@
           (when-let [parent (n/closest (n/resolve state from) (every-pred n/coll?
                                                                           #(not (case direction 1 (some-> (n/right %) n/closing-bracket?)
                                                                                                 -1 (some-> (n/left %) n/opening-bracket?)))))]
-            (when-let [target (case direction 1 (n/right parent)
-                                              -1 (-> parent n/first-child n/right (u/guard (complement n/closing-bracket?))))]
+            (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights parent)))
+                                              -1 (first (remove n/line-comment? (n/lefts parent))))]
               {:map-cursor from
                :changes (case direction
                           1
@@ -112,8 +112,8 @@
                                n/first-child
                                n/range
                                (j/assoc! :insert " "))
-                           {:from (n/end target)
-                            :insert (str " " (n/name (n/first-child parent)))}])})))))))
+                           {:from (n/start target)
+                            :insert (n/name (n/first-child parent))}])})))))))
 
 (defn barf [direction]
   (fn [^js state]

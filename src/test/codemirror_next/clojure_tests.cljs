@@ -172,7 +172,10 @@
     (= (apply-f (commands/slurp dir) input) expected)
     "(|) a" 1 "(|  a)"
     "((|)) a" 1 "((|)  a)"
-    "(|a)" -1 " |a ()"))
+    "(|) ;;comment\na" 1 "(|  ;;comment\na)"
+    "a(|)" -1 "(a |)"
+    "a ;; hello\n(|)" -1 "(a ;; hello\n |)"
+    ))
 
 (deftest barf
   (are [input dir expected]

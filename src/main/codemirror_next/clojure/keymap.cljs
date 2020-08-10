@@ -123,12 +123,12 @@
      :doc "Move cursor one unit to the right (shift: selects this region)"
      :preventDefault true}]
    :slurp-forward
-   [{:key "Mod-Ctrl-ArrowRight"
+   [{:key "Ctrl-Mod-ArrowRight"
      :doc "Expand collection to include form to the right"
      :preventDefault true}
     {:key "Mod-Shift-k" :preventDefault true}]
    :barf-forward
-   [{:key "Mod-Ctrl-ArrowLeft"
+   [{:key "Ctrl-Mod-ArrowLeft"
      :doc "Shrink collection, ejecting one form to the right"
      :preventDefault true}
     {:key "Mod-Shift-j" :preventDefault true}]})
