@@ -13,7 +13,7 @@
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.keymap :as keymap]
-            [codemirror-next.clojure.extensions.indent :as indent]
+            [codemirror-next.clojure.extensions.formatting :as indent]
             [codemirror-next.clojure.node :as n]
             [shadow.resource :as rc]
             [codemirror-next.test-utils :as test-utils]

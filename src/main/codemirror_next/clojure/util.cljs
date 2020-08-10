@@ -1,5 +1,6 @@
 (ns codemirror-next.clojure.util
   (:require [applied-science.js-interop :as j]
+            ["@codemirror/next/state" :refer [EditorSelection]]
             [codemirror-next.clojure.selections :as sel]))
 
 (defn guard [x f] (when (f x) x))
@@ -30,9 +31,13 @@
                                    (or (map-cursor state (f range))
                                        #js{:range range}))) #js{:scrollIntoView true}))
 
+(defn dispatch-changes [^js state dispatch ^js changes]
+  (when-not (.-empty changes)
+    (dispatch (.update state #js{:changes changes}))))
+
 (defn update-lines
-  [^js state dispatch f & [{:keys [from to]
-                            :or {from 0}}]]
+  [^js state f & [{:keys [from to]
+                   :or {from 0}}]]
   (let [iterator (.. state -doc (iterLines 0))]
     (loop [result (.next iterator)
            changes #js[]
@@ -41,13 +46,36 @@
       (j/let [^:js {:keys [done ^string value]} result]
         (if (or done
                 (> from to))
-          (dispatch (.update state #js{:changes (.changes state changes)}))
+          (.changes state changes)
           (recur (.next iterator)
                  (if-let [change (f from-pos value line-num)]
                    (j/push! changes change)
                    changes)
                  (+ from-pos 1 (count value))
                  (inc line-num)))))))
+
+(defn change-by-selected-line
+  "`f` will be called for each selected line with args [line, changes-array, range]
+   and should *mutate* changes-array"
+  [^js state f]
+  (let [at-line (atom -1)
+        doc (.-doc state)]
+    (.changeByRange
+     state
+     (j/fn [^:js {:as range :keys [from to anchor head]}]
+       (j/let [^:js {:as line line-number :number line-to :to} (.lineAt doc from)
+               changes #js[]]
+         (loop [line line]
+           (when (> line-number @at-line)
+             (reset! at-line line-number)
+             (f line changes range))
+           (if (<= to line-to)
+             (let [^js change-set (.changes state changes)]
+               #js{:changes changes
+                   :range (.range EditorSelection
+                                  (.mapPos change-set anchor 1)
+                                  (.mapPos change-set head 1))})
+             (recur (.lineAt doc (inc line-to))))))))))
 
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))

@@ -2,7 +2,7 @@
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
             ["@codemirror/next/history" :as history :refer [historyKeymap]]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
-            [codemirror-next.clojure.extensions.indent :as indent]
+            [codemirror-next.clojure.extensions.formatting :as indent]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.selections :as sel]
@@ -204,7 +204,7 @@
    :undoSelection history/undoSelection
    :redoSelection history/redoSelection
 
-   :indent indent/indent
+   :indent indent/format
    :unwrap (cmd-wrap #'unwrap)
    :kill (cmd-wrap #'kill)
    :nav-right (cmd-wrap (nav 1))

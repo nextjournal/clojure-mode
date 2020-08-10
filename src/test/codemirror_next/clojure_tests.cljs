@@ -4,7 +4,7 @@
             [codemirror-next.test-utils :as test-utils]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.commands :as commands]
-            [codemirror-next.clojure.extensions.indent :as indent]))
+            [codemirror-next.clojure.extensions.formatting :as indent]))
 
 ;; TODO
 ;; set up testing flow
@@ -94,6 +94,14 @@
     "|\"a\"" "|\"a\""
     "#_a|" "#_a|"
     "#| []" "#| []"
+    ))
+
+(deftest format-selection
+  (are [input expected]
+    (= (apply-cmd indent/format input)
+       expected)
+    "<a  b>\nc  d" "<a b>\nc  d"                            ;; only selected lines are formatted
+    "<a>   <b>   c   <d>\na  b" "<a> <b> c <d>\na  b"       ;; multiple selectons on one line
     ))
 
 (deftest kill
