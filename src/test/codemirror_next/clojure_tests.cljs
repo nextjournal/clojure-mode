@@ -12,6 +12,7 @@
 (def apply-f (partial test-utils/apply-f cm-clojure/default-extensions))
 (def apply-cmd (partial test-utils/apply-cmd cm-clojure/default-extensions))
 
+
 (deftest nav
   (are [input dir expected]
     (= (apply-f (commands/nav dir) input)
@@ -126,6 +127,7 @@
     "|\"a\"" "|\"a\""
     "#_a|" "#_a|"
     "#| []" "#| []"
+    "[ | ]" "[|]"
     ))
 
 (deftest format-selection
@@ -141,8 +143,8 @@
     (= (apply-f commands/kill input)
        expected)
     "| ()\nx" "|\nx"                                        ;; top-level
-    " \"ab|c\" " "\"ab|\" "                                ;; kill to end of string
-    ;" \"|a\nb\"" " \"|\nb\"" ;; TODO - stop at newline within string
+    " \"ab|c\" " "\"ab|\" "                                 ;; kill to end of string
+    " \"|a\nb\"" "\"|b\""                                   ;; TODO - stop at newline within string
     "(|)" "(|)"                                             ;; no-op in empty coll
     "(| x y [])" "(|)"                                      ;; kill all coll contents
     "a| \nb" "a|b"                                          ;; bring next line up
@@ -173,7 +175,7 @@
     (= (apply-f (commands/slurp dir) input) expected)
     "(|) a" 1 "(|a)"
     "((|)) a" 1 "((|) a)"
-    "(|) ;;comment\na" 1 "(|;;comment\n a)"                ;; slurp around comments
+    "(|) ;;comment\na" 1 "(|;;comment\n a)"                 ;; slurp around comments
     "a(|)" -1 "(a|)"
     "a ;; hello\n(|)" -1 "(a ;; hello\n | )"
     ))
@@ -184,3 +186,22 @@
     "(|a)" 1 "(|) a "
     "(|a)" -1 "a (|)"
     "((|)a)" 1 "((|)a)"))
+
+(deftest grow-selections
+  (are [input expected]
+    (= (apply-f commands/grow-selection input) expected)
+
+    "(|)" "<()>"
+    "(|a)" "(<a>)"
+    "(a|)" "(<a>)"
+    "\"|\"" "<\"\">"
+    "\"|a\"" "\"<a>\""
+    "[|]" "<[]>"
+    ";; hell|o" "<;; hello>"
+
+    "( a|)" "( <a>)"
+    "( <a>)" "(< a>)"
+    "(< a>)" "<( a)>"
+
+    "@<deref>" "<@deref>"
+    ))

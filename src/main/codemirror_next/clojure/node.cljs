@@ -14,7 +14,37 @@
 (def brackets {"(" ")"
                "[" "]"
                "{" "}"
-               \" \"})
+               \" \"
+               })
+
+(def left-edges #{"["
+                  "{"
+                  "("
+
+                  "#"
+                  "##"
+                  "#{"
+                  "#("
+                  "#'"
+                  "#?"
+                  "#^"
+                  "#_"
+                  "\""
+                  "'"
+                  "`"
+                  "~"
+                  "~@"
+                  "^"
+                  "@"})
+
+(def right-edges #{"]"
+                   "}"
+                   ")"
+                   "\""})
+
+(def edges (into left-edges right-edges))
+
+
 
 (def closing-brackets
   (zipmap (reverse (map val brackets))
@@ -31,20 +61,25 @@
     (or (.-name node)
         (.. node -type -name))))
 
-(def bracket? (comp boolean all-brackets name))
-(def opening-bracket? (comp boolean brackets name))
-(def closing-bracket? (comp boolean closing-brackets name))
+(def left-edge? (comp boolean left-edges name))
+(def right-edge? (comp boolean right-edges name))
+(def edge? (comp boolean edges name))
+
+(def opening-bracket? (comp boolean left-edges name))
+(def closing-bracket? (comp boolean right-edges name))
 
 (defn type [^js node]
   (cond-> node
     (not (instance? lezer/NodeType node))
     .-type))
 
+(def coll-names #{"Set"
+                  "Map"
+                  "List"
+                  "Vector"})
+
 (defn coll-name? [type-name]
-  (j/get (j/obj "Set" true
-                "Map" true
-                "List" true
-                "Vector" true) type-name false))
+  (contains? coll-names type-name))
 
 (defn coll? [node]
   (coll-name? (name node)))
@@ -63,23 +98,19 @@
 (defn discard? [node] (identical? "Discard" (name node)))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
-  (boolean
-   (when-let [closing (brackets (name firstChild))]
-     (and (= closing (name lastChild))
-          (not= (end firstChild) (end lastChild))))))
+  (if-let [closing (brackets (name firstChild))]
+    (and (= closing (name lastChild))
+         (not= (end firstChild) (end lastChild)))
+    true))
+
+(def prefix-parent-names #{"Ignored"
+                           "Quote"
+                           "SyntaxQuote"
+                           "Unquote"
+                           "ReaderConditional"})
 
 (defn prefix-parent? [type-name]
-  (j/get (j/obj "Ignored" true
-                "Quote" true
-                "SyntaxQuote" true
-                "Unquote" true
-                "ReaderConditional" true) type-name false))
-
-(defn left-edge-width [node]
-  (j/get #js{:Set 2
-             :RegExp 2} (name node) 1))
-
-(defn right-edge-width [node] 1)
+  (contains? prefix-parent-names type-name))
 
 (defn ancestors [^js node]
   (when-some [parent (.-parent node)]
@@ -91,34 +122,29 @@
     node
     (reduce (fn [_ x] (if (pred x) (reduced x) nil)) nil (ancestors node))))
 
-(defn brackets? [node]
-  (or (coll? node) (string? node) (regexp? node)))
-
-(j/defn inner-span [^:js {:keys [start end] :as node}]
-  (when brackets?
-    (u/from-to (+ start (left-edge-width node))
-               (- end (right-edge-width node)))))
-
-(defn child-subtrees
-  ([^js subtree from dir]
-   (when-some [child (case dir 1 (.childAfter subtree from)
-                               -1 (.childBefore subtree from))]
+(defn children
+  ([^js parent from dir]
+   (when-some [child (case dir 1 (.childAfter parent from)
+                               -1 (.childBefore parent from))]
      (cons child (lazy-seq
-                  (child-subtrees subtree (case dir 1 (end child)
-                                                    -1 (start child)) dir)))))
+                  (children parent (case dir 1 (end child)
+                                             -1 (start child)) dir)))))
   ([^js subtree]
-   (child-subtrees subtree (start subtree) 1)))
+   (children subtree (start subtree) 1)))
 
 (defn empty?
   "Node only contains whitespace"
   [^js node]
   (let [type-name (name node)]
-    (cond (coll? type-name) (core/empty? (remove (comp all-brackets name) (child-subtrees node)))
+    (cond (coll? type-name) (core/empty? (remove (comp all-brackets name) (children node)))
           (string? type-name) (== (.. node -firstChild -end) (.. node -lastChild -start))
           :else false)))
 
-(defn range [^js node]
+(defn from-to [^js node]
   (u/from-to (start node) (end node)))
+
+(defn range [^js node]
+  (sel/range (.-start node) (.-end node)))
 
 (defn string [^js state ^js node]
   (.slice (.-doc state) (start node) (end node)))
@@ -175,10 +201,10 @@
 (defn rights [^js node]
   (take-while identity (iterate right (right node))))
 
-(defn first-child [^js node]
+(defn down [^js node]
   (.-firstChild node))
 
-(defn last-child [^js node]
+(defn down-last [^js node]
   (.-lastChild node))
 
 (defn up [^js node]
@@ -206,7 +232,7 @@
   (when-not (eq? node to-node)
     (case (compare (start to-node) (start node))
       0 (cond (ancestor? to-node node) (up node)
-              (ancestor? node to-node) (first-child node))
+              (ancestor? node to-node) (down node))
       -1 (if (ancestor? node to-node)
            (.-lastChild node)
            (or (left node)
@@ -229,22 +255,50 @@
   ([^js state pos dir]
    (.. state -tree (resolve pos dir))))
 
-(j/defn balanced-range [state from to]
-  (let [[from to] (sort [from to])
-        from-node (resolve state from 1)
-        to-node (resolve state to -1)
-        from (if (require-balance? from-node)
-               (start from-node)
-               from)
-        to (if (require-balance? to-node)
-             (end to-node)
-             to)
-        [left right] (->> (nodes-between from-node to-node)
-                          (map #(cond-> % (bracket? %) up))
-                          (reduce (fn [[left right] ^js node-between]
-                                    [(if (ancestor? node-between from-node) (start node-between) left)
-                                     (if (ancestor? node-between to-node) (end node-between) right)])
-                                  [from to]))]
-    (sel/range left right)))
+(j/defn balanced-range
+  ([state ^js node] (balanced-range state (.-start node) (.-end node)))
+  ([state from to]
+   (let [[from to] (sort [from to])
+         from-node (resolve state from 1)
+         to-node (resolve state to -1)
+         from (if (require-balance? from-node)
+                (start from-node)
+                from)
+         to (if (require-balance? to-node)
+              (end to-node)
+              to)
+         [left right] (->> (nodes-between from-node to-node)
+                           (map #(cond-> % (edges (name %)) up))
+                           (reduce (fn [[left right] ^js node-between]
+                                     [(if (ancestor? node-between from-node) (start node-between) left)
+                                      (if (ancestor? node-between to-node) (end node-between) right)])
+                                   [from to]))]
+     (sel/range left right))))
 
+(j/defn inner-span
+  "Span of collection not including edges"
+  [^:js {:as node :keys [start end ^js firstChild ^js lastChild]}]
+  #js{:start (if (left-edge? firstChild)
+               (.-end firstChild)
+               start)
+      :end (if (right-edge? lastChild)
+             (.-start lastChild)
+             end)})
 
+(defn within?< "within (exclusive of edges)"
+  [^js parent ^js child]
+  (let [c1 (compare (.-start parent) (.-start child))
+        c2 (compare (.-end parent) (.-end child))]
+    (and (or (pos? c1) (neg? c2))
+         (not (neg? c1))
+         (not (pos? c2)))))
+
+(defn within? "within (inclusive of edges)"
+  [^js parent ^js child]
+  (and (not (neg? (compare (.-start parent) (.-start child))))
+       (not (pos? (compare (.-end parent) (.-end child))))))
+
+(defn follow-edges [node]
+  (if (edges (name node))
+    (up node)
+    node))

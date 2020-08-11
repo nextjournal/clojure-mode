@@ -11,10 +11,11 @@ In progress:
 
 Next:
 
-- Expand/contract region
+
 
 Done
 
+- [x] Expand/contract region
 - [x] Barf
 - [x] Slurp
 - [x] Format whitespace (necessary for commands like Slurp to behave nicely)

@@ -10,7 +10,7 @@
             ["@codemirror/next/text" :as text]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.node :as node]
+            [codemirror-next.clojure.node :as n]
             [codemirror-next.clojure.chars :as chars]
             [codemirror-next.clojure.util :as u :refer [from-to]]
             [codemirror-next.test-utils :as test-utils]
@@ -25,31 +25,37 @@
       (j/let [^:js {:as range pos :from} (from-to head anchor)]
         (if (not empty)
           ;; delete selections as normal
-          {:range (sel/cursor pos)
+          {:cursor pos
            :changes range}
           (let [^js node| (.resolve (.-tree state) pos -1)  ;; node immediately to the left of cursor
-                name| (node/name node|)
+                name| (n/name node|)
                 ^js parent (.-parent node|)]
             (or (cond
 
                   ;; if parent isn't balanced, normal backspace
-                  (not (some-> parent node/balanced?)) nil
+                  (and parent (not (n/balanced? parent))) nil
 
-                  ;; entering right edge of collection
-                  (and (node/closing-bracket? node|)
-                       (== pos (.-end parent)))
-                  (j/lit {:range (sel/cursor (dec pos))})
+                  ;; entering right edge of collection - skip
+                  (and (n/closing-bracket? node|) (== pos (.-end parent)))
+                  {:cursor (dec pos)}
 
-                  ;; inside left edge of collection
-                  (and (node/brackets name|)
-                       (== (.-start node|) (.-start parent)))
-                  (if (node/empty? (.-parent node|))
+                  ;; inside left edge of collection - remove or stop
+                  (and (n/brackets name|) (== (.-start node|) (.-start parent)))
+                  (if (n/empty? (.-parent node|))
                     ;; remove empty collection
-                    (j/lit {:range (sel/cursor (.-start parent))
-                            :changes [(from-to (.-start parent) (.-end parent))]})
+                    {:cursor (.-start parent)
+                     :changes [(from-to (.-start parent) (.-end parent))]}
                     ;; stop cursor at inner-left of collection
-                    (j/lit {:range (sel/cursor pos)})))
-                {:range (sel/cursor (dec pos))
+                    {:cursor pos})
+
+
+                  (some-> (n/resolve state (dec pos) -1)
+                          (u/guard (every-pred #(do
+                                                  (prn [(dec pos) (.-end ^js %)])
+                                                  (= (dec pos) (.-end ^js %)))
+                                               n/line-comment?)))
+                  {:cursor (dec pos)})
+                {:cursor (dec pos)
                  :changes (from-to (max 0 (dec pos)) pos)})))))))
 
 (defn insertion
@@ -57,29 +63,22 @@
   [from ^string s]
   {:changes {:insert s
              :from from}
-   :range (sel/cursor (+ from (count s)))})
+   :cursor (+ from (count s))})
 
 (defn handle-open [^EditorState state ^string open]
-  (let [^string close (node/brackets open)]
+  (let [^string close (n/brackets open)]
     (u/update-ranges state
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (or (cond (not empty)                               ;; wrap selections with brackets
-                  (j/lit {:changes [{:insert open :from from}
-                                    {:insert close :from to}]
-                          :range (sel/range (+ anchor (count open)) (+ head (count open)))})
-                  (= open \")
-                  (let [node| (.. state -tree (resolve from -1))
-                        no|de (.. state -tree (resolve from))]
-                    (cond
-                      ;; if inside an unclosed string, close it
-                      (and (node/string? node|)
-                           (not (node/balanced? node|))) (insertion head \")
-
-                      ;; if inside a balanced string, insert an escaped "
-                      (node/string? no|de) (insertion head "\\\""))))
+                  {:changes [{:insert open :from from}
+                             {:insert close :from to}]
+                   :from-to [(+ anchor (count open)) (+ head (count open))]}
+                  (and (= open \")
+                       (n/closest (n/resolve state from) n/string?))
+                  (insertion head "\\\""))
             {:changes {:insert (str open close)
                        :from head}
-             :range (sel/cursor (+ head (count open)))})))))
+             :cursor (+ head (count open))})))))
 
 (j/defn handle-close [^:js {:as state :keys [doc]
                             {:keys [primaryIndex ranges]} :selection}]
@@ -87,7 +86,7 @@
   ;; - changeByRange
   ;; - navigate to next closing bracket
   (when-some [moved (reduce (j/fn [out ^:js {:keys [empty head]}]
-                              (if (and empty (node/closing-brackets (chars/next-char doc head)))
+                              (if (and empty (n/closing-brackets (chars/next-char doc head)))
                                 (j/push! out (sel/cursor (inc head)))
                                 (reduced nil))) #js[] ranges)]
     (.update state #js{:selection (sel/create moved primaryIndex)
@@ -104,8 +103,8 @@
                                  (let [^string key-name (keyName event)]
                                    (u/dispatch-some view
                                      (cond
-                                       (node/brackets key-name)
+                                       (n/brackets key-name)
                                        (handle-open state key-name)
 
-                                       (node/closing-brackets key-name)
+                                       (n/closing-brackets key-name)
                                        (handle-close state))))))}))

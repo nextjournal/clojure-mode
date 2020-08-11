@@ -9,11 +9,11 @@ Discard { "#_" expression }
 List { "(" Operator? expression* ")" }
 Vector { "[" expression* "]" }
 Map { "{" expression* "}" }
-AnonymousFunction { "#(" expression* ")" }
 
 
 @skip {} {
   Set { "#" Map }
+  AnonymousFunction { "#" List }
   NamespacedMap { "#" Keyword Map }
   RegExp { "#" String }
   Var { "#'" Symbol }
@@ -21,7 +21,7 @@ AnonymousFunction { "#(" expression* ")" }
   DataLiteral { "#" ident }
   SymbolicValue { "##" simpleIdent }
   Meta { ("^" | "#^") expression}
-  String { '"' stringContents? '"' }
+  String { '"' StringContent? '"' }
 }
 
 Deref { "@" expression }
@@ -38,13 +38,28 @@ Operator { !operator ident }
   "["
   "{"
   "("
+
+  "#"
+  "##"
   "#{"
   "#("
+  "#'"
+  "#?"
+  "#^"
+  "#_"
+
+  '"'
+  "'"
+  "`"
+  "~"
+  "~@"
+  "^"
+  "@"
+
+
   "]"
   "}"
   ")"
-  "#"
-  '"'
 
   whitespace { (std.whitespace | ",")+ }
 
@@ -68,7 +83,7 @@ Operator { !operator ident }
   }
   @precedence { Number, ident }
 
-  stringContents {
+  StringContent {
     (!["] | "\\" _)+
   }
 

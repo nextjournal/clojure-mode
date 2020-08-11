@@ -17,17 +17,28 @@
     false))
 
 (defn map-cursor [^js state update-map]
-  (if-let [pos (when (map? update-map) (:map-cursor update-map))]
-    (let [^js changes (.changes state (clj->js (:changes update-map)))]
-      #js{:range (sel/cursor (.mapPos changes pos))
-          :changes changes})
-    (clj->js update-map)))
+  {:pre [(map? update-map)]}
+  (let [{:keys [cursor/mapped
+                cursor
+                from-to
+                range
+                changes]} (guard update-map map?)
+        changes (when changes (.changes state (clj->js changes)))
+        range (cond mapped (sel/cursor (.mapPos changes mapped))
+                    cursor (sel/cursor cursor)
+                    from-to (sel/range (from-to 0) (from-to 1))
+                    range range
+                    :else js/undefined)]
+    (cond-> #js{}
+      changes (j/!set :changes changes)
+      range (j/!set :range range))))
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
   [^js state f]
   (->> (fn [range]
-         (or (map-cursor state (f range))
+         (or (when-some [result (f range)]
+               (map-cursor state result))
              #js{:range range}))
        (.changeByRange state)
        (.update state)))

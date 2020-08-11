@@ -7,18 +7,19 @@
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/view" :refer [EditorView keymap multipleSelections]]
+            ["lezer" :as lezer]
             ["lezer-generator" :as lg]
             ["lezer-tree" :as lz-tree]
-            ["lezer" :as lezer]
             [applied-science.js-interop :as j]
+            [clojure.string :as str]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
-            [codemirror-next.clojure.keymap :as keymap]
             [codemirror-next.clojure.extensions.formatting :as indent]
+            [codemirror-next.clojure.extensions.selection-history :as sel-history]
+            [codemirror-next.clojure.keymap :as keymap]
             [codemirror-next.clojure.node :as n]
-            [shadow.resource :as rc]
-            [codemirror-next.test-utils :as test-utils]
             [codemirror-next.clojure.selections :as sel]
-            [clojure.string :as str])
+            [codemirror-next.test-utils :as test-utils]
+            [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
 (def parser
@@ -52,8 +53,10 @@
   #
     [ ]
     #\"a\""
+       \newline
+       "a b(c|)d e"
        )
-  "a b(c|)d e"
+
   )
 
 (defonce prev-views (atom []))
@@ -65,6 +68,7 @@
                             (multipleSelections)
                             close-brackets/extension
                             (keymap (keymap/ungroup keymap/default-keymap))
+                            sel-history/extension
                             #_indent/extension-after-keyup])
 
 (defn mount-editor! [dom-selector initial-value]
@@ -87,12 +91,12 @@
                 (->> keymap/paredit-keymap
                      (sort-by first)
                      (reduce (fn [out [command [{:keys [key shift doc]}]]]
-                                  (str out
-                                       (tag :tr
-                                         (tag :td (tag :b (name command)))
-                                         (tag :td key)
-                                         (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))
-                                         (tag :td doc)))) ""))
+                               (str out
+                                    (tag :tr
+                                      (tag :td (tag :b (name command)))
+                                      (tag :td key)
+                                      (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))
+                                      (tag :td doc)))) ""))
                 "</table>")
               (tag :pre
                 (-> (build/slurp "README.md")

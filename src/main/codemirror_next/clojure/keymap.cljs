@@ -140,7 +140,16 @@
     {:key "Mod-Shift-j" :preventDefault true}]
    :barf-backward
    [{:doc "Shrink collection backwards by one form"
-     :key "Alt-Ctrl-ArrowRight"}]})
+     :key "Alt-Ctrl-ArrowRight"}]
+
+   :grow-selections
+   [{:doc "Grow selections"
+     :key "Alt-ArrowUp"}
+    {:key "Mod-1"}]
+   :shrink-selections
+   [{:doc "Shrink selections"
+     :key "Alt-ArrowDown"}
+    {:key "Mod-2"}]})
 
 (def default-keymap
   (merge-with conj (dissoc builtin-keymap
