@@ -56,23 +56,21 @@
   (let [updated #js{}]
     (new IndentContext state (fn [start] (j/get updated start -1)))))
 
-(j/defn indent-all [^:js {:keys [^js state dispatch]}]
+(defn indent-all [state]
   (let [context (make-indent-context state)]
-    (u/dispatch-changes state dispatch
-      (u/update-lines state
-        (fn [from content line-num]
-          (let [current-indent (-> (.exec #"^\s*" content)
-                                   ^js (aget 0)
-                                   .-length)]
-            (when-some [^number indent (-> (get-indentation context from)
-                                           (u/guard (complement neg?)))]
-              (case (compare indent current-indent)
-                0 nil
-                1 #js{:from (+ from current-indent)
-                      :insert (make-spaces (- indent ^number current-indent))}
-                -1 #js{:from (+ from indent)
-                       :to (+ from current-indent)}))))))
-    true))
+    (u/update-lines state
+      (fn [from content line-num]
+        (let [current-indent (-> (.exec #"^\s*" content)
+                                 ^js (aget 0)
+                                 .-length)]
+          (when-some [^number indent (-> (get-indentation context from)
+                                         (u/guard (complement neg?)))]
+            (case (compare indent current-indent)
+              0 nil
+              1 #js{:from (+ from current-indent)
+                    :insert (make-spaces (- indent ^number current-indent))}
+              -1 #js{:from (+ from indent)
+                     :to (+ from current-indent)})))))))
 
 (defn expected-space [n1 n2]
   (cond (n/closing-brackets n2) 0
@@ -101,7 +99,7 @@
   (doseq [i items] (.push arr i))
   arr)
 
-(j/defn format-line
+(defn format-line
   "Returns mutated `changes` array"
   [state
    indent-context
@@ -129,32 +127,33 @@
       indentation-change (j/push! indentation-change))))
 
 
-(j/defn format-selection [^:js {:keys [^js state dispatch]}]
+(defn format-selection [state]
   (let [context (make-indent-context state)]
-    (let [^js changes (u/change-by-selected-line state
-                        (j/fn [^:js {:as line :keys [from content number]} ^js changes ^js range]
-                          (format-line state context from content number changes)))]
-      (when-not (.. changes -changes -empty)
-        (dispatch (.update state changes))))
-    true))
+    (u/update-selected-lines state
+      (j/fn [^:js {:as line :keys [from content number]} ^js changes ^js range]
+        (format-line state context from content number changes)))))
 
-(j/defn format-all [^:js {:keys [^js state dispatch]}]
+(defn format-all [state]
   (let [context (make-indent-context state)]
-    (u/dispatch-changes state dispatch
-      (u/update-lines state
-        (fn [^number from ^string content line-num]
-          (format-line state context from content line-num #js[]))))
-    true))
-
-(j/defn format [^:js {:as arg :keys [^js state dispatch]}]
-  (if (u/something-selected? state)
-    (format-selection arg)
-    (format-all arg)))
-
-(j/defn prefix-all [prefix ^:js {:keys [^js state dispatch]}]
-  (u/dispatch-changes state dispatch
     (u/update-lines state
-      (fn [from _ _] #js{:from from :insert prefix}))))
+      (fn [^number from ^string content line-num]
+        (format-line state context from content line-num #js[])))))
+
+(defn format-transaction [^js tr]
+  (let [state (.-state tr)
+        context (make-indent-context state)]
+    (u/update-changed-lines tr
+      (fn [^js line ^js changes]
+        (format-line state context (.-from line) (.-content line) (.-number line) changes)))))
+
+(defn format [state]
+  (if (u/something-selected? state)
+    (format-selection state)
+    (format-all state)))
+
+(defn prefix-all [prefix state]
+  (u/update-lines state
+    (fn [from _ _] #js{:from from :insert prefix})))
 
 (def extension-after-keyup
   ;; TODO

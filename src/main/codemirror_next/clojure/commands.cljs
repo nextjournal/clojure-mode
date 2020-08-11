@@ -6,11 +6,14 @@
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.node :as n]))
+            [codemirror-next.clojure.node :as n]
+            [codemirror-next.clojure.extensions.formatting :as format]))
 
 (defn cmd-wrap [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
-    (dispatch (f state))
+    (-> (f state)
+        (format/format-transaction)
+        (dispatch))
     true))
 
 (defn unwrap [state]
@@ -117,27 +120,39 @@
 
 (defn barf [direction]
   (fn [^js state]
-    (u/update-ranges state
-      (j/fn [^:js {:as range :keys [from to empty]}]
-        (when empty
-          (when-let [parent (n/closest (n/resolve state from) n/coll?)]
-            (when-let [target (case direction 1 (some-> parent n/last-child n/left (u/guard (complement n/bracket?)))
-                                              -1 (some-> parent n/first-child n/right (u/guard (complement n/bracket?))))]
-              {:map-cursor from
-               :changes
+    (->> (j/fn [^:js {:as range :keys [from to empty]}]
+           (when empty
+             (when-let [parent (n/closest (n/resolve state from) n/coll?)]
                (case direction
                  1
-                 [(-> (n/range (n/last-child parent))
-                      (j/assoc! :insert " "))
-                  {:from (-> target n/left n/end)
-                   :insert (str (n/name (n/last-child parent)) " ")}]
+                 (when-let [target (some->> (n/last-child parent)
+                                            n/lefts
+                                            (remove n/line-comment?)
+                                            (drop 1)
+                                            first)]
+
+                   {:map-cursor (min (n/end target) from)
+                    :changes [{:from (n/end target)
+                               :insert (n/name (n/last-child parent))}
+                              (-> (n/last-child parent)
+                                  n/range
+                                  (j/assoc! :insert " "))]})
                  -1
-                 [{:from (-> target n/end)
-                   :insert (str " " (-> parent n/first-child n/name))}
-                  (-> parent
-                      n/first-child
-                      n/range
-                      (j/assoc! :insert " "))])})))))))
+                 (when-let [target (some->> (n/first-child parent)
+                                            n/rights
+                                            (remove n/line-comment?)
+                                            (drop 1)
+                                            first)]
+                   {
+                    ;:map-cursor (max from (inc (n/start target)))
+                    :range (sel/cursor (max from (inc (n/start target))))
+                    :changes [{:from (n/start target)
+                               :insert (-> parent n/first-child n/name)}
+                              (-> (n/first-child parent)
+                                  n/range
+                                  (j/assoc! :insert " "))
+                              ]})))))
+         (u/update-ranges state))))
 
 (def index
   "Mapping of keyword-id to command functions"
@@ -204,7 +219,7 @@
    :undoSelection history/undoSelection
    :redoSelection history/redoSelection
 
-   :indent indent/format
+   :indent (cmd-wrap #'indent/format)
    :unwrap (cmd-wrap #'unwrap)
    :kill (cmd-wrap #'kill)
    :nav-right (cmd-wrap (nav 1))

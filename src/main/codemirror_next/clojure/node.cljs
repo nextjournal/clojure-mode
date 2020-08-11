@@ -60,6 +60,7 @@
 (defn string? [node] (identical? "String" (name node)))
 (defn regexp? [node] (identical? "RegExp" (name node)))
 (defn line-comment? [node] (identical? "LineComment" (name node)))
+(defn discard? [node] (identical? "Discard" (name node)))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
   (boolean

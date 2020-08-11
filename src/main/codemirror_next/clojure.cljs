@@ -53,6 +53,7 @@
     [ ]
     #\"a\""
        )
+  "a(a|)"
   )
 
 (defonce prev-views (atom []))

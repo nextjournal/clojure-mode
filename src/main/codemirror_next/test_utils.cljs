@@ -1,10 +1,12 @@
 (ns codemirror-next.test-utils
-  (:require ["@codemirror/next/state" :refer [EditorState EditorSelection Extension StateCommand]]
+  (:require ["@codemirror/next/state" :as cm-state
+             :refer [EditorState EditorSelection Extension StateCommand
+                     ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec]]
             [applied-science.js-interop :as j]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [codemirror-next.clojure.extensions.formatting :as format]))
 
 ;; (de)serialize cursors| and <selections> for testing
-
 
 (defn make-state [extensions doc]
   (let [[doc ranges] (->> (re-seq #"\||<[^>]*?>|[^<>|]+" doc)
@@ -43,10 +45,18 @@
      (= "<a>b|c<d\n>a<b>c|")))
 
 (defn apply-cmd [extensions cmd doc]
-  (state-str (let [!state (atom (make-state extensions doc))]
-               (cmd #js{:state @!state
-                        :dispatch (fn [^js tr] (reset! !state (.-state tr)))})
-               @!state)))
+  (let [state (make-state extensions doc)
+        !tr (atom nil)
+        _ (cmd #js{:state state
+                   :dispatch #(reset! !tr %)})
+        tr @!tr]
+    (state-str (j/get tr :state))))
 
 (defn apply-f [extensions cmd doc]
-  (state-str (.-state (cmd (make-state extensions doc)))))
+  {:pre [(array? extensions)
+         (fn? cmd)
+         (string? doc)]}
+  (let [state (make-state extensions doc)
+        tr (format/format-transaction
+            (cmd state))]
+    (state-str (.-state tr))))
