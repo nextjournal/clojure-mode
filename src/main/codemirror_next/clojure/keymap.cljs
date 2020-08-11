@@ -133,13 +133,13 @@
      :key "Mod-Ctrl-ArrowLeft"}]
 
    :barf-forward
-   [{:key "Alt-Ctrl-ArrowRight"
+   [{:key "Alt-Ctrl-ArrowLeft"
      :doc "Shrink collection forwards by one form"
      :preventDefault true}
     {:key "Mod-Shift-j" :preventDefault true}]
    :barf-backward
    [{:doc "Shrink collection backwards by one form"
-     :key "Alt-Ctrl-ArrowLeft"}]})
+     :key "Alt-Ctrl-ArrowRight"}]})
 
 (def default-keymap
   (merge-with conj (dissoc builtin-keymap
