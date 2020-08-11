@@ -8,8 +8,6 @@ dev: `shadow-cljs watch app`
 
 In progress:
 
-- [ ] Slurp
-- [ ] Format whitespace (necessary for commands like Slurp to behave nicely)
 
 Next:
 
@@ -17,6 +15,9 @@ Next:
 
 Done
 
+- [x] Barf
+- [x] Slurp
+- [x] Format whitespace (necessary for commands like Slurp to behave nicely)
 - [x] Navigate left/right by sexp
 - [x] cannot 'indent-all', changes on one line don't affect measurements taken on subsequent lines
 - [x] operators are recognized (lists with symbol in 1st position)
