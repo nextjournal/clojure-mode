@@ -124,13 +124,14 @@
      :preventDefault true}]
 
    :slurp-forward
-   [{:key "Mod-Ctrl-ArrowRight"
+   [{:key "Ctrl-ArrowRight"
      :doc "Expand collection to include form to the right"
      :preventDefault true}
     {:key "Mod-Shift-k" :preventDefault true}]
    :slurp-backward
    [{:doc "Grow collection backwards by one form"
-     :key "Mod-Ctrl-ArrowLeft"}]
+     :key "Ctrl-ArrowLeft"
+     :preventDefault true}]
 
    :barf-forward
    [{:key "Alt-Ctrl-ArrowLeft"
