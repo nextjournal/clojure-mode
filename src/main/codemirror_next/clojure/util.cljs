@@ -97,8 +97,10 @@
                  (when-not (<= to-b line-to)
                    (recur (.lineAt doc (inc line-to))))))))
         next-changeset (.changes state next-changes)
+        next-selection (.. state -selection (map next-changeset)) ;; map selection through changeset
         combined-changes (.compose changes next-changeset)]
-    (.update startState #js{:changes combined-changes})))
+    (.update startState #js{:changes combined-changes
+                            :selection next-selection})))
 
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))
