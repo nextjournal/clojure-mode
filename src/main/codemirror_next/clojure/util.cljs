@@ -82,8 +82,8 @@
   "`f` will be called for each selected line with args [line, changes-array, range]
    and should *mutate* changes-array"
   [^:js {:as tr
-         :keys [startState changes]
-         {:as state :keys [doc]} :state} f]
+         :keys [^js startState ^js changes]
+         {:as ^js state :keys [^js doc]} :state} f]
   (let [at-line (atom -1)
         next-changes #js[]
         _ (.iterChanges
