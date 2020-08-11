@@ -106,7 +106,7 @@
      :doc "Indent document (or selection)"}]
    :unwrap
    [{:key "Alt-s"
-     :doc "Splice contents of collection into parent"
+     :doc "Lift contents of collection into parent"
      :preventDefault true}]
    :kill
    [{:key "Ctrl-k"
@@ -122,20 +122,24 @@
      :shift :nav-select-right
      :doc "Move cursor one unit to the right (shift: selects this region)"
      :preventDefault true}]
+
    :slurp-forward
    [{:key "Mod-Ctrl-ArrowRight"
      :doc "Expand collection to include form to the right"
      :preventDefault true}
     {:key "Mod-Shift-k" :preventDefault true}]
    :slurp-backward
-   [{:key "Mod-Ctrl-ArrowLeft"}]
-   :barf-backward
-   [{:key "Alt-Ctrl-ArrowLeft"}]
+   [{:doc "Grow collection backwards by one form"
+     :key "Mod-Ctrl-ArrowLeft"}]
+
    :barf-forward
    [{:key "Alt-Ctrl-ArrowRight"
-     :doc "Shrink collection, ejecting one form to the right"
+     :doc "Shrink collection forwards by one form"
      :preventDefault true}
-    {:key "Mod-Shift-j" :preventDefault true}]})
+    {:key "Mod-Shift-j" :preventDefault true}]
+   :barf-backward
+   [{:doc "Shrink collection backwards by one form"
+     :key "Alt-Ctrl-ArrowLeft"}]})
 
 (def default-keymap
   (merge-with conj (dissoc builtin-keymap

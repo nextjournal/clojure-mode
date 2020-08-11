@@ -142,13 +142,10 @@
 (defn format-transaction [^js tr]
   (let [state (.-state tr)
         context (make-indent-context state)
-        ^js formatted-tr (u/update-changed-lines tr
-                           (fn [^js line ^js changes]
-                             (format-line state context (.-from line) (.-content line) (.-number line) changes)))]
-    (prn 1 (j/call-in js/window [.-codemirror-next .-test-utils .-state-str] state))
-    (prn 2 (j/call-in js/window [.-codemirror-next .-test-utils .-state-str] (.-state formatted-tr)))
-    formatted-tr
-    ))
+        formatted-tr (u/update-changed-lines tr
+                       (fn [^js line ^js changes]
+                         (format-line state context (.-from line) (.-content line) (.-number line) changes)))]
+    formatted-tr))
 
 (defn format [state]
   (if (u/something-selected? state)

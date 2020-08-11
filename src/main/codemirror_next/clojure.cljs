@@ -53,7 +53,7 @@
     [ ]
     #\"a\""
        )
-  "a(a|)"
+  "a b(c|)d e"
   )
 
 (defonce prev-views (atom []))
@@ -85,7 +85,8 @@
             (tag :div
               (tag :table {:cellpadding 5}
                 (->> keymap/paredit-keymap
-                     (reduce-kv (fn [out command [{:keys [key shift doc]}]]
+                     (sort-by first)
+                     (reduce (fn [out [command [{:keys [key shift doc]}]]]
                                   (str out
                                        (tag :tr
                                          (tag :td (tag :b (name command)))
