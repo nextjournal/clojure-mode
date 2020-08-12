@@ -126,8 +126,14 @@
     "|(a\n\nb)" "|(a\n  \n  b)"
     "|\"a\"" "|\"a\""
     "#_a|" "#_a|"
-    "#| []" "#| []"
     "[ | ]" "[|]"
+
+
+    ;; not exactly desired, side effect of # being a prefix,
+    ;; also not that bad because this is invalid anyway.
+    "#| []" "#|[]"
+
+
     ))
 
 (deftest format-selection
@@ -178,6 +184,8 @@
     "(|) ;;comment\na" 1 "(|;;comment\n a)"                 ;; slurp around comments
     "a(|)" -1 "(a|)"
     "a ;; hello\n(|)" -1 "(a ;; hello\n | )"
+
+    "#(|) a" 1 "#(|a)"
     ))
 
 (deftest barf
@@ -185,7 +193,9 @@
     (= (apply-f (commands/barf dir) input) expected)
     "(|a)" 1 "(|) a "
     "(|a)" -1 "a (|)"
-    "((|)a)" 1 "((|)a)"))
+    "((|)a)" 1 "((|)a)"
+    "#(|a)" -1 "a #(|)"
+    ))
 
 (deftest grow-selections
   (are [input expected]

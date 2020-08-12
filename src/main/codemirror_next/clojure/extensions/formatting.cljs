@@ -73,8 +73,8 @@
                      :to (+ from current-indent)})))))))
 
 (defn expected-space [n1 n2]
-  (cond (n/closing-brackets n2) 0
-        (n/brackets n1) 0
+  (cond (n/right-edges n2) 0
+        (n/left-edges n1) 0
         :else 1))
 
 (defn space-changes [state from to]
