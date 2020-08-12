@@ -40,7 +40,7 @@
                   {:cursor (dec pos)}
 
                   ;; inside left edge of collection - remove or stop
-                  (and (n/brackets name|) (== (.-start node|) (.-start parent)))
+                  (and (n/bracket-pair name|) (== (.-start node|) (.-start parent)))
                   (if (n/empty? (.-parent node|))
                     ;; remove empty collection
                     {:cursor (.-start parent)
@@ -66,7 +66,7 @@
    :cursor (+ from (count s))})
 
 (defn handle-open [^EditorState state ^string open]
-  (let [^string close (n/brackets open)]
+  (let [^string close (n/bracket-pair open)]
     (u/update-ranges state
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (or (cond (not empty)                               ;; wrap selections with brackets
@@ -86,7 +86,7 @@
   ;; - changeByRange
   ;; - navigate to next closing bracket
   (when-some [moved (reduce (j/fn [out ^:js {:keys [empty head]}]
-                              (if (and empty (n/closing-brackets (chars/next-char doc head)))
+                              (if (and empty (n/right-edges (chars/next-char doc head)))
                                 (j/push! out (sel/cursor (inc head)))
                                 (reduced nil))) #js[] ranges)]
     (.update state #js{:selection (sel/create moved primaryIndex)
@@ -103,8 +103,8 @@
                                  (let [^string key-name (keyName event)]
                                    (u/dispatch-some view
                                      (cond
-                                       (n/brackets key-name)
+                                       (n/bracket-pair key-name)
                                        (handle-open state key-name)
 
-                                       (n/closing-brackets key-name)
+                                       (n/right-edges key-name)
                                        (handle-close state))))))}))

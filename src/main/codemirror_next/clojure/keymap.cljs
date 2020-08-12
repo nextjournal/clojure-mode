@@ -130,23 +130,23 @@
     {:key "Mod-Shift-k" :preventDefault true}]
    :slurp-backward
    [{:doc "Grow collection backwards by one form"
-     :key "Ctrl-ArrowLeft"
+     :key "Ctrl-Alt-ArrowLeft"
      :preventDefault true}]
 
    :barf-forward
-   [{:key "Alt-Ctrl-ArrowLeft"
+   [{:key "Ctrl-ArrowLeft"
      :doc "Shrink collection forwards by one form"
      :preventDefault true}
     {:key "Mod-Shift-j" :preventDefault true}]
    :barf-backward
    [{:doc "Shrink collection backwards by one form"
-     :key "Alt-Ctrl-ArrowRight"}]
+     :key "Ctrl-Alt-ArrowRight"}]
 
-   :grow-selections
+   :selection-grow
    [{:doc "Grow selections"
      :key "Alt-ArrowUp"}
     {:key "Mod-1"}]
-   :shrink-selections
+   :selection-return
    [{:doc "Shrink selections"
      :key "Alt-ArrowDown"}
     {:key "Mod-2"}]})

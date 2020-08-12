@@ -107,8 +107,7 @@
 
 
 (comment
- (let [state (test-utils/make-state default-extensions "(a )")
+ (let [s "#(a )"
+       state (test-utils/make-state default-extensions s)
        tree (.-tree state)]
-   (n/terminal-nodes tree 0 (.. state -doc -length))
-
    ))

@@ -12,9 +12,9 @@
 
 (defn cmd-wrap [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
-    (-> (f state)
-        (format/format-transaction)
-        (dispatch))
+    (some-> (f state)
+            (format/format-transaction)
+            (dispatch))
     true))
 
 (defn unwrap [state]
@@ -120,7 +120,7 @@
                                   (== a-end end))))))
          first)))
 
-(defn grow-selection [^js state]
+(defn selection-grow [^js state]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
       (if empty
@@ -131,9 +131,10 @@
                              n/range)
                     range)}))))
 
-(defn return-selection [^js state]
-  (when-let [selection (sel-history/last-selection state)]
-    (.update state #js{:selection selection})))
+(defn selection-return [^js state]
+  (if-let [selection (sel-history/last-selection state)]
+    (.update state #js{:selection selection})
+    (u/update-ranges state (fn [^js range] {:cursor (.-from range)}))))
 
 (defn balance-ranges [^js state]
   (u/update-ranges state
@@ -147,26 +148,27 @@
       (j/fn [^:js {:as range :keys [from to empty]}]
         (when empty
           (when-let [parent (n/closest (n/resolve state from) (every-pred n/coll?
-                                                                          #(not (case direction 1 (some-> (n/right %) n/closing-bracket?)
-                                                                                                -1 (some-> (n/left %) n/opening-bracket?)))))]
-            (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights parent)))
-                                              -1 (first (remove n/line-comment? (n/lefts parent))))]
+                                                                          #(not (case direction 1 (some-> % n/with-prefix n/right n/closing-bracket?)
+                                                                                                -1 (some-> % n/with-prefix n/left n/opening-bracket?)))))]
+            (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
+                                              -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
               {:cursor/mapped from
                :changes (case direction
                           1
-                          [{:from (-> target n/end)
-                            :insert (n/name (n/down-last parent))}
-                           (-> parent
-                               n/down-last
-                               n/from-to
-                               (j/assoc! :insert " "))]
+                          (let [edge (n/down-last parent)]
+                            [{:from (-> target n/end)
+                              :insert (n/name edge)}
+                             (-> edge
+                                 n/from-to
+                                 (j/assoc! :insert " "))])
                           -1
-                          [(-> parent
-                               n/down
-                               n/from-to
-                               (j/assoc! :insert " "))
-                           {:from (n/start target)
-                            :insert (n/name (n/down parent))}])})))))))
+                          (let [^string edge (n/left-edge-with-prefix parent)
+                                start (n/start (n/with-prefix parent))]
+                            [{:from start
+                              :to (+ start (count edge))
+                              :insert " "}
+                             {:from (n/start target)
+                              :insert edge}]))})))))))
 
 (defn barf [direction]
   (fn [^js state]
@@ -181,27 +183,26 @@
                                             (drop 1)
                                             first)]
 
-                   {:cursor/mapped (min (n/end target) from)
+                   {:cursor (min (n/end target) from)
                     :changes [{:from (n/end target)
                                :insert (n/name (n/down-last parent))}
                               (-> (n/down-last parent)
                                   n/from-to
                                   (j/assoc! :insert " "))]})
                  -1
-                 (when-let [target (some->> (n/down parent)
-                                            n/rights
-                                            (remove n/line-comment?)
-                                            (drop 1)
-                                            first)]
-                   {
-                    ;:map-cursor (max from (inc (n/start target)))
-                    :cursor (max from (inc (n/start target)))
-                    :changes [{:from (n/start target)
-                               :insert (-> parent n/down n/name)}
-                              (-> (n/down parent)
-                                  n/from-to
-                                  (j/assoc! :insert " "))
-                              ]})))))
+                 (when-let [next-first-child (some->> (n/down parent)
+                                                      n/rights
+                                                      (remove n/line-comment?)
+                                                      (drop 1)
+                                                      first)]
+                   (let [left-edge (n/left-edge-with-prefix parent)
+                         left-start (n/start (n/with-prefix parent))]
+                     {:cursor (max from (+ (n/start next-first-child) (count left-edge)))
+                      :changes [{:from (n/start next-first-child)
+                                 :insert left-edge}
+                                {:from left-start
+                                 :to (+ left-start (count left-edge))
+                                 :insert (format/make-spaces (count left-edge))}]}))))))
          (u/update-ranges state))))
 
 (def index
@@ -280,8 +281,8 @@
    :slurp-backward (cmd-wrap (slurp -1))
    :barf-forward (cmd-wrap (barf 1))
    :barf-backward (cmd-wrap (barf -1))
-   :grow-selections (cmd-wrap #'grow-selection)
-   :shrink-selections (cmd-wrap #'return-selection)
+   :selection-grow (cmd-wrap #'selection-grow)
+   :selection-return (cmd-wrap #'selection-return)
    })
 
 (def reverse-index

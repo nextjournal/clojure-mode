@@ -14,7 +14,7 @@ Map { "{" expression* "}" }
 @skip {} {
   Set { "#" Map }
   AnonymousFunction { "#" List }
-  NamespacedMap { "#" Keyword Map }
+  NamespacedMap { "#" KeywordPrefix Map }
   RegExp { "#" String }
   Var { "#'" Symbol }
   ReaderConditional { "#?" (List | Deref) }
@@ -41,8 +41,6 @@ Operator { !operator ident }
 
   "#"
   "##"
-  "#{"
-  "#("
   "#'"
   "#?"
   "#^"
@@ -71,7 +69,9 @@ Operator { !operator ident }
   qualifiedIdent { simpleIdent "/" identChar+ }
   ident { simpleIdent | qualifiedIdent }
 
-  Keyword { ":" ":"? ident }
+  keyword { ":" ":"? ident }
+  Keyword { keyword }
+  KeywordPrefix { keyword }
 
   Number {
     ("+" | "-")? (std.digit+ ("." std.digit* "M"?)? | "." std.digit+) (("e" | "E") ("+" | "-")? std.digit+ "M"?)? |

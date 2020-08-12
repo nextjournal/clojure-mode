@@ -35,7 +35,8 @@
     "()|" -1 "<()>"
     "a|b" 1 "a<b>"
     "(|)" 1 "<()>"
-    "\"a|b\"" 1 "<\"ab\">"
+    "\"a|b\"" 1 "\"a<b>\""
+    "\"a<b>\"" 1 "<\"ab\">"
     "a|b" -1 "<a>b"
     "| ab" 1 "< ab>"
     "ab |" -1 "<ab >"
@@ -128,10 +129,14 @@
     "#_a|" "#_a|"
     "[ | ]" "[|]"
 
+    "#(|a )" "#(|a)"
+
 
     ;; not exactly desired, side effect of # being a prefix,
     ;; also not that bad because this is invalid anyway.
     "#| []" "#|[]"
+
+    "|@ a" "|@a"
 
 
     ))
@@ -185,7 +190,10 @@
     "a(|)" -1 "(a|)"
     "a ;; hello\n(|)" -1 "(a ;; hello\n | )"
 
+    "a #(|)" -1 "#(a|)"
     "#(|) a" 1 "#(|a)"
+    "@(|) a" 1 "@(|a)"
+    "#::a{|:a} 1" 1 "#::a{|:a 1}"
     ))
 
 (deftest barf
@@ -194,12 +202,14 @@
     "(|a)" 1 "(|) a "
     "(|a)" -1 "a (|)"
     "((|)a)" 1 "((|)a)"
+
     "#(|a)" -1 "a #(|)"
+    "#(|a)" 1 "#(|) a "
     ))
 
 (deftest grow-selections
   (are [input expected]
-    (= (apply-f commands/grow-selection input) expected)
+    (= (apply-f commands/selection-grow input) expected)
 
     "(|)" "<()>"
     "(|a)" "(<a>)"

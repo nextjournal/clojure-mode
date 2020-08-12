@@ -11,46 +11,73 @@
 (defn end [^js node] (.-end node))
 (defn depth [^js node] (.-depth node))
 
-(def brackets {"(" ")"
+(defn left [^js node]
+  (.childBefore (.-parent node) (start node)))
+
+(defn lefts [^js node]
+  (take-while identity (iterate left (left node))))
+
+(defn right [^js node]
+  (.childAfter (.-parent node) (end node)))
+
+(defn rights [^js node]
+  (take-while identity (iterate right (right node))))
+
+(defn down [^js node] (.-firstChild node))
+(defn down-last [^js node] (.-lastChild node))
+(defn up [^js node] (.-parent node))
+
+(def bracket-pair
+  (let [pairs {"(" ")"
                "[" "]"
                "{" "}"
-               \" \"
-               })
+               \" \"}]
+    (reduce-kv (fn [m k v] (assoc m v k))
+               pairs pairs)))
 
-(def left-edges #{"["
-                  "{"
-                  "("
+(def prefix-edges #{"#"
+                    "##"
+                    "#'"
+                    "#?"
+                    "#^"
+                    "#_"
+                    "\""
+                    "'"
+                    "`"
+                    "~"
+                    "~@"
+                    "^"
+                    "@"})
 
-                  "#"
-                  "##"
-                  "#{"
-                  "#("
-                  "#'"
-                  "#?"
-                  "#^"
-                  "#_"
-                  "\""
-                  "'"
-                  "`"
-                  "~"
-                  "~@"
-                  "^"
-                  "@"})
+(def left-edges (into #{"["
+                        "{"
+                        "("} prefix-edges))
 
 (def right-edges #{"]"
                    "}"
                    ")"
                    "\""})
 
+
+(def coll-names #{"Set"
+                  "Map"
+                  "List"
+                  "Vector"})
+
+(def prefix-names #{"Deref"
+                    "Ignored"
+                    "Quote"
+                    "SyntaxQuote"
+                    "Unquote"
+                    "UnquoteSplice"
+                    "Meta"
+                    "NamespacedMap"
+                    "RegExp"
+                    "Var"
+                    "AnonymousFunction"
+                    "ReaderConditional"})
+
 (def edges (into left-edges right-edges))
-
-
-
-(def closing-brackets
-  (zipmap (reverse (map val brackets))
-          (reverse (map key brackets))))
-
-(def all-brackets (set (concat (keys brackets) (vals brackets))))
 
 (defn error? [^js node]
   (.prop node lz-tree/NodeProp.error))
@@ -73,22 +100,21 @@
     (not (instance? lezer/NodeType node))
     .-type))
 
-(def coll-names #{"Set"
-                  "Map"
-                  "List"
-                  "Vector"})
 
 (defn coll-name? [type-name]
   (contains? coll-names type-name))
 
 (defn coll? [node]
-  (coll-name? (name node)))
+  (or
+   (coll-name? (name node))
+   (some-> (.-firstChild node) name prefix-edges)))
 
-(defn terminal? [node]
+(defn terminal-type? [node]
   (let [n (name node)]
-    (case n
-      ("Program") false
-      (not (coll-name? n)))))
+    (cond (identical? n "Program") false
+          (coll-name? n) false
+          (prefix-names n) false
+          :else true)))
 
 (defn top? [node] (nil? (.-parent node)))
 
@@ -98,19 +124,13 @@
 (defn discard? [node] (identical? "Discard" (name node)))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
-  (if-let [closing (brackets (name firstChild))]
+  (if-let [closing (bracket-pair (name firstChild))]
     (and (= closing (name lastChild))
          (not= (end firstChild) (end lastChild)))
     true))
 
-(def prefix-parent-names #{"Ignored"
-                           "Quote"
-                           "SyntaxQuote"
-                           "Unquote"
-                           "ReaderConditional"})
-
 (defn prefix-parent? [type-name]
-  (contains? prefix-parent-names type-name))
+  (contains? prefix-names type-name))
 
 (defn ancestors [^js node]
   (when-some [parent (.-parent node)]
@@ -136,7 +156,7 @@
   "Node only contains whitespace"
   [^js node]
   (let [type-name (name node)]
-    (cond (coll? type-name) (core/empty? (remove (comp all-brackets name) (children node)))
+    (cond (coll? type-name) (== 2 (count (children node)))
           (string? type-name) (== (.. node -firstChild -end) (.. node -lastChild -start))
           :else false)))
 
@@ -168,18 +188,6 @@
     @found
     ))
 
-(defn terminal-nodes [^js node from to]
-  (let [found (atom [])]
-    (.iterate node #js{:from from
-                       :to to
-                       :enter (fn [type start end]
-                                (if (and (terminal? type)
-                                         (not (error? type)))
-                                  (do (swap! found conj #js[(name type) start end])
-                                      false)
-                                  js/undefined))})
-    @found))
-
 (defn getter [^keyword k]
   (fn [o] (j/get o k)))
 
@@ -189,26 +197,19 @@
         (<= (start parent) (start child))
         (>= (end parent) (end child)))))
 
-(defn left [^js node]
-  (.childBefore (.-parent node) (start node)))
+(defn terminal-nodes [^js node from to]
+  (let [found (atom [])]
+    (.iterate node #js{:from from
+                       :to to
+                       :enter (fn [type start end]
+                                (if (and (terminal-type? type)
+                                         (not (error? type)))
+                                  (do (swap! found conj #js[(name type) start end])
+                                      false)
+                                  js/undefined))})
+    @found))
 
-(defn lefts [^js node]
-  (take-while identity (iterate left (left node))))
 
-(defn right [^js node]
-  (.childAfter (.-parent node) (end node)))
-
-(defn rights [^js node]
-  (take-while identity (iterate right (right node))))
-
-(defn down [^js node]
-  (.-firstChild node))
-
-(defn down-last [^js node]
-  (.-lastChild node))
-
-(defn up [^js node]
-  (.-parent node))
 
 (defn iterate-some [f x]
   (take-while identity (iterate f x)))
@@ -302,3 +303,13 @@
   (if (edges (name node))
     (up node)
     node))
+
+(defn prefix [node]
+  (some-> (up node) down name (u/guard prefix-edges)))
+
+(defn left-edge-with-prefix [node]
+  (str (prefix node) (name (down node))))
+
+(defn with-prefix [node]
+  (cond-> node
+    (prefix node) up))
