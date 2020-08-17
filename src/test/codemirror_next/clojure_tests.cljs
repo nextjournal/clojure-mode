@@ -70,6 +70,12 @@
     "()|" "(|)"                                             ;; enter a form from the right (do not "unbalance")
     "#|()" "|()"                                            ;; delete prefix form
     "[[]]|" "[[]|]"
+    "(| )" "|"                                              ;; delete empty form
+    "(| a)" "(| a)"                                         ;; don't delete non-empty forms
+    "@|" "|"                                                ;; delete @
+    "@|x" "|x"
+    "\"|\"" "|"                                             ;; delete empty string
+    "\"| \"" "\"| \""                                             ;; do not delete string with whitespace
     ))
 
 (deftest indentSelection
@@ -137,7 +143,6 @@
     "#| []" "#|[]"
 
     "|@ a" "|@a"
-
 
     ))
 

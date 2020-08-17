@@ -41,7 +41,7 @@
 
                   ;; inside left edge of collection - remove or stop
                   (and (n/bracket-pair name|) (== (.-start node|) (.-start parent)))
-                  (if (n/empty? (.-parent node|))
+                  (if (n/empty? (n/up node|))
                     ;; remove empty collection
                     {:cursor (.-start parent)
                      :changes [(from-to (.-start parent) (.-end parent))]}
@@ -49,7 +49,7 @@
                     {:cursor pos})
 
 
-                  (some-> (n/resolve state (dec pos) -1)
+                  (some-> (n/tree state (dec pos) -1)
                           (u/guard (every-pred #(= (dec pos) (.-end ^js %))
                                                n/line-comment?)))
                   {:cursor (dec pos)})
@@ -72,7 +72,7 @@
                              {:insert close :from to}]
                    :from-to [(+ anchor (count open)) (+ head (count open))]}
                   (and (= open \")
-                       (n/closest (n/resolve state from) n/string?))
+                       (n/closest (n/tree state from) n/string?))
                   (insertion head "\\\""))
             {:changes {:insert (str open close)
                        :from head}

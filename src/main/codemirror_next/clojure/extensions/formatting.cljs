@@ -16,12 +16,15 @@
 ;; Clojure formatting reference
 ;; https://tonsky.me/blog/clojurefmt/
 
+(defn spaces [^js state n]
+  (.indentString state n))
+
 (j/defn indent-node-props [^:js {type-name :name :as type}]
   (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
     (cond (= "Program" type-name)
           0
 
-          (node/coll? type-name)
+          (node/coll-name? type-name)
           (let [left-bracket-end (.. node -firstChild -end)]
             (cond-> (.column context left-bracket-end)
               ;; start at the inner-left edge of the coll.
@@ -60,7 +63,7 @@
             (case (compare indent current-indent)
               0 nil
               1 #js{:from (+ from current-indent)
-                    :insert (.indentString state (- indent ^number current-indent))}
+                    :insert (spaces state (- indent ^number current-indent))}
               -1 #js{:from (+ from indent)
                      :to (+ from current-indent)})))))))
 
@@ -109,7 +112,7 @@
           (case (compare indent current-indent)
             0 nil
             1 #js{:from (+ from current-indent)
-                  :insert (.indentString state (- indent current-indent))}
+                  :insert (spaces state (- indent current-indent))}
             -1 #js{:from (+ from indent)
                    :to (+ from current-indent)}))
         space-changes (space-changes state

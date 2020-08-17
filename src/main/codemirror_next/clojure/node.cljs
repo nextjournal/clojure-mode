@@ -1,5 +1,5 @@
 (ns codemirror-next.clojure.node
-  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name type range resolve])
+  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve])
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
             [clojure.core :as core]
@@ -7,25 +7,25 @@
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.selections :as sel]))
 
-(defn start [^js node] (.-start node))
-(defn end [^js node] (.-end node))
-(defn depth [^js node] (.-depth node))
+(defn ^number start [^js node] (.-start node))
+(defn ^number end [^js node] (.-end node))
+(defn ^number depth [^js node] (.-depth node))
 
-(defn left [^js node]
-  (.childBefore (.-parent node) (start node)))
+(defn ^js up [^js node] (.-parent node))
+(defn ^js down [^js node] (.-firstChild node))
+(defn ^js down-last [^js node] (.-lastChild node))
+
+(defn ^js left [^js node]
+  (.childBefore (up node) (start node)))
 
 (defn lefts [^js node]
   (take-while identity (iterate left (left node))))
 
-(defn right [^js node]
-  (.childAfter (.-parent node) (end node)))
+(defn ^js right [^js node]
+  (.childAfter (up node) (end node)))
 
 (defn rights [^js node]
   (take-while identity (iterate right (right node))))
-
-(defn down [^js node] (.-firstChild node))
-(defn down-last [^js node] (.-lastChild node))
-(defn up [^js node] (.-parent node))
 
 (def bracket-pair
   (let [pairs {"(" ")"
@@ -82,11 +82,7 @@
 (defn error? [^js node]
   (.prop node lz-tree/NodeProp.error))
 
-(defn ^string name [^js node]
-  (if (core/string? node)
-    node
-    (or (.-name node)
-        (.. node -type -name))))
+(defn ^string name [^js node] (.-name node))
 
 (def left-edge? (comp boolean left-edges name))
 (def right-edge? (comp boolean right-edges name))
@@ -95,11 +91,6 @@
 (def opening-bracket? (comp boolean left-edges name))
 (def closing-bracket? (comp boolean right-edges name))
 
-(defn type [^js node]
-  (cond-> node
-    (not (instance? lezer/NodeType node))
-    .-type))
-
 
 (defn coll-name? [type-name]
   (contains? coll-names type-name))
@@ -107,7 +98,7 @@
 (defn coll? [node]
   (or
    (coll-name? (name node))
-   (some-> (.-firstChild node) name prefix-edges)))
+   (some-> (down node) name prefix-edges)))
 
 (defn terminal-type? [node]
   (let [n (name node)]
@@ -116,7 +107,7 @@
           (prefix-names n) false
           :else true)))
 
-(defn top? [node] (nil? (.-parent node)))
+(defn top? [node] (nil? (up node)))
 
 (defn string? [node] (identical? "String" (name node)))
 (defn regexp? [node] (identical? "RegExp" (name node)))
@@ -133,63 +124,49 @@
   (contains? prefix-names type-name))
 
 (defn ancestors [^js node]
-  (when-some [parent (.-parent node)]
+  (when-some [parent (up node)]
     (cons parent
           (lazy-seq (ancestors parent)))))
 
-(defn closest [node pred]
+(defn ^js closest [node pred]
   (if (pred node)
     node
     (reduce (fn [_ x] (if (pred x) (reduced x) nil)) nil (ancestors node))))
 
 (defn children
   ([^js parent from dir]
-   (when-some [child (case dir 1 (.childAfter parent from)
-                               -1 (.childBefore parent from))]
+   (when-some [^js child (case dir 1 (.childAfter parent from)
+                                   -1 (.childBefore parent from))]
      (cons child (lazy-seq
                   (children parent (case dir 1 (end child)
                                              -1 (start child)) dir)))))
   ([^js subtree]
    (children subtree (start subtree) 1)))
 
-(defn empty?
-  "Node only contains whitespace"
-  [^js node]
-  (let [type-name (name node)]
-    (cond (coll? type-name) (== 2 (count (children node)))
-          (string? type-name) (== (.. node -firstChild -end) (.. node -lastChild -start))
-          :else false)))
-
-(defn from-to [^js node]
-  (u/from-to (start node) (end node)))
-
-(defn range [^js node]
-  (sel/range (.-start node) (.-end node)))
-
-(defn string [^js state ^js node]
-  (.slice (.-doc state) (start node) (end node)))
-
 (defn eq? [^js x ^js y]
   (and (== (start x) (start y))
        (== (end x) (end y))
        (== (depth x) (depth y))))
 
-(defn positions-from [^js node from dir n]
-  (let [found (atom [])]
-    (.iterate node #js{:from from
-                       :to (case dir 1 js/undefined -1 0)
-                       :enter (fn [_ start end]
-                                (swap! found conj {:start start :end end})
-                                (if (>= (count @found) n)
-                                  nil
-                                  js/undefined))
-                       :leave (fn [_ start end]
-                                (swap! found conj {:start start :end end}))})
-    @found
-    ))
+(defn empty?
+  "Node only contains whitespace"
+  [^js node]
+  (let [type-name (name node)]
+    (cond (coll-name? type-name)
+          (eq? (-> node down right) (-> node down-last))
 
-(defn getter [^keyword k]
-  (fn [o] (j/get o k)))
+          (= "String" type-name)
+          (== (-> node down end) (-> node down-last start))
+          :else false)))
+
+(defn from-to [node]
+  {:from (start node) :to (end node)})
+
+(defn range [node]
+  (sel/range (start node) (end node)))
+
+(defn string [^js state node]
+  (.slice (.-doc state) (start node) (end node)))
 
 (defn ancestor? [parent child]
   (boolean
@@ -209,24 +186,6 @@
                                   js/undefined))})
     @found))
 
-
-
-(defn iterate-some [f x]
-  (take-while identity (iterate f x)))
-
-(defn direction [from to]
-  (let [cmp (compare (start to) (start from))]
-    (if (zero? cmp)
-      (cond (ancestor? to from) -1
-            (ancestor? from to) 1
-            (eq? from to) 0)
-      cmp)))
-
-(defn prefer [preference [L C R]]
-  (case preference
-    :left (or L C)
-    :right (or R C)))
-
 (defn move-toward
   "Returns next loc moving toward `to-path`, skipping children"
   [node to-node]
@@ -235,11 +194,11 @@
       0 (cond (ancestor? to-node node) (up node)
               (ancestor? node to-node) (down node))
       -1 (if (ancestor? node to-node)
-           (.-lastChild node)
+           (down-last node)
            (or (left node)
                (up node)))
       1 (if (ancestor? node to-node)
-          (.-firstChild node)
+          (down node)
           (or (right node)
               (up node))))))
 
@@ -251,17 +210,17 @@
       (string? node)
       (regexp? node)))
 
-(defn resolve
-  ([state pos] (resolve state pos js/undefined))
-  ([^js state pos dir]
-   (.. state -tree (resolve pos dir))))
+(defn ^js tree
+  ([^js state] (.. state -tree))
+  ([^js state pos] (.. state -tree (resolve pos)))
+  ([^js state pos dir] (.. state -tree (resolve pos dir))))
 
 (j/defn balanced-range
-  ([state ^js node] (balanced-range state (.-start node) (.-end node)))
+  ([state ^js node] (balanced-range state (start node) (end node)))
   ([state from to]
    (let [[from to] (sort [from to])
-         from-node (resolve state from 1)
-         to-node (resolve state to -1)
+         from-node (tree state from 1)
+         to-node (tree state to -1)
          from (if (require-balance? from-node)
                 (start from-node)
                 from)
@@ -278,26 +237,26 @@
 
 (j/defn inner-span
   "Span of collection not including edges"
-  [^:js {:as node :keys [start end ^js firstChild ^js lastChild]}]
+  [^:js {:as node :keys [firstChild lastChild]}]
   #js{:start (if (left-edge? firstChild)
-               (.-end firstChild)
-               start)
+               (end firstChild)
+               (start node))
       :end (if (right-edge? lastChild)
-             (.-start lastChild)
-             end)})
+             (start lastChild)
+             (end node))})
 
 (defn within?< "within (exclusive of edges)"
-  [^js parent ^js child]
-  (let [c1 (compare (.-start parent) (.-start child))
-        c2 (compare (.-end parent) (.-end child))]
+  [parent child]
+  (let [c1 (compare (start parent) (start child))
+        c2 (compare (end parent) (end child))]
     (and (or (pos? c1) (neg? c2))
          (not (neg? c1))
          (not (pos? c2)))))
 
 (defn within? "within (inclusive of edges)"
-  [^js parent ^js child]
-  (and (not (neg? (compare (.-start parent) (.-start child))))
-       (not (pos? (compare (.-end parent) (.-end child))))))
+  [parent child]
+  (and (not (neg? (compare (start parent) (start child))))
+       (not (pos? (compare (end parent) (end child))))))
 
 (defn follow-edges [node]
   (if (edges (name node))

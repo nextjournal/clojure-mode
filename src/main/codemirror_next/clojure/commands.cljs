@@ -21,7 +21,7 @@
     (j/fn [^:js {:as range :keys [from to empty]}]
       (when empty
         (when-let [nearest-balanced-coll
-                   (some-> (.resolve (.-tree state) from -1)
+                   (some-> (n/tree state from -1)
                            (n/closest n/coll?)
                            (u/guard n/balanced?))]
           {:cursor (dec from)
@@ -32,7 +32,7 @@
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
       (or (when empty
-            (let [node (.resolve (.-tree state) from)
+            (let [node (n/tree state from)
                   parent (n/closest node #(or (n/coll? %)
                                               (= "String" (n/name %))
                                               (= "Program" (n/name %))))
@@ -41,20 +41,20 @@
                   last-child-on-line
                   (when parent (some->> next-children
                                         (take-while (every-pred
-                                                     #(<= (.-start ^js %) line-end)))
+                                                     #(<= (n/start %) line-end)))
                                         last))
                   end (cond (n/string? parent) (let [content (str (n/string state parent))
                                                      content-from (subs content (- from (.-start parent)))
                                                      next-newline (.indexOf content-from \newline)]
                                                  (if (neg? next-newline)
-                                                   (dec (.-end parent))
+                                                   (dec (n/end parent))
                                                    (+ from next-newline 1)))
                             last-child-on-line (if (n/closing-bracket? last-child-on-line)
-                                                 (.-start last-child-on-line)
-                                                 (.-end last-child-on-line))
+                                                 (n/start last-child-on-line)
+                                                 (n/end last-child-on-line))
                             (some-> (first next-children)
-                                    .-start
-                                    (> line-end)) (-> (first next-children) .-start))]
+                                    n/start
+                                    (> line-end)) (-> (first next-children) n/start))]
               (when end
                 {:cursor from
                  :changes {:from from
@@ -64,13 +64,13 @@
              :changes (u/from-to from to)})))))
 
 (defn nav-position [state from dir]
-  (or (some-> (n/closest (.. state -tree (resolve from))
+  (or (some-> (n/closest (n/tree state from)
                          #(or (n/coll? %)
                               (n/top? %)))
               (n/children from dir)
               first
               (j/get (case dir -1 :start 1 :end)))
-      (sel/in-doc (+ from dir) state)))
+      (sel/constrain (+ from dir) state)))
 
 (defn nav [dir]
   (fn [state]
@@ -92,12 +92,12 @@
                       -1 (n/balanced-range state (nav-position state from dir) to)))})))))
 
 (defn nearest-touching [^js state pos dir]
-  (let [L (some-> (.. state -tree (resolve pos -1))
+  (let [L (some-> (n/tree state pos -1)
                   (u/guard (j/fn [^:js {:keys [end]}] (= pos end))))
-        R (some-> (.. state -tree (resolve pos 1))
+        R (some-> (n/tree state pos 1)
                   (u/guard (j/fn [^:js {:as what :keys [start]}]
                              (= pos start))))
-        mid (.. state -tree (resolve pos))]
+        mid (n/tree state pos)]
     (case dir 1 (or (u/guard R (every-pred some? (complement n/right-edge?)))
                     L
                     R
@@ -107,7 +107,7 @@
                      L
                      mid))))
 
-(j/defn grow-1 [^js state start end]
+(j/defn grow-1 [state start end]
   (let [node (nearest-touching state end -1)]
     (->> (n/ancestors node)
          (mapcat (juxt n/inner-span identity))              ;; include inner-spans
@@ -146,7 +146,7 @@
     (u/update-ranges state
       (j/fn [^:js {:as range :keys [from to empty]}]
         (when empty
-          (when-let [parent (n/closest (n/resolve state from) (every-pred n/coll?
+          (when-let [parent (n/closest (n/tree state from) (every-pred n/coll?
                                                                           #(not (case direction 1 (some-> % n/with-prefix n/right n/closing-bracket?)
                                                                                                 -1 (some-> % n/with-prefix n/left n/opening-bracket?)))))]
             (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
@@ -159,7 +159,7 @@
                               :insert (n/name edge)}
                              (-> edge
                                  n/from-to
-                                 (j/assoc! :insert " "))])
+                                 (assoc :insert " "))])
                           -1
                           (let [^string edge (n/left-edge-with-prefix parent)
                                 start (n/start (n/with-prefix parent))]
@@ -173,7 +173,7 @@
   (fn [^js state]
     (->> (j/fn [^:js {:as range :keys [from to empty]}]
            (when empty
-             (when-let [parent (n/closest (n/resolve state from) n/coll?)]
+             (when-let [parent (n/closest (n/tree state from) n/coll?)]
                (case direction
                  1
                  (when-let [target (some->> (n/down-last parent)
@@ -187,7 +187,7 @@
                                :insert (n/name (n/down-last parent))}
                               (-> (n/down-last parent)
                                   n/from-to
-                                  (j/assoc! :insert " "))]})
+                                  (assoc :insert " "))]})
                  -1
                  (when-let [next-first-child (some->> (n/down parent)
                                                       n/rights
@@ -201,7 +201,7 @@
                                  :insert left-edge}
                                 {:from left-start
                                  :to (+ left-start (count left-edge))
-                                 :insert (.indentString state (count left-edge))}]}))))))
+                                 :insert (format/spaces state (count left-edge))}]}))))))
          (u/update-ranges state))))
 
 (def index

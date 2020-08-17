@@ -7,4 +7,4 @@
   ([^js range] (.range EditorSelection (.-from range) (.-to range))))
 (defn cursor [from] (.cursor EditorSelection from))
 (defn create [ranges index] (.create EditorSelection ranges index))
-(defn in-doc [from ^js state] (-> from (max 0) (min (.. state -doc -length))))
+(defn constrain [from ^js state] (-> from (max 0) (min (.. state -doc -length))))
