@@ -50,9 +50,7 @@
 
 
                   (some-> (n/resolve state (dec pos) -1)
-                          (u/guard (every-pred #(do
-                                                  (prn [(dec pos) (.-end ^js %)])
-                                                  (= (dec pos) (.-end ^js %)))
+                          (u/guard (every-pred #(= (dec pos) (.-end ^js %))
                                                n/line-comment?)))
                   {:cursor (dec pos)})
                 {:cursor (dec pos)

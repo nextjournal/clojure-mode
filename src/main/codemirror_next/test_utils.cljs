@@ -57,6 +57,5 @@
          (fn? cmd)
          (string? doc)]}
   (let [state (make-state extensions doc)
-        tr (format/format-transaction
-            (cmd state))]
+        tr (cmd state)]
     (state-str (.-state tr))))

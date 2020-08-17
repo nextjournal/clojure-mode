@@ -13,7 +13,7 @@
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
-            [codemirror-next.clojure.extensions.formatting :as indent]
+            [codemirror-next.clojure.extensions.formatting :as format]
             [codemirror-next.clojure.extensions.selection-history :as sel-history]
             [codemirror-next.clojure.keymap :as keymap]
             [codemirror-next.clojure.node :as n]
@@ -27,12 +27,12 @@
    (rc/inline "./clojure/clojure.grammar")))
 
 (def clojure-syntax
-  (new syntax/LezerSyntax
-       (.withProps parser
-                   indent/props
-                   (.add syntax/foldNodeProp clj-syntax/foldNodeProps)
-                   (highlight/styleTags clj-syntax/styleTags))
-       clj-syntax/languageData))
+  (.define syntax/LezerSyntax
+           (.withProps parser
+                       format/props
+                       (.add syntax/foldNodeProp clj-syntax/foldNodeProps)
+                       (highlight/styleTags clj-syntax/styleTags))
+           clj-syntax/languageData))
 
 (defn sample-text []
   (str "(defn lezer-clojure
@@ -69,7 +69,7 @@
                             close-brackets/extension
                             (keymap (keymap/ungroup keymap/default-keymap))
                             sel-history/extension
-                            #_indent/extension-after-keyup])
+                            format/ext-format-changed-lines])
 
 (defn mount-editor! [dom-selector initial-value]
   (let [state (test-utils/make-state default-extensions initial-value)]

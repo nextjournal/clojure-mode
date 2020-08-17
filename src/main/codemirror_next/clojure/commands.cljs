@@ -10,10 +10,9 @@
             [codemirror-next.clojure.extensions.formatting :as format]
             [codemirror-next.clojure.extensions.selection-history :as sel-history]))
 
-(defn cmd-wrap [f]
+(defn view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
     (some-> (f state)
-            (format/format-transaction)
             (dispatch))
     true))
 
@@ -202,7 +201,7 @@
                                  :insert left-edge}
                                 {:from left-start
                                  :to (+ left-start (count left-edge))
-                                 :insert (format/make-spaces (count left-edge))}]}))))))
+                                 :insert (.indentString state (count left-edge))}]}))))))
          (u/update-ranges state))))
 
 (def index
@@ -270,19 +269,19 @@
    :undoSelection history/undoSelection
    :redoSelection history/redoSelection
 
-   :indent (cmd-wrap #'indent/format)
-   :unwrap (cmd-wrap #'unwrap)
-   :kill (cmd-wrap #'kill)
-   :nav-right (cmd-wrap (nav 1))
-   :nav-left (cmd-wrap (nav -1))
-   :nav-select-right (cmd-wrap (nav-select 1))
-   :nav-select-left (cmd-wrap (nav-select -1))
-   :slurp-forward (cmd-wrap (slurp 1))
-   :slurp-backward (cmd-wrap (slurp -1))
-   :barf-forward (cmd-wrap (barf 1))
-   :barf-backward (cmd-wrap (barf -1))
-   :selection-grow (cmd-wrap #'selection-grow)
-   :selection-return (cmd-wrap #'selection-return)
+   :indent (view-command #'indent/format)
+   :unwrap (view-command #'unwrap)
+   :kill (view-command #'kill)
+   :nav-right (view-command (nav 1))
+   :nav-left (view-command (nav -1))
+   :nav-select-right (view-command (nav-select 1))
+   :nav-select-left (view-command (nav-select -1))
+   :slurp-forward (view-command (slurp 1))
+   :slurp-backward (view-command (slurp -1))
+   :barf-forward (view-command (barf 1))
+   :barf-backward (view-command (barf -1))
+   :selection-grow (view-command #'selection-grow)
+   :selection-return (view-command #'selection-return)
    })
 
 (def reverse-index

@@ -2,17 +2,17 @@
 # yarn lockfile v1
 
 
-"@codemirror/next@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.9.0.tgz#82d32ab6c61d1822e8120d9241ba07194e6cca9d"
-  integrity sha512-75wSesCiV7WiwEi3oCQvub8Fuuh3oKIl66IUOuaR+9+tQt7c16oX3GzobMxkZah95YrybZHwgW2YYDK631XRmw==
+"@codemirror/next@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.10.0.tgz#ee670dd4507199a693a14880c9cf1d5ebd678466"
+  integrity sha512-urceKJP2Nwgd7SGyAiBgUzLTwa3kIJEEh/db23L/bZHoXcOoEU5wNSRoNlq43xCrnW2kz/YVsk3mQlZLioUnoQ==
   dependencies:
-    lezer "^0.9.0"
-    lezer-css "^0.9.0"
-    lezer-html "^0.9.0"
-    lezer-javascript "^0.9.0"
-    lezer-python "^0.9.0"
-    lezer-tree "^0.9.0"
+    lezer "^0.10.0"
+    lezer-css "^0.10.0"
+    lezer-html "^0.10.0"
+    lezer-javascript "^0.10.0"
+    lezer-python "^0.10.0"
+    lezer-tree "^0.10.0"
     style-mod "^2.2.2"
     w3c-keyname "^2.2.4"
 
@@ -330,12 +330,12 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-lezer-css@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/lezer-css/-/lezer-css-0.9.0.tgz#fc18e5056c25a62706013d30e8661ed4052afb40"
-  integrity sha512-rpK/O4++1K+zkHuo4rWZrJiFeaJ1vITWWPTqJK2wkwvbzd3FqvJmFC92oLC43eRhloOuiCD7R2nueRZAR6Oocg==
+lezer-css@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/lezer-css/-/lezer-css-0.10.0.tgz#72b8db3a93920eafc8bf6eb34453cffaacce091c"
+  integrity sha512-JSIOGuVO+XQlM6OzKyD/WzcNG5m5YpP1cnLpABjhQOTasvfMqbt4xMPrn5nhAdenM/46q1ThKjz5qvDt2+bNYg==
   dependencies:
-    lezer "^0.9.0"
+    lezer "^0.10.0"
 
 lezer-generator@^0.10.1:
   version "0.10.1"
@@ -344,36 +344,31 @@ lezer-generator@^0.10.1:
   dependencies:
     lezer "^0.10.0"
 
-lezer-html@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/lezer-html/-/lezer-html-0.9.0.tgz#1dc269e072fa576da08e886e945050ab967a6521"
-  integrity sha512-CLceSQ5mOxQnqZXROX1+A34jAelJaSwiPyOLDMXk4SFLvPOIq/WkAlLyquJ2wY3JaWCwkrdPsP7OzVHd5unpfQ==
+lezer-html@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/lezer-html/-/lezer-html-0.10.0.tgz#363c43bc50f8c5521be22980f9080a560b0b7bcd"
+  integrity sha512-kLZRjP3wSHLpSS1R+x3LpZJ00iTk96Kzw1Lf02fxNxh3xGmcl19Q6+i54zyPwmr65H/3TBJtvXLfeNF0OIRyZw==
   dependencies:
-    lezer "^0.9.0"
+    lezer "^0.10.0"
 
-lezer-javascript@^0.9.0:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/lezer-javascript/-/lezer-javascript-0.9.1.tgz#0a06c260979c172a63f7dbbcf6e57dcfe1137d9e"
-  integrity sha512-XoZeWiVAoo41jywONr5ajGxK8xaS1AeObB3amVXh3Jc4pqN8Y8uBY/bQ9deh1blm7bvZRbQmJWjrb1mCEEy8UQ==
+lezer-javascript@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/lezer-javascript/-/lezer-javascript-0.10.0.tgz#c42138f3d1514e825c20b41eb67228f682148ee4"
+  integrity sha512-SbWKr/HjbGupYgR108FDN2X1Z97QC00aoyyXguXpqfZv6QfrbrhVCqaAX2tSStrQH8SMiGBNtTtk0zuu1lIfsg==
   dependencies:
-    lezer "^0.9.0"
+    lezer "^0.10.0"
 
-lezer-python@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/lezer-python/-/lezer-python-0.9.0.tgz#6b3a7de643a1ea1a0ac7d8b23b9007f484b961ac"
-  integrity sha512-sJ/YY48uQMZDTqQx6GCkqnyhxjph3YghcLqdrAyU8KVKxMHvwWRiSdEKtp3k7uQLhP4Bzp5NfkAFaSEK6wH1Mw==
+lezer-python@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/lezer-python/-/lezer-python-0.10.0.tgz#bd0e63c0b49ebd96258aea0852a49087a801c754"
+  integrity sha512-cMn88O/v3/91sZjvab4AcGZasT0r5QaLoyZi4thzLa3fWhpPXYriRtYSDjeBfQg4nuuRb473ADDInxGZKTllqA==
   dependencies:
-    lezer "^0.9.0"
+    lezer "^0.10.0"
 
 lezer-tree@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/lezer-tree/-/lezer-tree-0.10.0.tgz#e7bb3fbd604a718fa43d373e6240a2600d7c5ea2"
   integrity sha512-77hwilCuD4azYqwazv4A6EL7mKiSPcqgJV4V173hLV3UkAKa6/smNHeROhIzzWHLU6Y5qtR1mRf22RFzE3fVrg==
-
-lezer-tree@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/lezer-tree/-/lezer-tree-0.9.0.tgz#c62aee4ddcd18e210369162ea1c93cd10365f80f"
-  integrity sha512-bz/jTNrQFCJ7GBQIkw8y44DWMKL+rrPh40GnrFhnnrezA22T8US38gJAnAAv23zYsoYQfHmwCHJpxv9A3E1OTQ==
 
 lezer@^0.10.0:
   version "0.10.0"
@@ -381,13 +376,6 @@ lezer@^0.10.0:
   integrity sha512-9KbR/iPSopmq3AO0bRJmTyfE8EssOBHAAgwQIbfmKI/Kh+fjP37T7010E0O110Zntf8PljVOFAnJ9q1Un0CKDg==
   dependencies:
     lezer-tree "^0.10.0"
-
-lezer@^0.9.0:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/lezer/-/lezer-0.9.1.tgz#33c4f57f6a097bf7312cff4fba3ddf3f7cd6c94b"
-  integrity sha512-mvLVBOmh/Ti96qRkQRcI1ZiEDdOgWo4pBRq4ivmQlcRF9L2jH0kND5tm6CZC7OUPZiQfjT/a7ULVfmryGFCXsA==
-  dependencies:
-    lezer-tree "^0.9.0"
 
 loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"

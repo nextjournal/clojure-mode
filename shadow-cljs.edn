@@ -8,4 +8,10 @@
                 :modules {:main {:init-fn codemirror-next.clojure/render}}}
           :test {:target :browser-test
                  :test-dir "public/test"
-                 :ns-regexp "-tests$"}}}
+                 :ns-regexp "-tests$"
+
+                 ;; sometimes I get weird $jscomp.inherits errors, which can be fixed
+                 ;; by temporarily uncommenting the following forms in each build.
+                 #_#_:js-options
+                 {:resolve {"lezer-clojure" {:target :npm
+                                             :require "lezer-clojure/dist/index.cjs"}}}}}}

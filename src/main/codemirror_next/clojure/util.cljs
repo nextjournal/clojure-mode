@@ -89,9 +89,10 @@
          (.changeByRange state)
          (.update state))))
 
-(j/defn update-changed-lines
-  "`f` will be called for each selected line with args [line, changes-array, range]
-   and should *mutate* changes-array"
+
+(j/defn iter-changed-lines
+  "`f` will be called for each changed line with args [line, changes-array]
+   and should *mutate* changes-array. Selections will be mapped through the resulting changeset."
   [^:js {:as tr
          :keys [^js startState ^js changes]
          {:as ^js state :keys [^js doc]} :state} f]
@@ -110,8 +111,8 @@
         next-changeset (.changes state next-changes)
         next-selection (.. state -selection (map next-changeset)) ;; map selection through changeset
         combined-changes (.compose changes next-changeset)]
-    (.update startState #js{:changes combined-changes
-                            :selection next-selection})))
+    #js{:changes combined-changes
+        :selection next-selection}))
 
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))

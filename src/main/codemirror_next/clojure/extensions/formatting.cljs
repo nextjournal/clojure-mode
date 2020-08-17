@@ -36,14 +36,6 @@
 (def props (.add syntax/indentNodeProp
                  indent-node-props))
 
-(defn make-spaces [n]
-  (loop [^string s ""
-         i 0]
-    (if (== i n)
-      s
-      (recur (str s " ")
-             (inc i)))))
-
 (defn get-indentation [^js context pos]
   (->> (.. context -state (facet (.-indentation EditorState)))
        (reduce
@@ -56,7 +48,7 @@
   (let [updated #js{}]
     (new IndentContext state (fn [start] (j/get updated start -1)))))
 
-(defn indent-all [state]
+(defn indent-all [^js state]
   (let [context (make-indent-context state)]
     (u/update-lines state
       (fn [from content line-num]
@@ -68,7 +60,7 @@
             (case (compare indent current-indent)
               0 nil
               1 #js{:from (+ from current-indent)
-                    :insert (make-spaces (- indent ^number current-indent))}
+                    :insert (.indentString state (- indent ^number current-indent))}
               -1 #js{:from (+ from indent)
                      :to (+ from current-indent)})))))))
 
@@ -102,7 +94,7 @@
 
 (defn format-line
   "Returns mutated `changes` array"
-  [state
+  [^js state
    indent-context
    from
    content
@@ -117,7 +109,7 @@
           (case (compare indent current-indent)
             0 nil
             1 #js{:from (+ from current-indent)
-                  :insert (make-spaces (- indent current-indent))}
+                  :insert (.indentString state (- indent current-indent))}
             -1 #js{:from (+ from indent)
                    :to (+ from current-indent)}))
         space-changes (space-changes state
@@ -143,10 +135,10 @@
 (defn format-transaction [^js tr]
   (let [state (.-state tr)
         context (make-indent-context state)
-        formatted-tr (u/update-changed-lines tr
-                       (fn [^js line ^js changes]
-                         (format-line state context (.-from line) (.-content line) (.-number line) changes)))]
-    formatted-tr))
+        changes (u/iter-changed-lines tr
+                                      (fn [^js line ^js changes]
+                    (format-line state context (.-from line) (.-content line) (.-number line) changes)))]
+    (.. tr -startState (update (j/assoc! changes :filter false)))))
 
 (defn format [state]
   (if (u/something-selected? state)
@@ -157,13 +149,7 @@
   (u/update-lines state
     (fn [from _ _] #js{:from from :insert prefix})))
 
-(def extension-after-keyup
-  ;; TODO
-  ;; a better way to auto-indent after other operations are finished
-  (.domEventHandlers view/EditorView
-                     #js{:keyup
-                         (j/fn [_ ^:js {:as ^js view :keys [state]}]
-                           (format #js{:state state
-                                       :dispatch #(.dispatch view %)})
-                           nil)}))
+(def ext-format-changed-lines
+  ; EditorState.transactionFilter.of
+  (.. EditorState -transactionFilter (of format-transaction)))
 
