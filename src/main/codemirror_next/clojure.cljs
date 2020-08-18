@@ -34,33 +34,6 @@
                        (highlight/styleTags clj-syntax/styleTags))
            clj-syntax/languageData))
 
-(defn sample-text []
-  (str "(defn lezer-clojure
-  \"This is a showcase for `lezer-clojure`, an grammar for Clojure/Script to
-  enable a decent editor experience in the browser.\"
-  {:added \"0.1\"}
-  [demo]
-  nil ;; nil
-  (+ 1 1.0 1/5 1E3 042 +042 -042) ;; numbers
-  :hi :hi/ho ::ho :*+!-_? :abc:def:ghi ;; keywords
-  true false ;; booleans
-  :hello #_ :ignored ;; ignore next form
-  #\"[A-Z]\" ;; regex
-  ^{:meta/data 'is-data} 'too
-  (if (test? <demo>)
-    (inc demo)|
-    (dec demo)))
-  #
-    [ ]
-    #\"a\""
-       \newline
-       "a b(c|)d e"
-       )
-
-  )
-
-(defonce prev-views (atom []))
-
 (def default-extensions #js[(history)
                             clojure-syntax
                             (bracketMatching)
@@ -71,43 +44,6 @@
                             sel-history/extension
                             format/ext-format-changed-lines])
 
-(defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state default-extensions initial-value)]
-    (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
-         (new EditorView)
-         (swap! prev-views conj))))
-
-(defn tag [tag & s]
-  (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
-    (str "<" (name tag) (reduce-kv #(str %1 " " (name %2) "=" "'" %3 "'") "" opts) ">" (apply str s) "</" (name tag) ">")))
-
-(defn ^:dev/after-load render []
-  (doseq [v @prev-views] (j/call v :destroy))
-  (mount-editor! "#editor" (sample-text))
-  (j/assoc! (js/document.getElementById "docs")
-            :innerHTML
-            (tag :div
-              (tag :table {:cellpadding 5}
-                (->> keymap/paredit-keymap
-                     (sort-by first)
-                     (reduce (fn [out [command [{:keys [key shift doc]}]]]
-                               (str out
-                                    (tag :tr
-                                      (tag :td (tag :b (name command)))
-                                      (tag :td key)
-                                      (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))
-                                      (tag :td doc)))) ""))
-                "</table>")
-              (tag :pre
-                (-> (build/slurp "README.md")
-                    (str/split #"----")
-                    second))
-              ))
-  (.focus (last @prev-views)))
-
-
-(comment
- (let [s "#(a )"
-       state (test-utils/make-state default-extensions s)
-       tree (.-tree state)]
-   ))
+(defn state [content & [extensions]]
+  (.create EditorState #js{:doc        content
+                           :extensions (or extensions default-extensions)}))
