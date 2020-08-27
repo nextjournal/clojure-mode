@@ -102,7 +102,8 @@
    from
    content
    line-num
-   changes]
+   changes
+   format-spaces?]
   {:pre [(some? content)]}
   (let [current-indent (-> ^js (aget (.exec #"^\s*" content) 0)
                            .-length)
@@ -115,9 +116,10 @@
                   :insert (spaces state (- indent current-indent))}
             -1 #js{:from (+ from indent)
                    :to (+ from current-indent)}))
-        space-changes (space-changes state
-                                     (+ from current-indent)
-                                     (+ from (count content)))]
+        space-changes (when format-spaces?
+                        (space-changes state
+                                       (+ from current-indent)
+                                       (+ from (count content))))]
     (cond-> changes
       space-changes (into-arr space-changes)
       indentation-change (j/push! indentation-change))))
@@ -127,20 +129,22 @@
   (let [context (make-indent-context state)]
     (u/update-selected-lines state
       (j/fn [^:js {:as line :keys [from content number]} ^js changes ^js range]
-        (format-line state context from content number changes)))))
+        (format-line state context from content number changes true)))))
 
 (defn format-all [state]
   (let [context (make-indent-context state)]
     (u/update-lines state
       (fn [^number from ^string content line-num]
-        (format-line state context from content line-num #js[])))))
+        (format-line state context from content line-num #js[] true)))))
 
 (defn format-transaction [^js tr]
+  ;; TODO
+  ;; fix
   (let [state (.-state tr)
         context (make-indent-context state)
         changes (u/iter-changed-lines tr
                   (fn [^js line ^js changes]
-                    (format-line state context (.-from line) (.-content line) (.-number line) changes)))]
+                    (format-line state context (.-from line) (.-content line) (.-number line) changes false)))]
     (.. tr -startState (update (j/assoc! changes :filter false)))))
 
 (defn format [state]
