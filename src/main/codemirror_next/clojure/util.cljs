@@ -107,7 +107,8 @@
                    (reset! at-line line-number)
                    (f line next-changes))
                  (when-not (<= to-b line-to)
-                   (recur (.lineAt doc (inc line-to))))))))
+                   (when-some [next-line (.lineAt doc (inc line-to))]
+                     (recur next-line)))))))
         next-changeset (.changes state next-changes)
         next-selection (.. state -selection (map next-changeset)) ;; map selection through changeset
         combined-changes (.compose changes next-changeset)]

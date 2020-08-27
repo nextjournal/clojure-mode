@@ -1,6 +1,5 @@
 (ns codemirror-next.clojure.demo
-  (:require ["./../clojure/clojure_syntax.js" :as clj-syntax]
-            ["@codemirror/next/closebrackets" :refer [closeBrackets]]
+  (:require ["@codemirror/next/closebrackets" :refer [closeBrackets]]
             ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/history" :refer [history]]
             ["@codemirror/next/matchbrackets" :refer [bracketMatching]]

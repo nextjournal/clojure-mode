@@ -53,8 +53,8 @@
                           (u/guard (every-pred #(= (dec pos) (.-end ^js %))
                                                n/line-comment?)))
                   {:cursor (dec pos)})
-                {:cursor (dec pos)
-                 :changes (from-to (max 0 (dec pos)) pos)})))))))
+                {:cursor (sel/constrain state (dec pos))
+                 :changes (from-to (sel/constrain state (dec pos)) pos)})))))))
 
 (defn insertion
   "Returns a `change` that inserts string `s` at position `from` and moves cursor to end of insertion."

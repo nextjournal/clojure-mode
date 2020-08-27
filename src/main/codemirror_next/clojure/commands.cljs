@@ -70,7 +70,7 @@
               (n/children from dir)
               first
               (j/get (case dir -1 :start 1 :end)))
-      (sel/constrain (+ from dir) state)))
+      (sel/constrain state (+ from dir))))
 
 (defn nav [dir]
   (fn [state]

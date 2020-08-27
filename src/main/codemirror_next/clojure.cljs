@@ -1,6 +1,5 @@
 (ns codemirror-next.clojure
-  (:require ["./clojure/clojure_syntax.js" :as clj-syntax]
-            ["@codemirror/next/closebrackets" :refer [closeBrackets]]
+  (:require ["@codemirror/next/closebrackets" :refer [closeBrackets]]
             ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/history" :refer [history]]
             ["@codemirror/next/matchbrackets" :refer [bracketMatching]]
@@ -24,15 +23,41 @@
 
 (def parser
   (lg/buildParser
-   (rc/inline "./clojure/clojure.grammar")))
+    (rc/inline "./clojure/clojure.grammar")))
+
+(def fold-node-props
+  (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
+                                     :to (dec (.-end tree))})]
+    #js{:Vector coll-span
+        :Map coll-span
+        :Set coll-span
+        :List coll-span}))
+
+
+(def style-tags
+  #js{"VarName/Symbol" "variableName definition"
+      :Def "atom"
+      :Defn "atom"
+      :Boolean "atom"
+      :DocString "+emphasis"
+      :Ignored "comment"
+      :Comment "lineComment"
+      :Number "number"
+      :String "string"
+      :Keyword "atom"
+      :Nil "null"
+      :Symbol "labelName"
+      :LineComment "lineComment"
+      :RegExp "regexp"})
 
 (def clojure-syntax
   (.define syntax/LezerSyntax
            (.withProps parser
                        format/props
-                       (.add syntax/foldNodeProp clj-syntax/foldNodeProps)
-                       (highlight/styleTags clj-syntax/styleTags))
-           clj-syntax/languageData))
+                       (.add syntax/foldNodeProp fold-node-props)
+                       (highlight/styleTags style-tags))
+           (j/lit {:closeBrackets {:brackets [\( \[ \{ \' \"]
+                                   :commentTokens {:line ";;"}}})))
 
 (def default-extensions #js[(history)
                             clojure-syntax
@@ -45,5 +70,5 @@
                             format/ext-format-changed-lines])
 
 (defn state [content & [extensions]]
-  (.create EditorState #js{:doc        content
+  (.create EditorState #js{:doc content
                            :extensions (or extensions default-extensions)}))

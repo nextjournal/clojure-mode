@@ -139,7 +139,7 @@
   (let [state (.-state tr)
         context (make-indent-context state)
         changes (u/iter-changed-lines tr
-                                      (fn [^js line ^js changes]
+                  (fn [^js line ^js changes]
                     (format-line state context (.-from line) (.-content line) (.-number line) changes)))]
     (.. tr -startState (update (j/assoc! changes :filter false)))))
 
