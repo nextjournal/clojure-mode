@@ -23,7 +23,15 @@
 
 (def parser
   (lg/buildParser
-    (rc/inline "./clojure/clojure.grammar")))
+   (rc/inline "./clojure/clojure.grammar") #js {:externalSpecializer
+                                                (fn [_name ^js terms]
+                                                  (fn [value _stack]
+                                                    (case value
+                                                      "nil" (.-Nil terms)
+                                                      ("true" "false") (.-Boolean terms)
+                                                      (if (= "def" (.slice value 0 3))
+                                                        (.-DefLike terms)
+                                                        -1))))}))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
@@ -36,11 +44,10 @@
 
 (def style-tags
   #js{"VarName/Symbol" "variableName definition"
-      :Def "atom"
-      :Defn "atom"
+      :DefLike "keyword"
       :Boolean "atom"
       :DocString "+emphasis"
-      :Ignored "comment"
+      :Discard "+comment"
       :Comment "lineComment"
       :Number "number"
       :String "string"

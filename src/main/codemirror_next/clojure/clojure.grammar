@@ -1,15 +1,20 @@
 @top[name=Program] { expression* }
 
 @skip { whitespace | LineComment | Discard }
-expression { Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Meta | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg }
+expression { Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Meta | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg | Meta }
 Discard { "#_" expression }
+@precedence { docString @left, operator @left, meta @right }
 
-@precedence { operator @left}
+listContents {
+   defList  { Metadata? DefLike Metadata? VarName (DocString expression+ | expression+)? } |
+   anyList { (Metadata? Operator)? expression* }
+ }
 
-List { "(" Operator? expression* ")" }
+DocString { !docString String }
+List { "(" listContents ")" }
 Vector { "[" expression* "]" }
 Map { "{" expression* "}" }
-
+VarName { Symbol }
 
 @skip {} {
   Set { "#" Map }
@@ -20,9 +25,11 @@ Map { "{" expression* "}" }
   ReaderConditional { "#?" (List | Deref) }
   DataLiteral { "#" ident }
   SymbolicValue { "##" simpleIdent }
-  Meta { ("^" | "#^") expression}
+  Metadata { ("^" | "#^") expression }
   String { '"' StringContent? '"' }
 }
+
+Meta { Metadata !meta expression }
 
 Deref { "@" expression }
 Quote { "'" expression }
@@ -63,7 +70,7 @@ Operator { !operator ident }
 
   LineComment { ";" ![\n]* }
 
-  identStart { std.asciiLetter | $[<>_=?!*+\-$\u{a1}-\u{10ff}] }
+  identStart { std.asciiLetter | $[<>._=?!*+\-$\u{a1}-\u{10ff}] }
   identChar { identStart (std.digit | ":" | "." | "'" | "#")* }
   simpleIdent { identStart identChar* }
   qualifiedIdent { simpleIdent "/" identChar+ }
@@ -93,7 +100,6 @@ Operator { !operator ident }
 
 }
 
-Boolean { @specialize<ident, "true" | "false"> }
-Nil { @specialize<ident, "nil"> }
+@external specialize {ident} specializeIdent from "./tokens" { DefLike, Nil, Boolean }
 
 @detectDelim
