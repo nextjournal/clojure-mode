@@ -1,6 +1,6 @@
 (ns codemirror-next.clojure.extensions.formatting
   (:require ["@codemirror/next/syntax" :as syntax]
-            ["@codemirror/next/state" :refer [EditorState IndentContext]]
+            ["@codemirror/next/state" :refer [EditorState IndentContext Transaction]]
             ["@codemirror/next/view" :as view]
             ["@codemirror/next/commands" :as commands]
             [codemirror-next.clojure.node :as node]
@@ -138,13 +138,19 @@
         (format-line state context from content line-num #js[] true)))))
 
 (defn format-transaction [^js tr]
-  ;; TODO
-  ;; fix
   (let [state (.-state tr)
         context (make-indent-context state)
+        origin (.annotation tr (.-userEvent Transaction))
         changes (u/iter-changed-lines tr
                   (fn [^js line ^js changes]
-                    (format-line state context (.-from line) (.-content line) (.-number line) changes false)))]
+                    (format-line state context (.-from line) (.-content line) (.-number line) changes
+                                 (case origin
+                                   ("input"
+                                     "delete"
+                                     "keyboardselection"
+                                     "pointerselection"
+                                     "cut") false
+                                   true))))]
     (.. tr -startState (update (j/assoc! changes :filter false)))))
 
 (defn format [state]
