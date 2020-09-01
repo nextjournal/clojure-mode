@@ -10,7 +10,9 @@ In progress:
 
 
 Next:
-
+- [ ] Copy/paste (only first line copies to clipboard?)
+- [ ] "Yank" after kill (https://www.howtogeek.com/293850/how-to-use-macos-built-in-kill-and-yank-as-an-alternative-cut-and-paste/)
+- [ ] Ctrl-A => move to beginning of line
 
 
 Done
