@@ -16,6 +16,13 @@
         true)
     false))
 
+(defn insertion
+  "Returns a `change` that inserts string `s` at position `from` and moves cursor to end of insertion."
+  [from ^string s]
+  {:changes {:insert s
+             :from from}
+   :cursor (+ from (count s))})
+
 (defn map-cursor [^js state update-map]
   {:pre [(map? update-map)]}
   (let [{:keys [cursor/mapped

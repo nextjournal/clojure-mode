@@ -30,7 +30,8 @@
               ;; start at the inner-left edge of the coll.
               ;; if it's a list beginning with a symbol, add 1 space.
               (and (= "List" (node/name node))
-                   (= "Operator" (some-> node
+                   (#{"Operator"
+                      "DefLike"} (some-> node
                                          (.childAfter (.-end (.-firstChild node)))
                                          node/name)))
               (+ 1)))

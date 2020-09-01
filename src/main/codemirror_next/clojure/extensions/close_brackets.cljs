@@ -56,13 +56,6 @@
                 {:cursor (sel/constrain state (dec pos))
                  :changes (from-to (sel/constrain state (dec pos)) pos)})))))))
 
-(defn insertion
-  "Returns a `change` that inserts string `s` at position `from` and moves cursor to end of insertion."
-  [from ^string s]
-  {:changes {:insert s
-             :from from}
-   :cursor (+ from (count s))})
-
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (n/pairs open)]
     (u/update-ranges state
@@ -73,7 +66,7 @@
                    :from-to [(+ anchor (count open)) (+ head (count open))]}
                   (and (= open \")
                        (n/closest (n/tree state from) n/string?))
-                  (insertion head "\\\""))
+                  (u/insertion head "\\\""))
             {:changes {:insert (str open close)
                        :from head}
              :cursor (+ head (count open))})))))
@@ -91,7 +84,7 @@
                                                             end
                                                             js/undefined))}))]
         {:cursor close-node-end}
-        (insertion head key-name)))))
+        (u/insertion head key-name)))))
 
 (def extension
   (.domEventHandlers view/EditorView
