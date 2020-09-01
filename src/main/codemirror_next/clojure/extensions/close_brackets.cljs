@@ -40,7 +40,7 @@
                   {:cursor (dec pos)}
 
                   ;; inside left edge of collection - remove or stop
-                  (and (n/bracket-pair name|) (== (.-start node|) (.-start parent)))
+                  (and (n/pairs name|) (== (.-start node|) (.-start parent)))
                   (if (n/empty? (n/up node|))
                     ;; remove empty collection
                     {:cursor (.-start parent)
@@ -64,7 +64,7 @@
    :cursor (+ from (count s))})
 
 (defn handle-open [^EditorState state ^string open]
-  (let [^string close (n/bracket-pair open)]
+  (let [^string close (n/pairs open)]
     (u/update-ranges state
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (or (cond (not empty)                               ;; wrap selections with brackets
@@ -78,17 +78,20 @@
                        :from head}
              :cursor (+ head (count open))})))))
 
-(j/defn handle-close [^:js {:as state :keys [doc]
-                            {:keys [primaryIndex ranges]} :selection}]
-  ;; TODO
-  ;; - changeByRange
-  ;; - navigate to next closing bracket
-  (when-some [moved (reduce (j/fn [out ^:js {:keys [empty head]}]
-                              (if (and empty (n/right-edges (chars/next-char doc head)))
-                                (j/push! out (sel/cursor (inc head)))
-                                (reduced nil))) #js[] ranges)]
-    (.update state #js{:selection (sel/create moved primaryIndex)
-                       :scrollIntoView true})))
+(defn handle-close [state key-name]
+  (u/update-ranges state
+    (j/fn [^:js {:as range :keys [empty head]}]
+      ;; TODO
+      ;; allow insertion of closing-paren to fix unbalanced collection
+      (if-let [close-node-end (and empty
+                                   (.iterate (n/tree state)
+                                             #js{:from (inc head)
+                                                 :enter (fn [node-type start end]
+                                                          (if (n/coll-pairs-reverse (n/name node-type))
+                                                            end
+                                                            js/undefined))}))]
+        {:cursor close-node-end}
+        (insertion head key-name)))))
 
 (def extension
   (.domEventHandlers view/EditorView
@@ -101,8 +104,8 @@
                                  (let [^string key-name (keyName event)]
                                    (u/dispatch-some view
                                      (cond
-                                       (n/bracket-pair key-name)
+                                       (n/pairs key-name)
                                        (handle-open state key-name)
 
                                        (n/right-edges key-name)
-                                       (handle-close state))))))}))
+                                       (handle-close state key-name))))))}))

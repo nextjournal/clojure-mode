@@ -27,13 +27,17 @@
 (defn rights [^js node]
   (take-while identity (iterate right (right node))))
 
-(def bracket-pair
-  (let [pairs {"(" ")"
-               "[" "]"
-               "{" "}"
-               \" \"}]
-    (reduce-kv (fn [m k v] (assoc m v k))
-               pairs pairs)))
+;; TODO
+;; clean up overlapping ways of defining collection pairs..
+;; and/or put matching-bracket details into grammar as node prop
+
+(def coll-pairs {"(" ")"
+                 "[" "]"
+                 "{" "}"})
+
+(def coll-pairs-reverse (zipmap (vals coll-pairs) (keys coll-pairs)))
+
+(def pairs (merge coll-pairs {\" \"}))
 
 (def prefix-edges #{"#"
                     "##"
@@ -115,7 +119,7 @@
 (defn discard? [node] (identical? "Discard" (name node)))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
-  (if-let [closing (bracket-pair (name firstChild))]
+  (if-let [closing (pairs (name firstChild))]
     (and (= closing (name lastChild))
          (not= (end firstChild) (end lastChild)))
     true))
