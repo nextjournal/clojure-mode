@@ -8,3 +8,5 @@
 (defn cursor [from] (.cursor EditorSelection from))
 (defn create [ranges index] (.create EditorSelection ranges index))
 (defn constrain [^js state from] (-> from (max 0) (min (.. state -doc -length))))
+(defn eq? [^js sel1 sel2]
+  (.eq sel1 sel2))

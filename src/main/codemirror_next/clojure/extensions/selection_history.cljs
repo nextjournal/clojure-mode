@@ -1,7 +1,8 @@
 (ns codemirror-next.clojure.extensions.selection-history
   (:require ["@codemirror/next/state" :refer [Facet Extension EditorSelection StateField]]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.util :as u]))
+            [codemirror-next.clojure.util :as u]
+            [codemirror-next.clojure.selections :as sel]))
 
 (defn second-last [^js arr]
   (when (> (.-length arr) 1)
@@ -32,11 +33,11 @@
                    (list selection)
 
                    ;; selected previous selection => move backwards
-                   (some-> stack second (.eq selection))
+                   (some-> stack ^js second (sel/eq? selection))
                    (drop 1 stack)
 
                    ;; same selection => no-op
-                   (some-> stack first (.eq selection))
+                   (some-> stack ^js first (sel/eq? selection))
                    stack
 
                    ;; transaction has selection => add to log
