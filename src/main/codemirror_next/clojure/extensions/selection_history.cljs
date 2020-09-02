@@ -33,11 +33,11 @@
                    (list selection)
 
                    ;; selected previous selection => move backwards
-                   (some-> stack ^js second (sel/eq? selection))
+                   (some-> stack second (sel/eq? selection))
                    (drop 1 stack)
 
                    ;; same selection => no-op
-                   (some-> stack ^js first (sel/eq? selection))
+                   (some-> stack first (sel/eq? selection))
                    stack
 
                    ;; transaction has selection => add to log
