@@ -11,7 +11,7 @@
 (defn dispatch-some
   "If passed a transaction, dispatch to view and return true to stop processing commands."
   [^js view tr]
-  (if (some? tr)
+  (if tr
     (do (.dispatch view tr)
         true)
     false))

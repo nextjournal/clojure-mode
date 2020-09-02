@@ -20,41 +20,45 @@
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
   [^:js {:as ^EditorState state :keys [doc]}]
-  (u/update-ranges state
-    (j/fn [^:js {:as range :keys [head empty anchor]}]
-      (j/let [^:js {:as range pos :from} (from-to head anchor)]
-        (if (not empty)
-          ;; delete selections as normal
-          {:cursor pos
-           :changes range}
-          (let [^js node| (.resolve (.-tree state) pos -1)  ;; node immediately to the left of cursor
-                name| (n/name node|)
-                ^js parent (.-parent node|)]
-            (or (cond
+  (if (and (= 1 (.. state -selection -ranges -length))
+           (let [^js range (j/get-in state [:selection :ranges 0])]
+             (and (.-empty range) (= 0 (.-from range)))))
+    false
+    (u/update-ranges state
+      (j/fn [^:js {:as range :keys [head empty anchor]}]
+        (j/let [^:js {:as range pos :from} (from-to head anchor)]
+          (if (not empty)
+            ;; delete selections as normal
+            {:cursor pos
+             :changes range}
+            (let [^js node| (.resolve (.-tree state) pos -1) ;; node immediately to the left of cursor
+                  name| (n/name node|)
+                  ^js parent (.-parent node|)]
+              (or (cond
 
-                  ;; if parent isn't balanced, normal backspace
-                  (and parent (not (n/balanced? parent))) nil
+                    ;; if parent isn't balanced, normal backspace
+                    (and parent (not (n/balanced? parent))) nil
 
-                  ;; entering right edge of collection - skip
-                  (and (n/closing-bracket? node|) (== pos (.-end parent)))
-                  {:cursor (dec pos)}
+                    ;; entering right edge of collection - skip
+                    (and (n/closing-bracket? node|) (== pos (.-end parent)))
+                    {:cursor (dec pos)}
 
-                  ;; inside left edge of collection - remove or stop
-                  (and (n/pairs name|) (== (.-start node|) (.-start parent)))
-                  (if (n/empty? (n/up node|))
-                    ;; remove empty collection
-                    {:cursor (.-start parent)
-                     :changes [(from-to (.-start parent) (.-end parent))]}
-                    ;; stop cursor at inner-left of collection
-                    {:cursor pos})
+                    ;; inside left edge of collection - remove or stop
+                    (and (n/pairs name|) (== (.-start node|) (.-start parent)))
+                    (if (n/empty? (n/up node|))
+                      ;; remove empty collection
+                      {:cursor (.-start parent)
+                       :changes [(from-to (.-start parent) (.-end parent))]}
+                      ;; stop cursor at inner-left of collection
+                      {:cursor pos})
 
 
-                  (some-> (n/tree state (dec pos) -1)
-                          (u/guard (every-pred #(= (dec pos) (.-end ^js %))
-                                               n/line-comment?)))
-                  {:cursor (dec pos)})
-                {:cursor (sel/constrain state (dec pos))
-                 :changes (from-to (sel/constrain state (dec pos)) pos)})))))))
+                    (some-> (n/tree state (dec pos) -1)
+                            (u/guard (every-pred #(= (dec pos) (.-end ^js %))
+                                                 n/line-comment?)))
+                    {:cursor (dec pos)})
+                  {:cursor (sel/constrain state (dec pos))
+                   :changes (from-to (sel/constrain state (dec pos)) pos)}))))))))
 
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (n/pairs open)]
