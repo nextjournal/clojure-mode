@@ -1,13 +1,13 @@
 @top[name=Program] { expression* }
 
 @skip { whitespace | LineComment | Discard }
-expression { Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Meta | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg | Meta }
+expression { Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg | Meta<expression> }
 Discard { "#_" expression }
 @precedence { docString @left, operator @left, meta @right }
 
 listContents {
-   defList  { Metadata? DefLike Metadata? VarName (DocString expression+ | expression+)? } |
-   anyList { (Metadata? Operator)? expression* }
+   defList  { defLikeWithMeta varNameWithMeta (DocString expression+ | expression+)? } |
+   anyList { operatorWithMeta? expression* }
  }
 
 DocString { !docString String }
@@ -29,7 +29,7 @@ VarName { Symbol }
   String { '"' StringContent? '"' }
 }
 
-Meta { Metadata !meta expression }
+Meta<t> { Metadata !meta t }
 
 Deref { "@" expression }
 Quote { "'" expression }
@@ -37,6 +37,10 @@ SyntaxQuote { "`" expression }
 Unquote { "~" expression }
 UnquoteSplice { "~@" expression }
 Symbol { ident }
+operatorWithMeta { Operator | Meta<operatorWithMeta> }
+defLikeWithMeta { DefLike | Meta<defLikeWithMeta> }
+varNameWithMeta { VarName | Meta<varNameWithMeta> }
+
 Operator { !operator ident }
 
 @tokens {
@@ -71,7 +75,7 @@ Operator { !operator ident }
   LineComment { ";" ![\n]* }
 
   identStart { std.asciiLetter | $[<>._=?!*+\-$\u{a1}-\u{10ff}] }
-  identChar { identStart (std.digit | ":" | "." | "'" | "#")* }
+  identChar { identStart | std.digit | ":" | "'" | "#" }
   simpleIdent { identStart identChar* }
   qualifiedIdent { simpleIdent "/" identChar+ }
   ident { simpleIdent | qualifiedIdent }
