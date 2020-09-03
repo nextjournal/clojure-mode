@@ -104,6 +104,8 @@ Operator { !operator Symbol }
 
 }
 
-@external extend {Symbol} specializeSymbol from "./tokens" { DefLike, Nil, Boolean }
+Boolean { @specialize<Symbol, "true" | "false"> }
+Nil { @specialize<Symbol, "nil"> }
+DefLike { @extend<Symbol, "def" | "defn" | "defonce" | "deftest" | "defcard"> }
 
 @detectDelim

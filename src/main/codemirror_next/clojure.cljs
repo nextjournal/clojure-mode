@@ -23,15 +23,7 @@
 
 (def parser
   (lg/buildParser
-   (rc/inline "./clojure/clojure.grammar") #js {:externalSpecializer
-                                                (fn [_name ^js terms]
-                                                  (fn [value _stack]
-                                                    (if (= "def" (.slice value 0 3))
-                                                      (.-DefLike terms)
-                                                      (case value
-                                                        "nil" (.-Nil terms)
-                                                        ("true" "false") (.-Boolean terms)
-                                                        -1))))}))
+   (rc/inline "./clojure/clojure.grammar")))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
