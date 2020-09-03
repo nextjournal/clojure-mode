@@ -36,12 +36,11 @@ Quote { "'" expression }
 SyntaxQuote { "`" expression }
 Unquote { "~" expression }
 UnquoteSplice { "~@" expression }
-Symbol { ident }
 operatorWithMeta { Operator | Meta<operatorWithMeta> }
 defLikeWithMeta { DefLike | Meta<defLikeWithMeta> }
 varNameWithMeta { VarName | Meta<varNameWithMeta> }
 
-Operator { !operator ident }
+Operator { !operator Symbol }
 
 @tokens {
 
@@ -79,6 +78,7 @@ Operator { !operator ident }
   simpleIdent { identStart identChar* }
   qualifiedIdent { simpleIdent "/" identChar+ }
   ident { simpleIdent | qualifiedIdent }
+  Symbol { ident }
 
   keyword { ":" ":"? ident }
   Keyword { keyword }
@@ -92,7 +92,7 @@ Operator { !operator ident }
     "0b" $[01]+ |
     "0o" $[0-7]+
   }
-  @precedence { Number, ident }
+  @precedence { Number, Symbol }
 
   StringContent {
     (!["] | "\\" _)+
@@ -104,6 +104,6 @@ Operator { !operator ident }
 
 }
 
-@external specialize {ident} specializeIdent from "./tokens" { DefLike, Nil, Boolean }
+@external extend {Symbol} specializeSymbol from "./tokens" { DefLike, Nil, Boolean }
 
 @detectDelim
