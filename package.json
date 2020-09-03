@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@codemirror/next": "0.10.0",
+        "@codemirror/next": "0.11.0",
         "lezer": "0.10.2",
         "lezer-generator": "0.10.2",
         "lezer-tree": "0.10.0",
