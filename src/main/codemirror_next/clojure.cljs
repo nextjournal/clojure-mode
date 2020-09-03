@@ -26,11 +26,11 @@
    (rc/inline "./clojure/clojure.grammar") #js {:externalSpecializer
                                                 (fn [_name ^js terms]
                                                   (fn [value _stack]
-                                                    (case value
-                                                      "nil" (.-Nil terms)
-                                                      ("true" "false") (.-Boolean terms)
-                                                      (if (= "def" (.slice value 0 3))
-                                                        (.-DefLike terms)
+                                                    (if (= "def" (.slice value 0 3))
+                                                      (.-DefLike terms)
+                                                      (case value
+                                                        "nil" (.-Nil terms)
+                                                        ("true" "false") (.-Boolean terms)
                                                         -1))))}))
 
 (def fold-node-props
@@ -41,19 +41,17 @@
         :Set coll-span
         :List coll-span}))
 
-
 (def style-tags
-  #js{"VarName/Symbol" "variableName definition"
-      :DefLike "keyword"
+  #js{:DefLike "keyword"
+      "Operator/Symbol" "keyword"
+      "VarName/Symbol" "variableName definition"
       :Boolean "atom"
-      :DocString "+emphasis"
-      :Discard "+comment"
-      :Comment "lineComment"
+      :DocString  "+emphasis"
+      :Discard "!comment"
       :Number "number"
       :String "string"
       :Keyword "atom"
       :Nil "null"
-      :Symbol "labelName"
       :LineComment "lineComment"
       :RegExp "regexp"})
 
