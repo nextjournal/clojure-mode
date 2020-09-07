@@ -22,30 +22,15 @@
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
-(defn sample-text []
-  (str "(defn lezer-clojure
-  \"This is a showcase for `lezer-clojure`, an grammar for Clojure/Script to
-  enable a decent editor experience in the browser.\"
-  {:added \"0.1\"}
-  [demo]
-  nil ;; nil
-  (+ 1 1.0 1/5 1E3 042 +042 -042) ;; numbers
-  :hi :hi/ho ::ho :*+!-_? :abc:def:ghi ;; keywords
-  true false ;; booleans
-  :hello #_ :ignored ;; ignore next form
-  #\"[A-Z]\" ;; regex
-  ^{:meta/data 'is-data} 'too
-  (if (test? <demo>)
-    (inc demo)|
-    (dec demo)))
-  #
-    [ ]
-    #\"a\""
-       \newline
-       "a b(c|)d e"
-       )
 
-  )
+(def clojure-core-src
+  (rc/inline "./clojure.core.txt"))
+
+(comment
+  cm-clj/parser)
+
+(defn sample-text []
+  clojure-core-src)
 
 (defonce prev-views (atom []))
 
