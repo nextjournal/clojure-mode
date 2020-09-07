@@ -106,6 +106,6 @@ Operator { !operator Symbol }
 
 Boolean { @specialize<Symbol, "true" | "false"> }
 Nil { @specialize<Symbol, "nil"> }
-DefLike[dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defmacro" | "defonce" | "deftest" | "defcard"> }
+DefLike[dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defn-" | "defmacro" | "definline" | "defonce" | "deftest" | "defcard"> }
 
 @detectDelim
