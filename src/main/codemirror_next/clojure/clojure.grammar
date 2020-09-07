@@ -6,7 +6,7 @@ Discard { "#_" expression }
 @precedence { docString @left, operator @left, meta @right }
 
 listContents {
-   defList  { defLikeWithMeta varNameWithMeta (DocString expression+ | expression+)? } |
+   defList { defLikeWithMeta varNameWithMeta (DocString expression+ | expression+)? } |
    anyList { operatorWithMeta? expression* }
  }
 
@@ -106,6 +106,6 @@ Operator { !operator Symbol }
 
 Boolean { @specialize<Symbol, "true" | "false"> }
 Nil { @specialize<Symbol, "nil"> }
-DefLike { @extend<Symbol, "def" | "defn" | "defonce" | "deftest" | "defcard"> }
+DefLike[dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defmacro" | "defonce" | "deftest" | "defcard"> }
 
 @detectDelim
