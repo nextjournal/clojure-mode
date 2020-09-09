@@ -20,10 +20,9 @@
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
   [^:js {:as ^EditorState state :keys [doc]}]
-  (if (and (= 1 (.. state -selection -ranges -length))
-           (let [^js range (j/get-in state [:selection :ranges 0])]
-             (and (.-empty range) (= 0 (.-from range)))))
-    false
+  (when-not (and (= 1 (.. state -selection -ranges -length))
+                 (let [^js range (j/get-in state [:selection :ranges 0])]
+                   (and (.-empty range) (= 0 (.-from range)))))
     (u/update-ranges state
       (j/fn [^:js {:as range :keys [head empty anchor]}]
         (j/let [^:js {:as range pos :from} (from-to head anchor)]

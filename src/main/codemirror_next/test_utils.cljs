@@ -58,4 +58,4 @@
          (string? doc)]}
   (let [state (make-state extensions doc)
         tr (cmd state)]
-    (state-str (.-state tr))))
+    (state-str (if tr (.-state tr) state))))
