@@ -1,6 +1,6 @@
 (ns codemirror-next.clojure.util
   (:require [applied-science.js-interop :as j]
-            ["@codemirror/next/state" :refer [EditorSelection ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec]]
+            ["@codemirror/next/state" :refer [EditorSelection ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec StateEffect]]
             [codemirror-next.clojure.selections :as sel]))
 
 (defn guard [x f] (when (f x) x))
@@ -101,7 +101,7 @@
   "`f` will be called for each changed line with args [line, changes-array]
    and should *mutate* changes-array. Selections will be mapped through the resulting changeset."
   [^:js {:as tr
-         :keys [^js startState ^js changes ^js effects]
+         :keys [^js changes ^js effects annotations scrollIntoView reconfigure]
          {:as ^js state :keys [^js doc]} :state} f]
   (let [at-line (atom -1)
         next-changes #js[]
@@ -117,12 +117,13 @@
                    (let [next-line (.lineAt doc (inc line-to))]
                      (when (and next-line (> (.-number next-line) (.-number line)))
                        (recur next-line))))))))
-        next-changeset (.changes state next-changes)
-        next-selection (.. state -selection (map next-changeset)) ;; map selection through changeset
-        combined-changes (.compose changes next-changeset)]
-    #js{:changes combined-changes
-        :selection next-selection
-        :effects effects}))
+        next-changeset (.changes state next-changes)]
+    #js{:changes (.compose changes next-changeset)
+        :selection (.. state -selection (map next-changeset))
+        :effects (.mapEffects StateEffect effects next-changeset)
+        :annotations annotations
+        :scrollIntoView scrollIntoView
+        :reconfigure reconfigure}))
 
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))
