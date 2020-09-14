@@ -83,18 +83,27 @@
 (defn handle-close [state key-name]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [empty head]}]
-      ;; TODO
-      ;; allow insertion of closing-paren to fix unbalanced collection
-      (if-let [close-node-end (and empty
-                                   (.iterate (n/tree state)
-                                             #js{:from (inc head)
-                                                 :enter (fn [node-type start end]
-                                                          (if
-                                                            (n/right-edge-type? node-type)
-                                                            end
-                                                            js/undefined))}))]
-        {:cursor close-node-end}
-        (u/insertion head key-name)))))
+      (or (let [unbalanced (some->
+                             (n/tree state head -1)
+                             (n/ancestors)
+                             (->> (filter (every-pred n/coll? (complement n/balanced?))))
+                             first)
+                closing (some-> unbalanced n/down n/closed-by)
+                pos (n/end unbalanced)]
+            (when (and closing (= closing key-name))
+              {:changes {:from pos
+                         :insert closing}
+               :cursor (inc pos)}))
+          (when-let [close-node-end (and empty
+                                         (.iterate (n/tree state)
+                                                   #js{:from (inc head)
+                                                       :enter (fn [node-type start end]
+                                                                (if
+                                                                  (n/right-edge-type? node-type)
+                                                                  end
+                                                                  js/undefined))}))]
+            {:cursor close-node-end})
+          (u/insertion head key-name)))))
 
 (def extension
   (.domEventHandlers view/EditorView

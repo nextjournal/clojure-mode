@@ -102,7 +102,7 @@
 
 (def paredit-keymap
   {:indent
-   [{:key "Alt-Tab"
+   [{:key "Tab"
      :doc "Indent document (or selection)"}]
    :unwrap
    [{:key "Alt-s"

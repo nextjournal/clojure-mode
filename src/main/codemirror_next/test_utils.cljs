@@ -42,7 +42,9 @@
 (comment
  (-> (make-state #js[] "<a>b|c<d\n>a<b>c|")
      (state-str)
-     (= "<a>b|c<d\n>a<b>c|")))
+     (= "<a>b|c<d\n>a<b>c|"))
+
+ )
 
 (defn apply-cmd [extensions cmd doc]
   (let [state (make-state extensions doc)

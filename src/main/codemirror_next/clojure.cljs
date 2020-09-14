@@ -18,7 +18,8 @@
             [codemirror-next.clojure.node :as n]
             [codemirror-next.clojure.selections :as sel]
             [codemirror-next.test-utils :as test-utils]
-            [shadow.resource :as rc])
+            [shadow.resource :as rc]
+            [codemirror-next.clojure.util :as u])
   (:require-macros [codemirror-next.build :as build]))
 
 (def parser
@@ -71,3 +72,17 @@
 (defn state [content & [extensions]]
   (.create EditorState #js{:doc content
                            :extensions (or extensions default-extensions)}))
+
+(comment
+  (aset js/window "n" lz-tree/NodeProp)
+  (let [state (test-utils/make-state default-extensions
+                       "[[]|")
+        from (.. state -selection -primary -from)]
+    (some->>
+      (n/tree state from -1)
+      (n/ancestors)
+      (filter (complement n/balanced?))
+      first
+      n/down
+      n/closed-by
+      )))
