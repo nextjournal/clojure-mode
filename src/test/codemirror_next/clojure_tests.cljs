@@ -139,10 +139,6 @@
     "#(|a )" "#(|a)"
 
 
-    ;; not exactly desired, side effect of # being a prefix,
-    ;; also not that bad because this is invalid anyway.
-    "#| []" "#|[]"
-
     "|@ a" "|@a"
 
     ))

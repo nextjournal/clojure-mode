@@ -24,7 +24,7 @@
     (cond (= "Program" type-name)
           0
 
-          (node/coll-name? type-name)
+          (.prop type node/coll-prop)
           (let [left-bracket-end (.. node -firstChild -end)]
             (cond-> (.column context left-bracket-end)
               ;; start at the inner-left edge of the coll.
@@ -69,10 +69,18 @@
                      :to (+ from current-indent)})))))))
 
 (defn expected-space [n1 n2]
-  (cond (n/right-edges n2) 0
-        (n/left-edges n1) 0
-        (identical? n1 "KeywordPrefix") 0
-        :else 1))
+  (cond
+
+    ;; left-edges
+    (.prop n1 n/start-edge-prop) 0
+    (.prop n1 n/same-edge-prop) 0
+    (.prop n1 n/prefix-edge-prop) 0
+
+    ;; right-edges
+    (.prop n2 n/end-edge-prop) 0
+    (.prop n2 n/same-edge-prop) 0
+
+    :else 1))
 
 (defn space-changes [state from to]
   (->> (n/terminal-nodes (.-tree state) to from)

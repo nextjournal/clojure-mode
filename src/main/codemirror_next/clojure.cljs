@@ -24,11 +24,8 @@
 (def parser
   (lg/buildParser
    (rc/inline "./clojure/clojure.grammar")
-   #js{:externalProp (fn [prop-name]
-                       (prn :exprop prop-name)
-                       (case prop-name
-                         "prefix" (.flag lz-tree/NodeProp)))}))
-
+   #js{:externalProp n/node-prop}))
+(js/console.log parser)
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
                                      :to (dec (.-end tree))})]

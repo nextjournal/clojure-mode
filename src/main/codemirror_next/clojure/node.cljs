@@ -7,125 +7,94 @@
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.selections :as sel]))
 
+(defonce coll-prop (.flag lz-tree/NodeProp))
+(defonce prefix-prop (.flag lz-tree/NodeProp))
+(defonce end-edge-prop (.flag lz-tree/NodeProp))
+(defonce start-edge-prop (.flag lz-tree/NodeProp))
+(defonce prefix-edge-prop (.flag lz-tree/NodeProp))
+(defonce same-edge-prop (.flag lz-tree/NodeProp))
+
+(defn node-prop [prop-name]
+  (case prop-name "prefix" prefix-prop
+                  "coll" coll-prop
+                  "startEdge" start-edge-prop
+                  "endEdge" end-edge-prop
+                  "prefixEdge" prefix-edge-prop
+                  "sameEdge" same-edge-prop))
+
+(defn prop [^js node prop]
+  {:pre [(instance? lz-tree/Subtree node)]}
+  (.. node -type (prop prop)))
+
+
 (defn ^number start [^js node] (.-start node))
 (defn ^number end [^js node] (.-end node))
 (defn ^number depth [^js node] (.-depth node))
 
-(defn ^js up [^js node] (.-parent node))
-(defn ^js down [^js node] (.-firstChild node))
-(defn ^js down-last [^js node] (.-lastChild node))
+(defn ^js up [node] (.-parent ^js node))
+(defn ^js down [node] (.-firstChild ^js node))
+(defn ^js down-last [node] (.-lastChild ^js node))
+(defn ^js left [^js node] (.childBefore (up node) (start node)))
 
-(defn ^js left [^js node]
-  (.childBefore (up node) (start node)))
-
-(defn lefts [^js node]
+(defn lefts [node]
   (take-while identity (iterate left (left node))))
 
-(defn ^js right [^js node]
+(defn ^js right [node]
   (.childAfter (up node) (end node)))
 
-(defn rights [^js node]
+(defn rights [node]
   (take-while identity (iterate right (right node))))
 
-;; TODO
-;; clean up overlapping ways of defining collection pairs..
-;; and/or put matching-bracket details into grammar as node prop
+(defn prefix-node? [n] (prop n prefix-prop))
+(defn prefix-edge-node? [n] (prop n prefix-edge-prop))
+(defn same-edge-node? [n] (prop n same-edge-prop))
+(defn start-edge-node? [n] (prop n start-edge-prop))
+(defn end-edge-node? [n] (prop n end-edge-prop))
 
-(def coll-pairs {"(" ")"
-                 "[" "]"
-                 "{" "}"})
+(defn closed-by [n] (some-> (prop n (.-closedBy lz-tree/NodeProp)) (aget 0)))
 
-(def coll-pairs-reverse (zipmap (vals coll-pairs) (keys coll-pairs)))
+(defn left-edge-node? [n]
+  (or (start-edge-node? n)
+      (same-edge-node? n)
+      (prefix-node? n)))
 
-(def pairs (merge coll-pairs {\" \"}))
+(defn right-edge-node? [n]
+  (or (end-edge-node? n)
+      (same-edge-node? n)))
 
-(def prefix-edges #{"#"
-                    "##"
-                    "#'"
-                    "#?"
-                    "#^"
-                    "#_"
-                    "\""
-                    "'"
-                    "`"
-                    "~"
-                    "~@"
-                    "^"
-                    "@"})
+(defn edge-node? [n]
+  (or (start-edge-node? n)
+      (end-edge-node? n)
+      (same-edge-node? n)
+      (prefix-node? n)))
 
-(def left-edges (into #{"["
-                        "{"
-                        "("} prefix-edges))
+;; specific node types
 
-(def right-edges #{"]"
-                   "}"
-                   ")"
-                   "\""})
-
-
-(def coll-names #{"Set"
-                  "Map"
-                  "List"
-                  "Vector"})
-
-(def prefix-names #{"Deref"
-                    "Ignored"
-                    "Quote"
-                    "SyntaxQuote"
-                    "Unquote"
-                    "UnquoteSplice"
-                    "Meta"
-                    "NamespacedMap"
-                    "RegExp"
-                    "Var"
-                    "AnonymousFunction"
-                    "ReaderConditional"})
-
-(def edges (into left-edges right-edges))
-
-(defn error? [^js node]
-  (.prop node lz-tree/NodeProp.error))
-
-(defn ^string name [^js node] (.-name node))
-
-(def left-edge? (comp boolean left-edges name))
-(def right-edge? (comp boolean right-edges name))
-(def edge? (comp boolean edges name))
-
-(def opening-bracket? (comp boolean left-edges name))
-(def closing-bracket? (comp boolean right-edges name))
-
-
-(defn coll-name? [type-name]
-  (contains? coll-names type-name))
-
-(defn coll? [node]
-  (or
-   (coll-name? (name node))
-   (some-> (down node) name prefix-edges)))
-
-(defn terminal-type? [node]
-  (let [n (name node)]
-    (cond (identical? n "Program") false
-          (coll-name? n) false
-          (prefix-names n) false
-          :else true)))
-
-(defn top? [node] (nil? (up node)))
-
+(defn error? [^js node] (.prop node lz-tree/NodeProp.error))
+(defn top? [node] (prop node (.-top lz-tree/NodeProp)))
 (defn string? [node] (identical? "String" (name node)))
 (defn regexp? [node] (identical? "RegExp" (name node)))
 (defn line-comment? [node] (identical? "LineComment" (name node)))
 (defn discard? [node] (identical? "Discard" (name node)))
 
-(j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
-  (if-let [closing (pairs (name firstChild))]
-    (and (= closing (name lastChild))
-         (not= (end firstChild) (end lastChild)))
-    true))
+(defn ^string name [^js node] (.-name node))
 
-(defn prefix-parent? [type-name]
-  (contains? prefix-names type-name))
+(defn coll? [node]
+  (or (prop node coll-prop)
+      (prop node prefix-prop)))
+
+(defn terminal-type? [^js node-type]
+  (cond (.prop node-type (.-top lz-tree/NodeProp)) false
+        (.prop node-type prefix-prop) false
+        (.prop node-type coll-prop) false
+        :else true))
+
+(j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
+  (if-let [closing (closed-by firstChild)]
+    (do
+      (and (= closing (name lastChild))
+           (not= (end firstChild) (end lastChild))))
+    true))
 
 (defn ancestors [^js node]
   (when-some [parent (up node)]
@@ -156,7 +125,7 @@
   "Node only contains whitespace"
   [^js node]
   (let [type-name (name node)]
-    (cond (coll-name? type-name)
+    (cond (coll? node)
           (eq? (-> node down right) (-> node down-last))
 
           (= "String" type-name)
@@ -185,7 +154,7 @@
                        :enter (fn [type start end]
                                 (if (and (terminal-type? type)
                                          (not (error? type)))
-                                  (do (swap! found conj #js[(name type) start end])
+                                  (do (swap! found conj #js[type start end])
                                       false)
                                   js/undefined))})
     @found))
@@ -232,7 +201,7 @@
               (end to-node)
               to)
          [left right] (->> (nodes-between from-node to-node)
-                           (map #(cond-> % (edges (name %)) up))
+                           (map #(cond-> % (edge-node? %) up))
                            (reduce (fn [[left right] ^js node-between]
                                      [(if (ancestor? node-between from-node) (start node-between) left)
                                       (if (ancestor? node-between to-node) (end node-between) right)])
@@ -242,10 +211,10 @@
 (j/defn inner-span
   "Span of collection not including edges"
   [^:js {:as node :keys [firstChild lastChild]}]
-  #js{:start (if (left-edge? firstChild)
+  #js{:start (if (left-edge-node? firstChild)
                (end firstChild)
                (start node))
-      :end (if (right-edge? lastChild)
+      :end (if (right-edge-node? lastChild)
              (start lastChild)
              (end node))})
 
@@ -263,12 +232,12 @@
        (not (pos? (compare (end parent) (end child))))))
 
 (defn follow-edges [node]
-  (if (edges (name node))
+  (if (edge-node? node)
     (up node)
     node))
 
 (defn prefix [node]
-  (some-> (up node) down name (u/guard prefix-edges)))
+  (some-> (up node) down (u/guard prefix-edge-node?) name ))
 
 (defn left-edge-with-prefix [node]
   (str (prefix node) (name (down node))))

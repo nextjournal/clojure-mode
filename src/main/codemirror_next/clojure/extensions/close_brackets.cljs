@@ -32,7 +32,6 @@
             {:cursor pos
              :changes range}
             (let [^js node| (.resolve (.-tree state) pos -1) ;; node immediately to the left of cursor
-                  name| (n/name node|)
                   ^js parent (.-parent node|)]
               (or (cond
 
@@ -40,11 +39,11 @@
                     (and parent (not (n/balanced? parent))) nil
 
                     ;; entering right edge of collection - skip
-                    (and (n/closing-bracket? node|) (== pos (.-end parent)))
+                    (and (n/right-edge-node? node|) (== pos (.-end parent)))
                     {:cursor (dec pos)}
 
                     ;; inside left edge of collection - remove or stop
-                    (and (n/pairs name|) (== (.-start node|) (.-start parent)))
+                    (and (n/left-edge-node? node|) (== (.-start node|) (.-start parent)))
                     (if (n/empty? (n/up node|))
                       ;; remove empty collection
                       {:cursor (.-start parent)
@@ -60,8 +59,13 @@
                   {:cursor (sel/constrain state (dec pos))
                    :changes (from-to (sel/constrain state (dec pos)) pos)}))))))))
 
+(def coll-pairs {"(" ")"
+                 "[" "]"
+                 "{" "}"
+                 \" \"})
+
 (defn handle-open [^EditorState state ^string open]
-  (let [^string close (n/pairs open)]
+  (let [^string close (coll-pairs open)]
     (u/update-ranges state
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (or (cond (not empty)                               ;; wrap selections with brackets
@@ -84,7 +88,8 @@
                                    (.iterate (n/tree state)
                                              #js{:from (inc head)
                                                  :enter (fn [node-type start end]
-                                                          (if (n/coll-pairs-reverse (n/name node-type))
+                                                          (if (or (n/prop node-type n/end-edge-prop)
+                                                                  (n/prop node-type n/same-edge-prop))
                                                             end
                                                             js/undefined))}))]
         {:cursor close-node-end}
@@ -101,8 +106,8 @@
                                  (let [^string key-name (keyName event)]
                                    (u/dispatch-some view
                                      (cond
-                                       (n/pairs key-name)
+                                       (coll-pairs key-name)
                                        (handle-open state key-name)
 
-                                       (n/right-edges key-name)
+                                       (#{\) \] \} \"} key-name)
                                        (handle-close state key-name))))))}))

@@ -1,4 +1,9 @@
-@external prop myProp from "./props"
+@external prop prefix from "./props"
+@external prop coll from "./props"
+@external prop startEdge from "./props"
+@external prop endEdge from "./props"
+@external prop prefixEdge from "./props"
+@external prop sameEdge from "./props"
 
 @top[name=Program] { expression* }
 
@@ -13,31 +18,32 @@ listContents {
  }
 
 DocString { !docString String }
-List { "(" listContents ")" }
-Vector { "[" expression* "]" }
-Map { "{" expression* "}" }
+List[coll] { "(" listContents ")" }
+Vector[coll] { "[" expression* "]" }
+Map[coll] { "{" expression* "}" }
 VarName { Symbol }
 
 @skip {} {
-  Set[myProp=true] { "#" Map }
-  AnonymousFunction { "#" List }
-  NamespacedMap { "#" KeywordPrefix Map }
-  RegExp { "#" String }
-  Var { "#'" Symbol }
-  ReaderConditional { "#?" (List | Deref) }
-  DataLiteral { "#" ident }
-  SymbolicValue { "##" simpleIdent }
-  Metadata { ("^" | "#^") expression }
-  String { '"' StringContent? '"' }
+  Set[prefix] { "#" Map }
+  AnonymousFunction[prefix] { "#" List }
+  NamespacedMap[prefix] { "#" KeywordPrefix Map }
+  RegExp[prefix] { "#" String }
+  Var[prefix] { "#'" Symbol }
+  ReaderConditional[prefix] { "#?" (List | Deref) }
+  DataLiteral[prefix] { "#" ident }
+  SymbolicValue[prefix] { "##" simpleIdent }
+  ReaderMetadata[prefix] { "#^" expression }
+  Metadata[prefix] { "^" expression }
+  String[prefix] { '"' StringContent? '"' }
 }
 
 Meta<t> { Metadata !meta t }
 
-Deref { "@" expression }
-Quote { "'" expression }
-SyntaxQuote { "`" expression }
-Unquote { "~" expression }
-UnquoteSplice { "~@" expression }
+Deref[prefix] { "@" expression }
+Quote[prefix] { "'" expression }
+SyntaxQuote[prefix] { "`" expression }
+Unquote[prefix] { "~" expression }
+UnquoteSplice[prefix] { "~@" expression }
 operatorWithMeta { Operator | Meta<operatorWithMeta> }
 defLikeWithMeta { DefLike | Meta<defLikeWithMeta> }
 varNameWithMeta { VarName | Meta<varNameWithMeta> }
@@ -47,29 +53,29 @@ Operator { !operator Symbol }
 @tokens {
 
 
-  "["
-  "{"
-  "("
+  "["[startEdge]
+  "{"[startEdge]
+  "("[startEdge]
 
-  "#"
-  "##"
-  "#'"
-  "#?"
-  "#^"
-  "#_"
+  "#"[prefixEdge]
+  "##"[prefixEdge]
+  "#'"[prefixEdge]
+  "#?"[prefixEdge]
+  "#^"[prefixEdge]
+  "#_"[prefixEdge]
 
-  '"'
-  "'"
-  "`"
-  "~"
-  "~@"
-  "^"
-  "@"
+  '"'[sameEdge, closedBy='"']
+  "'"[prefixEdge]
+  "`"[prefixEdge]
+  "~"[prefixEdge]
+  "~@"[prefixEdge]
+  "^"[prefixEdge]
+  "@"[prefixEdge]
 
 
-  "]"
-  "}"
-  ")"
+  "]"[endEdge]
+  "}"[endEdge]
+  ")"[endEdge]
 
   whitespace { (std.whitespace | ",")+ }
 
@@ -84,7 +90,7 @@ Operator { !operator Symbol }
 
   keyword { ":" ":"? ident }
   Keyword { keyword }
-  KeywordPrefix { keyword }
+  KeywordPrefix[prefixEdge] { keyword }
 
   Number {
     ("+" | "-")? (std.digit+ ("." std.digit* "M"?)? | "." std.digit+) (("e" | "E") ("+" | "-")? std.digit+ "M"?)? |
