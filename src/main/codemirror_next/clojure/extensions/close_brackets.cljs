@@ -39,11 +39,12 @@
                     (and parent (not (n/balanced? parent))) nil
 
                     ;; entering right edge of collection - skip
-                    (and (n/right-edge-node? node|) (== pos (.-end parent)))
+                    (and (n/right-edge? node|) (== pos (.-end parent)))
                     {:cursor (dec pos)}
 
                     ;; inside left edge of collection - remove or stop
-                    (and (n/left-edge-node? node|) (== (.-start node|) (.-start parent)))
+                    (and (or (n/start-edge? node|)
+                             (n/same-edge? node|)) (== (.-start node|) (.-start parent)))
                     (if (n/empty? (n/up node|))
                       ;; remove empty collection
                       {:cursor (.-start parent)
@@ -88,8 +89,8 @@
                                    (.iterate (n/tree state)
                                              #js{:from (inc head)
                                                  :enter (fn [node-type start end]
-                                                          (if (or (n/prop node-type n/end-edge-prop)
-                                                                  (n/prop node-type n/same-edge-prop))
+                                                          (if
+                                                            (n/right-edge-type? node-type)
                                                             end
                                                             js/undefined))}))]
         {:cursor close-node-end}

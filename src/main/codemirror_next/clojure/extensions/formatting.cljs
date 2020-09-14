@@ -69,18 +69,12 @@
                      :to (+ from current-indent)})))))))
 
 (defn expected-space [n1 n2]
-  (cond
-
-    ;; left-edges
-    (.prop n1 n/start-edge-prop) 0
-    (.prop n1 n/same-edge-prop) 0
-    (.prop n1 n/prefix-edge-prop) 0
-
-    ;; right-edges
-    (.prop n2 n/end-edge-prop) 0
-    (.prop n2 n/same-edge-prop) 0
-
-    :else 1))
+  (if
+    (or
+      (n/left-edge-type? n1)
+      (n/right-edge-type? n2))
+    0
+    1))
 
 (defn space-changes [state from to]
   (->> (n/terminal-nodes (.-tree state) to from)

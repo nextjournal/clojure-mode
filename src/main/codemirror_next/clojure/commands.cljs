@@ -34,8 +34,8 @@
       (or (when empty
             (let [node (n/tree state from)
                   parent (n/closest node #(or (n/coll? %)
-                                              (= "String" (n/name %))
-                                              (= "Program" (n/name %))))
+                                              (n/string? %)
+                                              (n/top? %)))
                   line-end (.-to (.lineAt (.-doc state) from))
                   next-children (when parent (n/children parent from 1))
                   last-child-on-line
@@ -49,7 +49,7 @@
                                                  (if (neg? next-newline)
                                                    (dec (n/end parent))
                                                    (+ from next-newline 1)))
-                            last-child-on-line (if (n/end-edge-node? last-child-on-line)
+                            last-child-on-line (if (n/end-edge? last-child-on-line)
                                                  (n/start last-child-on-line)
                                                  (n/end last-child-on-line))
                             (some-> (first next-children)
@@ -98,11 +98,11 @@
                   (u/guard (j/fn [^:js {:as what :keys [start]}]
                              (= pos start))))
         mid (n/tree state pos)]
-    (case dir 1 (or (u/guard R (every-pred some? (complement n/right-edge-node?)))
+    (case dir 1 (or (u/guard R (every-pred some? (complement n/right-edge?)))
                     L
                     R
                     mid)
-              -1 (or (u/guard L (every-pred some? (complement n/left-edge-node?)))
+              -1 (or (u/guard L (every-pred some? (complement n/left-edge?)))
                      R
                      L
                      mid))))
@@ -147,8 +147,8 @@
       (j/fn [^:js {:as range :keys [from to empty]}]
         (when empty
           (when-let [parent (n/closest (n/tree state from) (every-pred n/coll?
-                                                                          #(not (case direction 1 (some-> % n/with-prefix n/right n/end-edge-node?)
-                                                                                                -1 (some-> % n/with-prefix n/left n/start-edge-node?)))))]
+                                                                       #(not (case direction 1 (some-> % n/with-prefix n/right n/end-edge?)
+                                                                                             -1 (some-> % n/with-prefix n/left n/start-edge?)))))]
             (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
                                               -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
               {:cursor/mapped from
