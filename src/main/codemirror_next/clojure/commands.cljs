@@ -173,7 +173,8 @@
   (fn [^js state]
     (->> (j/fn [^:js {:as range :keys [from to empty]}]
            (when empty
-             (when-let [parent (n/closest (n/tree state from) n/coll?)]
+             (when-let [parent (-> (n/tree state from)
+                                   (n/closest n/coll?))]
                (case direction
                  1
                  (when-let [target (some->> (n/down-last parent)
@@ -196,9 +197,12 @@
                                                       first)]
                    (let [left-edge (n/left-edge-with-prefix parent)
                          left-start (n/start (n/with-prefix parent))]
-                     {:cursor (max from (+ (n/start next-first-child) (count left-edge)))
-                      :changes [{:from (n/start next-first-child)
-                                 :insert left-edge}
+                     {:cursor (max from (+ (n/start next-first-child) (inc (count left-edge))))
+                      :changes [
+                                ;; insert left edge (prefixed by a space) in front of next-first-child
+                                {:from (n/start next-first-child)
+                                 :insert (str " " left-edge)}
+                                ;; replace left-edge with spaces
                                 {:from left-start
                                  :to (+ left-start (count left-edge))
                                  :insert (format/spaces state (count left-edge))}]}))))))
