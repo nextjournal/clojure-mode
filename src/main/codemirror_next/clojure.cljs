@@ -23,7 +23,11 @@
 
 (def parser
   (lg/buildParser
-   (rc/inline "./clojure/clojure.grammar")))
+   (rc/inline "./clojure/clojure.grammar")
+   #js{:externalProp (fn [prop-name]
+                       (prn :exprop prop-name)
+                       (case prop-name
+                         "prefix" (.flag lz-tree/NodeProp)))}))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
@@ -52,7 +56,8 @@
            (.withProps parser
                        format/props
                        (.add syntax/foldNodeProp fold-node-props)
-                       (highlight/styleTags style-tags))
+                       (highlight/styleTags style-tags)
+                       )
            (j/lit {:closeBrackets {:brackets [\( \[ \{ \' \"]
                                    :commentTokens {:line ";;"}}})))
 

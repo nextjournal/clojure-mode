@@ -337,10 +337,10 @@ lezer-css@^0.10.0:
   dependencies:
     lezer "^0.10.0"
 
-lezer-generator@0.10.2:
-  version "0.10.2"
-  resolved "https://registry.yarnpkg.com/lezer-generator/-/lezer-generator-0.10.2.tgz#fff122b4ba105810a0ec07eebfced5df72ace836"
-  integrity sha512-/ly2la2epz5QjyQMpwy3+wriQ1yE8dKcu9xOLZMt8/GMQCBHtPjFVhv5gyNIFjp+rbbAYBf5y/qWyq3Y5hVpvQ==
+lezer-generator@0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/lezer-generator/-/lezer-generator-0.10.3.tgz#47d68c0c40906d07e6dae8ab2215e83dc98be137"
+  integrity sha512-eReyY0cpM8mdyMUM+MsM6zNXExvY6lxVONgWBZHIG1Wg01gsMreoEe81drRdDOWOCAen+XMl8KJJFEs8XgcpZg==
   dependencies:
     lezer "^0.10.1"
 

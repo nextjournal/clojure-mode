@@ -1,3 +1,5 @@
+@external prop myProp from "./props"
+
 @top[name=Program] { expression* }
 
 @skip { whitespace | LineComment | Discard }
@@ -17,7 +19,7 @@ Map { "{" expression* "}" }
 VarName { Symbol }
 
 @skip {} {
-  Set { "#" Map }
+  Set[myProp=true] { "#" Map }
   AnonymousFunction { "#" List }
   NamespacedMap { "#" KeywordPrefix Map }
   RegExp { "#" String }
