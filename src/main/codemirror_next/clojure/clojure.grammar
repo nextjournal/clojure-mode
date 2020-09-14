@@ -64,7 +64,7 @@ Operator { !operator Symbol }
   "#^"[prefixEdge]
   "#_"[prefixEdge]
 
-  '"'[sameEdge, closedBy='"']
+  '"'[sameEdge, closedBy='"', openedBy='"']
   "'"[prefixEdge]
   "`"[prefixEdge]
   "~"[prefixEdge]
