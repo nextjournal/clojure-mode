@@ -24,6 +24,7 @@
                  (let [^js range (j/get-in state [:selection :ranges 0])]
                    (and (.-empty range) (= 0 (.-from range)))))
     (u/update-ranges state
+      #js{:annotations (.. Transaction -userEvent (of "delete"))}
       (j/fn [^:js {:as range :keys [head empty anchor]}]
         (j/let [^:js {:as range pos :from} (from-to head anchor)]
           (if (not empty)

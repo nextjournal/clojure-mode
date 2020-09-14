@@ -42,13 +42,16 @@
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
-  [^js state f]
-  (->> (fn [range]
-         (or (when-some [result (f range)]
-               (map-cursor state result))
-             #js{:range range}))
-       (.changeByRange state)
-       (.update state)))
+  ([state f]
+   (update-ranges state nil f))
+  ([^js state tr-specs f ]
+   (->> (fn [range]
+          (or (when-some [result (f range)]
+                (map-cursor state result))
+              #js{:range range}))
+        (.changeByRange state)
+        (#(j/extend! % tr-specs))
+        (.update state))))
 
 (defn dispatch-changes [^js state dispatch ^js changes]
   (when-not (.-empty changes)

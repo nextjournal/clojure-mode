@@ -76,6 +76,7 @@
     "@|x" "|x"
     "\"|\"" "|"                                             ;; delete empty string
     "\"| \"" "\"| \""                                             ;; do not delete string with whitespace
+    ":x  :a |" ":x  :a|"                                    ;; do not format on backspace
     ))
 
 (deftest indentSelection
