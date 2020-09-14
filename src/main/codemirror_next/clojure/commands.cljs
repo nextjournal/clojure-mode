@@ -66,6 +66,7 @@
 (defn nav-position [state from dir]
   (or (some-> (n/closest (n/tree state from)
                          #(or (n/coll? %)
+                              (n/string? %)
                               (n/top? %)))
               (n/children from dir)
               first

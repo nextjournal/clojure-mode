@@ -34,10 +34,10 @@ VarName { Symbol }
   SymbolicValue[prefix] { "##" simpleIdent }
   ReaderMetadata[prefix] { "#^" expression }
   Metadata[prefix] { "^" expression }
-  String[prefix] { '"' StringContent? '"' }
+  String { '"' StringContent? '"' }
 }
 
-Meta<t> { Metadata !meta t }
+Meta<t> { (Metadata | ReaderMetadata) !meta t }
 
 Deref[prefix] { "@" expression }
 Quote[prefix] { "'" expression }

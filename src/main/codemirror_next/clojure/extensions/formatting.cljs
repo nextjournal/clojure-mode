@@ -71,8 +71,10 @@
 (defn expected-space [n1 n2]
   (if
     (or
-      (n/left-edge-type? n1)
-      (n/right-edge-type? n2))
+      (n/start-edge-type? n1)
+      (n/prefix-edge-type? n1)
+      (n/end-edge-type? n2)
+      (n/same-edge-type? n2))
     0
     1))
 

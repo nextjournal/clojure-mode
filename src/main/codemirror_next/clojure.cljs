@@ -23,9 +23,9 @@
 
 (def parser
   (lg/buildParser
-   (rc/inline "./clojure/clojure.grammar")
-   #js{:externalProp n/node-prop}))
-(js/console.log parser)
+    (rc/inline "./clojure/clojure.grammar")
+    #js{:externalProp n/node-prop}))
+
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
                                      :to (dec (.-end tree))})]

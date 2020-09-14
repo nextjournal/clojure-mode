@@ -122,6 +122,7 @@
     (= (apply-f indent/format-all input)
        expected)
     "a  :b  3 |" "a :b 3 |"                                 ;; remove extra spaces
+    "\"\" |:a " "\"\" |:a "
     "(|a )" "(|a)"
     "| ( )" "|()"
     "|()a" "|() a"                                          ;; add needed spaces
