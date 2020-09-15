@@ -17,16 +17,14 @@
 ;; the prefix edge itself
 (defonce prefix-edge-prop (.flag lz-tree/NodeProp))
 ;; edges at the beginning/end of collections, + "same" edges (string quotes)
-(defonce start-edge-prop (.flag lz-tree/NodeProp))
-(defonce end-edge-prop (.flag lz-tree/NodeProp))
+(defonce start-edge-prop (.-closedBy lz-tree/NodeProp))
+(defonce end-edge-prop (.-openedBy lz-tree/NodeProp))
 (defonce same-edge-prop (.flag lz-tree/NodeProp))
 
 ;; used when instantiating the parser
 (defn node-prop [prop-name]
   (case prop-name "prefixColl" prefix-coll-prop
                   "coll" coll-prop
-                  "startEdge" start-edge-prop
-                  "endEdge" end-edge-prop
                   "prefixEdge" prefix-edge-prop
                   "sameEdge" same-edge-prop))
 

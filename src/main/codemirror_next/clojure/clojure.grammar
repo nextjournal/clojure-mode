@@ -1,7 +1,5 @@
 @external prop prefixColl from "./props"
 @external prop coll from "./props"
-@external prop startEdge from "./props"
-@external prop endEdge from "./props"
 @external prop prefixEdge from "./props"
 @external prop sameEdge from "./props"
 
@@ -53,9 +51,9 @@ Operator { !operator Symbol }
 @tokens {
 
 
-  "["[startEdge]
-  "{"[startEdge]
-  "("[startEdge]
+  "["
+  "{"
+  "("
 
   "#"[prefixEdge]
   "##"[prefixEdge]
@@ -73,9 +71,9 @@ Operator { !operator Symbol }
   "@"[prefixEdge]
 
 
-  "]"[endEdge]
-  "}"[endEdge]
-  ")"[endEdge]
+  "]"
+  "}"
+  ")"
 
   whitespace { (std.whitespace | ",")+ }
 
