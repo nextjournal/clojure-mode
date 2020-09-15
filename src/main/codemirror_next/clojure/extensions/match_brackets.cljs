@@ -18,6 +18,9 @@
 (def ^js matching-mark (.mark Decoration (j/obj :class (themeClass "matchingBracket"))))
 (def ^js nonmatching-mark (.mark Decoration (j/obj :class (themeClass "nonmatchingBracket"))))
 
+(defn mark-node [node ^js mark]
+  (.range mark (n/start node) (n/end node)))
+
 (def state
   (->>
     (j/lit
@@ -32,21 +35,23 @@
                                                                   (->> [(n/tree state head -1) (n/tree state head 1)]
                                                                        (filter (some-fn n/start-edge? n/end-edge?))
                                                                        first))]
-                                            (let [start? (and (n/start-edge? bracket)
-                                                              (= (n/start bracket)
-                                                                 (n/start (n/up bracket))))
-                                                  other-bracket (if start?
-                                                                  (-> bracket n/up n/down-last (u/guard #(= (n/name %)
-                                                                                                            (n/closed-by bracket))))
-                                                                  (-> bracket n/up n/down (u/guard #(= (n/name %)
-                                                                                                       (n/opened-by bracket)))))]
-                                              (if other-bracket
-                                                (-> out
-                                                    (j/push! (.range matching-mark (n/start bracket) (n/end bracket)))
-                                                    (j/push! (.range matching-mark (n/start other-bracket) (n/end other-bracket))))
-                                                (j/push! out (.range nonmatching-mark (n/start bracket) (n/end bracket))))))
-                                          out)) #js[]))]
-                     (.set Decoration decos true))
+                                            (if-let [other-bracket (if
+                                                                     ;; at starting position
+                                                                     (and (n/start-edge? bracket)
+                                                                          (= (n/start bracket)
+                                                                             (n/start (n/up bracket))))
+                                                                     (-> bracket n/up n/down-last
+                                                                         (u/guard #(= (n/name %)
+                                                                                      (n/closed-by bracket))))
+                                                                     (-> bracket n/up n/down
+                                                                         (u/guard #(= (n/name %)
+                                                                                      (n/opened-by bracket)))))]
+                                              (conj out
+                                                    (mark-node bracket matching-mark)
+                                                    (mark-node other-bracket matching-mark))
+                                              (conj out (mark-node bracket nonmatching-mark))))
+                                          out)) []))]
+                     (.set Decoration (into-array decos) true))
                    deco))
        :provide [(.-decorations EditorView)]})
     (.define StateField)))
