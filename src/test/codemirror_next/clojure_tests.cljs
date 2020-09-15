@@ -9,8 +9,8 @@
 ;; TODO
 ;; set up testing flow
 
-(def apply-f (partial test-utils/apply-f cm-clojure/default-extensions))
-(def apply-cmd (partial test-utils/apply-cmd cm-clojure/default-extensions))
+(def apply-f (partial test-utils/apply-f cm-clojure/clj-extensions))
+(def apply-cmd (partial test-utils/apply-cmd cm-clojure/clj-extensions))
 
 
 (deftest nav

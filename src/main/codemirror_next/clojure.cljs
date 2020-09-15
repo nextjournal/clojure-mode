@@ -1,11 +1,8 @@
 (ns codemirror-next.clojure
-  (:require ["@codemirror/next/closebrackets" :refer [closeBrackets]]
-            ["@codemirror/next/highlight" :as highlight]
-            ["@codemirror/next/history" :refer [history]]
-            ["@codemirror/next/matchbrackets" :refer [bracketMatching]]
+  (:require ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
-            ["@codemirror/next/view" :refer [EditorView keymap multipleSelections]]
+            ["@codemirror/next/view" :as view :refer [EditorView keymap multipleSelections]]
             ["lezer" :as lezer]
             ["lezer-generator" :as lg]
             ["lezer-tree" :as lz-tree]
@@ -30,53 +27,45 @@
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
                                      :to (dec (.-end tree))})]
-    #js{:Vector coll-span
-        :Map coll-span
-        :Set coll-span
-        :List coll-span}))
+    (j/lit
+      {:Vector coll-span
+       :Map coll-span
+       :List coll-span})))
 
 (def style-tags
-  #js{:DefLike "keyword"
-      "Operator/Symbol" "keyword"
-      "VarName/Symbol" "variableName definition"
-      :Boolean "atom"
-      :DocString  "+emphasis"
-      :Discard "!comment"
-      :Number "number"
-      :String "string"
-      :Keyword "atom"
-      :Nil "null"
-      :LineComment "lineComment"
-      :RegExp "regexp"})
+  (j/lit
+    {:DefLike "keyword"
+     "Operator/Symbol" "keyword"
+     "VarName/Symbol" "variableName definition"
+     :Boolean "atom"
+     :DocString "+emphasis"
+     :Discard "!comment"
+     :Number "number"
+     :String "string"
+     :Keyword "atom"
+     :Nil "null"
+     :LineComment "lineComment"
+     :RegExp "regexp"}))
 
-(def clojure-syntax
+(def clojure-syntax-ext
   (.define syntax/LezerSyntax
            (.withProps parser
                        format/props
                        (.add syntax/foldNodeProp fold-node-props)
-                       (highlight/styleTags style-tags)
-                       )
-           (j/lit {:closeBrackets {:brackets [\( \[ \{ \' \"]
-                                   :commentTokens {:line ";;"}}})))
+                       (highlight/styleTags style-tags))))
 
-(def default-extensions #js[(history)
-                            clojure-syntax
-                            (bracketMatching)
-                            highlight/defaultHighlighter
-                            (multipleSelections)
-                            close-brackets/extension
-                            (keymap (keymap/ungroup keymap/default-keymap))
-                            sel-history/extension
-                            format/ext-format-changed-lines])
+(def clj-keymap (view/keymap (keymap/ungroup keymap/default-keymap)))
 
-(defn state [content & [extensions]]
-  (.create EditorState #js{:doc content
-                           :extensions (or extensions default-extensions)}))
+(def clj-extensions #js[clojure-syntax-ext
+                        close-brackets/extension
+                        sel-history/extension
+                        format/ext-format-changed-lines])
 
 (comment
-  (aset js/window "n" lz-tree/NodeProp)
-  (let [state (test-utils/make-state default-extensions
-                       "[[]|")
+
+  (let [state (test-utils/make-state #js[clj-extensions
+                                         clj-keymap]
+                                     "[[]|")
         from (.. state -selection -primary -from)]
     (some->>
       (n/tree state from -1)

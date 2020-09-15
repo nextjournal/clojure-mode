@@ -22,6 +22,14 @@
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
+(def extensions (-> #js[(history)
+                        (bracketMatching)
+                        highlight/defaultHighlighter
+                        (multipleSelections)]
+                    (.concat
+                      cm-clj/clj-extensions
+                      #js[cm-clj/clj-keymap])))
+
 (defn sample-text []
   (str "(defn lezer-clojure
   \"This is a showcase for `lezer-clojure`, an grammar for Clojure/Script to
@@ -50,7 +58,7 @@
 (defonce prev-views (atom []))
 
 (defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state cm-clj/default-extensions initial-value)]
+  (let [state (test-utils/make-state extensions initial-value)]
     (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
          (new EditorView)
          (swap! prev-views conj))))
