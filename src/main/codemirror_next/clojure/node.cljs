@@ -53,7 +53,8 @@
 ;; category predicates
 
 (defn coll-type? [^js node-type]
-  (or (.prop node-type coll-prop) (.prop node-type prefix-coll-prop)))
+  (or (.prop node-type coll-prop)
+      #_(.prop node-type prefix-coll-prop)))
 
 (defn ^boolean prefix-type? [node-type] (.prop ^js node-type prefix-coll-prop))
 (defn ^boolean prefix-edge-type? [node-type] (.prop ^js node-type prefix-edge-prop))
@@ -111,6 +112,7 @@
   (cond (.prop node-type (.-top lz-tree/NodeProp)) false
         (.prop node-type prefix-coll-prop) false
         (.prop node-type coll-prop) false
+        (identical? "Meta" (.-name node-type)) false
         :else true))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
