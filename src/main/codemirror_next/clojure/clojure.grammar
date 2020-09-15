@@ -1,4 +1,4 @@
-@external prop prefix from "./props"
+@external prop prefixColl from "./props"
 @external prop coll from "./props"
 @external prop startEdge from "./props"
 @external prop endEdge from "./props"
@@ -24,26 +24,26 @@ Map[coll] { "{" expression* "}" }
 VarName { Symbol }
 
 @skip {} {
-  Set[prefix] { "#" Map }
-  AnonymousFunction[prefix] { "#" List }
-  NamespacedMap[prefix] { "#" KeywordPrefix Map }
-  RegExp[prefix] { "#" String }
-  Var[prefix] { "#'" Symbol }
-  ReaderConditional[prefix] { "#?" (List | Deref) }
-  DataLiteral[prefix] { "#" ident }
-  SymbolicValue[prefix] { "##" simpleIdent }
-  ReaderMetadata[prefix] { "#^" expression }
-  Metadata[prefix] { "^" expression }
+  Set[prefixColl] { "#" Map }
+  AnonymousFunction[prefixColl] { "#" List }
+  NamespacedMap[prefixColl] { "#" KeywordPrefix Map }
+  RegExp[prefixColl] { "#" String }
+  Var[prefixColl] { "#'" Symbol }
+  ReaderConditional[prefixColl] { "#?" (List | Deref) }
+  DataLiteral[prefixColl] { "#" ident }
+  SymbolicValue[prefixColl] { "##" simpleIdent }
+  ReaderMetadata[prefixColl] { "#^" expression }
+  Metadata[prefixColl] { "^" expression }
   String { '"' StringContent? '"' }
 }
 
 Meta<t> { (Metadata | ReaderMetadata) !meta t }
 
-Deref[prefix] { "@" expression }
-Quote[prefix] { "'" expression }
-SyntaxQuote[prefix] { "`" expression }
-Unquote[prefix] { "~" expression }
-UnquoteSplice[prefix] { "~@" expression }
+Deref[prefixColl] { "@" expression }
+Quote[prefixColl] { "'" expression }
+SyntaxQuote[prefixColl] { "`" expression }
+Unquote[prefixColl] { "~" expression }
+UnquoteSplice[prefixColl] { "~@" expression }
 operatorWithMeta { Operator | Meta<operatorWithMeta> }
 defLikeWithMeta { DefLike | Meta<defLikeWithMeta> }
 varNameWithMeta { VarName | Meta<varNameWithMeta> }

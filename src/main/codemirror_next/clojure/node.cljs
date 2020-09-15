@@ -13,7 +13,7 @@
 ;; primitive collection
 (defonce coll-prop (.flag lz-tree/NodeProp))
 ;; prefix collection - a prefix token that wraps the next element
-(defonce prefix-prop (.flag lz-tree/NodeProp))
+(defonce prefix-coll-prop (.flag lz-tree/NodeProp))
 ;; the prefix edge itself
 (defonce prefix-edge-prop (.flag lz-tree/NodeProp))
 ;; edges at the beginning/end of collections, + "same" edges (string quotes)
@@ -23,7 +23,7 @@
 
 ;; used when instantiating the parser
 (defn node-prop [prop-name]
-  (case prop-name "prefix" prefix-prop
+  (case prop-name "prefixColl" prefix-coll-prop
                   "coll" coll-prop
                   "startEdge" start-edge-prop
                   "endEdge" end-edge-prop
@@ -54,9 +54,9 @@
 ;; category predicates
 
 (defn coll-type? [^js node-type]
-  (or (.prop node-type coll-prop) (.prop node-type prefix-prop)))
+  (or (.prop node-type coll-prop) (.prop node-type prefix-coll-prop)))
 
-(defn ^boolean prefix-type? [node-type] (.prop ^js node-type prefix-prop))
+(defn ^boolean prefix-type? [node-type] (.prop ^js node-type prefix-coll-prop))
 (defn ^boolean prefix-edge-type? [node-type] (.prop ^js node-type prefix-edge-prop))
 (defn ^boolean same-edge-type? [node-type] (.prop ^js node-type same-edge-prop))
 (defn ^boolean start-edge-type? [node-type] (.prop ^js node-type start-edge-prop))
@@ -110,7 +110,7 @@
 
 (defn terminal-type? [^js node-type]
   (cond (.prop node-type (.-top lz-tree/NodeProp)) false
-        (.prop node-type prefix-prop) false
+        (.prop node-type prefix-coll-prop) false
         (.prop node-type coll-prop) false
         :else true))
 
