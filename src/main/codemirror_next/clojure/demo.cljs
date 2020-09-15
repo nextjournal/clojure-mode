@@ -4,7 +4,6 @@
             ["@codemirror/next/gutter" :refer [lineNumbers]]
             ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/history" :refer [history]]
-            ["@codemirror/next/matchbrackets" :refer [bracketMatching]]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/view" :as view :refer [EditorView]]
@@ -24,16 +23,14 @@
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
-(defonce extensions (-> #js[(history)
-                            (bracketMatching)
-                            highlight/defaultHighlighter
-                            (view/multipleSelections)
-                            (lineNumbers)
-                            (fold/foldGutter)]
-                        (.concat
-                          cm-clj/clj-extensions
-                          #js[(view/keymap
-                                cm-clj/clj-keymap)])))
+(defonce extensions #js[(history)
+                        highlight/defaultHighlighter
+                        (view/multipleSelections)
+                        (lineNumbers)
+                        (fold/foldGutter)
+                        cm-clj/clj-extensions
+                        (view/keymap
+                          cm-clj/clj-keymap)])
 
 (defn sample-text []
   (str "(defn lezer-clojure

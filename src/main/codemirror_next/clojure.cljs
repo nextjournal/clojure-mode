@@ -10,6 +10,7 @@
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
+            [codemirror-next.clojure.extensions.match-brackets :as match-brackets]
             [codemirror-next.clojure.extensions.formatting :as format]
             [codemirror-next.clojure.extensions.selection-history :as sel-history]
             [codemirror-next.clojure.keymap :as keymap]
@@ -60,6 +61,7 @@
 
 (def clj-extensions #js[clojure-syntax-ext
                         close-brackets/extension
+                        (match-brackets/extension)
                         sel-history/extension
                         format/ext-format-changed-lines])
 

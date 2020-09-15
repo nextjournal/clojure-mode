@@ -93,6 +93,9 @@
 (defn closed-by [n]
   (some-> (.prop (.-type n) (.-closedBy lz-tree/NodeProp))
           (aget 0)))
+(defn opened-by [n]
+  (some-> (.prop (.-type n) (.-openedBy lz-tree/NodeProp))
+          (aget 0)))
 
 (defn ^string name [^js node] (.-name node))
 
