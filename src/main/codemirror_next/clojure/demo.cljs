@@ -1,11 +1,13 @@
 (ns codemirror-next.clojure.demo
   (:require ["@codemirror/next/closebrackets" :refer [closeBrackets]]
+            ["@codemirror/next/fold" :refer [foldGutter foldKeymap]]
+            ["@codemirror/next/gutter" :refer [lineNumbers]]
             ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/history" :refer [history]]
             ["@codemirror/next/matchbrackets" :refer [bracketMatching]]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
-            ["@codemirror/next/view" :refer [EditorView keymap multipleSelections]]
+            ["@codemirror/next/view" :as view :refer [EditorView]]
             ["lezer" :as lezer]
             ["lezer-generator" :as lg]
             ["lezer-tree" :as lz-tree]
@@ -25,10 +27,10 @@
 (def extensions (-> #js[(history)
                         (bracketMatching)
                         highlight/defaultHighlighter
-                        (multipleSelections)]
+                        (view/multipleSelections)]
                     (.concat
                       cm-clj/clj-extensions
-                      #js[cm-clj/clj-keymap])))
+                      #js[(view/keymap cm-clj/clj-keymap)])))
 
 (defn sample-text []
   (str "(defn lezer-clojure

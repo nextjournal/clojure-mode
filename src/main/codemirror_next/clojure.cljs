@@ -54,7 +54,7 @@
                        (.add syntax/foldNodeProp fold-node-props)
                        (highlight/styleTags style-tags))))
 
-(def clj-keymap (view/keymap (keymap/ungroup keymap/default-keymap)))
+(def clj-keymap (keymap/ungroup keymap/default-keymap))
 
 (def clj-extensions #js[clojure-syntax-ext
                         close-brackets/extension
@@ -64,7 +64,7 @@
 (comment
 
   (let [state (test-utils/make-state #js[clj-extensions
-                                         clj-keymap]
+                                         (view/keymap clj-keymap)]
                                      "[[]|")
         from (.. state -selection -primary -from)]
     (some->>
