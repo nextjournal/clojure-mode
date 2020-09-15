@@ -1,6 +1,6 @@
 (ns codemirror-next.clojure.demo
   (:require ["@codemirror/next/closebrackets" :refer [closeBrackets]]
-            ["@codemirror/next/fold" :refer [foldGutter foldKeymap]]
+            ["@codemirror/next/fold" :as fold]
             ["@codemirror/next/gutter" :refer [lineNumbers]]
             ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/history" :refer [history]]
@@ -24,13 +24,16 @@
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
-(def extensions (-> #js[(history)
-                        (bracketMatching)
-                        highlight/defaultHighlighter
-                        (view/multipleSelections)]
-                    (.concat
-                      cm-clj/clj-extensions
-                      #js[(view/keymap cm-clj/clj-keymap)])))
+(defonce extensions (-> #js[(history)
+                            (bracketMatching)
+                            highlight/defaultHighlighter
+                            (view/multipleSelections)
+                            (lineNumbers)
+                            (fold/foldGutter)]
+                        (.concat
+                          cm-clj/clj-extensions
+                          #js[(view/keymap
+                                (.concat cm-clj/clj-keymap))])))
 
 (defn sample-text []
   (str "(defn lezer-clojure
