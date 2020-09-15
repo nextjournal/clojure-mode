@@ -16,6 +16,13 @@
     style-mod "^2.2.2"
     w3c-keyname "^2.2.4"
 
+"@mhuebert/tmp-lezer-clojure@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@mhuebert/tmp-lezer-clojure/-/tmp-lezer-clojure-0.1.0.tgz#70a61e59595174735338eafc3bd2133f070ec1e5"
+  integrity sha512-Lor8jLwmV9U253Qmug4WLy9USDv/eriiEOvvMu4E0nEdOu9mVPu1caGyg3drOMORyXSgoceEO5P3TwSM8JhV/A==
+  dependencies:
+    lezer "0.10.3"
+
 asn1.js@^4.0.0:
   version "4.10.1"
   resolved "https://registry.yarnpkg.com/asn1.js/-/asn1.js-4.10.1.tgz#b9c2bf5805f1e64aadeed6df3a2bfafb5a73f5a0"

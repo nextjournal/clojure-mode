@@ -143,20 +143,20 @@
         (format-line state context from content line-num #js[] true)))))
 
 (defn format-transaction [^js tr]
-  (let [state (.-state tr)
-        context (make-indent-context state)
-        origin (.annotation tr (.-userEvent Transaction))
-        changes (u/iter-changed-lines tr
-                  (fn [^js line ^js changes]
-                    (format-line state context (.-from line) (.-content line) (.-number line) changes
-                                 (case origin
-                                   ("input"
-                                     "delete"
-                                     "keyboardselection"
-                                     "pointerselection"
-                                     "cut") false
-                                   true))))]
-    (.. tr -startState (update (j/assoc! changes :filter false)))))
+  (let [origin (.annotation tr (.-userEvent Transaction))]
+    (case origin
+      ("input"
+        "delete"
+        "keyboardselection"
+        "pointerselection"
+        "cut")
+      tr
+      (let [state (.-state tr)
+            context (make-indent-context state)
+            changes (u/iter-changed-lines tr
+                      (fn [^js line ^js changes]
+                        (format-line state context (.-from line) (.-content line) (.-number line) changes true)))]
+        (.. tr -startState (update (j/assoc! changes :filter false)))))))
 
 (defn format [state]
   (if (u/something-selected? state)

@@ -4,7 +4,8 @@
             ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/view" :as view :refer [EditorView keymap multipleSelections]]
             ["lezer" :as lezer]
-            ["lezer-generator" :as lg]
+            ["@mhuebert/tmp-lezer-clojure" :as lezer-clj]
+            #_["lezer-generator" :as lg]
             ["lezer-tree" :as lz-tree]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
@@ -16,10 +17,11 @@
             [codemirror-next.clojure.selections :as sel]
             [codemirror-next.test-utils :as test-utils]
             [shadow.resource :as rc]
-            [codemirror-next.clojure.util :as u])
-  (:require-macros [codemirror-next.build :as build]))
+            [codemirror-next.clojure.util :as u]))
 
-(def parser
+(def parser lezer-clj/parser)
+
+(comment
   (lg/buildParser
     (rc/inline "./clojure/clojure.grammar")
     #js{:externalProp n/node-prop}))

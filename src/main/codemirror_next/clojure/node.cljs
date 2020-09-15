@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve])
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
+            ["@mhuebert/tmp-lezer-clojure" :as lezer-clj]
             [clojure.core :as core]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
@@ -11,15 +12,15 @@
 ;; Node props are marked in the grammar and distinguish categories of nodes
 
 ;; primitive collection
-(defonce coll-prop (.flag lz-tree/NodeProp))
+(def coll-prop (.-coll lezer-clj/props))
 ;; prefix collection - a prefix token that wraps the next element
-(defonce prefix-coll-prop (.flag lz-tree/NodeProp))
+(def prefix-coll-prop (.-prefixColl lezer-clj/props))
 ;; the prefix edge itself
-(defonce prefix-edge-prop (.flag lz-tree/NodeProp))
+(def prefix-edge-prop (.-prefixEdge lezer-clj/props))
 ;; edges at the beginning/end of collections, + "same" edges (string quotes)
-(defonce start-edge-prop (.-closedBy lz-tree/NodeProp))
-(defonce end-edge-prop (.-openedBy lz-tree/NodeProp))
-(defonce same-edge-prop (.flag lz-tree/NodeProp))
+(def start-edge-prop (.-closedBy lz-tree/NodeProp))
+(def end-edge-prop (.-openedBy lz-tree/NodeProp))
+(def same-edge-prop (.-sameEdge lezer-clj/props ))
 
 ;; used when instantiating the parser
 (defn node-prop [prop-name]

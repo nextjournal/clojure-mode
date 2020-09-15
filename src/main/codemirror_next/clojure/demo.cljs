@@ -33,7 +33,7 @@
                         (.concat
                           cm-clj/clj-extensions
                           #js[(view/keymap
-                                (.concat cm-clj/clj-keymap))])))
+                                cm-clj/clj-keymap)])))
 
 (defn sample-text []
   (str "(defn lezer-clojure
