@@ -36,13 +36,15 @@
                                                                        (filter (some-fn n/start-edge? n/end-edge?))
                                                                        first))]
                                             (if-let [other-bracket (if
-                                                                     ;; at starting position
+                                                                     ;; are we at starting position?
                                                                      (and (n/start-edge? bracket)
                                                                           (= (n/start bracket)
                                                                              (n/start (n/up bracket))))
+                                                                     ;; get end-bracket
                                                                      (-> bracket n/up n/down-last
                                                                          (u/guard #(= (n/name %)
                                                                                       (n/closed-by bracket))))
+                                                                     ;; get start-bracket
                                                                      (-> bracket n/up n/down
                                                                          (u/guard #(= (n/name %)
                                                                                       (n/opened-by bracket)))))]
