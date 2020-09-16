@@ -9,8 +9,8 @@
 ;; TODO
 ;; set up testing flow
 
-(def apply-f (partial test-utils/apply-f cm-clojure/clj-extensions))
-(def apply-cmd (partial test-utils/apply-cmd cm-clojure/clj-extensions))
+(def apply-f (partial test-utils/apply-f cm-clojure/extensions))
+(def apply-cmd (partial test-utils/apply-cmd cm-clojure/extensions))
 
 
 (deftest nav
@@ -155,7 +155,7 @@
 
 (deftest kill
   (are [input expected]
-    (= (apply-f commands/kill input)
+    (= (apply-f commands/kill* input)
        expected)
     "| ()\nx" "|\nx"                                        ;; top-level
     " \"ab|c\" " "\"ab|\" "                                 ;; kill to end of string
@@ -168,7 +168,7 @@
 
 (deftest unwrap
   (are [input expected]
-    (= (apply-f commands/unwrap input)
+    (= (apply-f commands/unwrap* input)
        expected)
     "(|)" "|"
     "[a | b]" "a |b"

@@ -28,9 +28,8 @@
                         (view/multipleSelections)
                         (lineNumbers)
                         (fold/foldGutter)
-                        cm-clj/clj-extensions
-                        (view/keymap
-                          cm-clj/clj-keymap)])
+                        cm-clj/default-extensions
+                        (view/keymap cm-clj/complete-keymap)])
 
 (defn sample-text []
   (str "(defn lezer-clojure
@@ -76,7 +75,7 @@
             :innerHTML
             (tag :div
                  (tag :table {:cellpadding 5}
-                      (->> keymap/paredit-keymap
+                      (->> keymap/paredit-keymap*
                            (sort-by first)
                            (reduce (fn [out [command [{:keys [key shift doc]}]]]
                                      (str out

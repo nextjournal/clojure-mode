@@ -40,7 +40,7 @@
       group
       cljs.pprint/pprint))
 
-(def builtin-keymap
+(def builtin-keymap*
   {:cursorLineStart
    [{:mac "Cmd-ArrowLeft"}
     {:mac "Ctrl-a", :shift :selectLineStart}],
@@ -100,7 +100,7 @@
     {:key "Mod-Home", :shift :selectDocStart}
     {:mac "Alt-<"}]})
 
-(def paredit-keymap
+(def paredit-keymap*
   {:indent
    [{:key "Tab"
      :doc "Indent document (or selection)"}]
@@ -151,10 +151,9 @@
      :key "Alt-ArrowDown"}
     {:key "Mod-2"}]})
 
-(def default-keymap
-  (merge-with conj (dissoc builtin-keymap
-                           :cursorGroupRight
-                           :cursorGroupLeft) paredit-keymap))
+(def builtin (ungroup builtin-keymap*))
+(def paredit (ungroup paredit-keymap*))
+(def complete (.concat paredit builtin))
 
 (comment
  (ungroup default-keymap))

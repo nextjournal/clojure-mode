@@ -167,7 +167,7 @@
   (u/update-lines state
     (fn [from _ _] #js{:from from :insert prefix})))
 
-(def ext-format-changed-lines
+(defn ext-format-changed-lines []
   ; EditorState.transactionFilter.of
   (.. EditorState -transactionFilter (of format-transaction)))
 

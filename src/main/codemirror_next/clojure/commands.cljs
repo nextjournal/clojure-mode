@@ -16,7 +16,7 @@
             (dispatch))
     true))
 
-(defn unwrap [state]
+(defn unwrap* [state]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
       (when empty
@@ -28,7 +28,7 @@
            :changes [(n/from-to (n/down nearest-balanced-coll))
                      (n/from-to (n/down-last nearest-balanced-coll))]})))))
 
-(defn kill [^js state]
+(defn kill* [^js state]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
       (or (when empty
@@ -120,7 +120,7 @@
                                   (== a-end end))))))
          first)))
 
-(defn selection-grow [^js state]
+(defn selection-grow* [^js state]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
       (if empty
@@ -131,7 +131,7 @@
                              n/range)
                     range)}))))
 
-(defn selection-return [^js state]
+(defn selection-return* [^js state]
   (if-let [selection (sel-history/last-selection state)]
     (.update state #js{:selection selection})
     (u/update-ranges state (fn [^js range] {:cursor (.-from range)}))))
@@ -209,85 +209,82 @@
                                  :insert (format/spaces state (count left-edge))}]}))))))
          (u/update-ranges state))))
 
-(def index
-  "Mapping of keyword-id to command functions"
-  {:cursorSyntaxLeft commands/cursorSyntaxLeft
-   :selectSyntaxLeft commands/selectSyntaxLeft
-   :cursorSyntaxRight commands/cursorSyntaxRight
-   :selectSyntaxRight commands/selectSyntaxRight
-   :moveLineUp commands/moveLineUp
-   :copyLineUp commands/copyLineUp
-   :moveLineDown commands/moveLineDown
-   :copyLineDown commands/copyLineDown
-   :simplifySelection commands/simplifySelection
-   :selectLine commands/selectLine
-   :selectParentSyntax commands/selectParentSyntax
-   :indentLess commands/indentLess
-   :indentMore commands/indentMore
-   :indentSelection commands/indentSelection
-   :deleteLine commands/deleteLine
-   :cursorMatchingBracket commands/cursorMatchingBracket
+(def builtin-index
+  "Subset of builtin commands that compliment paredit"
+  {:cursorLineStart commands/cursorLineStart
+   :selectLineStart commands/selectLineStart
+   :cursorLineDown commands/cursorLineDown
+   :selectLineDown commands/selectLineDown
+   :selectAll commands/selectAll
+   :cursorLineBoundaryForward commands/cursorLineBoundaryForward
+   :selectLineBoundaryForward commands/selectLineBoundaryForward
+   :deleteCharBackward commands/deleteCharBackward
+   :undo history/undo
+   :redo history/redo
+   :insertNewlineAndIndent commands/insertNewlineAndIndent
+   :cursorLineBoundaryBackward commands/cursorLineBoundaryBackward
+   :selectLineBoundaryBackward commands/selectLineBoundaryBackward
+   :deleteCharForward commands/deleteCharForward
    :cursorCharLeft commands/cursorCharLeft
    :selectCharLeft commands/selectCharLeft
-   :cursorGroupLeft commands/cursorGroupLeft
-   :selectGroupLeft commands/selectGroupLeft
-   :cursorLineStart commands/cursorLineStart
-   :selectLineStart commands/selectLineStart
    :cursorCharRight commands/cursorCharRight
    :selectCharRight commands/selectCharRight
-   :cursorGroupRight commands/cursorGroupRight
-   :selectGroupRight commands/selectGroupRight
+   :cursorGroupForward commands/cursorGroupForward
+   :selectGroupForward commands/selectGroupForward
+   :cursorGroupBackward commands/cursorGroupBackward
+   :selectGroupBackward commands/selectGroupBackward
+   :cursorDocEnd commands/cursorDocEnd
+   :selectDocEnd commands/selectDocEnd
+   :deleteGroupBackward commands/deleteGroupBackward
+   :deleteGroupForward commands/deleteGroupForward
+   :cursorPageDown commands/cursorPageDown
+   :selectPageDown commands/selectPageDown
+   :cursorPageUp commands/cursorPageUp
+   :selectPageUp commands/selectPageUp
    :cursorLineEnd commands/cursorLineEnd
    :selectLineEnd commands/selectLineEnd
+   :undoSelection history/undoSelection
+   :redoSelection history/redoSelection
+   :splitLine commands/splitLine
+   :transposeChars commands/transposeChars
    :cursorLineUp commands/cursorLineUp
    :selectLineUp commands/selectLineUp
    :cursorDocStart commands/cursorDocStart
-   :selectDocStart commands/selectDocStart
-   :cursorPageUp commands/cursorPageUp
-   :selectPageUp commands/selectPageUp
-   :cursorLineDown commands/cursorLineDown
-   :selectLineDown commands/selectLineDown
-   :cursorDocEnd commands/cursorDocEnd
-   :selectDocEnd commands/selectDocEnd
-   :cursorPageDown commands/cursorPageDown
-   :selectPageDown commands/selectPageDown
-   :cursorLineBoundaryBackward commands/cursorLineBoundaryBackward
-   :selectLineBoundaryBackward commands/selectLineBoundaryBackward
-   :cursorLineBoundaryForward commands/cursorLineBoundaryForward
-   :selectLineBoundaryForward commands/selectLineBoundaryForward
-   :insertNewlineAndIndent commands/insertNewlineAndIndent
-   :selectAll commands/selectAll
-   :deleteCharBackward commands/deleteCharBackward
-   :deleteCharForward commands/deleteCharForward
-   :deleteGroupBackward commands/deleteGroupBackward
-   :deleteGroupForward commands/deleteGroupForward
-   :cursorGroupBackward commands/cursorGroupBackward
-   :selectGroupBackward commands/selectGroupBackward
-   :cursorGroupForward commands/cursorGroupForward
-   :selectGroupForward commands/selectGroupForward
-   :splitLine commands/splitLine
-   :transposeChars commands/transposeChars
-   :deleteToLineEnd commands/deleteToLineEnd
+   :selectDocStart commands/selectDocStart})
 
-   :undo history/undo
-   :redo history/redo
-   :undoSelection history/undoSelection
-   :redoSelection history/redoSelection
+(def indent (view-command indent/format))
+(def unwrap (view-command unwrap*))
+(def kill (view-command kill*))
+(def nav-right (view-command (nav 1)))
+(def nav-left (view-command (nav -1)))
+(def nav-select-right (view-command (nav-select 1)))
+(def nav-select-left (view-command (nav-select -1)))
+(def slurp-forward (view-command (slurp 1)))
+(def slurp-backward (view-command (slurp -1)))
+(def barf-forward (view-command (barf 1)))
+(def barf-backward (view-command (barf -1)))
+(def selection-grow (view-command selection-grow*))
+(def selection-return (view-command selection-return*))
 
-   :indent (view-command #'indent/format)
-   :unwrap (view-command #'unwrap)
-   :kill (view-command #'kill)
-   :nav-right (view-command (nav 1))
-   :nav-left (view-command (nav -1))
-   :nav-select-right (view-command (nav-select 1))
-   :nav-select-left (view-command (nav-select -1))
-   :slurp-forward (view-command (slurp 1))
-   :slurp-backward (view-command (slurp -1))
-   :barf-forward (view-command (barf 1))
-   :barf-backward (view-command (barf -1))
-   :selection-grow (view-command #'selection-grow)
-   :selection-return (view-command #'selection-return)
-   })
+(def paredit-index
+  {:indent indent
+   :unwrap unwrap
+   :kill kill
+   :nav-right nav-right
+   :nav-left nav-left
+   :nav-select-right nav-select-right
+   :nav-select-left nav-select-left
+   :slurp-forward slurp-forward
+   :slurp-backward slurp-backward
+   :barf-forward barf-forward
+   :barf-backward barf-backward
+   :selection-grow selection-grow
+   :selection-return selection-return})
+
+(def index
+  "Mapping of keyword-id to command functions"
+  (merge builtin-index
+         paredit-index))
 
 (def reverse-index
   "Lookup keyword-id by function"

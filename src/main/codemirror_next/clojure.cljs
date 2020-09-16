@@ -50,24 +50,27 @@
      :LineComment "lineComment"
      :RegExp "regexp"}))
 
-(def clojure-syntax-ext
+(def clojure-syntax
   (.define syntax/LezerSyntax
            (.withProps parser
                        format/props
                        (.add syntax/foldNodeProp fold-node-props)
                        (highlight/styleTags style-tags))))
 
-(def clj-keymap (keymap/ungroup keymap/default-keymap))
+(def ^js/Array complete-keymap keymap/complete)
+(def ^js/Array builtin-keymap keymap/builtin)
+(def ^js/Array paredit-keymap keymap/paredit)
 
-(def clj-extensions #js[clojure-syntax-ext
-                        close-brackets/extension
-                        (match-brackets/extension)
-                        sel-history/extension
-                        format/ext-format-changed-lines])
+(def default-extensions
+  #js[clojure-syntax
+      (close-brackets/extension)
+      (match-brackets/extension)
+      (sel-history/extension)
+      (format/ext-format-changed-lines)])
 
 (comment
 
-  (let [state (test-utils/make-state #js[clj-extensions
+  (let [state (test-utils/make-state #js[extensions
                                          (view/keymap clj-keymap)]
                                      "[[]|")
         from (.. state -selection -primary -from)]

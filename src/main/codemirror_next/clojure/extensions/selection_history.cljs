@@ -44,7 +44,7 @@
                    :else
                    (conj stack selection)))}))
 
-(def extension #js[selection-history-field])
+(defn extension [] selection-history-field)
 
 (defn last-selection [^js state]
   (second (.field state selection-history-field)))

@@ -109,7 +109,7 @@
           {:cursor close-node-end})
         (u/insertion head key-name)))))
 
-(def extension
+(defn extension []
   (.domEventHandlers view/EditorView
                      #js{:keydown
                          (j/fn [^:js {:as event :keys [metaKey ctrlKey keyCode]} ^:js {:as view :keys [state]}]
