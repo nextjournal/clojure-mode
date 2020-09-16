@@ -9,9 +9,8 @@
 ;; TODO
 ;; set up testing flow
 
-(def apply-f (partial test-utils/apply-f cm-clojure/extensions))
-(def apply-cmd (partial test-utils/apply-cmd cm-clojure/extensions))
-
+(def apply-f (partial test-utils/apply-f cm-clojure/default-extensions))
+(def apply-cmd (partial test-utils/apply-cmd cm-clojure/default-extensions))
 
 (deftest nav
   (are [input dir expected]
@@ -83,10 +82,10 @@
 (deftest indentSelection
 
   (are [input expected]
-    (= (apply-cmd (:indentSelection commands/index) (str "<" input ">"))
+    (= (apply-f indent/format (str "<" input ">"))
        (str "<" expected ">"))
     " ()" "()"                                              ;; top-level => 0 indent
-    "()[\n]" "()[\n   ]"                                    ;; closing-bracket 1 space in front of opening-bracket
+    "()[\n]" "() [\n    ]"                                    ;; closing-bracket 1 space in front of opening-bracket
     "(\n)" "(\n )"
     "(b\n)" "(b\n  )"                                       ;; operator gets extra indent (symbol in 1st position)
     "(0\n)" "(0\n )"                                        ;; a number is not operator
@@ -155,7 +154,7 @@
 
 (deftest kill
   (are [input expected]
-    (= (apply-f commands/kill* input)
+    (= (apply-cmd commands/kill input)
        expected)
     "| ()\nx" "|\nx"                                        ;; top-level
     " \"ab|c\" " "\"ab|\" "                                 ;; kill to end of string
@@ -168,7 +167,7 @@
 
 (deftest unwrap
   (are [input expected]
-    (= (apply-f commands/unwrap* input)
+    (= (apply-cmd commands/unwrap input)
        expected)
     "(|)" "|"
     "[a | b]" "a |b"
@@ -219,7 +218,7 @@
 
 (deftest grow-selections
   (are [input expected]
-    (= (apply-f commands/selection-grow input) expected)
+    (= (apply-cmd commands/selection-grow input) expected)
 
     "(|)" "<()>"
     "(|a)" "(<a>)"

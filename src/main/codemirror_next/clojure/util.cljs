@@ -83,19 +83,21 @@
   (let [at-line (atom -1)
         doc (.-doc state)]
     (->> (j/fn [^:js {:as range :keys [from to anchor head]}]
-           (j/let [^:js {:as line line-number :number line-to :to} (.lineAt doc from)
-                   changes #js[]]
-             (loop [line line]
-               (when (> line-number @at-line)
-                 (reset! at-line line-number)
-                 (f line changes range))
-               (if (<= to line-to)
-                 (let [^js change-set (.changes state changes)]
-                   #js{:changes changes
-                       :range (.range EditorSelection
-                                      (.mapPos change-set anchor 1)
-                                      (.mapPos change-set head 1))})
-                 (recur (.lineAt doc (inc line-to)))))))
+           (j/let [changes #js[]]
+             (loop [^js line (.lineAt doc from)]
+               (j/let [^:js {line-number :number line-to :to} line]
+                 (when (> (.-number line) @at-line)
+                   (reset! at-line line-number)
+                   (f line changes range))
+                 (if-let [next-line (and (> to line-to)
+                                         (guard (.lineAt doc (inc line-to))
+                                                #(> (.-number ^js %) line-number)))]
+                   (recur next-line)
+                   (let [^js change-set (.changes state changes)]
+                     #js{:changes changes
+                         :range (.range EditorSelection
+                                        (.mapPos change-set anchor 1)
+                                        (.mapPos change-set head 1))}))))))
          (.changeByRange state)
          (.update state))))
 
