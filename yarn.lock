@@ -2,18 +2,20 @@
 # yarn lockfile v1
 
 
-"@codemirror/next@0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.11.0.tgz#12b9cec00f192df6fec8dc2f661dedf239414e4d"
-  integrity sha512-HNPQnMhpCrvoQKhlYQQtBeJ0XgwmHcmMFppdxa6vH7VZxoopsRzITfMB2U79766AlcbsCRmcPf2sPuu3wJnkwg==
+"@codemirror/next@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.12.0.tgz#653817ee1ca1a19fec9c17849522a34a79a5f75d"
+  integrity sha512-CMbEVFgn3gnhZv07/zZy0PE9uYIOkX5ogiLB6RJIf+bl+CoMvDgauwjipLzdlEIzmwT5w3bv4KYbDVTAmz8YOA==
   dependencies:
-    lezer "^0.10.0"
-    lezer-css "^0.10.0"
+    lezer "^0.10.3"
+    lezer-cpp "^0.10.1"
+    lezer-css "^0.10.1"
     lezer-html "^0.10.0"
-    lezer-javascript "^0.10.0"
+    lezer-java "^0.10.0"
+    lezer-javascript "^0.10.1"
     lezer-python "^0.10.0"
     lezer-tree "^0.10.0"
-    style-mod "^2.2.2"
+    style-mod "^2.3.0"
     w3c-keyname "^2.2.4"
 
 "@mhuebert/tmp-lezer-clojure@0.1.0":
@@ -337,10 +339,17 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-lezer-css@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/lezer-css/-/lezer-css-0.10.0.tgz#72b8db3a93920eafc8bf6eb34453cffaacce091c"
-  integrity sha512-JSIOGuVO+XQlM6OzKyD/WzcNG5m5YpP1cnLpABjhQOTasvfMqbt4xMPrn5nhAdenM/46q1ThKjz5qvDt2+bNYg==
+lezer-cpp@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/lezer-cpp/-/lezer-cpp-0.10.1.tgz#277ae8da3929fadb906aa2deafa1cd0c974b6f8f"
+  integrity sha512-i3NNrRBB2LPMcAnbxZcSg3dMHlz22VdQrABK70t5lNSgerqd7bW0zxW8c7qc26sIKtR4fRtcgXeJzx/JaMPDiA==
+  dependencies:
+    lezer "^0.10.1"
+
+lezer-css@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/lezer-css/-/lezer-css-0.10.1.tgz#762d1cd0cb45dd914422aac219e4ba4b9ae39894"
+  integrity sha512-NlvFFgp2lz/SBeBwSW4CFHiAdqcHdQ1kCGBA9DKjlZsJAEjT+TulowlGWVo3KgziWGTLW85aBHwN2yvj+OTJJQ==
   dependencies:
     lezer "^0.10.0"
 
@@ -358,10 +367,17 @@ lezer-html@^0.10.0:
   dependencies:
     lezer "^0.10.0"
 
-lezer-javascript@^0.10.0:
+lezer-java@^0.10.0:
   version "0.10.0"
-  resolved "https://registry.yarnpkg.com/lezer-javascript/-/lezer-javascript-0.10.0.tgz#c42138f3d1514e825c20b41eb67228f682148ee4"
-  integrity sha512-SbWKr/HjbGupYgR108FDN2X1Z97QC00aoyyXguXpqfZv6QfrbrhVCqaAX2tSStrQH8SMiGBNtTtk0zuu1lIfsg==
+  resolved "https://registry.yarnpkg.com/lezer-java/-/lezer-java-0.10.0.tgz#5b9d0d578009c83fd58fe2645d261106cf9a2ba1"
+  integrity sha512-F0ejt+CCuK367ocKhyx3+GlQmF5sE/HMY/qsgGVyH9ScpbfVtlTFYHa/gvqMASipTwyAEdfnzfvxgQ7A0fFiFw==
+  dependencies:
+    lezer "^0.10.3"
+
+lezer-javascript@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/lezer-javascript/-/lezer-javascript-0.10.1.tgz#e26da73f3c5ae185b3725712e32043c5f8023fd2"
+  integrity sha512-Ly4EM83H/40VqoKSyQG71GstAfq7dFj9fR2d7X/M7vH8hTeN9kky6lPEiZIEPusnMlcdziq9/XNIXI/RaD33SQ==
   dependencies:
     lezer "^0.10.0"
 
@@ -395,6 +411,13 @@ lezer@^0.10.1:
   version "0.10.2"
   resolved "https://registry.yarnpkg.com/lezer/-/lezer-0.10.2.tgz#69ea47b2e13a19d33c143d02a8dd511d0faff5af"
   integrity sha512-YJ0JtXDNwv61vDJy9u2J9NXLCv6Uxbkon/JQU+TsK/GIzRFWlPsSLKXEdX2PfBSbJXu0hWKD67+j3+wUWbXqvg==
+  dependencies:
+    lezer-tree "^0.10.0"
+
+lezer@^0.10.3:
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/lezer/-/lezer-0.10.4.tgz#08a1bee01511aa3ecfbea2f1c35391f1af7e319b"
+  integrity sha512-ltjjt6A0TRUMFxjgAn/Vnxnj7Mv0D9UFHH2hHiNAjT72incbeKheuuJ77GUaAD+D9jC8NasGuFwUx+zwvi+wxg==
   dependencies:
     lezer-tree "^0.10.0"
 
@@ -761,10 +784,15 @@ string_decoder@~1.1.1:
   dependencies:
     safe-buffer "~5.1.0"
 
-style-mod@^2.2.2, style-mod@^2.2.3:
+style-mod@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-2.2.3.tgz#44ac9ff663f3129a88e8aad952bac75f49073381"
   integrity sha512-xeT8Ky7LVF6a+kbdvzwcdyz7IVhNUK1uZh78kMPS7j6/yTUA8jF0e3yuEsLCR0VX7rxMR4ppTTXSSYQAPSD+wg==
+
+style-mod@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-2.3.0.tgz#f2c2fd285aa69176b012de44a26269b6c3b258c7"
+  integrity sha512-/cIxCzlhyR+6dvlsl3U9IO0cLQBYPkf7GRzyomiZQhvoW+WB6LRFymxMdNaiixal6uxhwMrO5MzitqpHQAtLGg==
 
 timers-browserify@^2.0.4:
   version "2.0.11"
