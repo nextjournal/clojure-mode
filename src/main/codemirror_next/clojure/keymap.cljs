@@ -1,6 +1,5 @@
 (ns codemirror-next.clojure.keymap
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
-            ["@codemirror/next/history" :as history :refer [historyKeymap]]
             [clojure.set :as set]
             [codemirror-next.clojure.commands :as cmd]))
 
@@ -35,7 +34,7 @@
        (clj->js)))
 
 (comment
- (->> [commands/standardKeymap historyKeymap]
+ (->> [commands/standardKeymap #_historyKeymap]
       (mapcat #(js->clj % :keywordize-keys true))
       group
       cljs.pprint/pprint))
@@ -48,7 +47,6 @@
    :cursorLineBoundaryForward
    [{:key "End", :shift :selectLineBoundaryForward}],
    :deleteCharBackward [{:key "Backspace"} {:mac "Ctrl-h"}],
-   :redo [{:key "Mod-y", :mac "Mod-Shift-z", :preventDefault true}],
    :insertNewlineAndIndent [{:key "Enter"}],
    :cursorLineBoundaryBackward
    [{:key "Home", :shift :selectLineBoundaryBackward
@@ -66,7 +64,6 @@
    :deleteGroupBackward
    [{:key "Mod-Backspace", :mac "Ctrl-Alt-Backspace"}
     {:mac "Ctrl-Alt-h"}],
-   :undo [{:key "Mod-z", :preventDefault true}],
    :deleteGroupForward
    [{:key "Mod-Delete", :mac "Alt-Backspace"}
     {:mac "Alt-Delete"}
@@ -92,8 +89,6 @@
    :cursorLineUp
    [{:key "ArrowUp", :shift :selectLineUp}
     {:mac "Ctrl-p", :shift :selectLineUp}],
-   :redoSelection
-   [{:key "Alt-u", :mac "Mod-Shift-u", :preventDefault true}],
    :cursorDocStart
    [{:mac "Cmd-ArrowUp", :shift :selectDocStart}
     {:key "Mod-Home", :shift :selectDocStart}

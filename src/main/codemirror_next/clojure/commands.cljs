@@ -1,6 +1,5 @@
 (ns codemirror-next.clojure.commands
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
-            ["@codemirror/next/history" :as history :refer [historyKeymap]]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
             [codemirror-next.clojure.extensions.formatting :as indent]
             [applied-science.js-interop :as j]
@@ -219,8 +218,6 @@
    :cursorLineBoundaryForward commands/cursorLineBoundaryForward
    :selectLineBoundaryForward commands/selectLineBoundaryForward
    :deleteCharBackward commands/deleteCharBackward
-   :undo history/undo
-   :redo history/redo
    :insertNewlineAndIndent commands/insertNewlineAndIndent
    :cursorLineBoundaryBackward commands/cursorLineBoundaryBackward
    :selectLineBoundaryBackward commands/selectLineBoundaryBackward
@@ -243,8 +240,6 @@
    :selectPageUp commands/selectPageUp
    :cursorLineEnd commands/cursorLineEnd
    :selectLineEnd commands/selectLineEnd
-   :undoSelection history/undoSelection
-   :redoSelection history/redoSelection
    :splitLine commands/splitLine
    :transposeChars commands/transposeChars
    :cursorLineUp commands/cursorLineUp
