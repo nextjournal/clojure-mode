@@ -37,7 +37,8 @@
                                                                        (filter (some-fn n/start-edge? n/end-edge?))
                                                                        first))]
                                             ;; try finding a matching bracket
-                                            (if-let [other-bracket (if
+                                            (if-let [other-bracket (cond
+
                                                                      ;; are we at starting position?
                                                                      (and (n/start-edge? bracket)
                                                                           (= (n/start bracket)
@@ -46,6 +47,11 @@
                                                                      (-> bracket n/up n/down-last
                                                                          (u/guard #(= (n/name %)
                                                                                       (n/closed-by bracket))))
+
+                                                                     ;; are we at ending position?
+                                                                     (and (n/end-edge? bracket)
+                                                                          (= (n/end bracket)
+                                                                             (n/end (n/up bracket))))
                                                                      ;; get start-bracket
                                                                      (-> bracket n/up n/down
                                                                          (u/guard #(= (n/name %)
