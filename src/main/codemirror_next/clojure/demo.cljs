@@ -23,6 +23,11 @@
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
+(comment
+  (lg/buildParser
+    (rc/inline "./clojure/clojure.grammar")
+    #js{:externalProp n/node-prop}))
+
 (defonce extensions #js[(history)
                         highlight/defaultHighlighter
                         (view/multipleSelections)

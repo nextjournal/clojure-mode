@@ -31,10 +31,12 @@
                                     (reduce
                                       (j/fn [out ^:js {:keys [head empty]}]
                                         (or
+                                          ;; a parsed bracket is found before/after cursor
                                           (when-let [bracket (and empty
                                                                   (->> [(n/tree state head -1) (n/tree state head 1)]
                                                                        (filter (some-fn n/start-edge? n/end-edge?))
                                                                        first))]
+                                            ;; try finding a matching bracket
                                             (if-let [other-bracket (if
                                                                      ;; are we at starting position?
                                                                      (and (n/start-edge? bracket)
@@ -52,6 +54,16 @@
                                                     (mark-node bracket matching-mark)
                                                     (mark-node other-bracket matching-mark))
                                               (conj out (mark-node bracket nonmatching-mark))))
+                                          ;; lezer does not produce tokens for non-matching close-brackets
+                                          ;; (we haven't entered a collection, so brackets are not valid tokens
+                                          ;;  and aren't parsed). So we need to check the string to see if an
+                                          ;; unmatched bracket is sitting in front of the cursor.
+                                          (when-let [unparsed-bracket (and
+                                                                        ;; skip this check if we're inside a string
+                                                                        (not (-> (n/tree state head) (n/closest n/string?)))
+                                                                        (-> (.. tr -state -doc (slice head (inc head)) toString)
+                                                                            (#{\] \) \}})))]
+                                            (conj out (mark-node (j/obj :start head :end (inc head)) nonmatching-mark)))
                                           out)) []))]
                      (.set Decoration (into-array decos) true))
                    deco))

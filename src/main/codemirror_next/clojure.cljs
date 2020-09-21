@@ -20,13 +20,6 @@
             [shadow.resource :as rc]
             [codemirror-next.clojure.util :as u]))
 
-(def parser lezer-clj/parser)
-
-(comment
-  (lg/buildParser
-    (rc/inline "./clojure/clojure.grammar")
-    #js{:externalProp n/node-prop}))
-
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
                                      :to (dec (.-end tree))})]
@@ -50,19 +43,32 @@
      :LineComment "lineComment"
      :RegExp "regexp"}))
 
-(def clojure-syntax
-  (.define syntax/LezerSyntax
-           (.withProps parser
-                       format/props
-                       (.add syntax/foldNodeProp fold-node-props)
-                       (highlight/styleTags style-tags))))
+(def parser lezer-clj/parser)
+
+(comment
+  ;; to build a parser "live" from a .grammar file,
+  ;; rather than using a precompiled parser:
+  (def parser
+    (lg/buildParser
+      (rc/inline "./clojure/clojure.grammar")
+      #js{:externalProp n/node-prop})))
+
+(defn syntax
+  ([]
+   (syntax parser))
+  ([parser]
+   (.define syntax/LezerSyntax
+            (.withProps parser
+                        format/props
+                        (.add syntax/foldNodeProp fold-node-props)
+                        (highlight/styleTags style-tags)))))
 
 (def ^js/Array complete-keymap keymap/complete)
 (def ^js/Array builtin-keymap keymap/builtin)
 (def ^js/Array paredit-keymap keymap/paredit)
 
 (def default-extensions
-  #js[clojure-syntax
+  #js[(syntax lezer-clj/parser)
       (close-brackets/extension)
       (match-brackets/extension)
       (sel-history/extension)
