@@ -41,10 +41,7 @@
       cljs.pprint/pprint))
 
 (def builtin-keymap*
-  {:cursorLineStart
-   [{:mac "Cmd-ArrowLeft"}
-    {:mac "Ctrl-a", :shift :selectLineStart}],
-   :cursorLineDown
+  {:cursorLineDown
    [{:key "ArrowDown", :shift :selectLineDown}
     {:mac "Ctrl-n", :shift :selectLineDown}],
    :selectAll [{:key "Mod-a"}],
@@ -54,7 +51,9 @@
    :redo [{:key "Mod-y", :mac "Mod-Shift-z", :preventDefault true}],
    :insertNewlineAndIndent [{:key "Enter"}],
    :cursorLineBoundaryBackward
-   [{:key "Home", :shift :selectLineBoundaryBackward}],
+   [{:key "Home", :shift :selectLineBoundaryBackward
+     :mac "Ctrl-a"}
+    {:mac "Cmd-ArrowLeft" :shift :selectLineBoundaryBackward}],
    :deleteCharForward [{:key "Delete"} {:mac "Ctrl-d"}],
    :cursorCharLeft
    [{:key "ArrowLeft", :shift :selectCharLeft}
