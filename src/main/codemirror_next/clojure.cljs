@@ -61,7 +61,10 @@
             (.withProps parser
                         format/props
                         (.add syntax/foldNodeProp fold-node-props)
-                        (highlight/styleTags style-tags)))))
+                        (highlight/styleTags style-tags))
+            (j/lit
+              {:languageData
+               {:commentTokens {:line ";;"}}}))))
 
 (def ^js/Array complete-keymap keymap/complete)
 (def ^js/Array builtin-keymap keymap/builtin)
