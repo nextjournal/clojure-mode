@@ -148,6 +148,7 @@
       ("input"
         "delete"
         "keyboardselection"
+        "keyboarselection"                                  ;; temporary - https://github.com/codemirror/codemirror.next/pull/291
         "pointerselection"
         "cut")
       tr
