@@ -106,7 +106,7 @@
   "`f` will be called for each changed line with args [line, changes-array]
    and should *mutate* changes-array. Selections will be mapped through the resulting changeset."
   [^:js {:as tr
-         :keys [^js changes ^js effects annotations scrollIntoView reconfigure]
+         :keys [^js changes ^js effects selection]
          {:as ^js state :keys [^js doc]} :state} f]
   (let [at-line (atom -1)
         next-changes #js[]
@@ -123,12 +123,17 @@
                      (when (and next-line (> (.-number next-line) (.-number line)))
                        (recur next-line))))))))
         next-changeset (.changes state next-changes)]
-    #js{:changes (.compose changes next-changeset)
-        :selection (.. state -selection (map next-changeset))
-        :effects (.mapEffects StateEffect effects next-changeset)
-        :annotations annotations
-        :scrollIntoView scrollIntoView
-        :reconfigure reconfigure}))
+    (if (seq next-changes)
+      (-> (j/select-keys tr [:annotations
+                             :scrollIntoView
+                             :reconfigure])
+          (j/assoc! :changes (.compose changes next-changeset))
+          (cond->
+            selection
+            (j/assoc! :selection (.. state -selection (map next-changeset)))
+            effects
+            (j/assoc! :effects (.mapEffects StateEffect effects next-changeset))))
+      tr)))
 
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))
