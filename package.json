@@ -12,5 +12,8 @@
         "stacktrace-js": "^2.0.2",
         "style-mod": "^2.2.3",
         "w3c-keyname": "^2.2.4"
+    },
+    "scripts": {
+        "watch": "shadow-cljs watch app test"
     }
 }

@@ -129,8 +129,8 @@
       space-changes (into-arr space-changes)
       indentation-change (j/push! indentation-change))))
 
-
-(defn format-selection [state]
+(defn format-selection
+  [^js state]
   (let [context (make-indent-context state)]
     (u/update-selected-lines state
       (j/fn [^:js {:as line :keys [from content number]} ^js changes ^js range]
@@ -144,24 +144,26 @@
 
 (defn format-transaction [^js tr]
   (let [origin (.annotation tr (.-userEvent Transaction))]
-    (case origin
-      ("input"
-        "delete"
-        "keyboardselection"
-        "keyboarselection"                                  ;; temporary - https://github.com/codemirror/codemirror.next/pull/291
-        "pointerselection"
-        "cut")
-      tr
-      (let [state (.-state tr)
-            context (make-indent-context state)
-            changes (u/iter-changed-lines tr
-                      (fn [^js line ^js changes]
-                        (format-line state context (.-from line) (.-content line) (.-number line) changes true)))]
-        (.. tr -startState (update (j/assoc! changes :filter false)))))))
+    (if-let [changes
+             (case origin
+               ("input"
+                 "delete"
+                 "keyboardselection"
+                 "keyboarselection"                         ;; temporary - https://github.com/codemirror/codemirror.next/pull/291
+                 "pointerselection"
+                 "cut") nil
+               "format-selections" (format-selection (.-state tr))
+               (let [state (.-state tr)
+                     context (make-indent-context state)]
+                 (u/iter-changed-lines tr
+                   (fn [^js line ^js changes]
+                     (format-line state context (.-from line) (.-content line) (.-number line) changes true)))))]
+      (.. tr -startState (update (j/assoc! changes :filter false)))
+      tr)))
 
 (defn format [state]
   (if (u/something-selected? state)
-    (format-selection state)
+    (.update state (format-selection state))
     (format-all state)))
 
 (defn prefix-all [prefix state]

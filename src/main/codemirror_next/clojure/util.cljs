@@ -1,7 +1,16 @@
 (ns codemirror-next.clojure.util
   (:require [applied-science.js-interop :as j]
-            ["@codemirror/next/state" :refer [EditorSelection ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec StateEffect]]
+            ["@codemirror/next/state" :refer [EditorSelection
+                                              ChangeSet
+                                              ChangeDesc
+                                              TransactionSpec
+                                              StrictTransactionSpec
+                                              StateEffect
+                                              Transaction]]
             [codemirror-next.clojure.selections :as sel]))
+
+(defn user-event-annotation [event-name]
+  (.. Transaction -userEvent (of event-name)))
 
 (defn guard [x f] (when (f x) x))
 
@@ -98,8 +107,7 @@
                          :range (.range EditorSelection
                                         (.mapPos change-set anchor 1)
                                         (.mapPos change-set head 1))}))))))
-         (.changeByRange state)
-         (.update state))))
+         (.changeByRange state))))
 
 
 (j/defn iter-changed-lines

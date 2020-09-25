@@ -24,7 +24,7 @@
                  (let [^js range (j/get-in state [:selection :ranges 0])]
                    (and (.-empty range) (= 0 (.-from range)))))
     (u/update-ranges state
-      #js{:annotations (.. Transaction -userEvent (of "delete"))}
+      #js{:annotations (u/user-event-annotation "delete")}
       (j/fn [^:js {:as range :keys [head empty anchor]}]
         (j/let [^:js {:as range pos :from} (from-to head anchor)]
           (if (not empty)
@@ -82,6 +82,10 @@
 
 (defn handle-close [state key-name]
   (u/update-ranges state
+    ;; TODO
+    ;; create a new annotation type for overriding format behaviour instead of
+    ;; mis-using userEvent
+    #js{:annotations (u/user-event-annotation "format-selections")}
     (j/fn [^:js {:as range :keys [empty head]}]
       (or
         ;; close unbalanced (open) collection
