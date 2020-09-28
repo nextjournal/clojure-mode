@@ -29,12 +29,11 @@
                         (view/multipleSelections)
                         (lineNumbers)
                         (fold/foldGutter)
-                        cm-clj/default-extensions
-                        (comment
-                          ;; to use live-generated grammar - copy/paste the
-                          ;; desired version to clojure.grammar file in this repo
-                          (cm-clj/syntax live-grammar/parser)
-                          (.slice cm-clj/default-extensions 1))
+                        (if false
+                          ;; use live-reloading grammar
+                          #js[(cm-clj/syntax live-grammar/parser)
+                              (.slice cm-clj/default-extensions 1)]
+                          cm-clj/default-extensions)
                         (view/keymap cm-clj/complete-keymap)])
 
 (defn sample-text []
