@@ -28,8 +28,8 @@ VarName { Symbol }
   RegExp[prefixColl] { "#" String }
   Var[prefixColl] { "#'" Symbol }
   ReaderConditional[prefixColl] { "#?" (List | Deref) }
-  DataLiteral[prefixColl] { "#" ident }
-  SymbolicValue[prefixColl] { "##" simpleIdent }
+  DataLiteral { "#" ident }
+  SymbolicValue { "##" simpleIdent }
   ReaderMetadata[prefixColl] { "#^" expression }
   Metadata[prefixColl] { "^" expression }
   String { '"' StringContent? '"' }

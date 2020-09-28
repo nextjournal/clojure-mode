@@ -18,10 +18,10 @@
     style-mod "^2.3.0"
     w3c-keyname "^2.2.4"
 
-"@mhuebert/tmp-lezer-clojure@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@mhuebert/tmp-lezer-clojure/-/tmp-lezer-clojure-0.1.0.tgz#70a61e59595174735338eafc3bd2133f070ec1e5"
-  integrity sha512-Lor8jLwmV9U253Qmug4WLy9USDv/eriiEOvvMu4E0nEdOu9mVPu1caGyg3drOMORyXSgoceEO5P3TwSM8JhV/A==
+"@mhuebert/lezer-clojure@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@mhuebert/lezer-clojure/-/lezer-clojure-0.1.1.tgz#007f7a8b0375192540806955b1056f2ef0e6485f"
+  integrity sha512-n6vil9WPhCdAFPu5JScvaNZHu1sJXHzCWsZkaJtStvPGyjgGFMlruBrLTEbiv/p9WQrZIeFWHl5rQPL926iV/w==
   dependencies:
     lezer "0.10.3"
 
@@ -353,12 +353,12 @@ lezer-css@^0.10.1:
   dependencies:
     lezer "^0.10.0"
 
-lezer-generator@0.10.4:
-  version "0.10.4"
-  resolved "https://registry.yarnpkg.com/lezer-generator/-/lezer-generator-0.10.4.tgz#2304cc867e9982b5be246c7dc5ce6c1db3eb0bd6"
-  integrity sha512-fA3UNR0Q/XtY8gO/yzzEmj6RPCIL+7+Vi7GJDi2SqzkRHefe4whZGmbiWJ9ZbJXLrgorsn2SmEPQC9VOHnAWlg==
+lezer-generator@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/lezer-generator/-/lezer-generator-0.11.1.tgz#624486ab80867fd311e701a4cf9b272432243e58"
+  integrity sha512-HvYQqqJPd9UnvmSLza9YtWzmE5EApnabS6f/+v9fakQsGEi/97eRF2M0oUN3lcJsHDi4kUEI53Jv3DcVYDV5VQ==
   dependencies:
-    lezer "^0.10.1"
+    lezer "^0.11.1"
 
 lezer-html@^0.10.0:
   version "0.10.0"
@@ -388,10 +388,15 @@ lezer-python@^0.10.0:
   dependencies:
     lezer "^0.10.0"
 
-lezer-tree@0.10.0, lezer-tree@^0.10.0:
+lezer-tree@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/lezer-tree/-/lezer-tree-0.10.0.tgz#e7bb3fbd604a718fa43d373e6240a2600d7c5ea2"
   integrity sha512-77hwilCuD4azYqwazv4A6EL7mKiSPcqgJV4V173hLV3UkAKa6/smNHeROhIzzWHLU6Y5qtR1mRf22RFzE3fVrg==
+
+lezer-tree@^0.11.0, lezer-tree@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/lezer-tree/-/lezer-tree-0.11.1.tgz#78fcd8308912d45330f062f8f59c13448585db81"
+  integrity sha512-AC1FmSzxL/cxV8LrbPMW6+8P/CaG8AxRql1XjzIfLkTQHY3LUan6tG8aieB/OvZmz0NuQpgfw6yDegXFNzVK4A==
 
 lezer@0.10.3:
   version "0.10.3"
@@ -420,6 +425,13 @@ lezer@^0.10.3:
   integrity sha512-ltjjt6A0TRUMFxjgAn/Vnxnj7Mv0D9UFHH2hHiNAjT72incbeKheuuJ77GUaAD+D9jC8NasGuFwUx+zwvi+wxg==
   dependencies:
     lezer-tree "^0.10.0"
+
+lezer@^0.11.1, lezer@^0.11.2:
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/lezer/-/lezer-0.11.2.tgz#290b3029135257f76a60efc5e710af16f716a180"
+  integrity sha512-ktbo5G+sMY6qOXaeCbC4Z5Cs0vUTx5H4KkjnjTCi/LHay8taBp88dcUXjLS5XV7E/I3+y1zZGgIXhua82Z0Ljw==
+  dependencies:
+    lezer-tree "^0.11.0"
 
 loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"

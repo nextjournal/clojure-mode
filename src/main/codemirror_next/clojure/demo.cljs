@@ -17,16 +17,12 @@
             [codemirror-next.clojure.extensions.formatting :as format]
             [codemirror-next.clojure.extensions.selection-history :as sel-history]
             [codemirror-next.clojure.keymap :as keymap]
+            [codemirror-next.clojure.live-grammar :as live-grammar]
             [codemirror-next.clojure.node :as n]
             [codemirror-next.clojure.selections :as sel]
             [codemirror-next.test-utils :as test-utils]
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
-
-(comment
-  (lg/buildParser
-    (rc/inline "./clojure/clojure.grammar")
-    #js{:externalProp n/node-prop}))
 
 (defonce extensions #js[(history)
                         highlight/defaultHighlighter
@@ -34,6 +30,11 @@
                         (lineNumbers)
                         (fold/foldGutter)
                         cm-clj/default-extensions
+                        (comment
+                          ;; to use live-generated grammar - copy/paste the
+                          ;; desired version to clojure.grammar file in this repo
+                          (cm-clj/syntax live-grammar/parser)
+                          (.slice cm-clj/default-extensions 1))
                         (view/keymap cm-clj/complete-keymap)])
 
 (defn sample-text []

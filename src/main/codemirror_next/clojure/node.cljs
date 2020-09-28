@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve])
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
-            ["@mhuebert/tmp-lezer-clojure" :as lezer-clj]
+            ["@mhuebert/lezer-clojure" :as lezer-clj]
             [clojure.core :as core]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]

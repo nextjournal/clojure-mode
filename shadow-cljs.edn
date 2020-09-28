@@ -1,5 +1,5 @@
 {:deps true
- :dev-http {8000 "public"
+ :dev-http {8002 "public"
             8001 "public/test"}
  :nrepl {:port 9000}
  :builds {:app {:compiler-options {:output-feature-set :es8}
