@@ -161,7 +161,7 @@
                                  n/from-to
                                  (assoc :insert " "))])
                           -1
-                          (let [^string edge (n/left-edge-with-prefix parent)
+                          (let [^string edge (n/left-edge-with-prefix state parent)
                                 start (n/start (n/with-prefix parent))]
                             [{:from start
                               :to (+ start (count edge))
@@ -195,7 +195,7 @@
                                                       (remove n/line-comment?)
                                                       (drop 1)
                                                       first)]
-                   (let [left-edge (n/left-edge-with-prefix parent)
+                   (let [left-edge (n/left-edge-with-prefix state parent)
                          left-start (n/start (n/with-prefix parent))]
                      {:cursor (max from (+ (n/start next-first-child) (inc (count left-edge))))
                       :changes [

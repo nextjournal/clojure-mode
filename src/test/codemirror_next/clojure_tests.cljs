@@ -192,6 +192,7 @@
     "(|) ;;comment\na" 1 "(|;;comment\n a)"                 ;; slurp around comments
     "a(|)" -1 "(a|)"
     "a ;; hello\n(|)" -1 "(a ;; hello\n | )"
+    "a #:b{|}" -1 "#:b{a|}"
 
     "a #(|)" -1 "#(a|)"
     "#(|) a" 1 "#(|a)"
@@ -214,6 +215,8 @@
 
     "#(|a)" -1 "a #(|)"
     "#(|a)" 1 "#(|) a "
+
+    "#:b{a|}" -1 "a #:b{|}"
     ))
 
 (deftest grow-selections

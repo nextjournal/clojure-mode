@@ -266,10 +266,11 @@
     node))
 
 (defn prefix [node]
-  (some-> (up node) down (u/guard prefix-edge?) name))
+  (some-> (up node) down (u/guard prefix-edge?)))
 
-(defn left-edge-with-prefix [node]
-  (str (prefix node) (name (down node))))
+(defn left-edge-with-prefix [state node]
+  (str (some->> (prefix node) (string state))
+       (name (down node))))
 
 (defn with-prefix [node]
   (cond-> node

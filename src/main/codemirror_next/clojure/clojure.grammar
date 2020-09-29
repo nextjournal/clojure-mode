@@ -6,9 +6,9 @@
 @top[name=Program] { expression* }
 
 @skip { whitespace | LineComment | Discard }
-expression { Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg | Meta<expression> }
+expression { Constructor | Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg | Meta<expression> }
 Discard { "#_" expression }
-@precedence { docString @left, operator @left, meta @right }
+@precedence { docString @left, operator @left, meta @right, prefixLiteral @right }
 
 listContents {
    defList { defLikeWithMeta varNameWithMeta (DocString expression+ | expression+)? } |
@@ -22,16 +22,21 @@ Map[coll] { "{" expression* "}" }
 VarName { Symbol }
 
 @skip {} {
+  dataLiteral { "#" ident }
+  DataLiteral { dataLiteral }
+  SymbolicValue { "##" simpleIdent }
   Set[prefixColl] { "#" Map }
   AnonymousFunction[prefixColl] { "#" List }
-  NamespacedMap[prefixColl] { "#" KeywordPrefix Map }
-  // ConstructorPrefix[prefixEdge] { "#" ident }
-  // Constructor[prefixColl] { ConstructorPrefix (Vector | Map) }
+
+  KeywordPrefix[prefixEdge] { "#" keyword }
+  NamespacedMap[prefixColl] { KeywordPrefix Map }
+
+  ConstructorPrefix[prefixEdge] { !prefixLiteral  dataLiteral }
+  Constructor[prefixColl] { ConstructorPrefix (Vector | Map) }
+
   RegExp[prefixColl] { "#" String }
   Var[prefixColl] { "#'" Symbol }
   ReaderConditional[prefixColl] { "#?" (List | Deref) }
-  DataLiteral { "#" ident }
-  SymbolicValue { "##" simpleIdent }
   ReaderMetadata[prefixColl] { "#^" expression }
   Metadata[prefixColl] { "^" expression }
   String { '"' StringContent? '"' }
@@ -90,7 +95,6 @@ Operator { !operator Symbol }
 
   keyword { ":" ":"? ident }
   Keyword { keyword }
-  KeywordPrefix[prefixEdge] { keyword }
 
   Number {
     ("+" | "-")? (std.digit+ ("." std.digit* "M"?)? | "." std.digit+) (("e" | "E") ("+" | "-")? std.digit+ "M"?)? |
@@ -117,11 +121,3 @@ Nil { @specialize<Symbol, "nil"> }
 DefLike[dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defn-" | "defmacro" | "definline" | "defonce" | "deftest" | "defcard"> }
 
 @detectDelim
-
-// TODO - support for constructors
-// # Constructor - vector
-//  #my.klass_or_type_or_record[:a :b :c]
-//   ==> Program(Constructor(ConstructorPrefix,Vector))
-// # Constructor - map
-//  #my.record{:a 1, :b 2}
-//   ==> Program(Constructor(ConstructorPrefix,Map))
