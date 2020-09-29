@@ -69,6 +69,7 @@
                      :to (+ from current-indent)})))))))
 
 (defn expected-space [n1 n2]
+  ;;  (prn :expected (map n/name [n1 n2]))
   (if
     (or
       (n/start-edge-type? n1)

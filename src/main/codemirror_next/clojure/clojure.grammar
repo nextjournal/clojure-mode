@@ -25,6 +25,8 @@ VarName { Symbol }
   Set[prefixColl] { "#" Map }
   AnonymousFunction[prefixColl] { "#" List }
   NamespacedMap[prefixColl] { "#" KeywordPrefix Map }
+  // ConstructorPrefix[prefixEdge] { "#" ident }
+  // Constructor[prefixColl] { ConstructorPrefix (Vector | Map) }
   RegExp[prefixColl] { "#" String }
   Var[prefixColl] { "#'" Symbol }
   ReaderConditional[prefixColl] { "#?" (List | Deref) }
@@ -84,7 +86,7 @@ Operator { !operator Symbol }
   simpleIdent { identStart identChar* }
   qualifiedIdent { simpleIdent "/" identChar+ }
   ident { simpleIdent | qualifiedIdent }
-  Symbol { ident }
+  Symbol { ident | "/" }
 
   keyword { ":" ":"? ident }
   Keyword { keyword }
@@ -115,3 +117,11 @@ Nil { @specialize<Symbol, "nil"> }
 DefLike[dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defn-" | "defmacro" | "definline" | "defonce" | "deftest" | "defcard"> }
 
 @detectDelim
+
+// TODO - support for constructors
+// # Constructor - vector
+//  #my.klass_or_type_or_record[:a :b :c]
+//   ==> Program(Constructor(ConstructorPrefix,Vector))
+// # Constructor - map
+//  #my.record{:a 1, :b 2}
+//   ==> Program(Constructor(ConstructorPrefix,Map))

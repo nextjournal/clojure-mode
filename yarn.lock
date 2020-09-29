@@ -18,10 +18,10 @@
     style-mod "^2.3.0"
     w3c-keyname "^2.2.4"
 
-"@mhuebert/lezer-clojure@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@mhuebert/lezer-clojure/-/lezer-clojure-0.1.1.tgz#007f7a8b0375192540806955b1056f2ef0e6485f"
-  integrity sha512-n6vil9WPhCdAFPu5JScvaNZHu1sJXHzCWsZkaJtStvPGyjgGFMlruBrLTEbiv/p9WQrZIeFWHl5rQPL926iV/w==
+"@mhuebert/lezer-clojure@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@mhuebert/lezer-clojure/-/lezer-clojure-0.1.2.tgz#d62fbf97137c8030fff918864c7ce04454168d1c"
+  integrity sha512-3+1oEppkAFOwkxX1sdH6C92h2C/HGcmDq5CrEPP7H++Jn/meywPKQn1t2Z/k3Dt/o2iWjaGYAq8028K0QyeHrQ==
   dependencies:
     lezer "0.10.3"
 
