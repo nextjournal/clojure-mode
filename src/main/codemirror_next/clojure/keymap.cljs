@@ -47,7 +47,6 @@
    :cursorLineBoundaryForward
    [{:key "End", :shift :selectLineBoundaryForward}],
    :deleteCharBackward [{:key "Backspace"} {:mac "Ctrl-h"}],
-   :insertNewlineAndIndent [{:key "Enter"}],
    :cursorLineBoundaryBackward
    [{:key "Home", :shift :selectLineBoundaryBackward
      :mac "Ctrl-a"}
@@ -98,6 +97,9 @@
   {:indent
    [{:key "Tab"
      :doc "Indent document (or selection)"}]
+   :enter-and-indent
+   [{:key "Enter"
+     :doc "Insert newline and indent"}]
    :unwrap
    [{:key "Alt-s"
      :doc "Lift contents of collection into parent"

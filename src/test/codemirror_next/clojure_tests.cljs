@@ -248,3 +248,14 @@
 
     "@<deref>" "<@deref>"
     ))
+
+(deftest enter-and-indent
+  (are [input expected]
+    (= (apply-cmd commands/enter-and-indent input) expected)
+
+    "(|)" "(\n |)"
+    "((|))" "((\n  |))"
+    "(()|)" "(()\n |)"
+    "(a |b)" "(a \n  |b)"
+    "(a b|c)" "(a b\n  |c)"
+    ))

@@ -61,6 +61,20 @@
             {:cursor from
              :changes (u/from-to from to)})))))
 
+(defn enter-and-indent* [^js state]
+  (let [ctx (format/make-indent-context state)]
+    (u/update-ranges state
+      (j/fn [^:js {:as range :keys [from to empty]}]
+        (let [indent-at (-> (n/closest (n/tree state from) (some-fn n/coll? n/top?))
+                            n/inner-span
+                            n/start)
+              indent (format/get-indentation ctx indent-at)
+              insertion (str \newline (format/spaces state indent))]
+          {:cursor (+ from (count insertion))
+           :changes [{:from from
+                      :to to
+                      :insert insertion}]})))))
+
 (defn nav-position [state from dir]
   (or (some-> (n/closest (n/tree state from)
                          #(or (n/coll? %)
@@ -259,6 +273,7 @@
 (def barf-backward (view-command (barf -1)))
 (def selection-grow (view-command selection-grow*))
 (def selection-return (view-command selection-return*))
+(def enter-and-indent (view-command enter-and-indent*))
 
 (def paredit-index
   {:indent indent
@@ -273,7 +288,8 @@
    :barf-forward barf-forward
    :barf-backward barf-backward
    :selection-grow selection-grow
-   :selection-return selection-return})
+   :selection-return selection-return
+   :enter-and-indent enter-and-indent})
 
 (def index
   "Mapping of keyword-id to command functions"
