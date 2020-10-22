@@ -1,7 +1,6 @@
 (ns codemirror-next.clojure.commands
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
-            [codemirror-next.clojure.extensions.formatting :as indent]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.selections :as sel]
@@ -247,7 +246,7 @@
    :cursorDocStart commands/cursorDocStart
    :selectDocStart commands/selectDocStart})
 
-(def indent (view-command indent/format))
+(def indent (view-command format/format))
 (def unwrap (view-command unwrap*))
 (def kill (view-command kill*))
 (def nav-right (view-command (nav 1)))

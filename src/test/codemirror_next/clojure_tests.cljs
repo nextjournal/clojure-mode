@@ -4,13 +4,19 @@
             [codemirror-next.test-utils :as test-utils]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.commands :as commands]
-            [codemirror-next.clojure.extensions.formatting :as indent]))
+            [codemirror-next.clojure.extensions.formatting :as indent]
+            [codemirror-next.clojure.live-grammar :as live-grammar]))
 
 ;; TODO
 ;; set up testing flow
 
-(def apply-f (partial test-utils/apply-f cm-clojure/default-extensions))
-(def apply-cmd (partial test-utils/apply-cmd cm-clojure/default-extensions))
+(def extensions
+  #_cm-clojure/default-extensions
+  #js[(cm-clojure/syntax live-grammar/parser)
+                    (.slice cm-clojure/default-extensions 1)])
+
+(def apply-f (partial test-utils/apply-f extensions))
+(def apply-cmd (partial test-utils/apply-cmd extensions))
 
 (deftest nav
   (are [input dir expected]
@@ -50,9 +56,9 @@
     (= (apply-f #(close-brackets/handle-open % "(") input)
        expected)
     "|" "(|)"                                               ;; auto-close brackets
-    "(|" "((|)"
+    "(|" "((|) "
     "|(" "(|) ("
-    "|)" "(|))"
+    "|)" "(|) )"
     "#|" "#(|)")
 
   (are [input expected]
@@ -141,6 +147,8 @@
 
 
     "|@ a" "|@a"
+    "|&" "|&"
+    "[_ & |_]" "[_ & |_]"
 
     ))
 
@@ -201,6 +209,9 @@
     "'(|) 1" 1 "'(|1)"
 
     "^{|}    :x"  1 "^{|:x}"
+    "^{|}    :x 1"  1 "^{|:x} 1"
+    "^{} [|] :x"  1 "^{} [|:x]"
+
     "('is-d|ata) :x" 1 "('is-d|ata :x)"
     "('xy|z 1) 2" 1 "('xy|z 1 2)"
     "'ab|c 1" 1 "'ab|c 1"

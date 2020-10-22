@@ -6,8 +6,7 @@
                                               Transaction
                                               CharCategory
                                               Extension]]
-            ["@codemirror/next/text" :refer [Text]]
-            ["@codemirror/next/text" :as text]
+            ["@codemirror/next/text" :as text :refer [Text]]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.selections :as sel]
             [codemirror-next.clojure.node :as n]

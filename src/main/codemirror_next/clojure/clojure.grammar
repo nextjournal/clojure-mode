@@ -2,11 +2,12 @@
 @external prop coll from "./props"
 @external prop prefixEdge from "./props"
 @external prop sameEdge from "./props"
+@external prop prefixContainer from "./props"
 
 @top[name=Program] { expression* }
 
 @skip { whitespace | LineComment | Discard }
-expression { Constructor | Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | FnArg | Meta<expression> }
+expression { Constructor | Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | Meta<expression> }
 Discard { "#_" expression }
 @precedence { docString @left, operator @left, meta @right, prefixLiteral @right }
 
@@ -42,7 +43,7 @@ VarName { Symbol }
   String { '"' StringContent? '"' }
 }
 
-Meta<t> { (Metadata | ReaderMetadata) !meta t }
+Meta[prefixContainer]<t> { (Metadata | ReaderMetadata) !meta t }
 
 Deref[prefixColl] { "@" expression }
 Quote[prefixColl] { "'" expression }
@@ -86,7 +87,7 @@ Operator { !operator Symbol }
 
   LineComment { ";" ![\n]* }
 
-  identStart { std.asciiLetter | $[<>._=?!*+\-$\u{a1}-\u{10ff}] }
+  identStart { std.asciiLetter | $[<>&%._=?!*+\-$\u{a1}-\u{10ff}] }
   identChar { identStart | std.digit | ":" | "'" | "#" }
   simpleIdent { identStart identChar* }
   qualifiedIdent { simpleIdent "/" identChar+ }
@@ -111,8 +112,6 @@ Operator { !operator Symbol }
   }
 
   Character { "\\" (std.asciiLetter | std.digit | "@")+ }
-
-  FnArg[name=Symbol] { "%" (std.digit* | "&"?) }
 
 }
 

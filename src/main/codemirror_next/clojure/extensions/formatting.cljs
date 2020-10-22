@@ -3,7 +3,6 @@
             ["@codemirror/next/state" :refer [EditorState IndentContext Transaction]]
             ["@codemirror/next/view" :as view]
             ["@codemirror/next/commands" :as commands]
-            [codemirror-next.clojure.node :as node]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
             [codemirror-next.clojure.node :as n]))
@@ -24,16 +23,16 @@
     (cond (= "Program" type-name)
           0
 
-          (.prop type node/coll-prop)
+          (.prop type n/coll-prop)
           (let [left-bracket-end (.. node -firstChild -end)]
             (cond-> (.column context left-bracket-end)
               ;; start at the inner-left edge of the coll.
               ;; if it's a list beginning with a symbol, add 1 space.
-              (and (= "List" (node/name node))
+              (and (= "List" (n/name node))
                    (#{"Operator"
                       "DefLike"} (some-> node
                                          (.childAfter (.-end (.-firstChild node)))
-                                         node/name)))
+                                         n/name)))
               (+ 1)))
           :else -1)))
 

@@ -17,6 +17,8 @@
 (def prefix-coll-prop (.-prefixColl lezer-clj/props))
 ;; the prefix edge itself
 (def prefix-edge-prop (.-prefixEdge lezer-clj/props))
+;; prefix form - pair of [metadata, target]
+(def prefix-container-prop (.-prefixContainer lezer-clj/props))
 ;; edges at the beginning/end of collections, + "same" edges (string quotes)
 (def start-edge-prop (.-closedBy lz-tree/NodeProp))
 (def end-edge-prop (.-openedBy lz-tree/NodeProp))
@@ -27,6 +29,7 @@
   (case prop-name "prefixColl" prefix-coll-prop
                   "coll" coll-prop
                   "prefixEdge" prefix-edge-prop
+                  "prefixContainer" prefix-container-prop
                   "sameEdge" same-edge-prop))
 
 ;; these wrapping functions exist mainly to avoid type hints
@@ -58,12 +61,14 @@
 
 (defn ^boolean prefix-type? [node-type] (.prop ^js node-type prefix-coll-prop))
 (defn ^boolean prefix-edge-type? [node-type] (.prop ^js node-type prefix-edge-prop))
+(defn ^boolean prefix-container-type? [node-type] (.prop ^js node-type prefix-container-prop))
 (defn ^boolean same-edge-type? [node-type] (.prop ^js node-type same-edge-prop))
 (defn ^boolean start-edge-type? [node-type] (.prop ^js node-type start-edge-prop))
 (defn ^boolean end-edge-type? [node-type] (.prop ^js node-type end-edge-prop))
 
 (defn ^boolean prefix? [n] (prefix-type? (.-type ^js n)))
 (defn ^boolean prefix-edge? [n] (prefix-edge-type? (.-type ^js n)))
+(defn ^boolean prefix-container? [n] (prefix-container-type? (.-type ^js n)))
 (defn ^boolean same-edge? [n] (same-edge-type? (.-type ^js n)))
 (defn ^boolean start-edge? [n] (start-edge-type? (.-type ^js n)))
 (defn ^boolean end-edge? [n] (end-edge-type? (.-type ^js n)))
@@ -120,9 +125,8 @@
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
   (if-let [closing (closed-by firstChild)]
-    (do
-      (and (= closing (name lastChild))
-           (not= (end firstChild) (end lastChild))))
+    (and (= closing (name lastChild))
+         (not= (end firstChild) (end lastChild)))
     true))
 
 (defn ancestors [^js node]
@@ -181,8 +185,10 @@
     (.iterate node #js{:from from
                        :to to
                        :enter (fn [type start end]
-                                (if (and (terminal-type? type)
-                                         (not (error? type)))
+                                (when (error? type)
+                                  (js/console.log type start end))
+                                (if (or (terminal-type? type)
+                                        (error? type))
                                   (do (swap! found conj #js[type start end])
                                       false)
                                   js/undefined))})
@@ -266,7 +272,9 @@
     node))
 
 (defn prefix [node]
-  (some-> (up node) down (u/guard prefix-edge?)))
+  (when-some [parent (up node)]
+    (or (u/guard parent prefix-container?)
+        (u/guard (down parent) prefix-edge?))))
 
 (defn left-edge-with-prefix [state node]
   (str (some->> (prefix node) (string state))

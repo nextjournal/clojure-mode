@@ -1,6 +1,6 @@
 # codemirror-clojure
 
-Live demo (auto-build): https://nextjournal.github.io/codemirror.next-clojure/
+Live demo: https://nextjournal.github.io/codemirror.next-clojure/
 
 dev: `shadow-cljs watch app`
 
