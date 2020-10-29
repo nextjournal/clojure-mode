@@ -4,7 +4,7 @@
 @external prop sameEdge from "./props"
 @external prop prefixContainer from "./props"
 
-@top[name=Program] { expression* }
+@top Program { expression* }
 
 @skip { whitespace | LineComment | Discard }
 expression { Constructor | Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | Meta<expression> }
@@ -22,10 +22,45 @@ Vector[coll] { "[" expression* "]" }
 Map[coll] { "{" expression* "}" }
 VarName { Symbol }
 
+coll[@isGroup=Coll] {
+  List | Vector | Map
+}
+prefixColl[@isGroup=PrefixColl] {
+  Set |
+  AnonymousFunction |
+  NamespacedMap |
+  Constructor |
+  ReaderConditional |
+  ReaderMetadata |
+  Metadata |
+  Deref |
+  Quote |
+  SyntaxQuote |
+  Unquote |
+  UnquoteSplice
+}
+
+prefixEdge[@isGroup=PrefixEdge] {
+ KeywordPrefix |
+ ConstructorPrefix |
+ "#" |
+ "##" |
+ "#'" |
+ "#?" |
+ "#^" |
+ "#_" |
+ "'" |
+ "`" |
+ "~" |
+ "~@" |
+ "^" |
+ "@"
+}
+
 @skip {} {
   dataLiteral { "#" ident }
   DataLiteral { dataLiteral }
-  SymbolicValue { "##" simpleIdent }
+  SymbolicValue { "##" ident }
   Set[prefixColl] { "#" Map }
   AnonymousFunction[prefixColl] { "#" List }
 
@@ -87,14 +122,12 @@ Operator { !operator Symbol }
 
   LineComment { ";" ![\n]* }
 
-  identStart { std.asciiLetter | $[<>&%._=?!*+\-$\u{a1}-\u{10ff}] }
-  identChar { identStart | std.digit | ":" | "'" | "#" }
-  simpleIdent { identStart identChar* }
-  qualifiedIdent { simpleIdent "/" identChar+ }
-  ident { simpleIdent | qualifiedIdent }
-  Symbol { ident | "/" }
+  identStart { std.asciiLetter | $[<>&%._=?!*+\-$\u{a1}-\u{10ff}/] }
+  identChar { identStart | std.digit | ":" | "'" | "#" | "/"}
+  ident { identStart identChar* }
+  Symbol { ident }
 
-  keyword { ":" ":"? ident }
+  keyword { ":" ":"? ident? } // the invalid token :: can also be considered as a keyword
   Keyword { keyword }
 
   Number {
@@ -117,6 +150,6 @@ Operator { !operator Symbol }
 
 Boolean { @specialize<Symbol, "true" | "false"> }
 Nil { @specialize<Symbol, "nil"> }
-DefLike[dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defn-" | "defmacro" | "definline" | "defonce" | "deftest" | "defcard"> }
+DefLike[@dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defn-" | "defmacro" | "definline" | "defonce" | "deftest" | "defcard"> }
 
 @detectDelim

@@ -32,22 +32,20 @@
              :from from}
    :cursor (+ from (count s))})
 
-(defn map-cursor [^js state update-map]
+(defn map-cursor [^js original-range ^js state update-map]
   {:pre [(map? update-map)]}
   (let [{:keys [cursor/mapped
                 cursor
                 from-to
                 range
                 changes]} (guard update-map map?)
-        changes (when changes (.changes state (clj->js changes)))
-        range (cond mapped (sel/cursor (.mapPos changes mapped))
-                    cursor (sel/cursor cursor)
-                    from-to (sel/range (from-to 0) (from-to 1))
-                    range range
-                    :else js/undefined)]
-    (cond-> #js{}
-      changes (j/!set :changes changes)
-      range (j/!set :range range))))
+        change-desc (when changes (.changes state (clj->js changes)))]
+    (cond-> #js{:range (or range
+                           (cond mapped (sel/cursor (.mapPos change-desc mapped))
+                                 cursor (sel/cursor cursor)
+                                 from-to (sel/range (from-to 0) (from-to 1)))
+                           original-range)}
+      change-desc (j/!set :changes change-desc))))
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
@@ -56,7 +54,7 @@
   ([^js state tr-specs f ]
    (->> (fn [range]
           (or (when-some [result (f range)]
-                (map-cursor state result))
+                (map-cursor range state result))
               #js{:range range}))
         (.changeByRange state)
         (#(j/extend! % tr-specs))
@@ -67,7 +65,7 @@
     (dispatch (.update state #js{:changes changes}))))
 
 (defn update-lines
-  [^js state f & [{:keys [from to]
+  [^js state f & [{:keys [from to spec]
                    :or {from 0}}]]
   (let [iterator (.. state -doc (iterLines 0))]
     (loop [result (.next iterator)
@@ -77,7 +75,7 @@
       (j/let [^:js {:keys [done ^string value]} result]
         (if (or done
                 (> from to))
-          (.update state #js{:changes (.changes state changes)})
+          (.update state (j/extend! #js{:changes (.changes state changes)} spec))
           (recur (.next iterator)
                  (if-let [change (f from-pos value line-num)]
                    (j/push! changes change)

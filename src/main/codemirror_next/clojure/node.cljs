@@ -1,8 +1,8 @@
 (ns codemirror-next.clojure.node
-  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve])
+  (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve type])
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
-            ["@mhuebert/lezer-clojure" :as lezer-clj]
+            ["lezer-clojure" :as lezer-clj]
             [clojure.core :as core]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
@@ -34,21 +34,45 @@
 
 ;; these wrapping functions exist mainly to avoid type hints
 ;; & are mostly compiled away
-(defn ^number start [^js node] (.-start node))
-(defn ^number end [^js node] (.-end node))
-(defn ^number depth [^js node] (.-depth node))
+
+(defn ^lz-tree/NodeType type [^js node] (.-type node))
+
+(defn ^number start [^js node]
+  {:pre [(.-from node)]}
+  (.-from node))
+
+(defn ^number end [^js node]
+  {:pre [(.-to node)]}
+  (.-to node))
 
 ;; a more zipper-like interface
 (defn ^js up [node] (.-parent ^js node))
-(defn ^js down [node] (.-firstChild ^js node))
-(defn ^js down-last [node] (.-lastChild ^js node))
-(defn ^js left [^js node] (.childBefore (up node) (start node)))
+
+(defn ^js down [node]
+  {:pre [(not (fn? (.-lastChild ^js node)))]}
+  (.-firstChild ^js node))
+
+(defn ^js down-last [node]
+  {:pre [(not (fn? (.-lastChild ^js node)))]}
+  (.-lastChild ^js node))
+
+(defn ^number depth [^js node]
+  (loop [node node
+         i 0]
+    (if-some [parent (up node)]
+      (recur parent (inc i))
+      i)))
+
+(defn ^js left [^js node]
+  (.childBefore (up node) (start node))
+  #_(.-prevSibling node))
 
 (defn lefts [node]
   (take-while identity (iterate left (left node))))
 
 (defn ^js right [node]
-  (.childAfter (up node) (end node)))
+  (.childAfter (up node) (end node))
+  #_(.-nextSibling node))
 
 (defn rights [node]
   (take-while identity (iterate right (right node))))
@@ -65,62 +89,65 @@
 (defn ^boolean same-edge-type? [node-type] (.prop ^js node-type same-edge-prop))
 (defn ^boolean start-edge-type? [node-type] (.prop ^js node-type start-edge-prop))
 (defn ^boolean end-edge-type? [node-type] (.prop ^js node-type end-edge-prop))
+(defn ^boolean top-type? [node-type] (.-isTop ^js node-type))
+(defn ^boolean error-type? [node-type]  (.-isError ^js node-type))
 
-(defn ^boolean prefix? [n] (prefix-type? (.-type ^js n)))
-(defn ^boolean prefix-edge? [n] (prefix-edge-type? (.-type ^js n)))
-(defn ^boolean prefix-container? [n] (prefix-container-type? (.-type ^js n)))
-(defn ^boolean same-edge? [n] (same-edge-type? (.-type ^js n)))
-(defn ^boolean start-edge? [n] (start-edge-type? (.-type ^js n)))
-(defn ^boolean end-edge? [n] (end-edge-type? (.-type ^js n)))
+(defn ^boolean prefix? [n] (prefix-type? (type n)))
+(defn ^boolean prefix-edge? [n] (prefix-edge-type? (type n)))
+(defn ^boolean prefix-container? [n] (prefix-container-type? (type n)))
+(defn ^boolean same-edge? [n] (same-edge-type? (type n)))
+(defn ^boolean start-edge? [n]
+  (start-edge-type? (type n)))
+(defn ^boolean end-edge? [n] (end-edge-type? (type n)))
 
-(defn ^boolean left-edge-type? [^js t]
+(defn ^boolean left-edge-type? [t]
   (or (start-edge-type? t)
       (same-edge-type? t)
       (prefix-edge-type? t)))
 
 (defn ^boolean left-edge? [n]
-  (left-edge-type? (.-type ^js n)))
+  (left-edge-type? (type  n)))
 
-(defn ^boolean right-edge-type? [^js t]
+(defn ^boolean right-edge-type? [t]
   (or (end-edge-type? t)
       (same-edge-type? t)))
 
-(defn ^boolean right-edge? [^js n]
-  (right-edge-type? (.-type n)))
+(defn ^boolean right-edge? [n]
+  (right-edge-type? (type n)))
 
 (defn ^boolean edge? [n]
-  (let [t (.-type ^js n)]
+  (let [t (type n)]
     (or (start-edge-type? t)
         (end-edge-type? t)
         (same-edge-type? t)
         (prefix-type? t))))
 
 (defn closed-by [n]
-  (some-> (.prop (.-type n) (.-closedBy lz-tree/NodeProp))
+  (some-> (.prop (type n) (.-closedBy lz-tree/NodeProp))
           (aget 0)))
 (defn opened-by [n]
-  (some-> (.prop (.-type n) (.-openedBy lz-tree/NodeProp))
+  (some-> (.prop (type n) (.-openedBy lz-tree/NodeProp))
           (aget 0)))
 
 (defn ^string name [^js node] (.-name node))
 
 ;; specific node types
 
-(defn error? [^js node] (.prop node lz-tree/NodeProp.error))
-(defn top? [node] (.. node -type (prop (.-top lz-tree/NodeProp))))
+(defn error? [^js node] (error-type? node))
+(defn top? [node] (top-type? (type node)))
 (defn string? [node] (identical? "String" (name node)))
 (defn regexp? [node] (identical? "RegExp" (name node)))
 (defn line-comment? [node] (identical? "LineComment" (name node)))
 (defn discard? [node] (identical? "Discard" (name node)))
 
 (defn coll? [node]
-  (coll-type? (.-type ^js node)))
+  (coll-type? (type node)))
 
 (defn terminal-type? [^js node-type]
-  (cond (.prop node-type (.-top lz-tree/NodeProp)) false
+  (cond (top-type? node-type) false
         (.prop node-type prefix-coll-prop) false
         (.prop node-type coll-prop) false
-        (identical? "Meta" (.-name node-type)) false
+        (identical? "Meta" (name node-type)) false
         :else true))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
@@ -137,7 +164,12 @@
 (defn ^js closest [node pred]
   (if (pred node)
     node
-    (reduce (fn [_ x] (if (pred x) (reduced x) nil)) nil (ancestors node))))
+    (reduce (fn [_ x]
+              (if (pred x) (reduced x) nil)) nil (ancestors node))))
+
+(defn ^js highest [node pred]
+  (reduce (fn [found x]
+            (if (pred x) x (reduced found))) nil (cons node (ancestors node))))
 
 (defn children
   ([^js parent from dir]
@@ -165,34 +197,25 @@
           (== (-> node down end) (-> node down-last start))
           :else false)))
 
-(defn from-to [node]
-  {:from (start node) :to (end node)})
+(defn from-to
+  ([from to] #js{:from from :to to})
+  ([node]
+   (from-to (start node) (end node))))
 
 (defn range [node]
   (sel/range (start node) (end node)))
 
-(defn string [^js state node]
-  (.slice (.-doc state) (start node) (end node)))
+(defn string
+  ([^js state node]
+   (string state (start node) (end node)))
+  ([^js state from to]
+   (.slice (.-doc state) from to)))
 
 (defn ancestor? [parent child]
   (boolean
-   (and (< (depth parent) (depth child))
-        (<= (start parent) (start child))
-        (>= (end parent) (end child)))))
-
-(defn terminal-nodes [^js node from to]
-  (let [found (atom [])]
-    (.iterate node #js{:from from
-                       :to to
-                       :enter (fn [type start end]
-                                (when (error? type)
-                                  (js/console.log type start end))
-                                (if (or (terminal-type? type)
-                                        (error? type))
-                                  (do (swap! found conj #js[type start end])
-                                      false)
-                                  js/undefined))})
-    @found))
+   (and (<= (start parent) (start child))
+        (>= (end parent) (end child))
+        (< (depth parent) (depth child)))))
 
 (defn move-toward
   "Returns next loc moving toward `to-path`, skipping children"
@@ -223,6 +246,39 @@
   ([^js state pos] (.. state -tree (resolve pos)))
   ([^js state pos dir] (.. state -tree (resolve pos dir))))
 
+(defn ^js cursor
+  ([^js tree] (.cursor tree))
+  ([^js tree pos] (.cursor tree pos))
+  ([^js tree pos dir] (.cursor tree pos dir)))
+
+(defn ^js up-here
+  "Returns topmost node at same starting position"
+  [node]
+  (let [from (start node)]
+    (or (highest node #(= from (start %)))
+        node)))
+
+(defn topmost-cursor [state from]
+  (-> (cursor state from 1) .-node up-here .-cursor))
+
+(defn terminal-nodes [state from to]
+  (let [^js cursor (topmost-cursor state from)]
+    (loop [found []]
+      (let [node-type (type cursor)]
+        (cond (> (start cursor) to) found
+              (or (terminal-type? node-type)
+                  (error? node-type))
+              (let [found (conj found #js{:type node-type
+                                          :from (start cursor)
+                                          :to  (end cursor)})]
+                (.lastChild cursor)
+                (if (.next cursor)
+                  (recur found)
+                  found))
+              :else (if (.next cursor)
+                      (recur found)
+                      found))))))
+
 (j/defn balanced-range
   ([state ^js node] (balanced-range state (start node) (end node)))
   ([state from to]
@@ -246,12 +302,12 @@
 (j/defn inner-span
   "Span of collection not including edges"
   [^:js {:as node :keys [firstChild lastChild]}]
-  #js{:start (if (left-edge? firstChild)
-               (end firstChild)
-               (start node))
-      :end (if (right-edge? lastChild)
-             (start lastChild)
-             (end node))})
+  #js{:from (if (left-edge? firstChild)
+              (end firstChild)
+              (start node))
+      :to (if (right-edge? lastChild)
+            (start lastChild)
+            (end node))})
 
 (defn within?< "within (exclusive of edges)"
   [parent child]

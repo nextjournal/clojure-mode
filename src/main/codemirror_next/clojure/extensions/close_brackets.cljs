@@ -38,22 +38,22 @@
                     (and parent (not (n/balanced? parent))) nil
 
                     ;; entering right edge of collection - skip
-                    (and (n/right-edge? node|) (== pos (.-end parent)))
+                    (and (n/right-edge? node|) (== pos (n/end parent)))
                     {:cursor (dec pos)}
 
                     ;; inside left edge of collection - remove or stop
                     (and (or (n/start-edge? node|)
-                             (n/same-edge? node|)) (== (.-start node|) (.-start parent)))
+                             (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
                     (if (n/empty? (n/up node|))
                       ;; remove empty collection
-                      {:cursor (.-start parent)
-                       :changes [(from-to (.-start parent) (.-end parent))]}
+                      {:cursor (n/start parent)
+                       :changes [(from-to (n/start parent) (n/end parent))]}
                       ;; stop cursor at inner-left of collection
                       {:cursor pos})
 
 
                     (some-> (n/tree state (dec pos) -1)
-                            (u/guard (every-pred #(= (dec pos) (.-end ^js %))
+                            (u/guard (every-pred #(= (dec pos) (n/end ^js %))
                                                  n/line-comment?)))
                     {:cursor (dec pos)})
                   {:cursor (sel/constrain state (dec pos))
@@ -102,13 +102,12 @@
 
         ;; jump to next closing bracket
         (when-let [close-node-end (and empty
-                                       (.iterate (n/tree state)
-                                                 #js{:from (inc head)
-                                                     :enter (fn [node-type start end]
-                                                              (if
-                                                                (n/right-edge-type? node-type)
-                                                                end
-                                                                js/undefined))}))]
+                                       (let [^js cursor (n/cursor state (inc head))]
+                                         (loop []
+                                           (if (n/right-edge-type? (.-type cursor))
+                                             (n/end cursor)
+                                             (when (.next cursor)
+                                               (recur))))))]
           {:cursor close-node-end})
         (u/insertion head key-name)))))
 

@@ -11,8 +11,8 @@
 
 (def base-theme
   (->>
-    (j/lit {:matchingBracket {:color "#0b0"}
-            :nonmatchingBracket {:color "#a22"}})
+    (j/lit {:$matchingBracket {:color "#0b0"}
+            :$nonmatchingBracket {:color "#a22"}})
     (.baseTheme EditorView)))
 
 (def ^js matching-mark (.mark Decoration (j/obj :class (themeClass "matchingBracket"))))
@@ -69,7 +69,7 @@
                                                                         (not (-> (n/tree state head) (n/closest n/string?)))
                                                                         (-> (.. tr -state -doc (slice head (inc head)) toString)
                                                                             (#{\] \) \}})))]
-                                            (conj out (mark-node (j/obj :start head :end (inc head)) nonmatching-mark)))
+                                            (conj out (mark-node (n/from-to head (inc head)) nonmatching-mark)))
                                           out)) []))]
                      (.set Decoration (into-array decos) true))
                    deco))
@@ -78,4 +78,4 @@
 
 (defn extension []
   #js[base-theme
-      state])
+      #_state])

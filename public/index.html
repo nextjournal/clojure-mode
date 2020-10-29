@@ -1,8 +1,44 @@
 <!doctype html>
-<meta charset=utf8>
-<title>lezer-cljs</title>
-
-<div id=editor style="border: 4px solid #ddd; padding: 10px; margin: 30px 0;"></div>
-<pre id=docs style="padding:10px"></pre>
-
-<script src="js/main.js"></script>
+<html>
+  <head>
+    <meta charset="utf8">
+    <title>lezer-clojure</title>
+    <link href="https://cdn.nextjournal.com/stylesheets/vendor/tailwind-a4c8a6fe636b6d528505c30cb68526a024f446a7.css" rel="stylesheet">
+    <link href="https://cdn.nextjournal.com/stylesheets/nextjournal-e01a2b4dad54d14e5362737a31eadc4eb62d1159.css" rel="stylesheet">
+    <style>
+      /* Use Fira Mono without having to clutter up the demo with a custom CM theme. */
+      .cm-scroller { font-family: var(--code-font) !important; }
+    </style>
+  </head>
+  <body>
+    <div class="max-w-6xl px-6 mx-auto">
+      <h1 class="mt-16 mb-0 text-4xl">Clojure/Script mode for <a href="https://codemirror.net/6/">codemirror.next</a></h1>
+      <p class="mt-4 text-lg sans-serif">
+        This mode exists to enable a decent Clojure/Script editor experience in the browser.<br>
+        Implemented as a <a href="https://lezer.codemirror.net">lezer</a> grammar.
+      </p>
+      <p class="mt-4 text-lg sans-serif">
+        <a class="font-bold" href="https://github.com/nextjournal/codemirror.next-clojure">Clone on GitHub</a>
+        <span class="text-gray-500 ml-1">/</span>
+        <span class="ml-1">sponsored by</span> <a class="font-bold" href="https://nextjournal.com">Nextjournal</a>
+      </p>
+      <h2 class="mt-12 mb-0">Try a demo or <a href="https://nextjournal.com/try/clojure">use it on Nextjournal</a></h2>
+      <div id="editor" class="mt-4 rounded-md border mb-0 text-sm monospace overflow-auto" style="max-height: 400px;"></div>
+      <h2 class="mt-12 mb-0">Docs</h2>
+      <div id="docs" class="rounded-md border border-t-0 overflow-auto text-md p-0 m-0 mt-4 sans-serif"></div>
+      <h2 class="mt-12 mb-0">Readme</h2>
+      <div id="readme" class="text-sm p-0 m-0 w-full overflow-auto"></div>
+      <div class="text-sm mt-12 pt-4 pb-12 sans-serif border-t-2">
+        <div class="flex justify-between">
+          <div class="">
+            <a href="https://nextjournal.com" class="hover:underline">Nextjournal</a>
+            <a href="https://twitter.com/usenextjournal" class="ml-2 hover:underline">Twitter</a>
+            <a href="https://nextjournal.com/about" class="ml-2 hover:underline">About us</a>
+          </div>
+          <div class="text-gray-500">© 2020 Nextjournal GmbH</div>
+        </div>
+      </div>
+    </div>
+    <script src="js/main.js"></script>
+  </body>
+</html>

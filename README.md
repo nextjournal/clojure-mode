@@ -2,20 +2,17 @@
 
 Live demo: https://nextjournal.github.io/codemirror.next-clojure/
 
-dev: `shadow-cljs watch app`
+## Dev Setup
 
-----
+* Install JS deps: `yarn install`
+* Start dev server: `shadow-cljs watch app`
+* Open demo page at http://localhost:8002/
 
-In progress:
+## Todo
 
-
-Next:
-- [ ] Copy/paste (only first line copies to clipboard?)
 - [ ] "Yank" after kill (https://www.howtogeek.com/293850/how-to-use-macos-built-in-kill-and-yank-as-an-alternative-cut-and-paste/)
-- [ ] Ctrl-A => move to beginning of line (first non-whitespace char)
 
-
-Done
+## Done
 
 - [x] Expand/contract region
 - [x] Barf
@@ -30,3 +27,5 @@ Done
 - [x] indentation
 - [x] odd error recovery behaviour - a `#` token can't be deleted
 - [x] deletion
+- [x] Copy/paste (only first line copies to clipboard?)
+- [x] Ctrl-A => move to beginning of line (first non-whitespace char)

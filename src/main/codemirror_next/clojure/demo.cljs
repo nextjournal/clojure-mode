@@ -3,7 +3,7 @@
             ["@codemirror/next/fold" :as fold]
             ["@codemirror/next/gutter" :refer [lineNumbers]]
             ["@codemirror/next/highlight" :as highlight]
-            ["@codemirror/next/history" :refer [history]]
+            ["@codemirror/next/history" :refer [history historyKeymap]]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/view" :as view :refer [EditorView]]
@@ -24,22 +24,28 @@
             [shadow.resource :as rc])
   (:require-macros [codemirror-next.build :as build]))
 
-(defonce extensions #js[(history)
+(def theme
+  (.theme EditorView
+          (j/lit {:$content {:white-space "pre-wrap"}})))
+
+(defonce extensions #js[ theme
+                        (history)
                         highlight/defaultHighlighter
-                        (view/multipleSelections)
+                        (view/drawSelection)
                         (lineNumbers)
                         (fold/foldGutter)
+                        (.. EditorState -allowMultipleSelections (of true))
                         (if false
                           ;; use live-reloading grammar
                           #js[(cm-clj/syntax live-grammar/parser)
                               (.slice cm-clj/default-extensions 1)]
                           cm-clj/default-extensions)
-                        (view/keymap cm-clj/complete-keymap)])
+                        (view/keymap cm-clj/complete-keymap)
+                        (view/keymap historyKeymap)])
 
 (defn sample-text []
   (str "(defn lezer-clojure
-  \"This is a showcase for `lezer-clojure`, an grammar for Clojure/Script to
-  enable a decent editor experience in the browser.\"
+  \"This is a showcase for `lezer-clojure`, a grammar for Clojure/Script to enable a decent editor experience in the browser.\"
   {:added \"0.1\"}
   [demo]
   nil ;; nil
@@ -79,22 +85,21 @@
   (j/assoc! (js/document.getElementById "docs")
             :innerHTML
             (tag :div
-                 (tag :table {:cellpadding 5}
+                 (tag :table {:cellpadding 0 :class "w-full"}
                       (->> keymap/paredit-keymap*
                            (sort-by first)
                            (reduce (fn [out [command [{:keys [key shift doc]}]]]
                                      (str out
                                           (tag :tr
-                                               (tag :td (tag :b (name command)))
-                                               (tag :td key)
-                                               (tag :td (when shift "\n" (tag :i "+Shift " (tag :b shift))))
-                                               (tag :td doc)))) ""))
-                      "</table>")
-                 (tag :pre
-                      (-> (build/slurp "README.md")
-                          (str/split #"----")
-                          second))
-                 ))
+                                               {:class "border-t even:bg-gray-100"}
+                                               (tag :td {:class "px-3 py-1"} (tag :b (name command)))
+                                               (tag :td {:class "px-3 py-1"} key)
+                                               (tag :td {:class "px-3 py-1"} (when shift "\n" (tag :i "+Shift " (tag :b shift))))
+                                               (tag :td {:class "px-3 py-1"} doc)))) ""))
+                      "</table>")))
+  (j/assoc! (js/document.getElementById "readme")
+            :innerHTML
+            (tag :pre {:class "mt-4"} (build/slurp "README.md")))
   (.focus (last @prev-views)))
 
 

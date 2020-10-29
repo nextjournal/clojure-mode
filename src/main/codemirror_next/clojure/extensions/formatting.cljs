@@ -23,17 +23,18 @@
     (cond (= "Program" type-name)
           0
 
-          (.prop type n/coll-prop)
-          (let [left-bracket-end (.. node -firstChild -end)]
-            (cond-> (.column context left-bracket-end)
-              ;; start at the inner-left edge of the coll.
-              ;; if it's a list beginning with a symbol, add 1 space.
-              (and (= "List" (n/name node))
-                   (#{"Operator"
-                      "DefLike"} (some-> node
-                                         (.childAfter (.-end (.-firstChild node)))
-                                         n/name)))
-              (+ 1)))
+          (n/coll-type? type)
+          (cond-> (.column context
+                           (-> node n/down n/end))
+            ;; start at the inner-left edge of the coll.
+            ;; if it's a list beginning with a symbol, add 1 space.
+            (and (= "List" type-name)
+                 (#{"Operator"
+                    "DefLike"} (some-> node
+                                       n/down
+                                       n/right
+                                       n/name)))
+            (+ 1))
           :else -1)))
 
 (def props (.add syntax/indentNodeProp
@@ -48,8 +49,7 @@
         -1)))
 
 (defn make-indent-context [state]
-  (let [updated #js{}]
-    (new IndentContext state (fn [start] (j/get updated start -1)))))
+  (new IndentContext state))
 
 (defn indent-all [^js state]
   (let [context (make-indent-context state)]
@@ -57,9 +57,11 @@
       (fn [from content line-num]
         (let [current-indent (-> (.exec #"^\s*" content)
                                  ^js (aget 0)
-                                 .-length)]
-          (when-some [^number indent (-> (get-indentation context from)
-                                         (u/guard (complement neg?)))]
+                                 .-length)
+              ^number indent (-> (get-indentation context from)
+                                 (u/guard (complement neg?)))]
+
+          (when indent
             (case (compare indent current-indent)
               0 nil
               1 #js{:from (+ from current-indent)
@@ -70,31 +72,40 @@
 (defn expected-space [n1 n2]
   ;;  (prn :expected (map n/name [n1 n2]))
   (if
-    (or
-      (n/start-edge-type? n1)
-      (n/prefix-edge-type? n1)
-      (n/end-edge-type? n2)
-      (n/same-edge-type? n2))
+   (or
+    (n/start-edge-type? n1)
+    (n/prefix-edge-type? n1)
+    (n/end-edge-type? n2)
+    (n/same-edge-type? n2))
     0
     1))
 
 (defn space-changes [state from to]
-  (->> (n/terminal-nodes (.-tree state) to from)
-       (partition 2 1)
-       (reduce (j/fn [out [^:js [n2 start2 end2]
-                           ^:js [n1 start1 end1]]]
-                 (let [expected (expected-space n1 n2)
-                       actual (- start2 end1)]
-                   (case (compare actual expected)
-                     0 out
-                     1 (j/push! out #js{:from (if (zero? expected)
-                                                end1
-                                                (inc end1))
-                                        :to start2})
-                     -1 (j/push! out #js{:from end1
-                                         :insert " "})
-                     out)))
-               #js[])))
+  (let [nodes (->> (n/terminal-nodes (.-tree state) from to)
+                   (filter #(or (<= from (n/start %) to)
+                                (<= from (n/end %) to)))
+                   (reverse))
+        trim? (some-> (first nodes) n/end (< to))]
+    (->> nodes
+         (partition 2 1)
+         (reduce (j/fn [out [^:js {n2 :type start2 :from end2 :to}
+                             ^:js {n1 :type start1 :from end1 :to}]]
+                   (let [expected (expected-space n1 n2)
+                         actual (- start2 end1)]
+                     (case (compare actual expected)
+                       0 out
+                       1 (j/push! out #js{:from (if (zero? expected)
+                                                  end1
+                                                  (inc end1))
+                                          :to start2})
+                       -1 (j/push! out #js{:from end1
+                                           :insert " "})
+                       out)))
+
+                 (if trim?
+                   (j/lit [{:from (-> nodes first n/end)
+                            :to to}])
+                   #js[])))))
 
 (defn into-arr [^js arr items]
   (doseq [i items] (.push arr i))
@@ -112,9 +123,10 @@
   {:pre [(some? content)]}
   (let [current-indent (-> ^js (aget (.exec #"^\s*" content) 0)
                            .-length)
+        ^number indent (-> (get-indentation indent-context from)
+                           (u/guard (complement neg?)))
         indentation-change
-        (when-some [^number indent (-> (get-indentation indent-context from)
-                                       (u/guard (complement neg?)))]
+        (when indent
           (case (compare indent current-indent)
             0 nil
             1 #js{:from (+ from current-indent)
@@ -147,17 +159,16 @@
     (if-let [changes
              (case origin
                ("input"
-                 "delete"
-                 "keyboardselection"
-                 "keyboarselection"                         ;; temporary - https://github.com/codemirror/codemirror.next/pull/291
-                 "pointerselection"
-                 "cut") nil
+                "delete"
+                "keyboardselection"
+                "pointerselection"
+                "cut") nil
                "format-selections" (format-selection (.-state tr))
                (let [state (.-state tr)
                      context (make-indent-context state)]
                  (u/iter-changed-lines tr
-                   (fn [^js line ^js changes]
-                     (format-line state context (.-from line) (.-content line) (.-number line) changes true)))))]
+                                       (fn [^js line ^js changes]
+                                         (format-line state context (.-from line) (.-content line) (.-number line) changes true)))))]
       (.. tr -startState (update (j/assoc! changes :filter false)))
       tr)))
 

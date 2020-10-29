@@ -6,6 +6,6 @@
 ;;for dev, it's useful to build the parser in the browser
 (def parser
   (lg/buildParser
-    (rc/inline "./clojure.grammar")
-    #js{:externalProp n/node-prop}))
+   (rc/inline "./clojure.grammar")
+   #js{:externalProp n/node-prop}))
 

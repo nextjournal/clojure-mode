@@ -2,9 +2,9 @@
   (:require ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/syntax" :as syntax]
-            ["@codemirror/next/view" :as view :refer [EditorView keymap multipleSelections]]
+            ["@codemirror/next/view" :as view :refer [EditorView keymap]]
             ["lezer" :as lezer]
-            ["@mhuebert/lezer-clojure" :as lezer-clj]
+            ["lezer-clojure" :as lezer-clj]
             ["lezer-tree" :as lz-tree]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
@@ -20,8 +20,8 @@
             [codemirror-next.clojure.util :as u]))
 
 (def fold-node-props
-  (let [coll-span (fn [^js tree] #js{:from (inc (.-start tree))
-                                     :to (dec (.-end tree))})]
+  (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
+                                     :to (dec (n/end tree))})]
     (j/lit
       {:Vector coll-span
        :Map coll-span
@@ -78,15 +78,21 @@
 
 (comment
 
-  (let [state (test-utils/make-state #js[extensions
-                                         (view/keymap clj-keymap)]
-                                     "[[]|")
-        from (.. state -selection -primary -from)]
-    (some->>
-      (n/tree state from -1)
-      (n/ancestors)
-      (filter (complement n/balanced?))
-      first
-      n/down
-      n/closed-by
-      )))
+ (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "[] a")]
+   (-> (.-tree state)
+       (.resolve 2 1) ;; Symbol "a"
+       .-prevSibling
+       js/console.log))
+
+ (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "\"\" :a")]
+   (-> state
+       n/tree
+       (n/cursor 0 1)
+       ))
+ (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "a\n\nb")]
+   (-> state
+       (n/tree 1 1)
+       (->> (n/string state))
+       str
+       )))
+

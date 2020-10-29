@@ -26,40 +26,54 @@
            :changes [(n/from-to (n/down nearest-balanced-coll))
                      (n/from-to (n/down-last nearest-balanced-coll))]})))))
 
+(defn copy-to-clipboard! [text]
+  (let [^js focus-el (j/get js/document :activeElement)
+        input-el (js/document.createElement "input")]
+    (.setAttribute input-el "class" "clipboard-input")
+    (.setAttribute input-el "value" text)
+    (-> js/document .-body (.appendChild input-el))
+    (.focus input-el)
+    (.select input-el)
+    (js/document.execCommand "copy")
+    (-> js/document .-body (.removeChild input-el))
+    (.focus focus-el)))
+
 (defn kill* [^js state]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
-      (or (when empty
-            (let [node (n/tree state from)
-                  parent (n/closest node #(or (n/coll? %)
-                                              (n/string? %)
-                                              (n/top? %)))
-                  line-end (.-to (.lineAt (.-doc state) from))
-                  next-children (when parent (n/children parent from 1))
-                  last-child-on-line
-                  (when parent (some->> next-children
-                                        (take-while (every-pred
-                                                     #(<= (n/start %) line-end)))
-                                        last))
-                  end (cond (n/string? parent) (let [content (str (n/string state parent))
-                                                     content-from (subs content (- from (.-start parent)))
-                                                     next-newline (.indexOf content-from \newline)]
-                                                 (if (neg? next-newline)
-                                                   (dec (n/end parent))
-                                                   (+ from next-newline 1)))
-                            last-child-on-line (if (n/end-edge? last-child-on-line)
-                                                 (n/start last-child-on-line)
-                                                 (n/end last-child-on-line))
-                            (some-> (first next-children)
-                                    n/start
-                                    (> line-end)) (-> (first next-children) n/start))]
-              (when end
-                {:cursor from
-                 :changes {:from from
-                           :to end}})))
-          (when-not empty
+      (if empty
+        (let [node (n/tree state from)
+              parent (n/closest node #(or (n/coll? %)
+                                          (n/string? %)
+                                          (n/top? %)))
+              line-end (.-to (.lineAt (.-doc state) from))
+              next-children (when parent (n/children parent from 1))
+              last-child-on-line
+              (when parent (some->> next-children
+                                    (take-while (every-pred
+                                                 #(<= (n/start %) line-end)))
+                                    last))
+              to (cond (n/string? parent) (let [content (str (n/string state parent))
+                                                content-from (subs content (- from (n/start parent)))
+                                                next-newline (.indexOf content-from \newline)]
+                                            (if (neg? next-newline)
+                                              (dec (n/end parent))
+                                              (+ from next-newline 1)))
+                       last-child-on-line (if (n/end-edge? last-child-on-line)
+                                            (n/start last-child-on-line)
+                                            (n/end last-child-on-line))
+                       (some-> (first next-children)
+                               n/start
+                               (> line-end)) (-> (first next-children) n/start))]
+          (copy-to-clipboard! (n/string state from to))
+          (when to
             {:cursor from
-             :changes (u/from-to from to)})))))
+             :changes {:from from
+                       :to to}}))
+        (do
+          (copy-to-clipboard! (n/string state from to))
+          {:cursor from
+           :changes (u/from-to from to)})))))
 
 (defn enter-and-indent* [^js state]
   (let [ctx (format/make-indent-context state)]
@@ -82,7 +96,7 @@
                               (n/top? %)))
               (n/children from dir)
               first
-              (j/get (case dir -1 :start 1 :end)))
+              (j/get (case dir -1 :from 1 :to)))
       (sel/constrain state (+ from dir))))
 
 (defn nav [dir]
@@ -106,10 +120,10 @@
 
 (defn nearest-touching [^js state pos dir]
   (let [L (some-> (n/tree state pos -1)
-                  (u/guard (j/fn [^:js {:keys [end]}] (= pos end))))
+                  (u/guard (j/fn [^:js {:keys [to]}] (= pos to))))
         R (some-> (n/tree state pos 1)
-                  (u/guard (j/fn [^:js {:as what :keys [start]}]
-                             (= pos start))))
+                  (u/guard (j/fn [^:js {:keys [from]}]
+                             (= pos from))))
         mid (n/tree state pos)]
     (case dir 1 (or (u/guard R (every-pred some? (complement n/right-edge?)))
                     L
@@ -125,7 +139,7 @@
     (->> (n/ancestors node)
          (mapcat (juxt n/inner-span identity))              ;; include inner-spans
          (cons node)
-         (filter (j/fn [^:js {a-start :start a-end :end}]
+         (filter (j/fn [^:js {a-start :from a-end :to}]
                    (and (<= a-start start)
                         (>= a-end end)
                         (not (and (== a-start start)
@@ -154,14 +168,19 @@
       (when-not empty
         {:range (n/balanced-range state from to)}))))
 
+(def log js/console.log)
+
 (defn slurp [direction]
   (fn [^js state]
     (u/update-ranges state
       (j/fn [^:js {:as range :keys [from to empty]}]
         (when empty
-          (when-let [parent (n/closest (n/tree state from) (every-pred n/coll?
-                                                                       #(not (case direction 1 (some-> % n/with-prefix n/right n/end-edge?)
-                                                                                             -1 (some-> % n/with-prefix n/left n/start-edge?)))))]
+          (when-let [parent (n/closest (n/tree state from)
+                                       (every-pred n/coll?
+                                                   #(not
+                                                     (case direction 1 (some-> % n/with-prefix n/right n/end-edge?)
+                                                                     -1
+                                                                     (some-> % n/with-prefix n/left n/start-edge?)))))]
             (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
                                               -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
               {:cursor/mapped from
@@ -172,7 +191,7 @@
                               :insert (n/name edge)}
                              (-> edge
                                  n/from-to
-                                 (assoc :insert " "))])
+                                 (j/assoc! :insert " "))])
                           -1
                           (let [^string edge (n/left-edge-with-prefix state parent)
                                 start (n/start (n/with-prefix parent))]
@@ -201,7 +220,7 @@
                                :insert (n/name (n/down-last parent))}
                               (-> (n/down-last parent)
                                   n/from-to
-                                  (assoc :insert " "))]})
+                                  (j/assoc! :insert " "))]})
                  -1
                  (when-let [next-first-child (some->> (n/down parent)
                                                       n/rights

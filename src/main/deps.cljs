@@ -1,1 +1,1 @@
-{:npm-deps {"@mhuebert/lezer-clojure" "0.1.3"}}
+{:npm-deps {"lezer-clojure" "0.1.8"}}
