@@ -61,10 +61,10 @@
     {:key "Mod-End", :shift :selectDocEnd}
     {:mac "Alt->"}],
    :deleteGroupBackward
-   [{:key "Mod-Backspace", :mac "Ctrl-Alt-Backspace"}
+   [{:key "Mod-Backspace", :mac "Alt-Backspace"}
     {:mac "Ctrl-Alt-h"}],
    :deleteGroupForward
-   [{:key "Mod-Delete", :mac "Alt-Backspace"}
+   [{:key "Mod-Delete", :mac "Ctrl-Alt-Backspace"}
     {:mac "Alt-Delete"}
     {:mac "Alt-d"}],
    :cursorPageDown

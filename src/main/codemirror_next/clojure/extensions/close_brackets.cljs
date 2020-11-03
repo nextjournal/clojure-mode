@@ -111,19 +111,27 @@
           {:cursor close-node-end})
         (u/insertion head key-name)))))
 
-(defn extension []
-  (.domEventHandlers view/EditorView
-                     #js{:keydown
-                         (j/fn [^:js {:as event :keys [metaKey ctrlKey keyCode]} ^:js {:as view :keys [state]}]
-                           (cond (or metaKey ctrlKey) false
-                                 ;; backspace
-                                 (== 8 keyCode) (u/dispatch-some view (handle-backspace state))
-                                 :else
-                                 (let [^string key-name (keyName event)]
-                                   (u/dispatch-some view
-                                     (cond
-                                       (coll-pairs key-name)
-                                       (handle-open state key-name)
+(j/defn handle-backspace-cmd [^:js {:as view :keys [state]}]
+  (u/dispatch-some view (handle-backspace state)))
 
-                                       (#{\) \] \} \"} key-name)
-                                       (handle-close state key-name))))))}))
+(defn handle-open-cmd [key-name]
+  (j/fn [^:js {:as view :keys [state]}]
+    (u/dispatch-some view (handle-open state key-name))))
+
+(defn handle-close-cmd [key-name]
+  (j/fn [^:js {:as view :keys [state]}]
+    (u/dispatch-some view (handle-close state key-name))))
+
+(defn extension []
+  (view/keymap
+   (j/lit
+    [{:key "Backspace"
+      :run (j/fn [^:js {:as view :keys [state]}]
+             (u/dispatch-some view (handle-backspace state)))}
+     {:key "(" :run (handle-open-cmd "(")}
+     {:key "[" :run (handle-open-cmd "[")}
+     {:key "{" :run (handle-open-cmd "{")}
+     {:key \" :run (handle-open-cmd \")}
+     {:key \) :run (handle-close-cmd \))}
+     {:key \] :run (handle-close-cmd \])}
+     {:key \} :run (handle-close-cmd \})}])))
