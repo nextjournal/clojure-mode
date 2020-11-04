@@ -102,7 +102,7 @@
 
         ;; jump to next closing bracket
         (when-let [close-node-end (and empty
-                                       (let [^js cursor (n/cursor state (inc head))]
+                                       (let [^js cursor (n/cursor (n/tree state) (inc head))]
                                          (loop []
                                            (if (n/right-edge-type? (.-type cursor))
                                              (n/end cursor)
