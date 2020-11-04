@@ -74,7 +74,8 @@
       (close-brackets/extension)
       (match-brackets/extension)
       (sel-history/extension)
-      (format/ext-format-changed-lines)])
+      (format/ext-format-changed-lines)
+      (.-lineWrapping EditorView)])
 
 (comment
 

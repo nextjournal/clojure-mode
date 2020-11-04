@@ -28,7 +28,8 @@
   (.theme EditorView
           (j/lit {:$content {:white-space "pre-wrap"}})))
 
-(defonce extensions #js[ theme
+(defonce extensions #js[(.-lineWrapping EditorView)
+                        theme
                         (history)
                         highlight/defaultHighlighter
                         (view/drawSelection)
