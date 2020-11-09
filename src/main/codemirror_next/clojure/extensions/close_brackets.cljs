@@ -86,30 +86,31 @@
     ;; mis-using userEvent
     #js{:annotations (u/user-event-annotation "format-selections")}
     (j/fn [^:js {:as range :keys [empty head]}]
-      (or
-        ;; close unbalanced (open) collection
-        (let [unbalanced (some->
+      (when-not empty
+        (or
+         ;; close unbalanced (open) collection
+         (let [unbalanced (some->
                            (n/tree state head -1)
                            (n/ancestors)
                            (->> (filter (every-pred n/coll? (complement n/balanced?))))
                            first)
-              closing (some-> unbalanced n/down n/closed-by)
-              pos (some-> unbalanced n/end)]
-          (when (and closing (= closing key-name))
-            {:changes {:from pos
-                       :insert closing}
-             :cursor (inc pos)}))
+               closing (some-> unbalanced n/down n/closed-by)
+               pos (some-> unbalanced n/end)]
+           (when (and closing (= closing key-name))
+             {:changes {:from pos
+                        :insert closing}
+              :cursor (inc pos)}))
 
-        ;; jump to next closing bracket
-        (when-let [close-node-end (and empty
-                                       (let [^js cursor (n/cursor (n/tree state) (inc head))]
-                                         (loop []
-                                           (if (n/right-edge-type? (.-type cursor))
-                                             (n/end cursor)
-                                             (when (.next cursor)
-                                               (recur))))))]
-          {:cursor close-node-end})
-        (u/insertion head key-name)))))
+         ;; jump to next closing bracket
+         (when-let [close-node-end (and empty
+                                        (let [^js cursor (n/cursor (n/tree state) (inc head))]
+                                          (loop []
+                                            (if (n/right-edge-type? (.-type cursor))
+                                              (n/end cursor)
+                                              (when (.next cursor)
+                                                (recur))))))]
+           {:cursor close-node-end})
+         (u/insertion head key-name))))))
 
 (j/defn handle-backspace-cmd [^:js {:as view :keys [state]}]
   (u/dispatch-some view (handle-backspace state)))
