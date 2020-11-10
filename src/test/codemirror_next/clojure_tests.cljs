@@ -70,6 +70,20 @@
     "|)" "(|) )"
     "#|" "#(|)")
 
+  (are [input bracket expected]
+    (= (apply-f #(close-brackets/handle-close % bracket) input)
+       expected)
+    "|" \) "|"
+    "|(" \) "|("
+    "|)" \) ")|"
+    "(|)" \) "()|"
+    "() |()" \) "() ()|"
+    "[(|)]" \) "[()|]"
+    "[()|]" \) "[()]|"
+    "([]| s)" \) "([] s)|"
+    ;"(|" \) "()|" ;; TODO - broken
+    )
+
   (are [input expected]
     (= (apply-f #(close-brackets/handle-open % \") input) expected)
     "|" "\"|\"" ;; auto-close strings

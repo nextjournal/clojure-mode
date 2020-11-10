@@ -251,6 +251,15 @@
   ([^js tree pos] (.cursor tree pos))
   ([^js tree pos dir] (.cursor tree pos dir)))
 
+(defn ^js terminal-cursor
+  [^js tree pos dir]
+  (loop [i pos]
+    (let [^js c (cursor tree i dir)
+          type (.-type c)]
+      (cond (top-type? type) nil
+            (terminal-type? (.-type c)) c
+            :else (recur (+ dir i))))))
+
 (defn ^js up-here
   "Returns topmost node at same starting position"
   [node]

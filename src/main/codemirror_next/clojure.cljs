@@ -96,5 +96,15 @@
        (n/tree 1 1)
        (->> (n/string state))
        str
-       )))
+       ))
+ (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "([]| s)")]
+   (-> state
+       n/tree
+       (n/terminal-cursor 3 1)
+       ))
+
+ (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "(|")]
+   (-> state
+       (close-brackets/handle-close ")")
+       (->> (n/string state)))))
 

@@ -86,7 +86,7 @@
     ;; mis-using userEvent
     #js{:annotations (u/user-event-annotation "format-selections")}
     (j/fn [^:js {:as range :keys [empty head]}]
-      (when-not empty
+      (when empty
         (or
          ;; close unbalanced (open) collection
          (let [unbalanced (some->
@@ -102,15 +102,18 @@
               :cursor (inc pos)}))
 
          ;; jump to next closing bracket
-         (when-let [close-node-end (and empty
-                                        (let [^js cursor (n/cursor (n/tree state) (inc head))]
-                                          (loop []
-                                            (if (n/right-edge-type? (.-type cursor))
-                                              (n/end cursor)
-                                              (when (.next cursor)
-                                                (recur))))))]
+         (when-let [close-node-end
+                    (when-let [^js cursor (-> state n/tree
+                                              (n/terminal-cursor head 1))]
+                      (loop []
+                        (if (n/right-edge-type? (.-type cursor))
+                          (n/end cursor)
+                          (when (.next cursor)
+                            (recur)))))]
            {:cursor close-node-end})
-         (u/insertion head key-name))))))
+         ;; no-op
+         {:cursor head}
+         #_(u/insertion head key-name))))))
 
 (j/defn handle-backspace-cmd [^:js {:as view :keys [state]}]
   (u/dispatch-some view (handle-backspace state)))
