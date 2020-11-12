@@ -81,10 +81,6 @@
 
 (defn handle-close [state key-name]
   (u/update-ranges state
-    ;; TODO
-    ;; create a new annotation type for overriding format behaviour instead of
-    ;; mis-using userEvent
-    #js{:annotations (u/user-event-annotation "format-selections")}
     (j/fn [^:js {:as range :keys [empty head]}]
       (when empty
         (or
