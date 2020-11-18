@@ -78,4 +78,4 @@
 
 (defn extension []
   #js[base-theme
-      #_state])
+      state])
