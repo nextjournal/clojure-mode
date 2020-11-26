@@ -26,7 +26,17 @@
 
 (def theme
   (.theme EditorView
-          (j/lit {:$content {:white-space "pre-wrap"}})))
+          (j/lit {:$content {:white-space "pre-wrap"}
+                  :$$focused {:outline "none"}
+                  :$line {:padding "0 9px"
+                          :line-height "1.6"
+                          :font-size "16px"
+                          :font-family "var(--code-font)"}
+                  :$matchingBracket {:border-bottom "1px solid var(--teal-color)"
+                                     :color "inherit"}
+           ;; only show cursor when focused
+                  :$cursor {:visibility "hidden"}
+                  "$$focused $cursor" {:visibility "visible"}})))
 
 (defonce extensions #js[(.-lineWrapping EditorView)
                         theme
@@ -93,12 +103,18 @@
                                      (str out
                                           (tag :tr
                                                {:class "border-t even:bg-gray-100"}
-                                               (tag :td {:class "px-3 py-1"} (tag :b (name command)))
-                                               (tag :td {:class "px-3 py-1"} key)
-                                               (tag :td {:class "px-3 py-1"} (when shift "\n" (tag :i "+Shift " (tag :b shift))))
-                                               (tag :td {:class "px-3 py-1"} doc)))) ""))
+                                               (tag :td {:class "px-3 py-1 align-top"} (tag :b (name command)))
+                                               (tag :td {:class "px-3 py-1 align-top monospace text-sm"} key)
+                                               (tag :td {:class "px-3 py-1 align-top"} doc))
+                                          (when shift
+                                            (tag :tr
+                                                 {:class "border-t even:bg-gray-100"}
+                                                 (tag :td {:class "px-3 py-1 align-top"} (tag :b (name shift)))
+                                                 (tag :td {:class "px-3 py-1 align-top monospace text-sm"}
+                                                      (str "Shift-" key))
+                                                 (tag :td {:class "px-3 py-1 align-top"} ""))))) ""))
                       "</table>")))
-  (j/assoc! (js/document.getElementById "readme")
+  #_(j/assoc! (js/document.getElementById "readme")
             :innerHTML
             (tag :pre {:class "mt-4"} (build/slurp "README.md")))
   (.focus (last @prev-views)))
