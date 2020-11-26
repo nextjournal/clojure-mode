@@ -1,9 +1,6 @@
 name: gh-pages
 
-on:
-  push:
-    branches:
-      - master
+on: push
 
 jobs:
   compile-deploy:
