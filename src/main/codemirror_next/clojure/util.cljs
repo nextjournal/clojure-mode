@@ -43,6 +43,11 @@
      {:cursor  from
       :changes {:from from :to to}})))
 
+(defn line-content-at [state from]
+  (-> state
+      (j/call-in [:doc :lineAt] from)
+      (j/call :slice)))
+
 (defn map-cursor [^js original-range ^js state update-map]
   {:pre [(map? update-map)]}
   (let [{:keys [cursor/mapped

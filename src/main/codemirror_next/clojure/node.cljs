@@ -348,3 +348,15 @@
 (defn with-prefix [node]
   (cond-> node
     (prefix node) up))
+
+(defn node|
+  "Node ending immediately to the left of pos"
+  [state pos]
+  (some-> (tree state pos -1)
+          (u/guard #(= pos (end %)))))
+
+(defn |node
+  "Node starting immediately to the right of pos"
+  [state pos]
+  (some-> (tree state pos 1)
+          (u/guard #(= pos (start %)))))

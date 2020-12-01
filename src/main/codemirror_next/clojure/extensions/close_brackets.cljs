@@ -13,10 +13,22 @@
             [codemirror-next.clojure.chars :as chars]
             [codemirror-next.clojure.util :as u :refer [from-to]]
             [codemirror-next.test-utils :as test-utils]
-            [codemirror-next.clojure.commands :as commands]))
+            [codemirror-next.clojure.commands :as commands]
+            [clojure.string :as str]))
 
 (defn in-string? [state pos]
   (#{"StringContent" "String"} (n/name (n/tree state pos))))
+
+(defn backspace-backoff [state from to]
+  (if
+   ;; handle line-comments (backspace should not drag forms up into line comments)
+   (and
+    ;; we are directly in front of a line-comment
+    (some-> (n/node| state (dec from)) (u/guard n/line-comment?))
+    ;; current line is blank
+    (not (str/blank? (u/line-content-at state from))))
+    {:cursor (dec from)}
+    (u/deletion from to)))
 
 (j/defn handle-backspace
   "- skips over closing brackets
@@ -28,39 +40,31 @@
     (u/update-ranges state
       #js{:annotations (u/user-event-annotation "delete")}
       (j/fn [^:js {:as range :keys [head empty anchor]}]
-        (j/let [^:js {:as range from :from to :to} (from-to head anchor)]
-          (if (and empty
-                   (not= "StringContent" (n/name (n/tree state from -1))))
-            (let [^js node| (.resolve (.-tree state) from -1) ;; node immediately to the left of cursor
-                  ^js parent (.-parent node|)]
-              (or (cond
+        (j/let [^:js {:as range from :from to :to} (from-to head anchor)
+                ^js node| (.resolve (.-tree state) from -1) ;; node immediately to the left of cursor
+                ^js parent (.-parent node|)]
+          (cond
 
-                    ;; if parent isn't balanced, normal backspace
-                    (and parent (not (n/balanced? parent))) nil
+            (or (not empty)                                 ;; selection
+                (= "StringContent" (n/name (n/tree state from -1))) ;; inside a string
+                (and parent (not (n/balanced? parent)) (n/left-edge? node|))) ;; unbalanced left-paren
+            (u/deletion from to)
 
-                    ;; entering right edge of collection - skip
-                    (and (n/right-edge? node|) (== from (n/end parent)))
-                    {:cursor (dec from)}
+            ;; entering right edge of collection - skip
+            (and (n/right-edge? node|) (== from (n/end parent)))
+            {:cursor (dec from)}
 
-                    ;; inside left edge of collection - remove or stop
-                    (and (or (n/start-edge? node|)
-                             (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
-                    (if (n/empty? (n/up node|))
-                      ;; remove empty collection
-                      {:cursor  (n/start parent)
-                       :changes [(from-to (n/start parent) (n/end parent))]}
-                      ;; stop cursor at inner-left of collection
-                      {:cursor from})
+            ;; inside left edge of collection - remove or stop
+            (and (or (n/start-edge? node|)
+                     (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
+            (if (n/empty? (n/up node|))
+              ;; remove empty collection
+              {:cursor  (n/start parent)
+               :changes [(from-to (n/start parent) (n/end parent))]}
+              ;; stop cursor at inner-left of collection
+              {:cursor from})
 
-
-                    (some-> (n/tree state (dec from) -1)
-                            (u/guard (every-pred #(= (dec from) (n/end ^js %))
-                                                 n/line-comment?)))
-                    {:cursor (dec from)})
-                  {:cursor  (sel/constrain state (dec from))
-                   :changes (from-to (sel/constrain state (dec from)) from)}))
-            ;; delete selections as normal
-            (u/deletion from to)))))))
+            :else (backspace-backoff state from to)))))))
 
 (def coll-pairs {"(" ")"
                  "[" "]"
