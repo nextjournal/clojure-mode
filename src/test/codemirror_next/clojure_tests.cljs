@@ -61,56 +61,65 @@
 
 
   (deftest close-brackets
-    (are [input expected]
-      (= (apply-f #(close-brackets/handle-open % "(") input)
-         expected)
-      "|" "(|)" ;; auto-close brackets
-      "(|" "((|) "
-      "|(" "(|) ("
-      "|)" "(|) )"
-      "#|" "#(|)")
+    (testing "handle-open"
+      (are [input insert expected]
+        (= (apply-f #(close-brackets/handle-open % insert) input)
+           expected)
+        "|"  \( "(|)"                                           ;; auto-close brackets
+        "(|" \(  "((|) "
+        "|(" \(  "(|) ("
+        "|)" \(  "(|) )"
+        "#|" \(  "#(|)"
+        "\"|\"" \( "\"(|\""                                 ;; no auto-close inside strings
+        ))
 
-    (are [input bracket expected]
-      (= (apply-f #(close-brackets/handle-close % bracket) input)
-         expected)
-      "|" \) "|"
-      "|(" \) "|("
-      "|)" \) ")|"
-      "(|)" \) "()|"
-      "() |()" \) "() ()|"
-      "[(|)]" \) "[()|]"
-      "[()|]" \) "[()]|"
-      "([]| s)" \) "([] s)|"
-      "(|" \) "()|" ;; close unclosed parent
-      "[(|]" \} "[(]|" ;; non-matching bracket doesn't close ancestor
-      "((|)" \] "(()|" ;; non-matching bracket doesn't close ancestor
-      "((|)" \) "(())|" ;; a bit weird - it finds an unclosed ancestor, and closes that.
-
-      )
-
-    (are [input expected]
-      (= (apply-f #(close-brackets/handle-open % \") input) expected)
-      "|" "\"|\"" ;; auto-close strings
-      "\"|\"" "\"\\\"|\"") ;; insert quoted " inside strings
+    (testing "handle-close"
+      (are [input bracket expected]
+        (= (apply-f #(close-brackets/handle-close % bracket) input)
+           expected)
+        "|" \) "|"
+        "|(" \) "|("
+        "|)" \) ")|"
+        "(|)" \) "()|"
+        "() |()" \) "() ()|"
+        "[(|)]" \) "[()|]"
+        "[()|]" \) "[()]|"
+        "([]| s)" \) "([] s)|"
+        "(|" \) "()|"                                       ;; close unclosed parent
+        "[(|]" \} "[(]|"                                    ;; non-matching bracket doesn't close ancestor
+        "((|)" \] "(()|"                                    ;; non-matching bracket doesn't close ancestor
+        "((|)" \) "(())|"                                   ;; a bit weird - it finds an unclosed ancestor, and closes that.
+        "\"|\"" \) "\")|\""                                 ;; normal behaviour inside strings
+        ))
 
 
-    (are [input expected]
-      (= (apply-f close-brackets/handle-backspace input)
-         expected)
-      "|" "|"
-      "(|" "|" ;; delete an unbalanced paren
-      "()|" "(|)" ;; enter a form from the right (do not "unbalance")
-      "#|()" "|()" ;; delete prefix form
-      "[[]]|" "[[]|]"
-      "(| )" "|" ;; delete empty form
-      "(| a)" "(| a)" ;; don't delete non-empty forms
-      "@|" "|" ;; delete @
-      "@|x" "|x"
-      "\"|\"" "|" ;; delete empty string
-      "\"\"|" "\"|\""
-      "\"| \"" "\"| \"" ;; do not delete string with whitespace
-      ":x  :a |" ":x  :a|" ;; do not format on backspace
-      ))
+
+    (testing "handle-open string"
+      (are [input expected]
+        (= (apply-f #(close-brackets/handle-open % \") input) expected)
+        "|" "\"|\""                                         ;; auto-close strings
+        "\"|\"" "\"\\\"|\""                                 ;; insert quoted " inside strings
+        ))
+
+    (testing "handle-backspace"
+      (are [input expected]
+        (= (apply-f close-brackets/handle-backspace input)
+           expected)
+        "|" "|"
+        "(|" "|"                                            ;; delete an unbalanced paren
+        "()|" "(|)"                                         ;; enter a form from the right (do not "unbalance")
+        "#|()" "|()"                                        ;; delete prefix form
+        "[[]]|" "[[]|]"
+        "(| )" "|"                                          ;; delete empty form
+        "(| a)" "(| a)"                                     ;; don't delete non-empty forms
+        "@|" "|"                                            ;; delete @
+        "@|x" "|x"
+        "\"|\"" "|"                                         ;; delete empty string
+        "\"\"|" "\"|\""
+        "\"| \"" "\"| \""                                   ;; do not delete string with whitespace
+        ":x  :a |" ":x  :a|"                                ;; do not format on backspace
+        "\"[|]\"" "\"|]\""                                  ;; normal deletion inside strings
+        )))
 
   (deftest indentSelection
 

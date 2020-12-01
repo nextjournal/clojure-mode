@@ -5,7 +5,7 @@ Live demo: https://nextjournal.github.io/codemirror.next-clojure/
 ## Dev Setup
 
 * Install JS deps: `yarn install`
-* Start dev server: `shadow-cljs watch app`
+* Start dev server: `yarn watch`
 * Open demo page at http://localhost:8002/
 
 ## Todo

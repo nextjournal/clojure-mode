@@ -27,10 +27,21 @@
 
 (defn insertion
   "Returns a `change` that inserts string `s` at position `from` and moves cursor to end of insertion."
-  [from ^string s]
-  {:changes {:insert s
-             :from from}
-   :cursor (+ from (count s))})
+  ([from s] (insertion from from s))
+  ([from to ^string s]
+   {:changes {:insert s
+              :from   from
+              :to     to}
+    :cursor  (+ from (count s))}))
+
+(defn deletion
+  ([from] (deletion (max 0 (dec from)) from))
+  ([from to]
+   (let [from (if (= from to)
+                (max 0 (dec from))
+                from)]
+     {:cursor  from
+      :changes {:from from :to to}})))
 
 (defn map-cursor [^js original-range ^js state update-map]
   {:pre [(map? update-map)]}
