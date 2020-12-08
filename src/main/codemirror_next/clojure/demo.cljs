@@ -5,7 +5,6 @@
             ["@codemirror/next/highlight" :as highlight]
             ["@codemirror/next/history" :refer [history historyKeymap]]
             ["@codemirror/next/state" :refer [EditorState]]
-            ["@codemirror/next/syntax" :as syntax]
             ["@codemirror/next/view" :as view :refer [EditorView]]
             ["lezer" :as lezer]
             ["lezer-generator" :as lg]
@@ -41,7 +40,7 @@
 (defonce extensions #js[(.-lineWrapping EditorView)
                         theme
                         (history)
-                        highlight/defaultHighlighter
+                        highlight/defaultHighlightStyle
                         (view/drawSelection)
                         (lineNumbers)
                         (fold/foldGutter)
@@ -123,5 +122,5 @@
 (comment
   (let [s "#(a )"
         state (test-utils/make-state default-extensions s)
-        tree (.-tree state)]
+        tree (n/tree state)]
     ))

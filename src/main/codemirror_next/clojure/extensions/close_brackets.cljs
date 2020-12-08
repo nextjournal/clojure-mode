@@ -41,7 +41,7 @@
       #js{:annotations (u/user-event-annotation "delete")}
       (j/fn [^:js {:as range :keys [head empty anchor]}]
         (j/let [^:js {:as range from :from to :to} (from-to head anchor)
-                ^js node| (.resolve (.-tree state) from -1) ;; node immediately to the left of cursor
+                ^js node| (.resolve (n/tree state) from -1) ;; node immediately to the left of cursor
                 ^js parent (.-parent node|)]
           (cond
 

@@ -1,7 +1,7 @@
 (ns codemirror-next.clojure
-  (:require ["@codemirror/next/highlight" :as highlight]
+  (:require ["@codemirror/next/highlight" :as highlight :refer [tags]]
             ["@codemirror/next/state" :refer [EditorState]]
-            ["@codemirror/next/syntax" :as syntax]
+            ["@codemirror/next/language" :as language]
             ["@codemirror/next/view" :as view :refer [EditorView keymap]]
             ["lezer" :as lezer]
             ["lezer-clojure" :as lezer-clj]
@@ -23,48 +23,49 @@
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
                                      :to (dec (n/end tree))})]
     (j/lit
-      {:Vector coll-span
-       :Map coll-span
-       :List coll-span})))
+     {:Vector coll-span
+      :Map coll-span
+      :List coll-span})))
+
 
 (def style-tags
-  (j/lit
-    {:DefLike "keyword"
-     "Operator/Symbol" "keyword"
-     "VarName/Symbol" "variableName definition"
-     :Boolean "atom"
-     :DocString "+emphasis"
-     :Discard "!comment"
-     :Number "number"
-     :StringContent "string"
-     \" "string"
-     :Keyword "atom"
-     :Nil "null"
-     :LineComment "lineComment"
-     :RegExp "regexp"}))
+  (clj->js {:DefLike (.-keyword tags)
+            "Operator/Symbol" (.-keyword tags)
+            "VarName/Symbol" (.definition tags (.-variableName tags))
+            :Boolean (.-atom tags)
+            "DocString/..." (.-emphasis tags)
+            :Discard! (.-comment tags)
+            :Number (.-number tags)
+            :StringContent (.-string tags)
+            ;; need to pass something, that returns " when being parsed as JSON
+            ;; also #js doesn't treat this correctly, hence clj->js above
+            "\"\\\"\"" (.-string tags)
+            :Keyword (.-atom tags)
+            :Nil (.-null tags)
+            :LineComment (.-lineComment tags)
+            :RegExp (.-regexp tags)}))
 
 (def parser lezer-clj/parser)
 
 (comment
-  ;; to build a parser "live" from a .grammar file,
+  ;; to build a parser \""live" from a .grammar file,
   ;; rather than using a precompiled parser:
   (def parser
     (lg/buildParser
-      (rc/inline "./clojure/clojure.grammar")
-      #js{:externalProp n/node-prop})))
+     (rc/inline "./clojure/clojure.grammar")
+     #js{:externalProp n/node-prop})))
 
 (defn syntax
   ([]
    (syntax parser))
-  ([parser]
-   (.define syntax/LezerSyntax
-            (.withProps parser
-                        format/props
-                        (.add syntax/foldNodeProp fold-node-props)
-                        (highlight/styleTags style-tags))
+  ([^js parser]
+   (.define language/LezerLanguage
+            #js {:parser (.configure parser #js {:props #js [format/props
+                                                             (.add language/foldNodeProp fold-node-props)
+                                                             (highlight/styleTags style-tags)]})}
             (j/lit
-              {:languageData
-               {:commentTokens {:line ";;"}}}))))
+             {:languageData
+              {:commentTokens {:line ";;"}}}))))
 
 (def ^js/Array complete-keymap keymap/complete)
 (def ^js/Array builtin-keymap keymap/builtin)
@@ -80,31 +81,30 @@
 
 (comment
 
- (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "[] a")]
-   (-> (.-tree state)
-       (.resolve 2 1) ;; Symbol "a"
-       .-prevSibling
-       js/console.log))
+  (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "[] a")]
+    (-> (n/tree state)
+        (.resolve 2 1) ;; Symbol "a"
+        .-prevSibling
+        js/console.log))
 
- (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "\"\" :a")]
-   (-> state
-       n/tree
-       (n/cursor 0 1)
-       ))
- (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "a\n\nb")]
-   (-> state
-       (n/tree 1 1)
-       (->> (n/string state))
-       str
-       ))
- (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "([]| s)")]
-   (-> state
-       n/tree
-       (n/terminal-cursor 3 1)
-       ))
+  (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "\"\" :a")]
+    (-> state
+        n/tree
+        (n/cursor 0 1)
+        ))
+  (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "a\n\nb")]
+    (-> state
+        (n/tree 1 1)
+        (->> (n/string state))
+        str
+        ))
+  (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "([]| s)")]
+    (-> state
+        n/tree
+        (n/terminal-cursor 3 1)
+        ))
 
- (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "(|")]
-   (-> state
-       (close-brackets/handle-close ")")
-       (->> (n/string state)))))
-
+  (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "(|")]
+    (-> state
+        (close-brackets/handle-close ")")
+        (->> (n/string state)))))

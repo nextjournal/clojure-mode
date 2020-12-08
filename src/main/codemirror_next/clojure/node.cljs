@@ -3,6 +3,7 @@
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
             ["lezer-clojure" :as lezer-clj]
+            ["@codemirror/next/language" :as language]
             [clojure.core :as core]
             [applied-science.js-interop :as j]
             [codemirror-next.clojure.util :as u]
@@ -242,9 +243,9 @@
       (regexp? node)))
 
 (defn ^js tree
-  ([^js state] (.. state -tree))
-  ([^js state pos] (.. state -tree (resolve pos)))
-  ([^js state pos dir] (.. state -tree (resolve pos dir))))
+  ([^js state] (language/syntaxTree state))
+  ([^js state pos] (-> state language/syntaxTree (.resolve pos)))
+  ([^js state pos dir] (-> state language/syntaxTree (.resolve pos dir))))
 
 (defn ^js cursor
   ([^js tree] (.cursor tree))

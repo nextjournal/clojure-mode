@@ -1,6 +1,6 @@
 (ns codemirror-next.clojure.extensions.formatting
-  (:require ["@codemirror/next/syntax" :as syntax]
-            ["@codemirror/next/state" :refer [EditorState IndentContext Transaction]]
+  (:require ["@codemirror/next/language" :as language :refer [IndentContext]]
+            ["@codemirror/next/state" :refer [EditorState Transaction]]
             ["@codemirror/next/view" :as view]
             ["@codemirror/next/commands" :as commands]
             [applied-science.js-interop :as j]
@@ -16,7 +16,7 @@
 ;; https://tonsky.me/blog/clojurefmt/
 
 (defn spaces [^js state n]
-  (.indentString state n))
+  (.indentString language state n))
 
 (j/defn indent-node-props [^:js {type-name :name :as type}]
   (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
@@ -37,37 +37,32 @@
             (+ 1))
           :else -1)))
 
-(def props (.add syntax/indentNodeProp
+(def props (.add language/indentNodeProp
                  indent-node-props))
 
 (defn get-indentation [^js context pos]
-  (->> (.. context -state (facet (.-indentation EditorState)))
-       (reduce
-        (fn [out f]
-          (let [v (f context pos)]
-            (if (> v -1) (reduced v) out)))
-        -1)))
+  (language/getIndentation (.-state context) pos))
 
 (defn make-indent-context [state]
   (new IndentContext state))
 
+;; TODO: check if this is used at all
 (defn indent-all [^js state]
   (let [context (make-indent-context state)]
     (u/update-lines state
-      (fn [from content line-num]
-        (let [current-indent (-> (.exec #"^\s*" content)
-                                 ^js (aget 0)
-                                 .-length)
-              ^number indent (-> (get-indentation context from)
-                                 (u/guard (complement neg?)))]
-
-          (when indent
-            (case (compare indent current-indent)
-              0 nil
-              1 #js{:from (+ from current-indent)
-                    :insert (spaces state (- indent ^number current-indent))}
-              -1 #js{:from (+ from indent)
-                     :to (+ from current-indent)})))))))
+                    (fn [from content line-num]
+                      (let [current-indent (-> (.exec #"^\s*" content)
+                                               ^js (aget 0)
+                                               .-length)
+                            ^number indent (-> (get-indentation context from)
+                                               (u/guard (complement neg?)))]
+                        (when indent
+                          (case (compare indent current-indent)
+                            0 nil
+                            1 #js{:from (+ from current-indent)
+                                  :insert (spaces state (- indent ^number current-indent))}
+                            -1 #js{:from (+ from indent)
+                                   :to (+ from current-indent)})))))))
 
 (defn expected-space [n1 n2]
   ;;  (prn :expected (map n/name [n1 n2]))
@@ -81,7 +76,7 @@
     1))
 
 (defn space-changes [state from to]
-  (let [nodes (->> (n/terminal-nodes (.-tree state) from to)
+  (let [nodes (->> (n/terminal-nodes (n/tree state) from to)
                    (filter #(or (<= from (n/start %) to)
                                 (<= from (n/end %) to)))
                    (reverse))
@@ -182,6 +177,5 @@
     (fn [from _ _] #js{:from from :insert prefix})))
 
 (defn ext-format-changed-lines []
-  ; EditorState.transactionFilter.of
+                                        ; EditorState.transactionFilter.of
   (.. EditorState -transactionFilter (of format-transaction)))
-
