@@ -19,6 +19,9 @@
 (defn in-string? [state pos]
   (#{"StringContent" "String"} (n/name (n/tree state pos))))
 
+(defn escaped? [state pos]
+  (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
+
 (defn backspace-backoff [state from to]
   (if
    ;; handle line-comments (backspace should not drag forms up into line comments)
@@ -74,11 +77,17 @@
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (coll-pairs open)]
     (u/update-ranges state
+      #js{:annotations (u/user-event-annotation "input")}
       (j/fn [^:js {:keys [from to head anchor empty]}]
-        (if (in-string? state from)
+        (cond
+          (in-string? state from)
           (if (= open \")
             (u/insertion head "\\\"")
             (u/insertion from to open))
+          ;; allow typing escaped bracket
+          (escaped? state from)
+          (u/insertion from to open)
+          :else
           (if empty
             {:changes {:insert (str open close)
                        :from   head}
@@ -90,8 +99,10 @@
 
 (defn handle-close [state key-name]
   (u/update-ranges state
+    #js{:annotations (u/user-event-annotation "input")}
     (j/fn [^:js {:as range :keys [empty head from to]}]
-      (if (in-string? state from)
+      (if (or (in-string? state from)
+              (escaped? state from))
         (u/insertion from to key-name)
         (when empty
           (or

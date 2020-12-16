@@ -157,7 +157,8 @@
                 "delete"
                 "keyboardselection"
                 "pointerselection"
-                "cut") nil
+                "cut"
+                "noformat") nil
                "format-selections" (format-selection (.-state tr))
                (let [state (.-state tr)
                      context (make-indent-context state)]
