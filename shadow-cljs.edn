@@ -2,11 +2,11 @@
  :dev-http {8002 "public"
             8001 "public/test"}
  :nrepl {:port 9000}
- :builds {:app {:compiler-options {:output-feature-set :es8}
-                :target :browser
-                :output-dir "public/js"
-                :asset-path "js"
-                :modules {:main {:init-fn codemirror-next.clojure.demo/render}}}
+ :builds {:demo {:compiler-options {:output-feature-set :es8}
+                 :target :browser
+                 :output-dir "public/js"
+                 :asset-path "js"
+                 :modules {:main {:init-fn codemirror-next.clojure.demo/render}}}
           :test {:compiler-options {:output-feature-set :es8}
                  :target :browser-test
                  :test-dir "public/test"

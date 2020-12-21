@@ -12,6 +12,7 @@
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [codemirror-next.clojure :as cm-clj]
+            [codemirror-next.clojure.demo.sci :as sci]
             [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
             [codemirror-next.clojure.extensions.formatting :as format]
             [codemirror-next.clojure.extensions.selection-history :as sel-history]
@@ -20,12 +21,14 @@
             [codemirror-next.clojure.node :as n]
             [codemirror-next.clojure.selections :as sel]
             [codemirror-next.test-utils :as test-utils]
-            [shadow.resource :as rc])
-  (:require-macros [codemirror-next.build :as build]))
+            [reagent.core :as r]
+            [reagent.dom :as rdom]
+            [shadow.resource :as rc]))
 
 (def theme
   (.theme EditorView
-          (j/lit {:$content {:white-space "pre-wrap"}
+          (j/lit {:$content {:white-space "pre-wrap"
+                             :padding "10px 0"}
                   :$$focused {:outline "none"}
                   :$line {:padding "0 9px"
                           :line-height "1.6"
@@ -33,7 +36,10 @@
                           :font-family "var(--code-font)"}
                   :$matchingBracket {:border-bottom "1px solid var(--teal-color)"
                                      :color "inherit"}
-           ;; only show cursor when focused
+                  :$gutters {:background "transparent"
+                             :border "none"}
+                  :$gutterElement {:margin-left "5px"}
+                  ;; only show cursor when focused
                   :$cursor {:visibility "hidden"}
                   "$$focused $cursor" {:visibility "visible"}})))
 
@@ -42,7 +48,7 @@
                         (history)
                         highlight/defaultHighlightStyle
                         (view/drawSelection)
-                        (lineNumbers)
+                        ;(lineNumbers)
                         (fold/foldGutter)
                         (.. EditorState -allowMultipleSelections (of true))
                         (if false
@@ -53,45 +59,39 @@
                         (view/keymap cm-clj/complete-keymap)
                         (view/keymap historyKeymap)])
 
-(defn sample-text []
-  (str "(defn lezer-clojure
-  \"This is a showcase for `lezer-clojure`, a grammar for Clojure/Script to enable a decent editor experience in the browser.\"
-  {:added \"0.1\"}
-  [demo]
-  nil ;; nil
-  (+ 1 1.0 1/5 1E3 042 +042 -042) ;; numbers
-  :hi :hi/ho ::ho :*+!-_? :abc:def:ghi ;; keywords
-  true false ;; booleans
-  :hello #_ :ignored ;; ignore next form
-  #\"[A-Z]\" ;; regex
-  ^{:meta/data 'is-data} 'too
-  (if (test? <demo>)
-    (inc demo)|
-    (dec demo)))
-  #
-    [ ]
-    #\"a\""
-       \newline
-       "a b(c|)d e"
-       )
+(defn editor [source]
+  (r/with-let [!view (atom nil)
+               last-result (r/atom (sci/eval-string source))
+               mount! (fn [el]
+                        (when el
+                          (reset! !view (new EditorView
+                                             (j/obj :state
+                                                    (test-utils/make-state
+                                                     #js[extensions
+                                                         (sci/extension {:modifier  "Alt"
+                                                                         :on-result (partial reset! last-result)})] source)
+                                                    :parent el)))))]
+    [:div
+     [:div {:class "mt-4 rounded-md border mb-0 text-sm monospace overflow-auto relative shadow-md bg-white"
+            :ref mount!}]
+     [:div.mt-3.mv-4.pl-6 {:style {:white-space "pre-wrap" :font-family "monospace"}}
+      (prn-str @last-result)]]
+    (finally
+     (j/call @!view :destroy))))
 
-  )
-
-(defonce prev-views (atom []))
-
-(defn mount-editor! [dom-selector initial-value]
-  (let [state (test-utils/make-state extensions initial-value)]
-    (->> (j/obj :state state :parent (js/document.querySelector dom-selector))
-         (new EditorView)
-         (swap! prev-views conj))))
+(defn samples []
+  (into [:<>]
+        (for [source ["(rand-nth (range 1000))"
+                      "(defn greeting [first-name] \n  (str \"Hello, \" first-name))"
+                      "(greeting \"fido\")"]]
+          [editor source])))
 
 (defn tag [tag & s]
   (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
     (str "<" (name tag) (reduce-kv #(str %1 " " (name %2) "=" "'" %3 "'") "" opts) ">" (apply str s) "</" (name tag) ">")))
 
 (defn ^:dev/after-load render []
-  (doseq [v @prev-views] (j/call v :destroy))
-  (mount-editor! "#editor" (sample-text))
+  (rdom/render [samples] (js/document.getElementById "editor"))
   (j/assoc! (js/document.getElementById "docs")
             :innerHTML
             (tag :div
@@ -112,15 +112,11 @@
                                                  (tag :td {:class "px-3 py-1 align-top monospace text-sm"}
                                                       (str "Shift-" key))
                                                  (tag :td {:class "px-3 py-1 align-top"} ""))))) ""))
-                      "</table>")))
-  #_(j/assoc! (js/document.getElementById "readme")
-            :innerHTML
-            (tag :pre {:class "mt-4"} (build/slurp "README.md")))
-  (.focus (last @prev-views)))
+                      "</table>"))))
 
 
 (comment
-  (let [s "#(a )"
-        state (test-utils/make-state default-extensions s)
-        tree (n/tree state)]
-    ))
+ (let [s "#(a )"
+       state (test-utils/make-state default-extensions s)
+       tree (n/tree state)]
+   ))

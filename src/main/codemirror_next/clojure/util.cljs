@@ -12,6 +12,9 @@
 (defn user-event-annotation [event-name]
   (.. Transaction -userEvent (of event-name)))
 
+(defn get-user-event-annotation [tr]
+  (.annotation tr (.-userEvent Transaction)))
+
 (defn guard [x f] (when (f x) x))
 
 (defn ^js from-to [p1 p2]
@@ -159,3 +162,6 @@
 
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))
+
+(j/defn range-str [state ^:js {:as selection :keys [from to]}]
+  (str (j/call-in state [:doc :slice] from to)))

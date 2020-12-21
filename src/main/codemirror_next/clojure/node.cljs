@@ -361,3 +361,19 @@
   [state pos]
   (some-> (tree state pos 1)
           (u/guard #(= pos (start %)))))
+
+(defn nearest-touching [^js state pos dir]
+  (let [L (some-> (tree state pos -1)
+                  (u/guard (j/fn [^:js {:keys [to]}] (= pos to))))
+        R (some-> (tree state pos 1)
+                  (u/guard (j/fn [^:js {:keys [from]}]
+                             (= pos from))))
+        mid (tree state pos)]
+    (case dir 1 (or (u/guard R (every-pred some? #(or (same-edge? %) (not (right-edge? %)))))
+                    L
+                    R
+                    mid)
+              -1 (or (u/guard L (every-pred some? #(or (same-edge? %) (not (left-edge? %)))))
+                     R
+                     L
+                     mid))))

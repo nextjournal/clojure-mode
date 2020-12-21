@@ -2,4 +2,8 @@
          "src/test"]
  :deps {applied-science/js-interop {:mvn/version "0.2.5"}
         org.clojure/clojurescript {:mvn/version "1.10.773"}
-        thheller/shadow-cljs {:mvn/version "2.11.1"}}}
+        thheller/shadow-cljs {:mvn/version "2.11.1"}}
+ :aliases
+ {:demo {:extra-deps {borkdude/sci {:mvn/version "0.2.0"}
+                      reagent/reagent {:mvn/version "0.9.1"}}
+         :extra-paths ["src/demo"]}}}

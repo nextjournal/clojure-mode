@@ -118,50 +118,6 @@
                       1 (n/balanced-range state from (nav-position state to dir))
                       -1 (n/balanced-range state (nav-position state from dir) to)))})))))
 
-(defn nearest-touching [^js state pos dir]
-  (let [L (some-> (n/tree state pos -1)
-                  (u/guard (j/fn [^:js {:keys [to]}] (= pos to))))
-        R (some-> (n/tree state pos 1)
-                  (u/guard (j/fn [^:js {:keys [from]}]
-                             (= pos from))))
-        mid (n/tree state pos)]
-    (case dir 1 (or (u/guard R (every-pred some? (complement n/right-edge?)))
-                    L
-                    R
-                    mid)
-              -1 (or (u/guard L (every-pred some? (complement n/left-edge?)))
-                     R
-                     L
-                     mid))))
-
-(j/defn grow-1 [state start end]
-  (let [node (nearest-touching state end -1)]
-    (->> (n/ancestors node)
-         (mapcat (juxt n/inner-span identity))              ;; include inner-spans
-         (cons node)
-         (filter (j/fn [^:js {a-start :from a-end :to}]
-                   (and (<= a-start start)
-                        (>= a-end end)
-                        (not (and (== a-start start)
-                                  (== a-end end))))))
-         first)))
-
-(defn selection-grow* [^js state]
-  (u/update-ranges state
-    (j/fn [^:js {:as range :keys [from to empty]}]
-      (if empty
-        {:range (or (some->> (nearest-touching state from -1)
-                             (n/balanced-range state))
-                    range)}
-        {:range (or (some->> (grow-1 state from to)
-                             n/range)
-                    range)}))))
-
-(defn selection-return* [^js state]
-  (if-let [selection (sel-history/last-selection state)]
-    (.update state #js{:selection selection})
-    (u/update-ranges state (fn [^js range] {:cursor (.-from range)}))))
-
 (defn balance-ranges [^js state]
   (u/update-ranges state
     (j/fn [^:js {:keys [from to empty]}]
@@ -290,8 +246,8 @@
 (def slurp-backward (view-command (slurp -1)))
 (def barf-forward (view-command (barf 1)))
 (def barf-backward (view-command (barf -1)))
-(def selection-grow (view-command selection-grow*))
-(def selection-return (view-command selection-return*))
+(def selection-grow (view-command sel-history/selection-grow*))
+(def selection-return (view-command sel-history/selection-return*))
 (def enter-and-indent (view-command enter-and-indent*))
 
 (def paredit-index

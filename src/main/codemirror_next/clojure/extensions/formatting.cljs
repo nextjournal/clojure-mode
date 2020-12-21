@@ -150,7 +150,7 @@
         (format-line state context from content line-num #js[] true)))))
 
 (defn format-transaction [^js tr]
-  (let [origin (.annotation tr (.-userEvent Transaction))]
+  (let [origin (u/get-user-event-annotation tr)]
     (if-let [changes
              (case origin
                ("input"
@@ -158,7 +158,8 @@
                 "keyboardselection"
                 "pointerselection"
                 "cut"
-                "noformat") nil
+                "noformat"
+                "tempselection") nil
                "format-selections" (format-selection (.-state tr))
                (let [state (.-state tr)
                      context (make-indent-context state)]
