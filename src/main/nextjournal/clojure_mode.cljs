@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure
+(ns nextjournal.clojure-mode
   (:require ["@codemirror/next/highlight" :as highlight :refer [tags]]
             ["@codemirror/next/state" :refer [EditorState]]
             ["@codemirror/next/language" :as language]
@@ -8,17 +8,17 @@
             ["lezer-tree" :as lz-tree]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
-            [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
-            [codemirror-next.clojure.extensions.match-brackets :as match-brackets]
-            [codemirror-next.clojure.extensions.formatting :as format]
-            [codemirror-next.clojure.extensions.selection-history :as sel-history]
-            [codemirror-next.clojure.extensions.eval-region :as eval-region]
-            [codemirror-next.clojure.keymap :as keymap]
-            [codemirror-next.clojure.node :as n]
-            [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.test-utils :as test-utils]
+            [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
+            [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
+            [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
+            [nextjournal.clojure-mode.keymap :as keymap]
+            [nextjournal.clojure-mode.node :as n]
+            [nextjournal.clojure-mode.selections :as sel]
+            [nextjournal.clojure-mode.test-utils :as test-utils]
             [shadow.resource :as rc]
-            [codemirror-next.clojure.util :as u]))
+            [nextjournal.clojure-mode.util :as u]))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))

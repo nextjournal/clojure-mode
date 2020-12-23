@@ -1,10 +1,10 @@
-(ns codemirror-next.clojure.demo.sci
+(ns nextjournal.clojure-mode.demo.sci
   (:require ["@codemirror/next/view" :as view]
             [applied-science.js-interop :as j]
             [sci.core :as sci]
-            [codemirror-next.clojure.node :as n]
-            [codemirror-next.clojure.extensions.eval-region :as eval-region]
-            [codemirror-next.clojure.util :as u]))
+            [nextjournal.clojure-mode.node :as n]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
+            [nextjournal.clojure-mode.util :as u]))
 
 (defonce context (sci/init {}))
 

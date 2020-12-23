@@ -1,6 +1,6 @@
-# codemirror-clojure
+# clojure-mode for CodeMirror 6
 
-Live demo: https://nextjournal.github.io/codemirror.next-clojure/
+Live demo: https://nextjournal.github.io/clojure-mode/
 
 ## Dev Setup
 

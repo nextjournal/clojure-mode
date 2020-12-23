@@ -1,9 +1,9 @@
-(ns codemirror-next.clojure.extensions.selection-history
+(ns nextjournal.clojure-mode.extensions.selection-history
   (:require ["@codemirror/next/state" :refer [Facet Extension EditorSelection StateField]]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.util :as u]
-            [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.node :as n]))
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.selections :as sel]
+            [nextjournal.clojure-mode.node :as n]))
 
 (def event-annotation (u/user-event-annotation "selectionhistory"))
 

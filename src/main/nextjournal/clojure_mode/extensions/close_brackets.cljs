@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure.extensions.close-brackets
+(ns nextjournal.clojure-mode.extensions.close-brackets
   (:require ["w3c-keyname" :refer [keyName]]
             ["@codemirror/next/view" :as view]
             ["@codemirror/next/state" :refer [EditorState
@@ -8,12 +8,12 @@
                                               Extension]]
             ["@codemirror/next/text" :as text :refer [Text]]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.node :as n]
-            [codemirror-next.clojure.chars :as chars]
-            [codemirror-next.clojure.util :as u :refer [from-to]]
-            [codemirror-next.test-utils :as test-utils]
-            [codemirror-next.clojure.commands :as commands]
+            [nextjournal.clojure-mode.selections :as sel]
+            [nextjournal.clojure-mode.node :as n]
+            [nextjournal.clojure-mode.chars :as chars]
+            [nextjournal.clojure-mode.util :as u :refer [from-to]]
+            [nextjournal.clojure-mode.test-utils :as test-utils]
+            [nextjournal.clojure-mode.commands :as commands]
             [clojure.string :as str]))
 
 (defn in-string? [state pos]

@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure.chars
+(ns nextjournal.clojure-mode.chars
   (:require ["@codemirror/next/text" :as text]))
 
 (defn pair-lookup [char-pairs ^string char]

@@ -1,11 +1,11 @@
-(ns codemirror-next.clojure.extensions.eval-region
+(ns nextjournal.clojure-mode.extensions.eval-region
   (:require
    ["@codemirror/next/state" :as state :refer [StateEffect StateField Facet precedence]]
    ["@codemirror/next/view" :as view :refer [EditorView Decoration keymap]]
    ["w3c-keyname" :refer [keyName]]
    [applied-science.js-interop :as j]
-   [codemirror-next.clojure.util :as u]
-   [codemirror-next.clojure.node :as n]
+   [nextjournal.clojure-mode.util :as u]
+   [nextjournal.clojure-mode.node :as n]
    [clojure.string :as str]))
 
 (defn uppermost-edge-here

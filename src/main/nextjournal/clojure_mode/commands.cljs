@@ -1,12 +1,12 @@
-(ns codemirror-next.clojure.commands
+(ns nextjournal.clojure-mode.commands
   (:require ["@codemirror/next/commands" :as commands :refer [defaultKeymap]]
             ["@codemirror/next/state" :refer [EditorState IndentContext]]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.util :as u]
-            [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.node :as n]
-            [codemirror-next.clojure.extensions.formatting :as format]
-            [codemirror-next.clojure.extensions.selection-history :as sel-history]))
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.selections :as sel]
+            [nextjournal.clojure-mode.node :as n]
+            [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]))
 
 (defn view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]

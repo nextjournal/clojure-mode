@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure.extensions.match-brackets
+(ns nextjournal.clojure-mode.extensions.match-brackets
   (:require
     ["@codemirror/next/state" :refer [EditorState
                                       StateField
@@ -6,8 +6,8 @@
     ["@codemirror/next/view" :refer [EditorView themeClass
                                      Decoration DecorationSet]]
     [applied-science.js-interop :as j]
-    [codemirror-next.clojure.node :as n]
-    [codemirror-next.clojure.util :as u]))
+    [nextjournal.clojure-mode.node :as n]
+    [nextjournal.clojure-mode.util :as u]))
 
 (def base-theme
   (->>

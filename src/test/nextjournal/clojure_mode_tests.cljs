@@ -1,18 +1,18 @@
-(ns codemirror-next.clojure-tests
+(ns nextjournal.clojure-mode-tests
   (:require ["lezer-clojure" :as lz]
             ["@codemirror/next/state" :refer [EditorState]]
             [applied-science.js-interop :as j]
             [cljs.test :refer [is are testing deftest]]
-            [codemirror-next.clojure :as cm-clojure]
-            [codemirror-next.test-utils :as test-utils]
-            [codemirror-next.clojure.extensions.close-brackets :as close-brackets]
-            [codemirror-next.clojure.commands :as commands]
-            [codemirror-next.clojure.extensions.formatting :as format]
-            [codemirror-next.clojure.live-grammar :as live-grammar]
-            [codemirror-next.clojure.util :as u]
-            [codemirror-next.clojure.selections :as sel]
-            [codemirror-next.clojure.extensions.selection-history :as sel-history]
-            [codemirror-next.clojure.extensions.match-brackets :as match-brackets]))
+            [nextjournal.clojure-mode :as cm-clojure]
+            [nextjournal.clojure-mode.test-utils :as test-utils]
+            [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
+            [nextjournal.clojure-mode.commands :as commands]
+            [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.clojure-mode.live-grammar :as live-grammar]
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.selections :as sel]
+            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
+            [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]))
 
 ;; TODO
 ;; set up testing flow

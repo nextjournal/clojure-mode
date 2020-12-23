@@ -1,11 +1,11 @@
-(ns codemirror-next.clojure.extensions.formatting
+(ns nextjournal.clojure-mode.extensions.formatting
   (:require ["@codemirror/next/language" :as language :refer [IndentContext]]
             ["@codemirror/next/state" :refer [EditorState Transaction]]
             ["@codemirror/next/view" :as view]
             ["@codemirror/next/commands" :as commands]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.util :as u]
-            [codemirror-next.clojure.node :as n]))
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.node :as n]))
 
 ;; CodeMirror references
 ;; IndentContext https://codemirror.net/6/docs/ref/#state.IndentContext

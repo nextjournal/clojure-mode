@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure.node
+(ns nextjournal.clojure-mode.node
   (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve type])
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
@@ -6,8 +6,8 @@
             ["@codemirror/next/language" :as language]
             [clojure.core :as core]
             [applied-science.js-interop :as j]
-            [codemirror-next.clojure.util :as u]
-            [codemirror-next.clojure.selections :as sel]))
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.selections :as sel]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Node props are marked in the grammar and distinguish categories of nodes

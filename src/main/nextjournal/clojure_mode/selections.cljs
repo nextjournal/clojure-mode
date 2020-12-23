@@ -1,4 +1,4 @@
-(ns codemirror-next.clojure.selections
+(ns nextjournal.clojure-mode.selections
   (:refer-clojure :exclude [range])
   (:require ["@codemirror/next/state" :refer [EditorSelection]]))
 

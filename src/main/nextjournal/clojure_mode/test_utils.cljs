@@ -1,10 +1,10 @@
-(ns codemirror-next.test-utils
+(ns nextjournal.clojure-mode.test-utils
   (:require ["@codemirror/next/state" :as cm-state
              :refer [EditorState EditorSelection Extension StateCommand
                      ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec]]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
-            [codemirror-next.clojure.extensions.formatting :as format]))
+            [nextjournal.clojure-mode.extensions.formatting :as format]))
 
 ;; (de)serialize cursors| and <selections> for testing
 
