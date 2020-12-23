@@ -12,7 +12,7 @@
             [codemirror-next.clojure.extensions.match-brackets :as match-brackets]
             [codemirror-next.clojure.extensions.formatting :as format]
             [codemirror-next.clojure.extensions.selection-history :as sel-history]
-            [codemirror-next.clojure.extensions.temp-selection :as temp-selection]
+            [codemirror-next.clojure.extensions.eval-region :as eval-region]
             [codemirror-next.clojure.keymap :as keymap]
             [codemirror-next.clojure.node :as n]
             [codemirror-next.clojure.selections :as sel]
@@ -79,7 +79,7 @@
       (sel-history/extension)
       (format/ext-format-changed-lines)
       (.-lineWrapping EditorView)
-      (temp-selection/as-decoration {:modifier "Alt"})])
+      (eval-region/extension {:modifier "Alt"})])
 
 (comment
 

@@ -43,8 +43,7 @@
                   :$cursor {:visibility "hidden"}
                   "$$focused $cursor" {:visibility "visible"}})))
 
-(defonce extensions #js[(.-lineWrapping EditorView)
-                        theme
+(defonce extensions #js[theme
                         (history)
                         highlight/defaultHighlightStyle
                         (view/drawSelection)
@@ -72,7 +71,7 @@
                                                                          :on-result (partial reset! last-result)})] source)
                                                     :parent el)))))]
     [:div
-     [:div {:class "mt-4 rounded-md border mb-0 text-sm monospace overflow-auto relative shadow-md bg-white"
+     [:div {:class "mt-4 rounded-md mb-0 text-sm monospace overflow-auto relative shadow-sm bg-white"
             :ref mount!}]
      [:div.mt-3.mv-4.pl-6 {:style {:white-space "pre-wrap" :font-family "monospace"}}
       (prn-str @last-result)]]
@@ -81,20 +80,51 @@
 
 (defn samples []
   (into [:<>]
-        (for [source ["(rand-nth (range 1000))"
-                      "(defn greeting [first-name] \n  (str \"Hello, \" first-name))"
-                      "(greeting \"fido\")"]]
+        (for [source ["(comment ;; try evaluating those with alt-enter
+  (fizz-buzz 1)
+  (fizz-buzz 3)
+  (fizz-buzz 5)
+  (fizz-buzz 15)
+  (fizz-buzz 17)
+  (fizz-buzz 42))
+
+(defn fizz-buzz [n]
+  (condp (fn [a b] (zero? (mod b a))) n
+    15 \"fizzbuzz\"
+    3  \"fizz\"
+    5  \"buzz\"
+    n))"]]
           [editor source])))
 
 (defn tag [tag & s]
   (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
     (str "<" (name tag) (reduce-kv #(str %1 " " (name %2) "=" "'" %3 "'") "" opts) ">" (apply str s) "</" (name tag) ">")))
 
+(defn mac? []
+  (some? (re-find #"Mac" js/navigator.platform)))
+
+(defn key-mapping []
+  (cond-> {"ArrowUp" "↑"
+           "ArrowDown" "↓"
+           "ArrowRight" "→"
+           "ArrowLeft" "←"}
+    (mac?)
+    (merge {"Alt" "⌥"
+            "Shift" "⇧"
+            "Enter" "⏎"
+            "Ctrl" "⌃"})))
+
+(defn render-key [key]
+  (let [keys (into [] (map #(get ((memoize key-mapping)) % %) (str/split key #"-")))]
+    (tag :span
+         (str/join (tag :span "+") (map (partial tag :kdb {:class "bg-gray monospace m-1" :style "border-radius: 5px; padding: 1px 4px; border: 1px solid black;"}) keys)))))
+
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
   (j/assoc! (js/document.getElementById "docs")
             :innerHTML
             (tag :div
+                 (tag :h3 {:class "m-3" } "Keybindings")
                  (tag :table {:cellpadding 0 :class "w-full"}
                       (->> keymap/paredit-keymap*
                            (sort-by first)
@@ -103,14 +133,14 @@
                                           (tag :tr
                                                {:class "border-t even:bg-gray-100"}
                                                (tag :td {:class "px-3 py-1 align-top"} (tag :b (name command)))
-                                               (tag :td {:class "px-3 py-1 align-top monospace text-sm"} key)
+                                               (tag :td {:class "px-3 py-1 align-top text-sm"} (render-key key))
                                                (tag :td {:class "px-3 py-1 align-top"} doc))
                                           (when shift
                                             (tag :tr
                                                  {:class "border-t even:bg-gray-100"}
                                                  (tag :td {:class "px-3 py-1 align-top"} (tag :b (name shift)))
-                                                 (tag :td {:class "px-3 py-1 align-top monospace text-sm"}
-                                                      (str "Shift-" key))
+                                                 (tag :td {:class "px-3 py-1 align-top text-sm"}
+                                                      (render-key (str "Shift-" key)))
                                                  (tag :td {:class "px-3 py-1 align-top"} ""))))) ""))
                       "</table>"))))
 

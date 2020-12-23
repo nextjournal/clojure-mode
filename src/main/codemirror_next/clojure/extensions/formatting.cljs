@@ -159,7 +159,7 @@
                 "pointerselection"
                 "cut"
                 "noformat"
-                "tempselection") nil
+                "evalregion") nil
                "format-selections" (format-selection (.-state tr))
                (let [state (.-state tr)
                      context (make-indent-context state)]
