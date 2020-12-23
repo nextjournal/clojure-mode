@@ -26,10 +26,14 @@
   ([state] (node-at-cursor state (j/get (primary-selection state) :from)))
   ([^js state from]
    (some->> (n/nearest-touching state from -1)
-            (#(when (and (or (n/terminal-type? (n/type %))
-                             (= (n/start %) from)
-                             (= (n/end %) from))
-                         (not (n/top? %))) %))
+            (#(when (or (n/terminal-type? (n/type %))
+                        (<= (n/start %) from)
+                        (<= (n/end %) from))
+                (cond-> %
+                  (or (n/top? %)
+                      (and (not (n/terminal-type? (n/type %)))
+                           (< (n/start %) from (n/end %))))
+                  (-> (n/children from -1) first))))
             (uppermost-edge-here from)
             (n/balanced-range state))))
 
