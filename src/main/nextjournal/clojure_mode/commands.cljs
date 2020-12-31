@@ -28,15 +28,15 @@
 
 (defn copy-to-clipboard! [text]
   (let [^js focus-el (j/get js/document :activeElement)
-        input-el (js/document.createElement "input")]
+        input-el (js/document.createElement "textarea")]
     (.setAttribute input-el "class" "clipboard-input")
-    (.setAttribute input-el "value" text)
+    (j/assoc! input-el :innerHTML text)
     (-> js/document .-body (.appendChild input-el))
     (.focus input-el)
     (.select input-el)
     (js/document.execCommand "copy")
-    (-> js/document .-body (.removeChild input-el))
-    (.focus focus-el)))
+    (.focus focus-el #js {:preventScroll true})
+    (-> js/document .-body (.removeChild input-el))))
 
 (defn kill* [^js state]
   (u/update-ranges state

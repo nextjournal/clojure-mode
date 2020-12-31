@@ -108,12 +108,14 @@
   (cond-> {"ArrowUp" "↑"
            "ArrowDown" "↓"
            "ArrowRight" "→"
-           "ArrowLeft" "←"}
+           "ArrowLeft" "←"
+           "Mod" "Ctrl"}
     (mac?)
     (merge {"Alt" "⌥"
             "Shift" "⇧"
             "Enter" "⏎"
-            "Ctrl" "⌃"})))
+            "Ctrl" "⌃"
+            "Mod" "⌘"})))
 
 (defn render-key [key]
   (let [keys (into [] (map #(get ((memoize key-mapping)) % %) (str/split key #"-")))]
@@ -126,15 +128,23 @@
             :innerHTML
             (tag :div
                  (tag :h3 {:class "m-3" } "Keybindings")
-                 (tag :table {:cellpadding 0 :class "w-full"}
+                 (tag :table {:cellpadding 0 :class "w-full text-sm"}
+                      (tag :tr
+                           {:class "border-t even:bg-gray-100"}
+                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Command")
+                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Keybinding")
+                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Alternate Binding")
+                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Description"))
                       (->> keymap/paredit-keymap*
+                           (merge (sci/keymap* "Alt"))
                            (sort-by first)
-                           (reduce (fn [out [command [{:keys [key shift doc]}]]]
+                           (reduce (fn [out [command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
                                      (str out
                                           (tag :tr
                                                {:class "border-t even:bg-gray-100"}
                                                (tag :td {:class "px-3 py-1 align-top"} (tag :b (name command)))
                                                (tag :td {:class "px-3 py-1 align-top text-sm"} (render-key key))
+                                               (tag :td {:class "px-3 py-1 align-top text-sm"} (some-> alternate-key render-key))
                                                (tag :td {:class "px-3 py-1 align-top"} doc))
                                           (when shift
                                             (tag :tr
@@ -142,6 +152,7 @@
                                                  (tag :td {:class "px-3 py-1 align-top"} (tag :b (name shift)))
                                                  (tag :td {:class "px-3 py-1 align-top text-sm"}
                                                       (render-key (str "Shift-" key)))
+                                                 (tag :td {:class "px-3 py-1 align-top text-sm"})
                                                  (tag :td {:class "px-3 py-1 align-top"} ""))))) ""))
                       "</table>"))))
 

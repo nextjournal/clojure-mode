@@ -31,6 +31,17 @@
       (on-result))
   true)
 
+(defn keymap* [modifier]
+  {:eval-cell
+   [{:key "Mod-Enter"
+     :doc "Evaluate cell"}]
+   :eval-at-cursor
+   [{:key (str modifier "-Enter")
+     :doc "Evaluates form at cursor"}]
+   :eval-top-level
+   [{:key (str modifier "-Shift-Enter")
+     :doc "Evaluates top-level form at cursor"}]})
+
 (defn extension [{:keys [modifier
                          on-result]}]
   (.of view/keymap

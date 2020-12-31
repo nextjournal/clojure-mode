@@ -210,7 +210,7 @@
   ([^js state node]
    (string state (start node) (end node)))
   ([^js state from to]
-   (.slice (.-doc state) from to)))
+   (.sliceString (.-doc state) from to \newline)))
 
 (defn ancestor? [parent child]
   (boolean
@@ -373,7 +373,7 @@
                     L
                     R
                     mid)
-              -1 (or (u/guard L (every-pred some? #(or (same-edge? %) (not (left-edge? %)))))
-                     R
-                     L
-                     mid))))
+          -1 (or (u/guard L (every-pred some? #(or (same-edge? %) (not (left-edge? %)))))
+                 R
+                 L
+                 mid))))
