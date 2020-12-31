@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "@codemirror/next": "^0.15.0",
-        "lezer": "^0.13.0",
+        "@codemirror/next": "^0.16.0",
+        "lezer": "^0.13.1",
         "lezer-clojure": "0.1.10",
         "lezer-tree": "^0.13.0",
         "lezer-generator": "^0.13.0",

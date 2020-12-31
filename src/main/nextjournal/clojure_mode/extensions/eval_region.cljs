@@ -1,6 +1,6 @@
 (ns nextjournal.clojure-mode.extensions.eval-region
   (:require
-   ["@codemirror/next/state" :as state :refer [StateEffect StateField Facet precedence]]
+   ["@codemirror/next/state" :as state :refer [StateEffect StateField]]
    ["@codemirror/next/view" :as view :refer [EditorView Decoration keymap]]
    ["w3c-keyname" :refer [keyName]]
    [applied-science.js-interop :as j]
@@ -18,12 +18,12 @@
            (last))
       node))
 
-(defn primary-selection [state]
+(defn main-selection [state]
   (-> (j/call-in state [:selection :asSingle])
       (j/get-in [:ranges 0])))
 
 (defn node-at-cursor
-  ([state] (node-at-cursor state (j/get (primary-selection state) :from)))
+  ([state] (node-at-cursor state (j/get (main-selection state) :from)))
   ([^js state from]
    (some->> (n/nearest-touching state from -1)
             (#(when (or (n/terminal-type? (n/type %))
@@ -38,7 +38,7 @@
             (n/balanced-range state))))
 
 (defn top-level-node [state]
-  (->> (n/nearest-touching state (j/get (primary-selection state) :from) -1)
+  (->> (n/nearest-touching state (j/get (main-selection state) :from) -1)
        (iterate n/up)
        (take-while (every-pred identity (complement n/top?)))
        last))
@@ -69,24 +69,23 @@
 (defonce mark-spec-highlight (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.35);"}}))
 
 (defn cursor-range [^js state]
-  (if (.. state -selection -primary -empty)
+  (if (.. state -selection -main -empty)
     (node-at-cursor state)
-    (.. state -selection -primary)))
+    (.. state -selection -main)))
 
 (defonce region-field
-         (.define StateField
-                  (j/lit
-                   {:create  (constantly (.-none Decoration))
-                    :update  (j/fn [_value ^:js {:keys [state]}]
-                               (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
-                                     spec (if Enter mark-spec-highlight mark-spec)]
-                                 (if-let [range (cond (and Alt Shift) (top-level-node state)
-                                                      Alt (or (u/guard (primary-selection state)
-                                                                       #(not (j/get % :empty)))
-                                                              (cursor-range state)))]
-                                   (single-mark spec range)
-                                   (.-none Decoration))))
-                    :provide [(.-decorations EditorView)]})))
+  (.define StateField
+           (j/lit
+            {:create  (constantly (.-none Decoration))
+             :update  (j/fn [_value ^:js {:keys [state]}]
+                        (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
+                              spec (if Enter mark-spec-highlight mark-spec)]
+                          (if-let [range (cond (and Alt Shift) (top-level-node state)
+                                               Alt (or (u/guard (main-selection state)
+                                                                #(not (j/get % :empty)))
+                                                       (cursor-range state)))]
+                            (single-mark spec range)
+                            (.-none Decoration))))})))
 
 
 (defn get-region-field [^js state] (.field state region-field))
@@ -95,7 +94,7 @@
   (or (some-> (get-region-field state)
               (j/call :iter)
               (u/guard #(j/get % :value)))
-      (.. state -selection -primary)))
+      (.. state -selection -main)))
 
 (defn modifier-extension
   "Maintains modifier-state-field, containing a map of {<modifier> true}, including Enter."
@@ -107,13 +106,13 @@
                                 ^:js {:as view :keys [state]}]
                            (let [prev (get-modifier-field state)
                                  next (cond-> {}
-                                              altKey (assoc "Alt" true)
-                                              shiftKey (assoc "Shift" true)
-                                              metaKey (assoc "Meta" true)
-                                              controlKey (assoc "Control" true)
-                                              (and (= "keydown" type)
-                                                   (= "Enter" (keyName event)))
-                                              (assoc "Enter" true))]
+                                        altKey (assoc "Alt" true)
+                                        shiftKey (assoc "Shift" true)
+                                        metaKey (assoc "Meta" true)
+                                        controlKey (assoc "Control" true)
+                                        (and (= "keydown" type)
+                                             (= "Enter" (keyName event)))
+                                        (assoc "Enter" true))]
                              (when (not= prev next)
                                (set-modifier-field! view next))))
         handle-backspace (j/fn [^:js {:as view :keys [state dispatch]}]
@@ -123,13 +122,13 @@
                                                  :annotations (u/user-event-annotation "delete")})))
                              true))]
     #js[modifier-field
-        (precedence (keymap
-                     (j/lit [{:key   (str modifier "-Enter")
-                              :shift handle-enter
-                              :run   handle-enter}
-                             {:key (str modifier "-Backspace")
-                              :run handle-backspace
-                              :shift handle-backspace}])) "override")
+        (.of keymap
+             (j/lit [{:key   (str modifier "-Enter")
+                      :shift handle-enter
+                      :run   handle-enter}
+                     {:key (str modifier "-Backspace")
+                      :run handle-backspace
+                      :shift handle-backspace}]))
         (.domEventHandlers view/EditorView
                            #js{:keydown handle-key-event
                                :keyup   handle-key-event})]))
@@ -137,7 +136,8 @@
 (defn extension [{:keys [modifier]
                   :or   {modifier "Alt"}}]
   #js[(modifier-extension modifier)
-      region-field])
+      region-field
+      (.. EditorView -decorations (from region-field))])
 
 (defn cursor-node-string [^js state]
   (u/guard (some->> (node-at-cursor state)

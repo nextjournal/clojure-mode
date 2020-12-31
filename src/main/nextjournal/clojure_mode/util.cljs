@@ -86,21 +86,21 @@
 (defn update-lines
   [^js state f & [{:keys [from to spec]
                    :or {from 0}}]]
-  (let [iterator (.. state -doc (iterLines 0))]
+  (let [iterator (.. state -doc iter)]
     (loop [result (.next iterator)
            changes #js[]
            from-pos from
            line-num 1]
-      (j/let [^:js {:keys [done ^string value]} result]
+      (j/let [^:js {:keys [done lineBreak ^string value]} result]
         (if (or done
                 (> from to))
           (.update state (j/extend! #js{:changes (.changes state changes)} spec))
           (recur (.next iterator)
-                 (if-let [change (f from-pos value line-num)]
+                 (if-let [change (and (not lineBreak) (f from-pos value line-num))]
                    (j/push! changes change)
                    changes)
-                 (+ from-pos 1 (count value))
-                 (inc line-num)))))))
+                 (+ from-pos (count value))
+                 (cond-> line-num lineBreak inc)))))))
 
 (defn update-selected-lines
   "`f` will be called for each selected line with args [line, changes-array, range]

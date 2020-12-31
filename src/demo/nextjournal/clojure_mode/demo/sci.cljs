@@ -33,10 +33,10 @@
 
 (defn extension [{:keys [modifier
                          on-result]}]
-  (view/keymap
-   (j/lit
-    [{:key "Mod-Enter"
-      :run (partial eval-cell on-result)}
-     {:key (str modifier "-Enter")
-      :shift (partial eval-top-level on-result)
-      :run (partial eval-at-cursor on-result)}])))
+  (.of view/keymap
+       (j/lit
+        [{:key "Mod-Enter"
+          :run (partial eval-cell on-result)}
+         {:key (str modifier "-Enter")
+          :shift (partial eval-top-level on-result)
+          :run (partial eval-at-cursor on-result)}])))

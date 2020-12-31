@@ -47,7 +47,7 @@
                         (history)
                         highlight/defaultHighlightStyle
                         (view/drawSelection)
-                        ;(lineNumbers)
+                                        ;(lineNumbers)
                         (fold/foldGutter)
                         (.. EditorState -allowMultipleSelections (of true))
                         (if false
@@ -55,12 +55,13 @@
                           #js[(cm-clj/syntax live-grammar/parser)
                               (.slice cm-clj/default-extensions 1)]
                           cm-clj/default-extensions)
-                        (view/keymap cm-clj/complete-keymap)
-                        (view/keymap historyKeymap)])
+                        (.of view/keymap cm-clj/complete-keymap)
+                        (.of view/keymap historyKeymap)])
+
+(defonce !view (atom nil))
 
 (defn editor [source]
-  (r/with-let [!view (atom nil)
-               last-result (r/atom (sci/eval-string source))
+  (r/with-let [last-result (r/atom (sci/eval-string source))
                mount! (fn [el]
                         (when el
                           (reset! !view (new EditorView
@@ -146,7 +147,14 @@
 
 
 (comment
- (let [s "#(a )"
-       state (test-utils/make-state default-extensions s)
-       tree (n/tree state)]
-   ))
+  (def state (.-state @!view))
+
+  (def doc (.-doc state))
+
+  (def iter (.iter doc))
+  (def n (.next iter))
+  (.-lineBreak n)
+  (let [s "#(a )"
+        state (test-utils/make-state default-extensions s)
+        tree (n/tree state)]
+    ))

@@ -2,11 +2,12 @@
 # yarn lockfile v1
 
 
-"@codemirror/next@^0.15.0":
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.15.0.tgz#82068fe8244041f783e526215132ae0c6c7b9cee"
-  integrity sha512-l6IbV+VsjHeXNYR7y15UZc1b1BTLtAmRvhKAP+CeVNU/0DvXbLKLSCMjM4HTPMUZJe++gO2cFmYjPzT3jdTZiA==
+"@codemirror/next@^0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@codemirror/next/-/next-0.16.0.tgz#b96e99d73fc4254648ca925c56d594c906282de3"
+  integrity sha512-l45zvRlWL1wBHse8OSCXYIxQbeYaIO/DPcqyzUQQBYYdk/tM8ZaCmDqLS15dvLbN2EFkj8RgURg0srDlO6aYJw==
   dependencies:
+    crelt "^1.0.5"
     lezer "^0.13.0"
     lezer-cpp "^0.13.0"
     lezer-css "^0.13.0"
@@ -19,7 +20,7 @@
     lezer-rust "^0.13.0"
     lezer-tree "^0.13.0"
     lezer-xml "^0.13.0"
-    style-mod "^3.1.0"
+    style-mod "^3.2.0"
     w3c-keyname "^2.2.4"
 
 asn1.js@^4.0.0:
@@ -197,6 +198,11 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     ripemd160 "^2.0.0"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
+
+crelt@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/crelt/-/crelt-1.0.5.tgz#57c0d52af8c859e354bace1883eb2e1eb182bb94"
+  integrity sha512-+BO9wPPi+DWTDcNYhr/W90myha8ptzftZT+LwcmUbbok0rcP/fequmFYCw8NMoH7pkAZQzU78b3kYrlua5a9eA==
 
 crypto-browserify@^3.11.0:
   version "3.12.0"
@@ -426,7 +432,7 @@ lezer-xml@^0.13.0:
   dependencies:
     lezer "^0.13.0"
 
-lezer@^0.13.0:
+lezer@^0.13.0, lezer@^0.13.1:
   version "0.13.1"
   resolved "https://registry.yarnpkg.com/lezer/-/lezer-0.13.1.tgz#95c8a4e9ad96bae567dff477bdf93b5f1d66f87d"
   integrity sha512-aDX9OHYWQFt3s7C0IEil//Lckxbr02dCRyxB/uTxVuZjBsNHnUJ8Y83OgDi+uNFwRsexhdoMF0/PSvmky/Fg/g==
@@ -796,10 +802,10 @@ string_decoder@~1.1.1:
   dependencies:
     safe-buffer "~5.1.0"
 
-style-mod@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-3.1.0.tgz#70b50ee3b763517470669226a8a728269ab5c039"
-  integrity sha512-0N9E+FSiBMBgwek1njE4Vt2WMmWZReTrKfCY6xUCXuHLJcjXxJrPG504dH2oufQHhEZp0aZs3v/uVHRz5LepTA==
+style-mod@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-3.2.0.tgz#27183ee1bb237ea615f27720a8879f41a1d2904b"
+  integrity sha512-U8aygkBSFYXvWnOj49TEGa1baShfvoN2wOkbnfmu7UBmzj7Y3Zz13MnOdrdBVFyAq4UIgFN2+9RRCzucZH1oDA==
 
 timers-browserify@^2.0.4:
   version "2.0.11"

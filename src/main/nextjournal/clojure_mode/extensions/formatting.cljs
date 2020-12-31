@@ -111,12 +111,12 @@
   [^js state
    indent-context
    from
-   content
+   text
    line-num
    changes
    format-spaces?]
-  {:pre [(some? content)]}
-  (let [current-indent (-> ^js (aget (.exec #"^\s*" content) 0)
+  {:pre [(some? text)]}
+  (let [current-indent (-> ^js (aget (.exec #"^\s*" text) 0)
                            .-length)
         ^number indent (-> (get-indentation indent-context from)
                            (u/guard (complement neg?)))
@@ -131,7 +131,7 @@
         space-changes (when format-spaces?
                         (space-changes state
                                        (+ from current-indent)
-                                       (+ from (count content))))]
+                                       (+ from (count text))))]
     (cond-> changes
       space-changes (into-arr space-changes)
       indentation-change (j/push! indentation-change))))
@@ -140,14 +140,14 @@
   [^js state]
   (let [context (make-indent-context state)]
     (u/update-selected-lines state
-      (j/fn [^:js {:as line :keys [from content number]} ^js changes ^js range]
-        (format-line state context from content number changes true)))))
+                             (j/fn [^:js {:as line :keys [from text number]} ^js changes ^js range]
+                               (format-line state context from text number changes true)))))
 
 (defn format-all [state]
   (let [context (make-indent-context state)]
     (u/update-lines state
-      (fn [^number from ^string content line-num]
-        (format-line state context from content line-num #js[] true)))))
+                    (fn [^number from ^string text line-num]
+                      (format-line state context from text line-num #js[] true)))))
 
 (defn format-transaction [^js tr]
   (let [origin (u/get-user-event-annotation tr)]
@@ -165,7 +165,7 @@
                      context (make-indent-context state)]
                  (u/iter-changed-lines tr
                                        (fn [^js line ^js changes]
-                                         (format-line state context (.-from line) (.-content line) (.-number line) changes true)))))]
+                                         (format-line state context (.-from line) (.-text line) (.-number line) changes true)))))]
       (.. tr -startState (update (j/assoc! changes :filter false)))
       tr)))
 
