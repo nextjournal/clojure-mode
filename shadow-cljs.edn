@@ -1,4 +1,4 @@
-{:deps true
+{:deps {:aliases [:dev :demo]}
  :dev-http {8002 "public"
             8001 "public/test"}
  :nrepl {:port 9000}

@@ -58,30 +58,34 @@
                         (.of view/keymap cm-clj/complete-keymap)
                         (.of view/keymap historyKeymap)])
 
-(defonce !view (atom nil))
 
-(defn editor [source]
-  (r/with-let [last-result (r/atom (sci/eval-string source))
+(defn editor [source {:keys [eval?]}]
+  (r/with-let [!view (r/atom nil)
+               last-result (when eval? (r/atom (sci/eval-string source)))
                mount! (fn [el]
                         (when el
                           (reset! !view (new EditorView
                                              (j/obj :state
                                                     (test-utils/make-state
-                                                     #js[extensions
-                                                         (sci/extension {:modifier  "Alt"
-                                                                         :on-result (partial reset! last-result)})] source)
+                                                     (cond-> #js [extensions]
+                                                       eval? (.concat #js [(sci/extension {:modifier  "Alt"
+                                                                                           :on-result (partial reset! last-result)})]))
+                                                     source)
                                                     :parent el)))))]
     [:div
-     [:div {:class "mt-4 rounded-md mb-0 text-sm monospace overflow-auto relative shadow-sm bg-white"
-            :ref mount!}]
-     [:div.mt-3.mv-4.pl-6 {:style {:white-space "pre-wrap" :font-family "monospace"}}
-      (prn-str @last-result)]]
+     [:div {:class "rounded-md mb-0 text-sm monospace overflow-auto relative border shadow-lg bg-white"
+            :ref mount!
+            :style {:max-height 410}}]
+     (when eval?
+       [:div.mt-3.mv-4.pl-6 {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
+        (prn-str @last-result)])]
     (finally
-     (j/call @!view :destroy))))
+      (j/call @!view :destroy))))
+
 
 (defn samples []
   (into [:<>]
-        (for [source ["(comment ;; try evaluating those with alt-enter
+        (for [source ["(comment
   (fizz-buzz 1)
   (fizz-buzz 3)
   (fizz-buzz 5)
@@ -95,7 +99,7 @@
     3  \"fizz\"
     5  \"buzz\"
     n))"]]
-          [editor source])))
+          [editor source {:eval? true}])))
 
 (defn tag [tag & s]
   (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
@@ -103,6 +107,9 @@
 
 (defn mac? []
   (some? (re-find #"Mac" js/navigator.platform)))
+
+(defn linux? []
+  (some? (re-find #"(Linux)|(X11)" js/navigator.userAgent)))
 
 (defn key-mapping []
   (cond-> {"ArrowUp" "↑"
@@ -120,52 +127,50 @@
 (defn render-key [key]
   (let [keys (into [] (map #(get ((memoize key-mapping)) % %) (str/split key #"-")))]
     (tag :span
-         (str/join (tag :span "+") (map (partial tag :kdb {:class "bg-gray monospace m-1" :style "border-radius: 5px; padding: 1px 4px; border: 1px solid black;"}) keys)))))
+         (str/join (tag :span " + ") (map (partial tag :kdb {:class "kbd"}) keys)))))
 
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
+  (.. (js/document.querySelectorAll "[clojure-mode]")
+      (forEach #(when-not (.-firstElementChild %)
+                  (rdom/render [editor (str/trim (.-innerHTML %))] %))))
+
+  (let [mapping (key-mapping)]
+    (.. (js/document.querySelectorAll ".mod,.alt,.ctrl")
+        (forEach #(when-let [k (get mapping (.-innerHTML %))]
+                    (set! (.-innerHTML %) k)))))
+
   (j/assoc! (js/document.getElementById "docs")
             :innerHTML
             (tag :div
-                 (tag :h3 {:class "m-3" } "Keybindings")
+                 (tag :h2 {:class "text-center text-3xl font-bold mt-0 mb-12"}
+                      (tag :a {:class "near-black" :href "#keybindings"} "🎹 Keybindings"))
                  (tag :table {:cellpadding 0 :class "w-full text-sm"}
                       (tag :tr
                            {:class "border-t even:bg-gray-100"}
-                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Command")
-                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Keybinding")
-                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Alternate Binding")
-                           (tag :td {:class "px-3 py-1 align-top text-sm"} "Description"))
+                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Command")
+                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Keybinding")
+                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Alternate Binding")
+                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Description"))
                       (->> keymap/paredit-keymap*
                            (merge (sci/keymap* "Alt"))
                            (sort-by first)
                            (reduce (fn [out [command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
                                      (str out
                                           (tag :tr
-                                               {:class "border-t even:bg-gray-100"}
-                                               (tag :td {:class "px-3 py-1 align-top"} (tag :b (name command)))
+                                               {:class "border-t hover:bg-gray-100"}
+                                               (tag :td {:class "px-3 py-1 align-top monospace"} (tag :b (name command)))
                                                (tag :td {:class "px-3 py-1 align-top text-sm"} (render-key key))
                                                (tag :td {:class "px-3 py-1 align-top text-sm"} (some-> alternate-key render-key))
                                                (tag :td {:class "px-3 py-1 align-top"} doc))
                                           (when shift
                                             (tag :tr
-                                                 {:class "border-t even:bg-gray-100"}
+                                                 {:class "border-t hover:bg-gray-100"}
                                                  (tag :td {:class "px-3 py-1 align-top"} (tag :b (name shift)))
                                                  (tag :td {:class "px-3 py-1 align-top text-sm"}
                                                       (render-key (str "Shift-" key)))
                                                  (tag :td {:class "px-3 py-1 align-top text-sm"})
-                                                 (tag :td {:class "px-3 py-1 align-top"} ""))))) ""))
-                      "</table>"))))
+                                                 (tag :td {:class "px-3 py-1 align-top"} ""))))) "")))))
 
-
-(comment
-  (def state (.-state @!view))
-
-  (def doc (.-doc state))
-
-  (def iter (.iter doc))
-  (def n (.next iter))
-  (.-lineBreak n)
-  (let [s "#(a )"
-        state (test-utils/make-state default-extensions s)
-        tree (n/tree state)]
-    ))
+  (when (linux?)
+    (js/twemoji.parse (.-body js/document))))

@@ -1,5 +1,8 @@
 .shadow-cljs
 .idea
+.calva
+.clj-kondo
+.lsp
 public/js
 node_modules
 public/test
