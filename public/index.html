@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clojure/Script mode for CodeMirror 6</title>
     <link href="https://cdn.nextjournal.com/data/QmW53nJSRrRao5FZ9sZ2pwQ4Gd4mK4nZcvhrATVdiabPkc?filename=tailwind-a4c8a6fe636b6d528505c30cb68526a024f446a7.css&content-type=text/css" rel="stylesheet">
     <link href="https://cdn.nextjournal.com/data/QmSaHZCU6U2DeNohfW2PuXDHkayw7w21uvUWL5oEqVWKwH?filename=viewer-1c61aac61ffa4da89b828d538c5e4eff188e7b56.css&content-type=text/css" rel="stylesheet">
@@ -95,22 +96,22 @@
             </li>
             <li class="mt-4 flex">
               <span class="mr-2">🥤</span>
-              <div class="flex-auto">
+              <div class="flex-auto overflow-x-auto">
                 <span class="font-bold">Slurping & 🤮 Barfing</span>
                 <table class="w-full md:max-w-sm text-sm">
                   <tbody>
                     <tr class="align-top">
                       <td class="py-1">forward</td>
-                      <td class="py-1 text-right">
+                      <td class="py-1 text-right whitespace-no-wrap">
                         <span class="kbd ctrl">Ctrl</span> + <span class="kbd">←</span> / <span class="kbd">→</span>
                       </td>
-                      <td class="py-1 text-right">
+                      <td class="py-1 text-right whitespace-no-wrap">
                         <span class="mx-1">or</span> <span class="kbd mod">Mod</span> + <span class="kbd">⇧</span> + <span class="kbd">j</span> / <span class="kbd">k</span>
                       </td>
                     </tr>
                     <tr class="border-t">
                       <td class="py-1 pr-12">backward</td>
-                      <td class="py-1 text-right">
+                      <td class="py-1 text-right whitespace-no-wrap">
                         <span class="kbd ctrl">Ctrl</span> + <span class="kbd alt">Alt</span> + <span class="kbd">←</span> / <span class="kbd">→</span>
                       </td>
                       <td></td>
@@ -121,16 +122,16 @@
             </li>
             <li class="mt-4 flex">
               <span class="mr-2">💗</span>
-              <div class="flex-auto">
+              <div class="flex-auto overflow-x-auto">
                 <span class="font-bold">Semantic Selections</span>
                 <table class="w-full md:max-w-sm text-sm">
                   <tbody>
                     <tr>
-                      <td class="py-1" style="width: 150px;">Expand / Contract</td>
-                      <td class="py-1 text-right" style="width: 125px;">
+                      <td class="py-1">Expand / Contract</td>
+                      <td class="py-1 text-right whitespace-no-wrap">
                         <span class="kbd alt">Alt</span> + <span class="kbd">↑</span> / <span class="kbd">↓</span>
                       </td>
-                      <td class="py-1 text-right">
+                      <td class="py-1 text-right whitespace-no-wrap">
                         <span class="mx-1">or</span> <span class="kbd mod">Mod</span> + <span class="kbd">1</span> / <span class="kbd">2</span>
                       </td>
                     </tr>

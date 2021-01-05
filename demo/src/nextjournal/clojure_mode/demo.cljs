@@ -105,11 +105,12 @@
   (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
     (str "<" (name tag) (reduce-kv #(str %1 " " (name %2) "=" "'" %3 "'") "" opts) ">" (apply str s) "</" (name tag) ">")))
 
-(defn mac? []
-  (some? (re-find #"Mac" js/navigator.platform)))
-
 (defn linux? []
   (some? (re-find #"(Linux)|(X11)" js/navigator.userAgent)))
+
+(defn mac? []
+  (and (not (linux?))
+       (some? (re-find #"(Mac)|(iPhone)|(iPad)|(iPod)" js/navigator.platform))))
 
 (defn key-mapping []
   (cond-> {"ArrowUp" "↑"
@@ -151,7 +152,7 @@
                            (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Command")
                            (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Keybinding")
                            (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Alternate Binding")
-                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Description"))
+                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50" :style "min-width: 290px;"} "Description"))
                       (->> keymap/paredit-keymap*
                            (merge (sci/keymap* "Alt"))
                            (sort-by first)
@@ -159,15 +160,15 @@
                                      (str out
                                           (tag :tr
                                                {:class "border-t hover:bg-gray-100"}
-                                               (tag :td {:class "px-3 py-1 align-top monospace"} (tag :b (name command)))
-                                               (tag :td {:class "px-3 py-1 align-top text-sm"} (render-key key))
-                                               (tag :td {:class "px-3 py-1 align-top text-sm"} (some-> alternate-key render-key))
+                                               (tag :td {:class "px-3 py-1 align-top monospace whitespace-no-wrap"} (tag :b (name command)))
+                                               (tag :td {:class "px-3 py-1 align-top text-right text-sm whitespace-no-wrap"} (render-key key))
+                                               (tag :td {:class "px-3 py-1 align-top text-right text-sm whitespace-no-wrap"} (some-> alternate-key render-key))
                                                (tag :td {:class "px-3 py-1 align-top"} doc))
                                           (when shift
                                             (tag :tr
                                                  {:class "border-t hover:bg-gray-100"}
                                                  (tag :td {:class "px-3 py-1 align-top"} (tag :b (name shift)))
-                                                 (tag :td {:class "px-3 py-1 align-top text-sm"}
+                                                 (tag :td {:class "px-3 py-1 align-top text-sm whitespace-no-wrap text-right"}
                                                       (render-key (str "Shift-" key)))
                                                  (tag :td {:class "px-3 py-1 align-top text-sm"})
                                                  (tag :td {:class "px-3 py-1 align-top"} ""))))) "")))))
