@@ -101,10 +101,6 @@
     n))"]]
           [editor source {:eval? true}])))
 
-(defn tag [tag & s]
-  (let [[opts s] (if (map? (first s)) [(first s) (rest s)] [nil s])]
-    (str "<" (name tag) (reduce-kv #(str %1 " " (name %2) "=" "'" %3 "'") "" opts) ">" (apply str s) "</" (name tag) ">")))
-
 (defn linux? []
   (some? (re-find #"(Linux)|(X11)" js/navigator.userAgent)))
 
@@ -127,11 +123,42 @@
 
 (defn render-key [key]
   (let [keys (into [] (map #(get ((memoize key-mapping)) % %) (str/split key #"-")))]
-    (tag :span
-         (str/join (tag :span " + ") (map (partial tag :kdb {:class "kbd"}) keys)))))
+    (into [:span]
+          (map-indexed (fn [i k]
+                         [:<>
+                          (when-not (zero? i) [:span " + "])
+                          [:kbd.kbd k]]) keys))))
+
+(defn key-bindings-table []
+  [:table.w-full.text-sm
+   [:thead
+    [:tr.border-t
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Command"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Keybinding"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Alternate Binding"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 {:style {:min-width 290}} "Description"]]]
+   (into [:tbody]
+         (->> keymap/paredit-keymap*
+              (merge (sci/keymap* "Alt"))
+              (sort-by first)
+              (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
+                     [:<>
+                      [:tr.border-t.hover:bg-gray-100
+                       [:td.px-3.py-1.align-top.monospace.whitespace-no-wrap [:b (name command)]]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (render-key key)]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (some-> alternate-key render-key)]
+                       [:td.px-3.py-1.align-top doc]]
+                      (when shift
+                        [:tr.border-t.hover:bg-gray-100
+                         [:td.px-3.py-1.align-top [:b (name shift)]]
+                         [:td.px-3.py-1.align-top.text-sm.whitespace-no-wrap.text-right
+                          (render-key (str "Shift-" key))]
+                         [:td.px-3.py-1.align-top.text-sm]
+                         [:td.px-3.py-1.align-top]])]))))])
 
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
+
   (.. (js/document.querySelectorAll "[clojure-mode]")
       (forEach #(when-not (.-firstElementChild %)
                   (rdom/render [editor (str/trim (.-innerHTML %))] %))))
@@ -141,37 +168,7 @@
         (forEach #(when-let [k (get mapping (.-innerHTML %))]
                     (set! (.-innerHTML %) k)))))
 
-  (j/assoc! (js/document.getElementById "docs")
-            :innerHTML
-            (tag :div
-                 (tag :h2 {:class "text-center text-3xl font-bold mt-0 mb-12"}
-                      (tag :a {:class "near-black" :href "#keybindings"} "🎹 Keybindings"))
-                 (tag :table {:cellpadding 0 :class "w-full text-sm"}
-                      (tag :tr
-                           {:class "border-t even:bg-gray-100"}
-                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Command")
-                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Keybinding")
-                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50"} "Alternate Binding")
-                           (tag :th {:class "px-3 py-1 align-top text-left text-xs uppercase font-normal black-50" :style "min-width: 290px;"} "Description"))
-                      (->> keymap/paredit-keymap*
-                           (merge (sci/keymap* "Alt"))
-                           (sort-by first)
-                           (reduce (fn [out [command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
-                                     (str out
-                                          (tag :tr
-                                               {:class "border-t hover:bg-gray-100"}
-                                               (tag :td {:class "px-3 py-1 align-top monospace whitespace-no-wrap"} (tag :b (name command)))
-                                               (tag :td {:class "px-3 py-1 align-top text-right text-sm whitespace-no-wrap"} (render-key key))
-                                               (tag :td {:class "px-3 py-1 align-top text-right text-sm whitespace-no-wrap"} (some-> alternate-key render-key))
-                                               (tag :td {:class "px-3 py-1 align-top"} doc))
-                                          (when shift
-                                            (tag :tr
-                                                 {:class "border-t hover:bg-gray-100"}
-                                                 (tag :td {:class "px-3 py-1 align-top"} (tag :b (name shift)))
-                                                 (tag :td {:class "px-3 py-1 align-top text-sm whitespace-no-wrap text-right"}
-                                                      (render-key (str "Shift-" key)))
-                                                 (tag :td {:class "px-3 py-1 align-top text-sm"})
-                                                 (tag :td {:class "px-3 py-1 align-top"} ""))))) "")))))
+  (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
