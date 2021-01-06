@@ -1,31 +1,49 @@
-# clojure-mode for CodeMirror 6
+# Clojure/Script mode for [CodeMirror 6](https://codemirror.net/6/)
 
-Live demo: https://nextjournal.github.io/clojure-mode/
+Enabling a decent Clojure/Script editor experience in the browser. Built for and by [Nextjournal](https://nextjournal.com/).
 
-## Dev Setup
+* **[🤹‍♀️ Live demo with in-browser eval](https://nextjournal.github.io/clojure-mode/)**
+* [🐢 Try it in Nextjournal](https://nextjournal.com/try/clojure?cm6=1)
+* [📦 Use it in your project](#use-it-in-your-project)
 
-* Install JS deps: `yarn install`
+## ✨ Features
+
+**⚡️ Lightning-fast thanks to [lezer incremental parsing](https://lezer.codemirror.net/)**
+* Try pasting [`clojure/core.clj`](https://raw.githubusercontent.com/clojure/clojure/master/src/clj/clojure/core.clj) into the [live demo](https://nextjournal.github.io/clojure-mode/).
+
+**🥤 Slurping & 🤮 Barfing**  
+* Forward: <kbd>Ctrl</kbd> + <kbd>←</kbd> / <kbd>→</kbd> or <kbd>Mod</kbd> + <kbd>⇧</kbd> + <kbd>J</kbd> / <kbd>K</kbd>  
+* Backward: <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>←</kbd> / <kbd>→</kbd>
+
+**💗 Semantic Selections**
+* Expand/Contract: <kbd>Alt</kbd> + <kbd>↑</kbd> / <kbd>↓</kbd>	or <kbd>Mod</kbd> + <kbd>1</kbd> / <kbd>2</kbd>
+
+🧙 **Prepared for evaluation**
+* At Cursor: <kbd>Alt</kbd> + <kbd>⏎</kbd>
+* Top-level form: <kbd>Alt</kbd> + <kbd>⇧</kbd> + <kbd>⏎</kbd>
+* Cell: <kbd>Mod</kbd> + <kbd>⏎</kbd>
+
+**🧹 Autoformatting** following [Tonsky’s Better Clojure Formatting](https://tonsky.me/blog/clojurefmt/)
+
+🎹 **And lots of more useful [key bindings](https://nextjournal.github.io/clojure-mode/#keybindings)**
+
+## 📦 Use it in your project
+
+### Include it in your `deps.edn`
+
+```clojure
+{:deps {nextjournal.clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
+                                  :sha "SHA"}}}
+```
+
+## 🛠 Development Setup
+
+* Install JS dependencies: `yarn install`
 * Start dev server: `yarn watch`
-* Open demo page at http://localhost:8002/
+* Open the demo page at http://localhost:8002/
 
-## Todo
+## ⚖️ License
 
-- [ ] "Yank" after kill (https://www.howtogeek.com/293850/how-to-use-macos-built-in-kill-and-yank-as-an-alternative-cut-and-paste/)
+Licensed under the EPL License, Copyright © 2020-present Nextjournal GmbH.
 
-## Done
-
-- [x] Expand/contract region
-- [x] Barf
-- [x] Slurp
-- [x] Format whitespace (necessary for commands like Slurp to behave nicely)
-- [x] Navigate left/right by sexp
-- [x] cannot 'indent-all', changes on one line don't affect measurements taken on subsequent lines
-- [x] operators are recognized (lists with symbol in 1st position)
-- [x] Unwrap current collection
-- [x] Kill (remove all children of current node starting on current line)
-- [x] GitHub Action to publish demo site to github.io
-- [x] indentation
-- [x] odd error recovery behaviour - a `#` token can't be deleted
-- [x] deletion
-- [x] Copy/paste (only first line copies to clipboard?)
-- [x] Ctrl-A => move to beginning of line (first non-whitespace char)
+See [LICENSE](https://github.com/nextjournal/clojure-mode/blob/master/LICENSE) for more information.
