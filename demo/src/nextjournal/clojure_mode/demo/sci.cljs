@@ -1,5 +1,5 @@
 (ns nextjournal.clojure-mode.demo.sci
-  (:require ["@codemirror/next/view" :as view]
+  (:require ["@codemirror/view" :as view]
             [applied-science.js-interop :as j]
             [sci.core :as sci]
             [nextjournal.clojure-mode.node :as n]

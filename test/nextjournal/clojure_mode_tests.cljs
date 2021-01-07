@@ -1,6 +1,6 @@
 (ns nextjournal.clojure-mode-tests
   (:require ["lezer-clojure" :as lz]
-            ["@codemirror/next/state" :refer [EditorState]]
+            ["@codemirror/state" :refer [EditorState]]
             [applied-science.js-interop :as j]
             [cljs.test :refer [is are testing deftest]]
             [nextjournal.clojure-mode :as cm-clojure]
