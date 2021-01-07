@@ -3,7 +3,7 @@
   (:require ["lezer-tree" :as lz-tree]
             ["lezer" :as lezer]
             ["lezer-clojure" :as lezer-clj]
-            ["@codemirror/next/language" :as language]
+            ["@codemirror/language" :as language]
             [clojure.core :as core]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]

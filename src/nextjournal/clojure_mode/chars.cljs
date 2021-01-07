@@ -1,5 +1,5 @@
 (ns nextjournal.clojure-mode.chars
-  (:require ["@codemirror/next/text" :as text]))
+  (:require ["@codemirror/text" :as text]))
 
 (defn pair-lookup [char-pairs ^string char]
   (let [end (count char-pairs)

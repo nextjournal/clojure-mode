@@ -1,7 +1,7 @@
 (ns nextjournal.clojure-mode.extensions.eval-region
   (:require
-   ["@codemirror/next/state" :as state :refer [StateEffect StateField]]
-   ["@codemirror/next/view" :as view :refer [EditorView Decoration keymap]]
+   ["@codemirror/state" :as state :refer [StateEffect StateField]]
+   ["@codemirror/view" :as view :refer [EditorView Decoration keymap]]
    ["w3c-keyname" :refer [keyName]]
    [applied-science.js-interop :as j]
    [nextjournal.clojure-mode.util :as u]

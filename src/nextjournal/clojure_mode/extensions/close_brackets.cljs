@@ -1,12 +1,12 @@
 (ns nextjournal.clojure-mode.extensions.close-brackets
   (:require ["w3c-keyname" :refer [keyName]]
-            ["@codemirror/next/view" :as view]
-            ["@codemirror/next/state" :refer [EditorState
-                                              EditorSelection
-                                              Transaction
-                                              CharCategory
-                                              Extension]]
-            ["@codemirror/next/text" :as text :refer [Text]]
+            ["@codemirror/view" :as view]
+            ["@codemirror/state" :refer [EditorState
+                                         EditorSelection
+                                         Transaction
+                                         CharCategory
+                                         Extension]]
+            ["@codemirror/text" :as text :refer [Text]]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.selections :as sel]
             [nextjournal.clojure-mode.node :as n]

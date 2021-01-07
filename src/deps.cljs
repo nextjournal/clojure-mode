@@ -1,1 +1,16 @@
-{:npm-deps {"lezer-clojure" "0.1.9"}}
+{:npm-deps {"@codemirror/autocomplete" "^0.17.0",
+            "@codemirror/closebrackets" "^0.17.0",
+            "@codemirror/commands" "^0.17.0",
+            "@codemirror/comment" "^0.17.0",
+            "@codemirror/fold" "^0.17.0",
+            "@codemirror/gutter" "^0.17.0",
+            "@codemirror/highlight" "^0.17.0",
+            "@codemirror/history" "^0.17.0",
+            "@codemirror/language" "^0.17.0",
+            "@codemirror/lint" "^0.17.0",
+            "@codemirror/matchbrackets" "^0.17.0",
+            "@codemirror/rectangular-selection" "^0.17.0",
+            "@codemirror/search" "^0.17.0",
+            "@codemirror/state" "^0.17.0",
+            "@codemirror/view" "^0.17.0",
+            "lezer-clojure" "0.1.10"}}

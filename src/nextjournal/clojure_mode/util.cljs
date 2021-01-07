@@ -1,12 +1,12 @@
 (ns nextjournal.clojure-mode.util
   (:require [applied-science.js-interop :as j]
-            ["@codemirror/next/state" :refer [EditorSelection
-                                              ChangeSet
-                                              ChangeDesc
-                                              TransactionSpec
-                                              StrictTransactionSpec
-                                              StateEffect
-                                              Transaction]]
+            ["@codemirror/state" :refer [EditorSelection
+                                         ChangeSet
+                                         ChangeDesc
+                                         TransactionSpec
+                                         StrictTransactionSpec
+                                         StateEffect
+                                         Transaction]]
             [nextjournal.clojure-mode.selections :as sel]))
 
 (defn user-event-annotation [event-name]

@@ -1,5 +1,5 @@
 (ns nextjournal.clojure-mode.extensions.selection-history
-  (:require ["@codemirror/next/state" :refer [Facet Extension EditorSelection StateField]]
+  (:require ["@codemirror/state" :refer [Facet Extension EditorSelection StateField]]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.selections :as sel]

@@ -1,13 +1,13 @@
 (ns nextjournal.clojure-mode.extensions.match-brackets
   (:require
-    ["@codemirror/next/state" :refer [EditorState
-                                      StateField
-                                      Extension]]
-    ["@codemirror/next/view" :refer [EditorView themeClass
-                                     Decoration DecorationSet]]
-    [applied-science.js-interop :as j]
-    [nextjournal.clojure-mode.node :as n]
-    [nextjournal.clojure-mode.util :as u]))
+   ["@codemirror/state" :refer [EditorState
+                                StateField
+                                Extension]]
+   ["@codemirror/view" :refer [EditorView themeClass
+                               Decoration DecorationSet]]
+   [applied-science.js-interop :as j]
+   [nextjournal.clojure-mode.node :as n]
+   [nextjournal.clojure-mode.util :as u]))
 
 (def base-theme
   (->>

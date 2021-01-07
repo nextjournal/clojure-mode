@@ -1,6 +1,6 @@
 (ns nextjournal.clojure-mode.selections
   (:refer-clojure :exclude [range])
-  (:require ["@codemirror/next/state" :refer [EditorSelection]]))
+  (:require ["@codemirror/state" :refer [EditorSelection]]))
 
 (defn range
   ([from to] (.range EditorSelection from to))

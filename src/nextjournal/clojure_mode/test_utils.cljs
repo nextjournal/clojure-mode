@@ -1,5 +1,5 @@
 (ns nextjournal.clojure-mode.test-utils
-  (:require ["@codemirror/next/state" :as cm-state
+  (:require ["@codemirror/state" :as cm-state
              :refer [EditorState EditorSelection Extension StateCommand
                      ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec]]
             [applied-science.js-interop :as j]

@@ -1,8 +1,8 @@
 (ns nextjournal.clojure-mode
-  (:require ["@codemirror/next/highlight" :as highlight :refer [tags]]
-            ["@codemirror/next/state" :refer [EditorState]]
-            ["@codemirror/next/language" :as language]
-            ["@codemirror/next/view" :as view :refer [EditorView keymap]]
+  (:require ["@codemirror/highlight" :as highlight :refer [tags]]
+            ["@codemirror/state" :refer [EditorState]]
+            ["@codemirror/language" :as language]
+            ["@codemirror/view" :as view :refer [EditorView keymap]]
             ["lezer" :as lezer]
             ["lezer-clojure" :as lezer-clj]
             ["lezer-tree" :as lz-tree]
