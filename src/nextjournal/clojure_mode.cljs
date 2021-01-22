@@ -17,7 +17,6 @@
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.selections :as sel]
             [nextjournal.clojure-mode.test-utils :as test-utils]
-            [shadow.resource :as rc]
             [nextjournal.clojure-mode.util :as u]))
 
 (def fold-node-props
@@ -53,7 +52,7 @@
   ;; rather than using a precompiled parser:
   (def parser
     (lg/buildParser
-     (rc/inline "./clojure/clojure.grammar")
+     (shadow.resource/inline "./clojure/clojure.grammar")
      #js{:externalProp n/node-prop})))
 
 (defn syntax

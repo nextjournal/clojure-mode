@@ -22,8 +22,7 @@
             [nextjournal.clojure-mode.selections :as sel]
             [nextjournal.clojure-mode.test-utils :as test-utils]
             [reagent.core :as r]
-            [reagent.dom :as rdom]
-            [shadow.resource :as rc]))
+            [reagent.dom :as rdom]))
 
 (def theme
   (.theme EditorView
