@@ -143,14 +143,14 @@
               (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
                      [:<>
                       [:tr.border-t.hover:bg-gray-100
-                       [:td.px-3.py-1.align-top.monospace.whitespace-no-wrap [:b (name command)]]
-                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (render-key key)]
-                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (some-> alternate-key render-key)]
+                       [:td.px-3.py-1.align-top.monospace.whitespace-nowrap [:b (name command)]]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-nowrap (render-key key)]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-nowrap (some-> alternate-key render-key)]
                        [:td.px-3.py-1.align-top doc]]
                       (when shift
                         [:tr.border-t.hover:bg-gray-100
                          [:td.px-3.py-1.align-top [:b (name shift)]]
-                         [:td.px-3.py-1.align-top.text-sm.whitespace-no-wrap.text-right
+                         [:td.px-3.py-1.align-top.text-sm.whitespace-nowrap.text-right
                           (render-key (str "Shift-" key))]
                          [:td.px-3.py-1.align-top.text-sm]
                          [:td.px-3.py-1.align-top]])]))))])
