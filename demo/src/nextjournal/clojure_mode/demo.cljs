@@ -26,21 +26,21 @@
 
 (def theme
   (.theme EditorView
-          (j/lit {:$content {:white-space "pre-wrap"
-                             :padding "10px 0"}
-                  :$$focused {:outline "none"}
-                  :$line {:padding "0 9px"
-                          :line-height "1.6"
-                          :font-size "16px"
-                          :font-family "var(--code-font)"}
-                  :$matchingBracket {:border-bottom "1px solid var(--teal-color)"
-                                     :color "inherit"}
-                  :$gutters {:background "transparent"
-                             :border "none"}
-                  :$gutterElement {:margin-left "5px"}
+          (j/lit {".cm-content" {:white-space "pre-wrap"
+                                 :padding "10px 0"}
+                  "&.cm-focused" {:outline "none"}
+                  ".cm-line" {:padding "0 9px"
+                              :line-height "1.6"
+                              :font-size "16px"
+                              :font-family "var(--code-font)"}
+                  ".cm-matchingBracket" {:border-bottom "1px solid var(--teal-color)"
+                                         :color "inherit"}
+                  ".cm-gutters" {:background "transparent"
+                                 :border "none"}
+                  ".cm-gutterElement" {:margin-left "5px"}
                   ;; only show cursor when focused
-                  :$cursor {:visibility "hidden"}
-                  "$$focused $cursor" {:visibility "visible"}})))
+                  ".cm-cursor" {:visibility "hidden"}
+                  "&.cm-focused .cm-cursor" {:visibility "visible"}})))
 
 (defonce extensions #js[theme
                         (history)

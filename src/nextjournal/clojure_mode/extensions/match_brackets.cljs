@@ -3,7 +3,7 @@
    ["@codemirror/state" :refer [EditorState
                                 StateField
                                 Extension]]
-   ["@codemirror/view" :refer [EditorView themeClass
+   ["@codemirror/view" :refer [EditorView
                                Decoration DecorationSet]]
    [applied-science.js-interop :as j]
    [nextjournal.clojure-mode.node :as n]
@@ -15,8 +15,8 @@
             :$nonmatchingBracket {:color "#a22"}})
     (.baseTheme EditorView)))
 
-(def ^js matching-mark (.mark Decoration (j/obj :class (themeClass "matchingBracket"))))
-(def ^js nonmatching-mark (.mark Decoration (j/obj :class (themeClass "nonmatchingBracket"))))
+(def ^js matching-mark (.mark Decoration (j/obj :class "cm-matchingBracket")))
+(def ^js nonmatching-mark (.mark Decoration (j/obj :class "cm-nonmatchingBracket")))
 
 (defn mark-node [node ^js mark]
   (.range mark (n/start node) (n/end node)))
