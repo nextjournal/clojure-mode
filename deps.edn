@@ -2,7 +2,7 @@
         org.clojure/clojurescript {:mvn/version "1.10.844"}}
  :aliases
  {:dev {:extra-paths ["test"]
-        :extra-deps {thheller/shadow-cljs {:mvn/version "2.12.7"}}}
+        :extra-deps {thheller/shadow-cljs {:mvn/version "2.14.2"}}}
   :demo {:extra-deps {borkdude/sci {:mvn/version "0.2.0"}
                       reagent/reagent {:mvn/version "1.0.0"}}
          :extra-paths ["demo/src"]}}}
