@@ -1,8 +1,9 @@
 {:deps {applied-science/js-interop {:mvn/version "0.2.5"}
-        org.clojure/clojurescript {:mvn/version "1.10.844"}}
+        org.clojure/clojure {:mvn/version "1.10.3"}
+        org.clojure/clojurescript {:mvn/version "1.10.866"}}
  :aliases
  {:dev {:extra-paths ["test"]
-        :extra-deps {thheller/shadow-cljs {:mvn/version "2.14.2"}}}
+        :extra-deps {thheller/shadow-cljs {:mvn/version "2.14.4"}}}
   :demo {:extra-deps {borkdude/sci {:mvn/version "0.2.0"}
                       reagent/reagent {:mvn/version "1.0.0"}}
          :extra-paths ["demo/src"]}}}
