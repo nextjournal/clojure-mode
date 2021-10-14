@@ -109,18 +109,19 @@
      :doc "Remove all forms from cursor to end of line"
      :preventDefault true}]
    :nav-left
-   [{:key "Alt-ArrowLeft"
+   [{:key "Mod-ArrowLeft"
      :shift :nav-select-left
      :doc "Move cursor one unit to the left (shift: selects this region)"
      :preventDefault true}]
    :nav-right
-   [{:key "Alt-ArrowRight"
+   [{:key "Mod-ArrowRight"
      :shift :nav-select-right
      :doc "Move cursor one unit to the right (shift: selects this region)"
      :preventDefault true}]
 
    :slurp-forward
-   [{:key "Ctrl-ArrowRight"
+   [{:key "Alt-ArrowRight"
+     :mac "Ctrl-ArrowRight"
      :doc "Expand collection to include form to the right"
      :preventDefault true}
     {:key "Mod-Shift-k" :preventDefault true}]
@@ -130,7 +131,8 @@
      :preventDefault true}]
 
    :barf-forward
-   [{:key "Ctrl-ArrowLeft"
+   [{:key "Alt-ArrowLeft"
+     :mac "Ctrl-Arrow-Left"
      :doc "Shrink collection forwards by one form"
      :preventDefault true}
     {:key "Mod-Shift-j" :preventDefault true}]
@@ -140,11 +142,11 @@
 
    :selection-grow
    [{:doc "Grow selections"
-     :key "Alt-ArrowUp"}
+     :key "Shift-Alt-ArrowUp"}
     {:key "Mod-1"}]
    :selection-return
    [{:doc "Shrink selections"
-     :key "Alt-ArrowDown"}
+     :key "Shift-Alt-ArrowDown"}
     {:key "Mod-2"}]})
 
 (def builtin (ungroup builtin-keymap*))
