@@ -77,7 +77,6 @@
       (match-brackets/extension)
       (sel-history/extension)
       (format/ext-format-changed-lines)
-      (.-lineWrapping EditorView)
       (eval-region/extension {:modifier "Alt"})])
 
 (comment
