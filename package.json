@@ -1,17 +1,10 @@
 {
     "dependencies": {
-        "@codemirror/autocomplete": "^0.18.0",
-        "@codemirror/closebrackets": "^0.18.0",
-        "@codemirror/commands": "^0.18.0",
-        "@codemirror/comment": "^0.18.0",
-
-        "@codemirror/history": "^0.18.0",
-        "@codemirror/lint": "^0.18.0",
-        "@codemirror/matchbrackets": "^0.18.0",
-        "@codemirror/rectangular-selection": "^0.18.0",
-        "@codemirror/search": "^0.18.0",
-
+        "@codemirror/autocomplete": "^6.0.2",
+        "@codemirror/commands": "^6.0.0",
         "@codemirror/language": "^6.1.0",
+        "@codemirror/lint": "^6.0.0",
+        "@codemirror/search": "^6.0.0",
         "@codemirror/state": "^6.0.1",
         "@codemirror/view": "^6.0.2",
 

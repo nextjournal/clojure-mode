@@ -1,6 +1,6 @@
 (ns nextjournal.clojure-mode.demo
   (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
-            ["@codemirror/history" :refer [history historyKeymap]]
+            ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
             ["@lezer/lr" :as lezer]
