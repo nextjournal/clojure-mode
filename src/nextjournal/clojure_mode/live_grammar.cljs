@@ -1,5 +1,5 @@
 (ns nextjournal.clojure-mode.live-grammar
-  (:require ["lezer-generator" :as lg]
+  (:require ["@lezer/generator" :as lg]
             [shadow.resource :as rc]
             [nextjournal.clojure-mode.node :as n]))
 
@@ -8,4 +8,3 @@
   (lg/buildParser
    (rc/inline "./clojure.grammar")
    #js{:externalProp n/node-prop}))
-
