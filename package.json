@@ -6,7 +6,6 @@
         "@codemirror/comment": "^0.18.0",
 
         "@codemirror/history": "^0.18.0",
-        "@codemirror/language": "^0.18.0",
         "@codemirror/lint": "^0.18.0",
         "@codemirror/matchbrackets": "^0.18.0",
         "@codemirror/rectangular-selection": "^0.18.0",

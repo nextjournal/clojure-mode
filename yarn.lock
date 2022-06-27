@@ -46,26 +46,6 @@
     "@codemirror/text" "^0.18.0"
     "@codemirror/view" "^0.18.0"
 
-"@codemirror/fold@^0.18.0":
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/@codemirror/fold/-/fold-0.18.0.tgz#40fc5195b997bf796f948cc3b4ce92e19b30999d"
-  integrity sha512-qZsl85rp1Wm2ifaw1E25paDRVGr0m2vKRIoUG5mv+G2NxJx6lsuMLgU7MKIJQ+3iDHUR2is2yU8d6lOwwp5IEg==
-  dependencies:
-    "@codemirror/gutter" "^0.18.0"
-    "@codemirror/language" "^0.18.0"
-    "@codemirror/rangeset" "^0.18.0"
-    "@codemirror/state" "^0.18.0"
-    "@codemirror/view" "^0.18.0"
-
-"@codemirror/gutter@^0.18.0":
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/@codemirror/gutter/-/gutter-0.18.0.tgz#b6fb340f7cc7b4ed1a67687e145489b3ed93098d"
-  integrity sha512-9hcKzBM5EjhWwrau5Xiv0ll/yOvkgiyLnH7DTsjFCUvuyfbS45WVEMhQ6C+HfsoRVR4TJqRVLJjaIktZqaAqnw==
-  dependencies:
-    "@codemirror/rangeset" "^0.18.0"
-    "@codemirror/state" "^0.18.0"
-    "@codemirror/view" "^0.18.0"
-
 "@codemirror/history@^0.18.0":
   version "0.18.0"
   resolved "https://registry.yarnpkg.com/@codemirror/history/-/history-0.18.0.tgz#1267499e20f977b5b4179ec2cfd5013d78ab0cbc"
