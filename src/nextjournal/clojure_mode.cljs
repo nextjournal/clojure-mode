@@ -1,13 +1,9 @@
 (ns nextjournal.clojure-mode
-  (:require ["@codemirror/highlight" :as highlight :refer [tags]]
-            ["@codemirror/state" :refer [EditorState]]
-            ["@codemirror/language" :as language]
+  (:require ["@lezer/highlight" :as highlight :refer [tags]]
+            ["@codemirror/language" :as language :refer [LRLanguage]]
             ["@codemirror/view" :as view :refer [EditorView keymap]]
-            ["lezer" :as lezer]
             ["lezer-clojure" :as lezer-clj]
-            ["lezer-tree" :as lz-tree]
             [applied-science.js-interop :as j]
-            [clojure.string :as str]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.formatting :as format]
@@ -15,9 +11,7 @@
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.selections :as sel]
-            [nextjournal.clojure-mode.test-utils :as test-utils]
-            [nextjournal.clojure-mode.util :as u]))
+            [nextjournal.clojure-mode.test-utils :as test-utils]))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
@@ -59,7 +53,7 @@
   ([]
    (syntax parser))
   ([^js parser]
-   (.define language/LezerLanguage
+   (.define LRLanguage
             #js {:parser (.configure parser #js {:props #js [format/props
                                                              (.add language/foldNodeProp fold-node-props)
                                                              (highlight/styleTags style-tags)]})}

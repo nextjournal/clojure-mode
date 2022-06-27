@@ -2,6 +2,7 @@
 .idea
 .calva
 .clj-kondo
+.cpcache
 .lsp
 public/js
 node_modules

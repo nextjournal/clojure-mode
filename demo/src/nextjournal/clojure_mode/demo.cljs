@@ -1,14 +1,11 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/closebrackets" :refer [closeBrackets]]
-            ["@codemirror/fold" :as fold]
-            ["@codemirror/gutter" :refer [lineNumbers]]
-            ["@codemirror/highlight" :as highlight]
+  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
             ["@codemirror/history" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
-            ["lezer" :as lezer]
-            ["lezer-generator" :as lg]
-            ["lezer-tree" :as lz-tree]
+            ["@lezer/lr" :as lezer]
+            ["@lezer/generator" :as lg]
+            ["@lezer/common" :as lz-tree]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
@@ -44,10 +41,9 @@
 
 (defonce extensions #js[theme
                         (history)
-                        highlight/defaultHighlightStyle
+                        (syntaxHighlighting defaultHighlightStyle)
                         (view/drawSelection)
-                                        ;(lineNumbers)
-                        (fold/foldGutter)
+                        (foldGutter)
                         (.. EditorState -allowMultipleSelections (of true))
                         (if false
                           ;; use live-reloading grammar
