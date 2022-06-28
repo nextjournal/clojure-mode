@@ -5,11 +5,21 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 🔧 Install java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11.0.7'
+
+      - name: 🔧 Install clojure
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          cli: '1.10.3.943'
+
+      - name: 🛎 Checkout
         uses: actions/checkout@v2
 
-      - name: yarn Install
+      - name: 🧶 Yarn Install
         run: yarn install
 
-      - name: Run tests
+      - name: 🧪 Run tests
         run: yarn test
