@@ -8,3 +8,4 @@ public/js
 node_modules
 public/test
 *.iml
+out
