@@ -50,8 +50,7 @@
      #js{:externalProp n/node-prop})))
 
 (defn syntax
-  ([]
-   (syntax parser))
+  ([] (syntax parser))
   ([^js parser]
    (.define LRLanguage
             #js {:parser (.configure parser #js {:props #js [format/props

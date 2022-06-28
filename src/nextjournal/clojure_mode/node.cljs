@@ -267,7 +267,7 @@
         node)))
 
 (defn topmost-cursor [state from]
-  (-> (cursor state from 1) .-node up-here .-cursor))
+  (-> (cursor state from 1) .-node up-here .cursor))
 
 (defn terminal-nodes [state from to]
   (let [^js cursor (topmost-cursor state from)]
