@@ -12,7 +12,7 @@
         "@lezer/generator": "^1.0.0",
         "@lezer/common": "^1.0.0",
         "@lezer/highlight": "^1.0.0",
-        "lezer-clojure": "file:../lezer-clojure",
+        "lezer-clojure": "nextjournal/lezer-clojure#2fbed5e427bfdbde4643543118930efdae96e64c",
 
         "platform": "1.3.5",
         "react": "17.0.1",
