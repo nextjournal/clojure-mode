@@ -9,6 +9,8 @@
                                          Transaction]]
             [nextjournal.clojure-mode.selections :as sel]))
 
+(goog-define node-js? false)
+
 (defn user-event-annotation [event-name]
   (.. Transaction -userEvent (of event-name)))
 

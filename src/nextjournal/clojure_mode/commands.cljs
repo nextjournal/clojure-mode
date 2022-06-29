@@ -65,7 +65,8 @@
                        (some-> (first next-children)
                                n/start
                                (> line-end)) (-> (first next-children) n/start))]
-          (copy-to-clipboard! (n/string state from to))
+          (when-not u/node-js?
+            (copy-to-clipboard! (n/string state from to)))
           (when to
             {:cursor from
              :changes {:from from
