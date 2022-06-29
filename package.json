@@ -7,19 +7,28 @@
         "@codemirror/search": "^6.0.0",
         "@codemirror/state": "^6.0.1",
         "@codemirror/view": "^6.0.2",
-
-        "@lezer/lr": "^1.0.0",
-        "@lezer/generator": "^1.0.0",
         "@lezer/common": "^1.0.0",
+        "@lezer/generator": "^1.0.0",
         "@lezer/highlight": "^1.0.0",
+        "@lezer/lr": "^1.0.0",
+        "d3-require": "^1.2.4",
+        "emoji-regex": "^10.0.0",
+        "framer-motion": "^6.2.8",
+        "katex": "^0.12.0",
         "lezer-clojure": "nextjournal/lezer-clojure#adde0e06503917b0ce5a91cfc1c59c012faedcf8",
-
+        "markdown-it": "12.3.2",
+        "markdown-it-block-image": "0.0.3",
+        "markdown-it-sidenote": "git+https://github.com/gerwitz/markdown-it-sidenote.git",
+        "markdown-it-texmath": "0.9.1",
+        "markdown-it-toc-done-right": "4.2.0",
         "platform": "1.3.5",
         "react": "17.0.1",
         "react-dom": "17.0.1",
         "shadow-cljs": "^2.14.4",
         "stacktrace-js": "^2.0.2",
-        "w3c-keyname": "^2.2.4"
+        "w3c-keyname": "^2.2.4",
+
+        "@codemirror/highlight": "0.18.4"
     },
     "scripts": {
         "watch": "shadow-cljs -A:demo watch demo test",
