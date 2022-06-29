@@ -134,9 +134,9 @@
           (when-let [parent (n/closest (n/tree state from)
                                        (every-pred n/coll?
                                                    #(not
-                                                     (case direction 1 (some-> % n/with-prefix n/right n/end-edge?)
-                                                                     -1
-                                                                     (some-> % n/with-prefix n/left n/start-edge?)))))]
+                                                     (case direction
+                                                        1 (some-> % n/with-prefix n/right n/end-edge?)
+                                                       -1 (some-> % n/with-prefix n/left n/start-edge?)))))]
             (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
                                               -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
               {:cursor/mapped from

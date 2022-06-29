@@ -247,8 +247,8 @@
 
 (defn ^js cursor
   ([^js tree] (.cursor tree))
-  ([^js tree pos] (.cursor tree pos))
-  ([^js tree pos dir] (.cursor tree pos dir)))
+  ([^js tree pos] (.cursorAt tree pos))
+  ([^js tree pos dir] (.cursorAt tree pos dir)))
 
 (defn ^js terminal-cursor
   [^js tree pos dir]
