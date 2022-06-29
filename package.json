@@ -26,9 +26,7 @@
         "react-dom": "17.0.1",
         "shadow-cljs": "^2.14.4",
         "stacktrace-js": "^2.0.2",
-        "w3c-keyname": "^2.2.4",
-
-        "@codemirror/highlight": "0.18.4"
+        "w3c-keyname": "^2.2.4"
     },
     "scripts": {
         "watch": "shadow-cljs -A:demo watch demo test",
