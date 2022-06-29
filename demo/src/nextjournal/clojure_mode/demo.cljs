@@ -69,7 +69,6 @@
      (when eval?
        [:div.mt-3.mv-4.pl-6 {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
         (when-some [{:keys [error result]} @last-result]
-          (js/console.log :Result result )
           (cond
             error [:div.red error]
             (react/isValidElement result) result
