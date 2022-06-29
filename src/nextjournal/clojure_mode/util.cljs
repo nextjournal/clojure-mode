@@ -15,7 +15,7 @@
   (.. Transaction -userEvent (of event-name)))
 
 (defn get-user-event-annotation [tr]
-  (.annotation tr (.-userEvent Transaction)))
+  (.annotation ^Transaction tr (.-userEvent Transaction)))
 
 (defn guard [x f] (when (f x) x))
 
