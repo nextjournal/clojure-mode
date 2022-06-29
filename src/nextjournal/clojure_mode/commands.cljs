@@ -1,6 +1,5 @@
 (ns nextjournal.clojure-mode.commands
-  (:require ["@codemirror/commands" :as commands :refer [defaultKeymap]]
-            ["@codemirror/state" :refer [EditorState IndentContext]]
+  (:require ["@codemirror/commands" :as commands]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.selections :as sel]

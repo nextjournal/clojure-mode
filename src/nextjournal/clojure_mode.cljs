@@ -1,7 +1,6 @@
 (ns nextjournal.clojure-mode
   (:require ["@lezer/highlight" :as highlight :refer [tags]]
             ["@codemirror/language" :as language :refer [LRLanguage]]
-            ["@codemirror/view" :as view :refer [EditorView keymap]]
             ["lezer-clojure" :as lezer-clj]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
