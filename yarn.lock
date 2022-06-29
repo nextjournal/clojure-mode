@@ -412,9 +412,9 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-lezer-clojure@nextjournal/lezer-clojure#2fbed5e427bfdbde4643543118930efdae96e64c:
+lezer-clojure@nextjournal/lezer-clojure#adde0e06503917b0ce5a91cfc1c59c012faedcf8:
   version "0.1.11"
-  resolved "https://codeload.github.com/nextjournal/lezer-clojure/tar.gz/2fbed5e427bfdbde4643543118930efdae96e64c"
+  resolved "https://codeload.github.com/nextjournal/lezer-clojure/tar.gz/adde0e06503917b0ce5a91cfc1c59c012faedcf8"
   dependencies:
     "@lezer/lr" "1.0.0"
 
