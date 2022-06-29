@@ -25,7 +25,7 @@ jobs:
         run: yarn test
 
   snapshot:
-    name: Snapshot Static App
+    name: Build Static App
     runs-on: ubuntu-latest
     steps:
       - name: 🛎 Checkout
@@ -63,3 +63,13 @@ jobs:
         with:
           branch: gh-pages     # The branch the action should deploy to.
           folder: public       # The folder the action should deploy.
+
+      - name: ✅ Add success status to report with link to snapshot
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'CI / Stati App URL'
+          description: 'Ready'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://snapshots.nextjournal.com/clojure-mode/build/${{ github.sha }}
