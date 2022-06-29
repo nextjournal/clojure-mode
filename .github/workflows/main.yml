@@ -28,6 +28,9 @@ jobs:
     name: Snapshot Static App
     runs-on: ubuntu-latest
     steps:
+      - name: 🛎 Checkout
+        uses: actions/checkout@v2
+
       - name: 🔐 Google Auth
         uses: google-github-actions/auth@v0
         with:
@@ -45,10 +48,6 @@ jobs:
         uses: DeLaGuardo/setup-clojure@master
         with:
           cli: '1.10.3.943'
-
-      - name: 🛎 Checkout
-        uses: actions/checkout@v2
-
       - name: 🧶 Yarn Install
         run: yarn install
 
