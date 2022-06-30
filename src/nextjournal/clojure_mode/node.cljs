@@ -1,7 +1,7 @@
 (ns nextjournal.clojure-mode.node
   (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve type])
   (:require ["@lezer/common" :as lz-tree]
-            ["lezer-clojure" :as lezer-clj]
+            ["@lezer/clojure" :as lezer-clj]
             ["@codemirror/language" :as language]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]
