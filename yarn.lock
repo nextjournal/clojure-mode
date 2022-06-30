@@ -78,12 +78,6 @@
   resolved "https://registry.yarnpkg.com/@emotion/memoize/-/memoize-0.7.4.tgz#19bf0f5af19149111c40d98bb0cf82119f5d9eeb"
   integrity sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==
 
-"@lezer/clojure@nextjournal/lezer-clojure#bbf5a8a027a12dcc22ecad148eb3e9507c7ca5dd":
-  version "1.0.0-rc.0"
-  resolved "https://codeload.github.com/nextjournal/lezer-clojure/tar.gz/bbf5a8a027a12dcc22ecad148eb3e9507c7ca5dd"
-  dependencies:
-    "@lezer/lr" "^1.0.0"
-
 "@lezer/common@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@lezer/common/-/common-1.0.0.tgz#1c95ae53ec17706aa3cbcc88b52c23f22ed56096"
@@ -486,6 +480,13 @@ katex@^0.12.0:
   integrity sha512-y+8btoc/CK70XqcHqjxiGWBOeIL8upbS0peTPXTvgrh21n1RiWWcIpSWM+4uXq+IAgNh9YYQWdc7LVDPDAEEAg==
   dependencies:
     commander "^2.19.0"
+
+lezer-clojure@1.0.0-rc.0:
+  version "1.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/lezer-clojure/-/lezer-clojure-1.0.0-rc.0.tgz#a12daf3a6fa4669e3d3fe6cf1c4eaadbefd0207f"
+  integrity sha512-m1qKoBkhXcz1jh63vUdi8OwztUzF/lzagWup0FN7MtmFRhvDEjHO7NUyayUEzXDh61R1M6oXQvi+yaYlI3R0yw==
+  dependencies:
+    "@lezer/lr" "^1.0.0"
 
 linkify-it@^3.0.1:
   version "3.0.3"
