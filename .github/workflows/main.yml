@@ -25,7 +25,7 @@ jobs:
         run: yarn test
 
   snapshot:
-    name: Build Static App
+    name: Static App / Build
     runs-on: ubuntu-latest
     steps:
       - name: 🛎 Checkout
@@ -68,7 +68,7 @@ jobs:
         uses: Sibz/github-status-action@v1
         with:
           authToken: ${{secrets.GITHUB_TOKEN}}
-          context: 'CI / Stati App URL'
+          context: 'CI / Static App / URL'
           description: 'Ready'
           state: 'success'
           sha: ${{github.event.pull_request.head.sha || github.sha}}
