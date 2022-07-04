@@ -481,9 +481,9 @@ katex@^0.12.0:
   dependencies:
     commander "^2.19.0"
 
-lezer-clojure@nextjournal/lezer-clojure#cc6aa7c96392422c70b721a42d974c07423399f3:
+lezer-clojure@nextjournal/lezer-clojure#49dd732c3953a14d9f748fe8923deaceb25b4ac3:
   version "1.0.0-rc.1"
-  resolved "https://codeload.github.com/nextjournal/lezer-clojure/tar.gz/cc6aa7c96392422c70b721a42d974c07423399f3"
+  resolved "https://codeload.github.com/nextjournal/lezer-clojure/tar.gz/49dd732c3953a14d9f748fe8923deaceb25b4ac3"
   dependencies:
     "@lezer/lr" "^1.0.0"
 

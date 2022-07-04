@@ -147,6 +147,8 @@
         (.prop node-type prefix-coll-prop) false
         (.prop node-type coll-prop) false
         (identical? "Meta" (name node-type)) false
+        (identical? "TaggedLiteral" (name node-type)) false
+        (identical? "ConstructorCall" (name node-type)) false
         :else true))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
