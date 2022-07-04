@@ -15,7 +15,7 @@
         "emoji-regex": "^10.0.0",
         "framer-motion": "^6.2.8",
         "katex": "^0.12.0",
-        "lezer-clojure": "1.0.0-rc.0",
+        "lezer-clojure": "nextjournal/lezer-clojure#cc6aa7c96392422c70b721a42d974c07423399f3",
         "markdown-it": "12.3.2",
         "markdown-it-block-image": "0.0.3",
         "markdown-it-sidenote": "git+https://github.com/gerwitz/markdown-it-sidenote.git",
