@@ -54,10 +54,7 @@
    (.define LRLanguage
             #js {:parser (.configure parser #js {:props #js [format/props
                                                              (.add language/foldNodeProp fold-node-props)
-                                                             (highlight/styleTags style-tags)]})}
-            (j/lit
-             {:languageData
-              {:commentTokens {:line ";;"}}}))))
+                                                             (highlight/styleTags style-tags)]})})))
 
 (def ^js/Array complete-keymap keymap/complete)
 (def ^js/Array builtin-keymap keymap/builtin)
