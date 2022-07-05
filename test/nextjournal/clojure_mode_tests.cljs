@@ -8,7 +8,9 @@
             [nextjournal.clojure-mode.live-grammar :as live-grammar]))
 
 (def extensions
-  #_cm-clojure/default-extensions
+  cm-clojure/default-extensions
+  ;; optionally test with live grammar
+  #_
   #js[(cm-clojure/syntax live-grammar/parser)
       (.slice cm-clojure/default-extensions 1)])
 
