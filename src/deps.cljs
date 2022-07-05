@@ -14,7 +14,6 @@
   "platform" "1.3.5"
   "react" "17.0.1"
   "react-dom" "17.0.1"
-  "shadow-cljs" "^2.14.4"
   "stacktrace-js" "^2.0.2"
   "w3c-keyname" "^2.2.4"
   }}
