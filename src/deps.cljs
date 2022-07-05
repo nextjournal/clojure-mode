@@ -10,7 +10,7 @@
   "@lezer/generator" "^1.0.0"
   "@lezer/highlight" "^1.0.0"
   "@lezer/lr" "^1.0.0"
-  "lezer-clojure" "nextjournal/lezer-clojure#49dd732c3953a14d9f748fe8923deaceb25b4ac3"
+  "lezer-clojure" "1.0.0-rc.1"
   "platform" "1.3.5"
   "react" "17.0.1"
   "react-dom" "17.0.1"
