@@ -20,9 +20,9 @@
       :Map coll-span
       :List coll-span})))
 
-
 (def style-tags
-  (clj->js {:DefLike (.-keyword tags)
+  (clj->js {:NS (.-keyword tags)
+            :DefLike (.-keyword tags)
             "Operator/Symbol" (.-keyword tags)
             "VarName/Symbol" (.definition tags (.-variableName tags))
             :Boolean (.-atom tags)
