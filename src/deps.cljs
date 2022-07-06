@@ -11,9 +11,4 @@
   "@lezer/highlight" "^1.0.0"
   "@lezer/lr" "^1.0.0"
   "lezer-clojure" "1.0.0-rc.1"
-  "platform" "1.3.5"
-  "react" "17.0.1"
-  "react-dom" "17.0.1"
-  "stacktrace-js" "^2.0.2"
-  "w3c-keyname" "^2.2.4"
-  }}
+  "w3c-keyname" "^2.2.4"}}
