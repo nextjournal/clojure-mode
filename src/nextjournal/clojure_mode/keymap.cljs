@@ -1,6 +1,5 @@
 (ns nextjournal.clojure-mode.keymap
-  (:require ["@codemirror/commands" :as commands :refer [defaultKeymap]]
-            [clojure.set :as set]
+  (:require ["@codemirror/commands" :as commands]
             [nextjournal.clojure-mode.commands :as cmd]))
 
 (defn update-some

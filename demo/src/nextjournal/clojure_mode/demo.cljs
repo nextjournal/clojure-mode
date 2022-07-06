@@ -1,26 +1,18 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/closebrackets" :refer [closeBrackets]]
-            ["@codemirror/fold" :as fold]
-            ["@codemirror/gutter" :refer [lineNumbers]]
-            ["@codemirror/highlight" :as highlight]
-            ["@codemirror/history" :refer [history historyKeymap]]
+  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
+            ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
-            ["lezer" :as lezer]
-            ["lezer-generator" :as lg]
-            ["lezer-tree" :as lz-tree]
+            [nextjournal.clerk.sci-viewer :as sv]
+            [nextjournal.clerk.viewer :as clerk.viewer]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
-            [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
-            [nextjournal.clojure-mode.extensions.formatting :as format]
-            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
-            [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.selections :as sel]
             [nextjournal.clojure-mode.test-utils :as test-utils]
+            [react]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
@@ -44,10 +36,9 @@
 
 (defonce extensions #js[theme
                         (history)
-                        highlight/defaultHighlightStyle
+                        (syntaxHighlighting defaultHighlightStyle)
                         (view/drawSelection)
-                                        ;(lineNumbers)
-                        (fold/foldGutter)
+                        (foldGutter)
                         (.. EditorState -allowMultipleSelections (of true))
                         (if false
                           ;; use live-reloading grammar
@@ -77,7 +68,11 @@
             :style {:max-height 410}}]
      (when eval?
        [:div.mt-3.mv-4.pl-6 {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-        (prn-str @last-result)])]
+        (when-some [{:keys [error result]} @last-result]
+          (cond
+            error [:div.red error]
+            (react/isValidElement result) result
+            'else (sv/inspect-paginated result)))])]
     (finally
       (j/call @!view :destroy))))
 

@@ -14,5 +14,12 @@
                  ;; sometimes I get weird $jscomp.inherits errors, which can be fixed
                  ;; by temporarily uncommenting the following forms in each build.
                  #_#_:js-options
-                 {:resolve {"lezer-clojure" {:target :npm
-                                             :require "lezer-clojure/dist/index.cjs"}}}}}}
+                         {:resolve {"lezer-clojure" {:target :npm
+                                                     :require "lezer-clojure/dist/index.cjs"}}}}
+          :ci-test {:target :node-test
+                    :ns-regexp "-tests$"
+                    :output-dir "out"
+                    :output-to "out/node-tests.js"
+                    :compiler-options {:optimizations :simple}
+                    :closure-defines {nextjournal.clojure-mode.util/node-js? true}
+                    :js-options {:output-feature-set :es8}}}}

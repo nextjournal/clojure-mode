@@ -1,10 +1,8 @@
 (ns nextjournal.clojure-mode.node
   (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve type])
-  (:require ["lezer-tree" :as lz-tree]
-            ["lezer" :as lezer]
+  (:require ["@lezer/common" :as lz-tree]
             ["lezer-clojure" :as lezer-clj]
             ["@codemirror/language" :as language]
-            [clojure.core :as core]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.selections :as sel]))
@@ -149,6 +147,8 @@
         (.prop node-type prefix-coll-prop) false
         (.prop node-type coll-prop) false
         (identical? "Meta" (name node-type)) false
+        (identical? "TaggedLiteral" (name node-type)) false
+        (identical? "ConstructorCall" (name node-type)) false
         :else true))
 
 (j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
@@ -249,8 +249,8 @@
 
 (defn ^js cursor
   ([^js tree] (.cursor tree))
-  ([^js tree pos] (.cursor tree pos))
-  ([^js tree pos dir] (.cursor tree pos dir)))
+  ([^js tree pos] (.cursorAt tree pos))
+  ([^js tree pos dir] (.cursorAt tree pos dir)))
 
 (defn ^js terminal-cursor
   [^js tree pos dir]
@@ -269,7 +269,7 @@
         node)))
 
 (defn topmost-cursor [state from]
-  (-> (cursor state from 1) .-node up-here .-cursor))
+  (-> (cursor state from 1) .-node up-here .cursor))
 
 (defn terminal-nodes [state from to]
   (let [^js cursor (topmost-cursor state from)]

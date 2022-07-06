@@ -1,16 +1,19 @@
-{:npm-deps {"@codemirror/autocomplete" "^0.18.0",
-            "@codemirror/closebrackets" "^0.18.0",
-            "@codemirror/commands" "^0.18.0",
-            "@codemirror/comment" "^0.18.0",
-            "@codemirror/fold" "^0.18.0",
-            "@codemirror/gutter" "^0.18.0",
-            "@codemirror/highlight" "^0.18.0",
-            "@codemirror/history" "^0.18.0",
-            "@codemirror/language" "^0.18.0",
-            "@codemirror/lint" "^0.18.0",
-            "@codemirror/matchbrackets" "^0.18.0",
-            "@codemirror/rectangular-selection" "^0.18.0",
-            "@codemirror/search" "^0.18.0",
-            "@codemirror/state" "^0.18.0",
-            "@codemirror/view" "^0.18.0",
-            "lezer-clojure" "0.1.10"}}
+{:npm-deps
+ {"@codemirror/autocomplete" "^6.0.2"
+  "@codemirror/commands" "^6.0.0"
+  "@codemirror/language" "^6.1.0"
+  "@codemirror/lint" "^6.0.0"
+  "@codemirror/search" "^6.0.0"
+  "@codemirror/state" "^6.0.1"
+  "@codemirror/view" "^6.0.2"
+  "@lezer/common" "^1.0.0"
+  "@lezer/generator" "^1.0.0"
+  "@lezer/highlight" "^1.0.0"
+  "@lezer/lr" "^1.0.0"
+  "lezer-clojure" "1.0.0-rc.1"
+  "platform" "1.3.5"
+  "react" "17.0.1"
+  "react-dom" "17.0.1"
+  "stacktrace-js" "^2.0.2"
+  "w3c-keyname" "^2.2.4"
+  }}

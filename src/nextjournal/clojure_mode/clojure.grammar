@@ -7,9 +7,10 @@
 @top Program { expression* }
 
 @skip { whitespace | LineComment | Discard }
-expression { Constructor | Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | DataLiteral | SymbolicValue | AnonymousFunction | Meta<expression> }
+
+expression { Boolean | Nil | Deref | Quote | SyntaxQuote | Unquote | UnquoteSplice | Symbol | Number | Keyword | List | Vector | Map | String | Character | Set | NamespacedMap | RegExp | Var | ReaderConditional | SymbolicValue | AnonymousFunction | Meta<expression> | TaggedLiteral<expression> | ConstructorCall }
 Discard { "#_" expression }
-@precedence { docString @left, operator @left, meta @right, prefixLiteral @right }
+@precedence { docString @left, operator @left, meta @right}
 
 listContents {
    defList { defLikeWithMeta varNameWithMeta (DocString expression+ | expression+)? } |
@@ -22,53 +23,16 @@ Vector[coll] { "[" expression* "]" }
 Map[coll] { "{" expression* "}" }
 VarName { Symbol }
 
-coll[@isGroup=Coll] {
-  List | Vector | Map
-}
-prefixColl[@isGroup=PrefixColl] {
-  Set |
-  AnonymousFunction |
-  NamespacedMap |
-  Constructor |
-  ReaderConditional |
-  ReaderMetadata |
-  Metadata |
-  Deref |
-  Quote |
-  SyntaxQuote |
-  Unquote |
-  UnquoteSplice
-}
-
-prefixEdge[@isGroup=PrefixEdge] {
- KeywordPrefix |
- ConstructorPrefix |
- "#" |
- "##" |
- "#'" |
- "#?" |
- "#^" |
- "#_" |
- "'" |
- "`" |
- "~" |
- "~@" |
- "^" |
- "@"
-}
-
 @skip {} {
-  dataLiteral { "#" ident }
-  DataLiteral { dataLiteral }
+  ReaderTag { "#" readerTagIdent }
+  ConstructorPrefix[prefixEdge] { "#" qualifiedJavaIdent }
+
   SymbolicValue { "##" ident }
   Set[prefixColl] { "#" Map }
   AnonymousFunction[prefixColl] { "#" List }
 
   KeywordPrefix[prefixEdge] { "#" keyword }
   NamespacedMap[prefixColl] { KeywordPrefix Map }
-
-  ConstructorPrefix[prefixEdge] { !prefixLiteral  dataLiteral }
-  Constructor[prefixColl] { ConstructorPrefix (Vector | Map) }
 
   RegExp[prefixColl] { "#" String }
   Var[prefixColl] { "#'" Symbol }
@@ -79,6 +43,10 @@ prefixEdge[@isGroup=PrefixEdge] {
 }
 
 Meta[prefixContainer]<t> { (Metadata | ReaderMetadata) !meta t }
+TaggedLiteral[prefixContainer]<t> { ReaderTag t }
+
+// https://clojure.org/reference/reader#_deftype_defrecord_and_constructor_calls_version_1_3_and_later
+ConstructorCall[prefixContainer] { ConstructorPrefix (Map | Vector) }
 
 Deref[prefixColl] { "@" expression }
 Quote[prefixColl] { "'" expression }
@@ -122,6 +90,18 @@ Operator { !operator Symbol }
 
   LineComment { ";" ![\n]* }
 
+  // https://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.8
+  // class or constructor names
+  javaIdentStart { std.asciiLetter | "_" | "$" | $[\u{a1}-\u{10ff}] }
+  javaIdentChar { javaIdentStart | std.digit }
+  javaIdent { javaIdentStart javaIdentChar* }
+  qualifiedJavaIdent { javaIdent ("." javaIdent)+ }
+
+  // reader tags cannot contain dots
+  readerTagIdentStart { std.asciiLetter | $[<>&%_=?!*+\-$\u{a1}-\u{10ff}] }
+  readerTagIdentChar { readerTagIdentStart | "/" | std.digit }
+  readerTagIdent { readerTagIdentStart readerTagIdentChar* }
+
   identStart { std.asciiLetter | $[<>&%._=?!*+\-$\u{a1}-\u{10ff}/] }
   identChar { identStart | std.digit | ":" | "'" | "#" | "/"}
   ident { identStart identChar* }
@@ -138,13 +118,17 @@ Operator { !operator Symbol }
     "0b" $[01]+ |
     "0o" $[0-7]+
   }
-  @precedence { Number, Symbol }
+  @precedence { Number, qualifiedJavaIdent, readerTagIdent, Symbol }
 
   StringContent {
     (!["] | "\\" _)+
   }
 
-  Character { "\\" (std.asciiLetter | std.digit | "@")+ }
+  unicodeChar { "u" $[0-9a-fA-F] $[0-9a-fA-F] $[0-9a-fA-F] $[0-9a-fA-F]}
+  octalChar { "o" $[0-3]? $[0-7] $[0-7]? }
+  specialChar { "newline" | "space" | "tab" | "formfeed" | "backspace" | "return" }
+  singleChar { ![\n] }
+  Character { "\\" ( octalChar | unicodeChar |  singleChar | specialChar ) }
 
 }
 

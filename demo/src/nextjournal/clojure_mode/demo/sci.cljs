@@ -1,17 +1,16 @@
 (ns nextjournal.clojure-mode.demo.sci
   (:require ["@codemirror/view" :as view]
             [applied-science.js-interop :as j]
-            [sci.core :as sci]
-            [nextjournal.clojure-mode.node :as n]
+            [clojure.string :as str]
+            [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
-            [nextjournal.clojure-mode.util :as u]))
-
-(defonce context (sci/init {}))
+            [sci.core :as sci]))
 
 (defn eval-string [source]
-  (try (sci/eval-string* context source)
-       (catch js/Error e
-         (str e))))
+  (when-some [code (not-empty (str/trim source))]
+    (try {:result (sci/eval-string* @sv/!sci-ctx code)}
+         (catch js/Error e
+           {:error (str (.-message e))}))))
 
 (j/defn eval-at-cursor [on-result ^:js {:keys [state]}]
   (some->> (eval-region/cursor-node-string state)
@@ -26,7 +25,8 @@
   true)
 
 (j/defn eval-cell [on-result ^:js {:keys [state]}]
-  (-> (str "(do " (.-doc state) " )")
+  (-> (.-doc state)
+      (str)
       (eval-string)
       (on-result))
   true)

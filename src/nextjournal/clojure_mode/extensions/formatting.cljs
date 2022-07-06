@@ -153,10 +153,10 @@
   (let [origin (u/get-user-event-annotation tr)]
     (if-let [changes
              (case origin
-               ("input"
+               ("input" "input.type"
                 "delete"
                 "keyboardselection"
-                "pointerselection"
+                "pointerselection" "select.pointer"
                 "cut"
                 "noformat"
                 "evalregion") nil
@@ -178,6 +178,4 @@
   (u/update-lines state
     (fn [from _ _] #js{:from from :insert prefix})))
 
-(defn ext-format-changed-lines []
-                                        ; EditorState.transactionFilter.of
-  (.. EditorState -transactionFilter (of format-transaction)))
+(defn ext-format-changed-lines [] (.. EditorState -transactionFilter (of format-transaction)))

@@ -6,14 +6,9 @@
                                          Transaction
                                          CharCategory
                                          Extension]]
-            ["@codemirror/text" :as text :refer [Text]]
             [applied-science.js-interop :as j]
-            [nextjournal.clojure-mode.selections :as sel]
             [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.chars :as chars]
             [nextjournal.clojure-mode.util :as u :refer [from-to]]
-            [nextjournal.clojure-mode.test-utils :as test-utils]
-            [nextjournal.clojure-mode.commands :as commands]
             [clojure.string :as str]))
 
 (defn in-string? [state pos]

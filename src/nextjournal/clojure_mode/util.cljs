@@ -9,11 +9,13 @@
                                          Transaction]]
             [nextjournal.clojure-mode.selections :as sel]))
 
+(goog-define node-js? false)
+
 (defn user-event-annotation [event-name]
   (.. Transaction -userEvent (of event-name)))
 
 (defn get-user-event-annotation [tr]
-  (.annotation tr (.-userEvent Transaction)))
+  (.annotation ^Transaction tr (.-userEvent Transaction)))
 
 (defn guard [x f] (when (f x) x))
 
