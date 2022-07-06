@@ -31,7 +31,7 @@
     (.setAttribute input-el "class" "clipboard-input")
     (j/assoc! input-el :innerHTML text)
     (-> js/document .-body (.appendChild input-el))
-    (.focus input-el)
+    (.focus input-el #js {:preventScroll true})
     (.select input-el)
     (js/document.execCommand "copy")
     (.focus focus-el #js {:preventScroll true})
