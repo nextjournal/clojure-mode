@@ -14,6 +14,7 @@ Discard { "#_" expression }
 
 listContents {
    defList { defLikeWithMeta varNameWithMeta (DocString expression+ | expression+)? } |
+   nsList { nsWithMeta varNameWithMeta (DocString expression* | expression*) } |
    anyList { operatorWithMeta? expression* }
  }
 
@@ -55,6 +56,7 @@ Unquote[prefixColl] { "~" expression }
 UnquoteSplice[prefixColl] { "~@" expression }
 operatorWithMeta { Operator | Meta<operatorWithMeta> }
 defLikeWithMeta { DefLike | Meta<defLikeWithMeta> }
+nsWithMeta { NS | Meta<nsWithMeta> }
 varNameWithMeta { VarName | Meta<varNameWithMeta> }
 
 Operator { !operator Symbol }
@@ -135,5 +137,6 @@ Operator { !operator Symbol }
 Boolean { @specialize<Symbol, "true" | "false"> }
 Nil { @specialize<Symbol, "nil"> }
 DefLike[@dynamicPrecedence=1] { @extend<Symbol, "def" | "defn" | "defn-" | "defmacro" | "definline" | "defonce" | "deftest" | "defcard"> }
+NS[@dynamicPrecedence=2] { @extend<Symbol, "ns"> }
 
 @detectDelim

@@ -8,3 +8,9 @@
   (lg/buildParser
    (rc/inline "./clojure.grammar")
    #js{:externalProp n/node-prop}))
+
+(comment
+  (.parse parser "(def foo)")
+  (.parse parser "(ns foo)")
+  (.parse parser "(foo bar)")
+  )
