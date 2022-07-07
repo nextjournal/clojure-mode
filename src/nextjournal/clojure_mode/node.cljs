@@ -244,8 +244,8 @@
 
 (defn ^js tree
   ([^js state] (language/syntaxTree state))
-  ([^js state pos] (-> state language/syntaxTree (.resolve pos)))
-  ([^js state pos dir] (-> state language/syntaxTree (.resolve pos dir))))
+  ([^js state pos] (-> state language/syntaxTree (.resolveInner pos)))
+  ([^js state pos dir] (-> state language/syntaxTree (.resolveInner pos dir))))
 
 (defn ^js cursor
   ([^js tree] (.cursor tree))

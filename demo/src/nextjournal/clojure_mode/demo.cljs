@@ -1,10 +1,10 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
+  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport]]
+            ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState]]
-            ["@codemirror/view" :as view :refer [EditorView]]
+            ["@codemirror/view" :as view :refer [EditorView ViewPlugin]]
             [nextjournal.clerk.sci-viewer :as sv]
-            [nextjournal.clerk.viewer :as clerk.viewer]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
@@ -12,7 +12,7 @@
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
-            [react]
+            ["react" :as react]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
@@ -76,6 +76,35 @@
     (finally
       (j/call @!view :destroy))))
 
+(defn update-plugin [doc-update _view] (j/obj :update (fn [update] (doc-update (.. update -state -doc toString)))))
+
+;; syntax (an LRParser) + support (a set of extensions)
+(def clojure-lang (LanguageSupport. (cm-clj/syntax)
+                                    (.. cm-clj/default-extensions (slice 1))))
+
+(defn markdown-editor [{:keys [doc-update doc editable?] :or {editable? true}}]
+  [:div {:ref (fn [el]
+                (when el
+                  (let [prev-view (j/get el :editorView)]
+                    (when (or (nil? prev-view)
+                              (and (not editable?)
+                                   (not= doc (.. prev-view -state toString))))
+                      (some-> prev-view (j/call :destroy))
+                      (j/assoc! el :editorView
+                                (EditorView. (j/obj :parent el
+                                                    :state (.create EditorState
+                                                                    (j/obj :doc (str/trim doc)
+                                                                           :extensions (into-array
+                                                                                        (cond-> [(syntaxHighlighting defaultHighlightStyle)
+                                                                                                 (.. EditorState -allowMultipleSelections (of editable?))
+                                                                                                 (foldGutter)
+                                                                                                 (.. EditorView -editable (of editable?))
+                                                                                                 (.of view/keymap cm-clj/complete-keymap)
+                                                                                                 (markdown (j/obj :base markdownLanguage
+                                                                                                                  :defaultCodeLanguage clojure-lang))
+                                                                                                 theme]
+                                                                                          doc-update
+                                                                                          (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
 
 (defn samples []
   (into [:<>]
@@ -163,6 +192,24 @@
                     (set! (.-innerHTML %) k)))))
 
   (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
+  (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+                [markdown-editor {:doc "# ✏️ Hello Markdown
+
+Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
+have an editor with ~~mono~~ _mixed language support_.
+
+```clojure
+(defn the-answer
+  \"to all questions\"
+  []
+  (inc 41))
+```
+
+## Todo
+- [x] resolve **inner nodes**
+- [ ] fix extra spacing when autoformatting
+- [ ] etc etc.
+"}]] (js/document.getElementById "markdown-editor"))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
