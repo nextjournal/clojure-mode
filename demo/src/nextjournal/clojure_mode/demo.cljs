@@ -2,8 +2,8 @@
   (:require ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport]]
-            ["@codemirror/state" :refer [EditorState]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin]]
+            ["@codemirror/state" :refer [EditorState StateField StateEffect]]
+            ["@codemirror/view" :as view :refer [Decoration EditorView ViewPlugin keymap]]
             ["react" :as react]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
@@ -76,11 +76,50 @@
     (finally
       (j/call @!view :destroy))))
 
-(defn update-plugin [doc-update _view] (j/obj :update (fn [update] (doc-update (.. update -state -doc toString)))))
+(defn update-plugin [doc-update _view] (j/obj :update (fn [update]
+                                                        (js/console.log "duddde")
+                                                        (doc-update (.. update -state -doc toString)))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
                                     (.. cm-clj/default-extensions (slice 1))))
+
+(def add-underline (.define StateEffect))
+
+(def underline-mark (.mark Decoration #js {:class "cm-underline"}))
+
+(def underline-field
+  (.define StateField
+           #js {:create (fn [] (.-none Decoration))
+                :update (fn [underlines tr]
+                          (let [underlines (.map underlines (.-changes tr))
+                                ]
+                            (doseq [e (.-effects tr)]
+                              (when (.is e add-underline)
+                                (let [underlines (.update underlines #js
+                                                          {:add #js [(.range underline-mark
+                                                                             (-> e .-value .-from)
+                                                                             (-> e .-value .-to))]})]
+                                  underlines)))))
+                :provide (fn [f] (-> EditorView (.-decorations) (.from f)))}))
+
+(def underline-theme (.baseTheme EditorView #js {".cm-underline" #js {:textDecoration "underline 3px red"}}))
+
+(defn underline-selection [view]
+  (let [effects (-> view (.-state) (.-selection) (.-ranges)
+                    (.filter #(not (.-empty %)))
+                    (.map (fn [range]
+                            (.of add-underline range))))]
+    (when (pos? (.-length effects))
+      (when-not (-> view (.-state) (.field underline-field false))
+        (.push effects (-> StateEffect (.-appendConfig) (.of #js [underline-field underline-theme])))))
+    (.dispatch view)
+    true))
+
+(def underlineKeyMap (.of keymap #js [ #js {:key "Ctrl-h"
+                                            :preventDefault true
+                                            :run underline-selection}]))
+
 
 (defn markdown-editor [{:keys [doc-update doc editable?] :or {editable? true}}]
   [:div {:ref (fn [el]
@@ -96,13 +135,14 @@
                                                                     (j/obj :doc (str/trim doc)
                                                                            :extensions (into-array
                                                                                         (cond-> [(syntaxHighlighting defaultHighlightStyle)
-                                                                                                 (.. EditorState -allowMultipleSelections (of editable?))
-                                                                                                 (foldGutter)
+                                                                                                 #_(.. EditorState -allowMultipleSelections (of editable?))
+                                                                                                 #_(foldGutter)
                                                                                                  (.. EditorView -editable (of editable?))
-                                                                                                 (.of view/keymap cm-clj/complete-keymap)
-                                                                                                 (markdown (j/obj :base markdownLanguage
+                                                                                                 #_(.of view/keymap cm-clj/complete-keymap)
+                                                                                                 #_(markdown (j/obj :base markdownLanguage
                                                                                                                   :defaultCodeLanguage clojure-lang))
-                                                                                                 theme]
+                                                                                                 theme
+                                                                                                 underlineKeyMap]
                                                                                           doc-update
                                                                                           (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
 
@@ -178,6 +218,8 @@
                           (render-key (str "Shift-" key))]
                          [:td.px-3.py-1.align-top.text-sm]
                          [:td.px-3.py-1.align-top]])]))))])
+
+
 
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
