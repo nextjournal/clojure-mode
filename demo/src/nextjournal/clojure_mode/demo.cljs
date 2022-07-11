@@ -81,7 +81,7 @@
                                                         (doc-update (.. update -state -doc toString)))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
-(def clojure-lang (LanguageSupport. (cm-clj/syntax)
+#_(def clojure-lang (LanguageSupport. (cm-clj/syntax)
                                     (.. cm-clj/default-extensions (slice 1))))
 
 (def add-underline (.define StateEffect))
@@ -92,6 +92,7 @@
   (.define StateField
            #js {:create (fn [] (.-none Decoration))
                 :update (fn [underlines tr]
+                          (js/console.log "tr" tr)
                           (let [underlines (.map underlines (.-changes tr))
                                 ]
                             (doseq [e (.-effects tr)]
@@ -110,10 +111,12 @@
                     (.filter #(not (.-empty %)))
                     (.map (fn [range]
                             (.of add-underline range))))]
+    (prn (count effects))
     (when (pos? (.-length effects))
       (when-not (-> view (.-state) (.field underline-field false))
         (.push effects (-> StateEffect (.-appendConfig) (.of #js [underline-field underline-theme])))))
-    (.dispatch view)
+    (js/console.log effects)
+    (.dispatch view #js {:effects effects})
     true))
 
 (def underlineKeyMap (.of keymap #js [ #js {:key "Ctrl-h"
@@ -131,17 +134,19 @@
                       (some-> prev-view (j/call :destroy))
                       (j/assoc! el :editorView
                                 (EditorView. (j/obj :parent el
+                                                    :extensions #js [underlineKeyMap]
                                                     :state (.create EditorState
                                                                     (j/obj :doc (str/trim doc)
                                                                            :extensions (into-array
-                                                                                        (cond-> [(syntaxHighlighting defaultHighlightStyle)
+                                                                                        (cond-> [
+                                                                                                 #_(syntaxHighlighting defaultHighlightStyle)
                                                                                                  #_(.. EditorState -allowMultipleSelections (of editable?))
                                                                                                  #_(foldGutter)
-                                                                                                 (.. EditorView -editable (of editable?))
+                                                                                                 #_(.. EditorView -editable (of editable?))
                                                                                                  #_(.of view/keymap cm-clj/complete-keymap)
                                                                                                  #_(markdown (j/obj :base markdownLanguage
                                                                                                                   :defaultCodeLanguage clojure-lang))
-                                                                                                 theme
+                                                                                                 #_theme
                                                                                                  underlineKeyMap]
                                                                                           doc-update
                                                                                           (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
