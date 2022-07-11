@@ -1,18 +1,18 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport]]
+  (:require ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
-            ["@codemirror/commands" :refer [history historyKeymap]]
+            ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin]]
-            [nextjournal.clerk.sci-viewer :as sv]
+            ["react" :as react]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
+            [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
-            ["react" :as react]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
@@ -72,7 +72,7 @@
           (cond
             error [:div.red error]
             (react/isValidElement result) result
-            'else (sv/inspect-paginated result)))])]
+            :else (sv/inspect-paginated result)))])]
     (finally
       (j/call @!view :destroy))))
 
