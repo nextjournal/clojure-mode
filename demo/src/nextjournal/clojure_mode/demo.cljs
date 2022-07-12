@@ -2,12 +2,11 @@
   (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport syntaxTree]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
-            ["@codemirror/state" :refer [EditorState StateField]]
+            ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction]]
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration DecorationSet WidgetType]]
             ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
             [applied-science.js-interop :as j]
-            [goog.object :as gobject]
             [shadow.cljs.modern :refer (defclass)]
             [clojure.string :as str]
             [nextjournal.markdown :as md]
@@ -18,7 +17,6 @@
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
             ["react" :as react]
-
             [reagent.core :as r]
             [reagent.dom :as rdom]
             [reagent.dom.server :as rdom.server]))
@@ -118,14 +116,21 @@
         (not= doc-end (:to to))
         (conj {:from to :to doc-end :type :markdown})))))
 
-(defn render-markdown [text view]
+(def dbg (atom nil))
+
+(defn render-markdown [widget text view]
   (let [el (js/document.createElement "div")]
     (js/console.log :render-markdown/view view )
+    (reset! dbg view)
     (rdom/render [:div.flex.border.m-2.p-2
                   [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold
-                   {:on-click (fn [e]
-                                ;; TODO: dispatch annotatated view event or effect
-                                )} "edit"]
+                   ;; MAYBE: just on cursor enter
+                   {:on-click (fn [_]
+                                (.dispatch view
+                                           (j/obj :annotations
+                                                  (.. Transaction -userEvent
+                                                      (of {:type :edit-widget
+                                                           :widget widget})))))} "edit"]
                   (md/->hiccup text)] el)
     el))
 
@@ -134,8 +139,8 @@
   (constructor [this {:keys [from to state type]}]
     (j/assoc! this
               :from from :to to
-              :ignoreEvent (fn [] false)
-              :toDOM (partial render-markdown (.. ^js state -doc (sliceString from to))))))
+              :ignoreEvent (fn [] true)
+              :toDOM (partial render-markdown this (.. ^js state -doc (sliceString from to))))))
 
 (defn widgets [state]
   (.set Decoration
@@ -151,24 +156,20 @@
   (.define StateField
            (j/lit {:create (fn [state] (widgets state))
                    :update (fn [decos ^js tr]
-                             (let [clicked? (when-not (.-docChanged tr)
-                                              (->> tr .-annotations (some #(= "select.pointer" (.-value %)))))
-                                   clicked-at (when clicked? (some-> tr .-selection .-main .-head))]
-                               (js/console.log :update/tr tr
-                                               :clicked-at clicked-at
-                                               :update/selected-at
-                                               (some-> tr .-selection .-main .-head)
-                                               :changed? (.-docChanged tr))
-                               (if clicked-at
+                             (let [clicked-widget
+                                   (when-not (.-docChanged tr)
+                                     (->> tr .-annotations
+                                          (some #(and (= :edit-widget (:type (.-value %)))
+                                                      (:widget (.-value %))))))]
+                               (js/console.log :update/tr tr :widget clicked-widget)
+                               (if clicked-widget
                                  (.update decos
                                           (j/obj :filter
-                                                 (fn [from to value]
-                                                   (js/console.log :widget/from (.. value -widget -from)
-                                                                   :widget/to (.. value -widget -to))
-                                                   (if (= clicked-at (.. value -widget -to))
-                                                     false
-                                                     true))))
-                                 ;; TODO: call widgets from state
+                                                 (fn [_ _ value]
+                                                   (js/console.log :w (.-widget value) )
+                                                   ;; TODO: eq check
+                                                   true)))
+                                 ;; TODO: call widgets from state on updates
                                  decos)))
                    :provide (fn [state] (.. EditorView -decorations (from state)))})))
 
