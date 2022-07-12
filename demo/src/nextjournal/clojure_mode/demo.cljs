@@ -92,34 +92,46 @@
   (.define StateField
            #js {:create (fn [] (.-none Decoration))
                 :update (fn [underlines tr]
-                          (js/console.log "tr" tr)
-                          (let [underlines (.map underlines (.-changes tr))
-                                ]
-                            (doseq [e (.-effects tr)]
-                              (when (.is e add-underline)
-                                (let [underlines (.update underlines #js
-                                                          {:add #js [(.range underline-mark
-                                                                             (-> e .-value .-from)
-                                                                             (-> e .-value .-to))]})]
-                                  underlines)))))
+                          (let [underlines (.map underlines (.-changes tr))]
+                            (reduce (fn [underlines e]
+                                      (if (.is e add-underline)
+                                        (let [underlines
+                                              (.update underlines
+                                                       (do
+                                                         (prn :>
+                                                              (-> e .-value .-from)
+                                                              (-> e .-value .-to))
+                                                         #js {:add #js [(.range underline-mark
+                                                                                (-> e .-value .-from)
+                                                                                (-> e .-value .-to))]}))]
+                                          underlines)
+                                        underlines))
+                                    underlines
+                                    (.-effects tr))
+                            underlines))
                 :provide (fn [f] (-> EditorView (.-decorations) (.from f)))}))
 
-(def underline-theme (.baseTheme EditorView #js {".cm-underline" #js {:textDecoration "underline 3px red"}}))
+(def underline-theme
+  (.baseTheme EditorView #js {".cm-underline" #js {:textDecoration "underline 3px red"}}))
 
 (defn underline-selection [view]
   (let [effects (-> view (.-state) (.-selection) (.-ranges)
                     (.filter #(not (.-empty %)))
                     (.map (fn [range]
-                            (.of add-underline range))))]
+                            (let [from (.-from range)
+                                  to (.-to range)]
+                              (js/console.log "range" range)
+                              (.of add-underline #js {:from from :to to})))))]
     (prn (count effects))
-    (when (pos? (.-length effects))
-      (when-not (-> view (.-state) (.field underline-field false))
-        (.push effects (-> StateEffect (.-appendConfig) (.of #js [underline-field underline-theme])))))
-    (js/console.log effects)
-    (.dispatch view #js {:effects effects})
-    true))
+    (if (pos? (.-length effects))
+      (do (when-not (-> view (.-state) (.field underline-field false))
+            (.push effects (-> StateEffect (.-appendConfig) (.of #js [underline-field underline-theme]))))
+          (.dispatch view #js {:effects effects})
+          (js/console.log "true!")
+          true)
+      false)))
 
-(def underlineKeyMap (.of keymap #js [ #js {:key "Ctrl-h"
+(def underlineKeyMap (.of keymap #js [ #js {:key "Mod-h"
                                             :preventDefault true
                                             :run underline-selection}]))
 
@@ -134,21 +146,46 @@
                       (some-> prev-view (j/call :destroy))
                       (j/assoc! el :editorView
                                 (EditorView. (j/obj :parent el
-                                                    :extensions #js [underlineKeyMap]
                                                     :state (.create EditorState
                                                                     (j/obj :doc (str/trim doc)
                                                                            :extensions (into-array
                                                                                         (cond-> [
-                                                                                                 #_(syntaxHighlighting defaultHighlightStyle)
+                                                                                                 (syntaxHighlighting defaultHighlightStyle)
                                                                                                  #_(.. EditorState -allowMultipleSelections (of editable?))
-                                                                                                 #_(foldGutter)
-                                                                                                 #_(.. EditorView -editable (of editable?))
+                                                                                                 (foldGutter)
+                                                                                                 (.. EditorView -editable (of editable?))
                                                                                                  #_(.of view/keymap cm-clj/complete-keymap)
                                                                                                  #_(markdown (j/obj :base markdownLanguage
                                                                                                                   :defaultCodeLanguage clojure-lang))
                                                                                                  #_theme
                                                                                                  underlineKeyMap]
-                                                                                          doc-update
+                                                                                          #_#_doc-update
+                                                                                          (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
+
+(defn markdown-editor2 [{:keys [doc-update doc editable?] :or {editable? true}}]
+  [:div {:ref (fn [el]
+                (when el
+                  (let [prev-view (j/get el :editorView)]
+                    (when (or (nil? prev-view)
+                              (and (not editable?)
+                                   (not= doc (.. prev-view -state toString))))
+                      (some-> prev-view (j/call :destroy))
+                      (j/assoc! el :editorView
+                                (EditorView. (j/obj :parent el
+                                                    :state (.create EditorState
+                                                                    (j/obj :doc (str/trim doc)
+                                                                           :extensions (into-array
+                                                                                        (cond-> [
+                                                                                                 (syntaxHighlighting defaultHighlightStyle)
+                                                                                                 #_(.. EditorState -allowMultipleSelections (of editable?))
+                                                                                                 (foldGutter)
+                                                                                                 (.. EditorView -editable (of editable?))
+                                                                                                 #_(.of view/keymap cm-clj/complete-keymap)
+                                                                                                 #_(markdown (j/obj :base markdownLanguage
+                                                                                                                  :defaultCodeLanguage clojure-lang))
+                                                                                                 #_theme
+                                                                                                 underlineKeyMap]
+                                                                                          #_#_doc-update
                                                                                           (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
 
 (defn samples []
@@ -239,7 +276,7 @@
                     (set! (.-innerHTML %) k)))))
 
   (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
-  (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+  #_(rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# ✏️ Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
@@ -257,6 +294,9 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix extra spacing when autoformatting
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-editor"))
+
+  (rdom/render [markdown-editor2 {:doc "Dude
+Highlight me!"}] (js/document.getElementById "markdown-editor2"))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
