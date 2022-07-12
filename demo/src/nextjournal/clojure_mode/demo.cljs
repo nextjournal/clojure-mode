@@ -129,15 +129,21 @@
                (js/console.log :widget/state state)
 
                (js/console.log :md (md/->hiccup (.. ^js state -doc (sliceString from to))) )
-               (j/assoc! this :toDOM (fn []
+               (j/assoc! this
+                         :from from :to to
+                         :ignoreEvent (fn [] false)
+                         :toDOM (fn []
+                                       ;; TODO: maybe in a more reactish way?
+                                       ;; in case of custom md renderers with reagent
                                        (doto (js/document.createElement "div")
                                          (.. -classList (add "border" "m-2" "p-2"))
                                          (j/assoc! :innerHTML
                                                    (rdom.server/render-to-static-markup
-                                                    (md/->hiccup (.. ^js state -doc (sliceString from to))))))))
-               this)
+                                                    [:div.flex
+                                                     [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold {:id "edit-butto"} "edit"]
+                                                     (md/->hiccup (.. ^js state -doc (sliceString from to)))])))))
+               this))
 
-  )
 (defn widgets [state]
   ;; TODO: fix ranges into [ {:type :from :to} ]
   (let [[{:keys [from]} :as fcr] (fence-code-ranges state)
@@ -146,43 +152,33 @@
                            :block true))]
     (let [decos (.set Decoration (into-array [(.range d 0 from)]))]
       (js/console.log :fcr fcr :deco d :to from :decos decos)
-      decos)
-    ))
-
-
-
-(defn decorations-constructor [view]
-  #_(js/console.log :plugin-init view)
-  (reset! dbg view)
-  (j/obj
-   :decorations (widgets view)
-   :update
-   (fn [update]
-     (this-as plugin
-       #_ (j/assoc! plugin :decorations (.-none Decoration))
-       #_(js/console.log
-          :update update
-          :visibleRanges (.. update -view -visibleRanges)
-          ;;:tree (nextjournal.clojure-mode.node/tree (.-state update))
-          ;;:string (.. update -state -doc toString)
-          )
-
-       ))))
-
+      decos)))
 
 (def state (.define StateField
                     (j/lit {:create (fn [state] (widgets state))
-                            :update (fn [decos tr]
-                                      #_ (js/console.log :update/state  (.-state tr))
-                                      decos)
-                            :provide (fn [f] (.. EditorView -decorations (from f)))})))
-(def decorations
-  (.. EditorView -decorations (from state))
+                            :update (fn [decos ^js tr]
+                                      (let [clicked? (when-not (.-docChanged tr)
+                                                       (->> tr .-annotations (some #(= "select.pointer" (.-value %)))))
+                                            clicked-at (when clicked? (some-> tr .-selection .-main .-head))]
+                                        (js/console.log :update/tr tr
+                                                        :clicked-at clicked-at
+                                                        :update/selected-at
+                                                        (some-> tr .-selection .-main .-head)
+                                                        :changed? (.-docChanged tr)
 
-  #_
-  (.define ViewPlugin
-           decorations-constructor
-           (j/obj :decorations (fn [v] (j/get v :decorations)))))
+                                                        )
+                                        (if clicked-at
+                                          (.update decos
+                                                   (j/obj :filter
+                                                          (fn [from to value]
+                                                            (js/console.log :deco/val value)
+                                                            (if (= clicked-at (.. value -widget -to))
+                                                              false
+                                                              true)))
+                                                   )
+                                          ;; TODO: call widgets from state
+                                          decos)))
+                            :provide (fn [state] (.. EditorView -decorations (from state)))})))
 
 (comment
 
@@ -247,8 +243,7 @@
                                                                                                  (markdown (j/obj :base markdownLanguage
                                                                                                                   :defaultCodeLanguage clojure-lang))
                                                                                                  theme
-                                                                                                 state
-                                                                                                 decorations]
+                                                                                                 state]
 
                                                                                           )))))))))))}])
 
