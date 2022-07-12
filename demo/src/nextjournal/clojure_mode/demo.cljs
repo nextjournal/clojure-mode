@@ -87,24 +87,38 @@
 (defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 
 (defn markdown-block-ranges [state]
-  (j/let [rs (volatile! [])]
+  (let [vblocks (volatile! [])]
     ;; ^:js {:keys [from to]} (.-visibleRanges view)
     ;; TODO: reimplement visible range
     (.. (syntaxTree state)
         (iterate (j/obj :enter
                         (fn [node]
-                          ;; only enter children at the top document
                           (if (doc? node)
-                            true
+                            true ;; only enter into children of the top document
                             (do
-                              ;; TODO: maybe collect chuncks of non-code nodes
-                              (vswap! rs conj
-                                      {:from (n/start node)
-                                       :to (n/end node)
-                                       :type (.. node -type)})
+                              (when (fenced-code? node)
+                                (vswap! vblocks (fn [blocks]
+                                                  (let [{:keys [to]} (peek blocks)]
+                                                    (js/console.log :previous/to to
+                                                                    :current/from (n/start node))
+                                                    (cond-> blocks
+                                                      (and (not (zero? (n/start node)))
+                                                           (or (not to) (not= (inc to) (n/start node))))
+                                                      (conj {:from (or to 0)
+                                                             :to (n/start node)
+                                                             :type :markdown})
+                                                      'always
+                                                      (conj
+                                                       {:from (n/start node)
+                                                        :to (n/end node)
+                                                        :type :code}))))))
                               false))))))
-    @rs
-    #_ (complete-with-text-chunks @rs (.. state -doc -lenght ))))
+    (let [blocks @vblocks
+          doc-end (.. state -doc -length)
+          {:keys [to]} (peek blocks)]
+      (cond-> blocks
+        (not= doc-end (:to to))
+        (conj {:from to :to doc-end :type :markdown})))))
 
 (defclass Widget
   (extends WidgetType)
@@ -116,7 +130,7 @@
                        ;; TODO: maybe in a more reactish way?
                        ;; in case of custom md renderers with reagent
                        (doto (js/document.createElement "div")
-                         (.. -classList (add "border" "m-2" "p-2" (str "block" (.-name type))))
+                         (.. -classList (add "border" "m-2" "p-2" (str "block-" (name type))))
                          (j/assoc! :innerHTML
                                    (rdom.server/render-to-static-markup
                                     [:div.flex
