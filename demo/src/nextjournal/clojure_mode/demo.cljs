@@ -1,14 +1,18 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport]]
+  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport syntaxTree]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
-            ["@codemirror/state" :refer [EditorState]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin]]
+            ["@codemirror/state" :refer [EditorState StateField]]
+            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration DecorationSet WidgetType]]
+            ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
             [applied-science.js-interop :as j]
+            [goog.object :as gobject]
+            [shadow.cljs.modern :refer (defclass)]
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
+            [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
@@ -58,7 +62,7 @@
                                              (j/obj :state
                                                     (test-utils/make-state
                                                      (cond-> #js [extensions]
-                                                       eval? (.concat #js [(sci/extension {:modifier  "Alt"
+                                                       eval? (.concat #js [(sci/extension {:modifier "Alt"
                                                                                            :on-result (partial reset! last-result)})]))
                                                      source)
                                                     :parent el)))))]
@@ -74,9 +78,146 @@
             (react/isValidElement result) result
             'else (sv/inspect-paginated result)))])]
     (finally
-      (j/call @!view :destroy))))
+     (j/call @!view :destroy))))
 
-(defn update-plugin [doc-update _view] (j/obj :update (fn [update] (doc-update (.. update -state -doc toString)))))
+(defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+
+(defn fence-code-ranges [state]
+  (j/let [rs (volatile! [])]
+    ;; ^:js {:keys [from to]} (.-visibleRanges view)
+    ;; TODO: reimplement visible range
+
+    (.. (syntaxTree state)
+        (iterate (j/obj #_#_#_#_ :from from :to to
+                        :enter
+                        (fn [node]
+                          ;; only enter children at the top document
+                          (if (= "Document" (.. ^js node -type -name))
+                            true
+                            (do
+                              (when (fenced-code? node)
+                                (vswap! rs conj {:from (n/start node) :to (n/end node) :type :code}))
+                              false))))))
+    @rs))
+
+
+(def dbg (atom nil))
+
+(defn widget [])
+
+(comment
+
+  #js {}
+
+  (js/console.log (WidgetType.))
+
+  (js/console.log (doto (.-prototype WidgetType) (gobject/extend #js {:foo "bar"})))
+  (js/console.log (WidgetType.))
+  (js/console.log (Widget.))
+  (js/console.log (.-estimatedHeight (Widget.)))
+
+
+
+  )
+(defclass Widget
+          (extends WidgetType)
+          (constructor [this]
+                       (js/console.log :super this )
+                       (j/assoc! this :toDOM (fn [] (doto (js/document.createElement "div")
+                                                      (j/assoc! :innerHTML "Hello!"))))
+                       this)
+
+          )
+(defn widgets [state]
+  ;; TODO: ranges
+  (let [[{:keys [from]} :as fcr] (fence-code-ranges state)
+        d (.replace Decoration
+                    (j/obj :widget (Widget.)
+                           :block true))]
+    (let [decos (.set Decoration (into-array [(.range d 0 from)]))]
+      (js/console.log :fcr fcr :deco d :to from :decos decos)
+      decos)
+    ))
+
+
+
+(defn decorations-constructor [view]
+  #_(js/console.log :plugin-init view)
+  (reset! dbg view)
+  (j/obj
+   :decorations (widgets view)
+   :update
+   (fn [update]
+     (this-as plugin
+       #_ (j/assoc! plugin :decorations (.-none Decoration))
+       #_(js/console.log
+          :update update
+          :visibleRanges (.. update -view -visibleRanges)
+          ;;:tree (nextjournal.clojure-mode.node/tree (.-state update))
+          ;;:string (.. update -state -doc toString)
+          )
+
+       ))))
+
+
+(def state (.define StateField
+                    (j/lit {:create (fn [state]
+                                      (js/console.log :state state)
+                                      (widgets state)
+                                      #_
+                                      (.-none Decoration)
+                                      )
+                            :update (fn [decos tr]
+
+                                      (js/console.log :update/state  (.-state tr))
+                                      decos)
+                            :provide (fn [f] (.. EditorView -decorations (from f)))})))
+(def decorations
+  (.. EditorView -decorations (from state))
+
+  #_
+  (.define ViewPlugin
+           decorations-constructor
+           (j/obj :decorations (fn [v] (j/get v :decorations)))))
+
+(comment
+
+  (js/console.log :LMD (.-FencedCode lezer-markdown/parser.nodeTypes))
+
+
+  (fence-code-ranges @dbg)
+
+  (doseq [r (.. @dbg -visibleRanges)]
+    (j/let [^:js {:keys [from to]} r]
+      #_(js/console.log :vr/from from :to to)
+      (.. (syntaxTree (.. @dbg -state))
+          (iterate (j/obj :from from :to to
+                          :enter
+                          (fn [node]
+                            ;; only enter children at the top document
+                            (if (= "Document" (.. node -type -name))
+                              true
+                              (do
+                                (js/console.log :node-name (.. node -name)
+                                                :node-id (.. node -type -id)
+                                                :is-fenced-code? (fenced-code? node)
+                                                :node-props (.. node -type -props)
+                                                :is-top? (.. node -type -isTop)
+                                                :is-leaf-block? (.. node -type (is "LeafBlock"))
+                                                :node-from (.-from node)
+                                                :node-to (.-to node)
+
+                                                :text (.. @dbg -state -doc (sliceString (.-from node)
+                                                                                        (.-to node)))
+
+                                                )
+                                false))))))))
+
+  ;; doc up to the beginning of next code block
+  (.. @dbg -state -doc (sliceString 0 168))
+  (.. @dbg -state -doc (sliceString 168 237))
+  )
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
@@ -96,15 +237,22 @@
                                                                     (j/obj :doc (str/trim doc)
                                                                            :extensions (into-array
                                                                                         (cond-> [(syntaxHighlighting defaultHighlightStyle)
-                                                                                                 (.. EditorState -allowMultipleSelections (of editable?))
+                                                                                                 #_(.. EditorState -allowMultipleSelections (of editable?))
                                                                                                  (foldGutter)
                                                                                                  (.. EditorView -editable (of editable?))
                                                                                                  (.of view/keymap cm-clj/complete-keymap)
                                                                                                  (markdown (j/obj :base markdownLanguage
                                                                                                                   :defaultCodeLanguage clojure-lang))
-                                                                                                 theme]
-                                                                                          doc-update
-                                                                                          (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
+                                                                                                 theme
+                                                                                                 state
+                                                                                                 decorations]
+
+                                                                                          )))))))))))}])
+
+(comment
+  (js/console.log :vp ViewPlugin)
+
+  )
 
 (defn samples []
   (into [:<>]
@@ -180,8 +328,12 @@
                          [:td.px-3.py-1.align-top]])]))))])
 
 (defn ^:dev/after-load render []
+
+  #_
   (rdom/render [samples] (js/document.getElementById "editor"))
 
+
+  #_
   (.. (js/document.querySelectorAll "[clojure-mode]")
       (forEach #(when-not (.-firstElementChild %)
                   (rdom/render [editor (str/trim (.-innerHTML %))] %))))
@@ -191,7 +343,10 @@
         (forEach #(when-let [k (get mapping (.-innerHTML %))]
                     (set! (.-innerHTML %) k)))))
 
+
   (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
+
+
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# ✏️ Hello Markdown
 
