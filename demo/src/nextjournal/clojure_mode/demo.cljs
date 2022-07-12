@@ -95,20 +95,13 @@
                           (let [underlines (.map underlines (.-changes tr))]
                             (reduce (fn [underlines e]
                                       (if (.is e add-underline)
-                                        (let [underlines
-                                              (.update underlines
-                                                       (do
-                                                         (prn :>
-                                                              (-> e .-value .-from)
-                                                              (-> e .-value .-to))
-                                                         #js {:add #js [(.range underline-mark
-                                                                                (-> e .-value .-from)
-                                                                                (-> e .-value .-to))]}))]
-                                          underlines)
+                                        (.update underlines
+                                                 #js {:add #js [(.range underline-mark
+                                                                        (-> e .-value .-from)
+                                                                        (-> e .-value .-to))]})
                                         underlines))
                                     underlines
-                                    (.-effects tr))
-                            underlines))
+                                    (.-effects tr))))
                 :provide (fn [f] (-> EditorView (.-decorations) (.from f)))}))
 
 (def underline-theme
