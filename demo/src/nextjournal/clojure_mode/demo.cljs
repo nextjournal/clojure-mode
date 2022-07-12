@@ -10,6 +10,7 @@
             [goog.object :as gobject]
             [shadow.cljs.modern :refer (defclass)]
             [clojure.string :as str]
+            [nextjournal.markdown :as md]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
             [nextjournal.clojure-mode.node :as n]
@@ -17,8 +18,10 @@
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
             ["react" :as react]
+
             [reagent.core :as r]
-            [reagent.dom :as rdom]))
+            [reagent.dom :as rdom]
+            [reagent.dom.server :as rdom.server]))
 
 (def theme
   (.theme EditorView
@@ -121,19 +124,25 @@
 
   )
 (defclass Widget
-          (extends WidgetType)
-          (constructor [this]
-                       (js/console.log :super this )
-                       (j/assoc! this :toDOM (fn [] (doto (js/document.createElement "div")
-                                                      (j/assoc! :innerHTML "Hello!"))))
-                       this)
+  (extends WidgetType)
+  (constructor [this {:keys [from to state]}]
+               (js/console.log :widget/state state)
 
-          )
+               (js/console.log :md (md/->hiccup (.. ^js state -doc (sliceString from to))) )
+               (j/assoc! this :toDOM (fn []
+                                       (doto (js/document.createElement "div")
+                                         (.. -classList (add "border" "m-2" "p-2"))
+                                         (j/assoc! :innerHTML
+                                                   (rdom.server/render-to-static-markup
+                                                    (md/->hiccup (.. ^js state -doc (sliceString from to))))))))
+               this)
+
+  )
 (defn widgets [state]
-  ;; TODO: ranges
+  ;; TODO: fix ranges into [ {:type :from :to} ]
   (let [[{:keys [from]} :as fcr] (fence-code-ranges state)
         d (.replace Decoration
-                    (j/obj :widget (Widget.)
+                    (j/obj :widget (Widget. {:from 0 :to from :state state})
                            :block true))]
     (let [decos (.set Decoration (into-array [(.range d 0 from)]))]
       (js/console.log :fcr fcr :deco d :to from :decos decos)
@@ -162,15 +171,9 @@
 
 
 (def state (.define StateField
-                    (j/lit {:create (fn [state]
-                                      (js/console.log :state state)
-                                      (widgets state)
-                                      #_
-                                      (.-none Decoration)
-                                      )
+                    (j/lit {:create (fn [state] (widgets state))
                             :update (fn [decos tr]
-
-                                      (js/console.log :update/state  (.-state tr))
+                                      #_ (js/console.log :update/state  (.-state tr))
                                       decos)
                             :provide (fn [f] (.. EditorView -decorations (from f)))})))
 (def decorations
