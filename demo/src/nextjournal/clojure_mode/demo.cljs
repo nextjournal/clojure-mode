@@ -81,7 +81,7 @@
                                                         (doc-update (.. update -state -doc toString)))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
-#_(def clojure-lang (LanguageSupport. (cm-clj/syntax)
+(def clojure-lang (LanguageSupport. (cm-clj/syntax)
                                     (.. cm-clj/default-extensions (slice 1))))
 
 (def add-underline (.define StateEffect))
@@ -115,7 +115,6 @@
                                   to (.-to range)]
                               (js/console.log "range" range)
                               (.of add-underline #js {:from from :to to})))))]
-    (prn (count effects))
     (if (pos? (.-length effects))
       (do (when-not (-> view (.-state) (.field underline-field false))
             (.push effects (-> StateEffect (.-appendConfig) (.of #js [underline-field underline-theme]))))
@@ -144,42 +143,17 @@
                                                                            :extensions (into-array
                                                                                         (cond-> [
                                                                                                  (syntaxHighlighting defaultHighlightStyle)
-                                                                                                 #_(.. EditorState -allowMultipleSelections (of editable?))
+                                                                                                 (.. EditorState -allowMultipleSelections (of editable?))
                                                                                                  (foldGutter)
                                                                                                  (.. EditorView -editable (of editable?))
-                                                                                                 #_(.of view/keymap cm-clj/complete-keymap)
-                                                                                                 #_(markdown (j/obj :base markdownLanguage
+                                                                                                 (.of view/keymap cm-clj/complete-keymap)
+                                                                                                 (markdown (j/obj :base markdownLanguage
                                                                                                                   :defaultCodeLanguage clojure-lang))
-                                                                                                 #_theme
+                                                                                                 theme
                                                                                                  underlineKeyMap]
-                                                                                          #_#_doc-update
+                                                                                          doc-update
                                                                                           (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
 
-(defn markdown-editor2 [{:keys [doc-update doc editable?] :or {editable? true}}]
-  [:div {:ref (fn [el]
-                (when el
-                  (let [prev-view (j/get el :editorView)]
-                    (when (or (nil? prev-view)
-                              (and (not editable?)
-                                   (not= doc (.. prev-view -state toString))))
-                      (some-> prev-view (j/call :destroy))
-                      (j/assoc! el :editorView
-                                (EditorView. (j/obj :parent el
-                                                    :state (.create EditorState
-                                                                    (j/obj :doc (str/trim doc)
-                                                                           :extensions (into-array
-                                                                                        (cond-> [
-                                                                                                 (syntaxHighlighting defaultHighlightStyle)
-                                                                                                 #_(.. EditorState -allowMultipleSelections (of editable?))
-                                                                                                 (foldGutter)
-                                                                                                 (.. EditorView -editable (of editable?))
-                                                                                                 #_(.of view/keymap cm-clj/complete-keymap)
-                                                                                                 #_(markdown (j/obj :base markdownLanguage
-                                                                                                                  :defaultCodeLanguage clojure-lang))
-                                                                                                 #_theme
-                                                                                                 underlineKeyMap]
-                                                                                          #_#_doc-update
-                                                                                          (conj (.define ViewPlugin (partial update-plugin doc-update))))))))))))))}])
 
 (defn samples []
   (into [:<>]
@@ -269,7 +243,7 @@
                     (set! (.-innerHTML %) k)))))
 
   (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
-  #_(rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+  (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# ✏️ Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
@@ -287,9 +261,5 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix extra spacing when autoformatting
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-editor"))
-
-  (rdom/render [markdown-editor2 {:doc "Dude
-Highlight me!"}] (js/document.getElementById "markdown-editor2"))
-
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
