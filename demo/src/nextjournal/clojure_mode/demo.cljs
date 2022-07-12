@@ -208,6 +208,8 @@ have an editor with ~~mono~~ _mixed language support_.
 ## Todo
 - [x] resolve **inner nodes**
 - [ ] fix extra spacing when autoformatting
+- [ ] fix errors when entering newline
+- [ ] fix errors on Ctrl-K
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-editor"))
 

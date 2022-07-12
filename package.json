@@ -22,6 +22,7 @@
         "markdown-it-sidenote": "gerwitz/markdown-it-sidenote#0b4ffb98ae6d013072f79a832785225c05dd1f29",
         "markdown-it-texmath": "0.9.1",
         "markdown-it-toc-done-right": "4.2.0",
+        "punycode": "2.1.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "w3c-keyname": "^2.2.4"

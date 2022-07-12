@@ -13,6 +13,21 @@
             (dispatch))
     true))
 
+(defn clj-ctx?
+  "Returns true when current cursor is inside some Clojure tree"
+  [state]
+  (some (comp some? #{"Program"} n/name)
+        (n/ancestors (n/tree state (.. state -selection -main -head)))))
+
+;; guarded commands: check if we're in a Clojure context in case our tree is mounted
+;; onto some other language node
+(defn clj-view-command [f]
+  (j/fn [^:js {:keys [^js state dispatch]}]
+    (if (clj-ctx? state)
+      (do (some-> (f state) (dispatch))
+          true)
+      false)))
+
 (defn unwrap* [state]
   (u/update-ranges state
     (j/fn [^:js {:as range :keys [from to empty]}]
@@ -79,11 +94,11 @@
   (let [ctx (format/make-indent-context state)]
     (u/update-ranges state
       (j/fn [^:js {:as range :keys [from to empty]}]
-        (let [indent-at (-> (n/closest (n/tree state from) (some-fn n/coll? n/top?))
-                            n/inner-span
-                            n/start)
-              indent (format/get-indentation ctx indent-at)
-              insertion (str \newline (format/spaces state indent))]
+        (let [indent-at (some-> (n/closest (n/tree state from) (some-fn n/coll? n/top?))
+                          n/inner-span
+                          n/start)
+              indent (when indent-at (format/get-indentation ctx indent-at))
+              insertion (str \newline (when indent (format/spaces state indent)))]
           {:cursor (+ from (count insertion))
            :changes [{:from from
                       :to to
@@ -248,7 +263,7 @@
 (def barf-backward (view-command (barf -1)))
 (def selection-grow (view-command sel-history/selection-grow*))
 (def selection-return (view-command sel-history/selection-return*))
-(def enter-and-indent (view-command enter-and-indent*))
+(def enter-and-indent (clj-view-command enter-and-indent*))
 
 (def paredit-index
   {:indent indent
