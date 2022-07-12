@@ -86,137 +86,77 @@
 (defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 
-(defn fence-code-ranges [state]
+(defn markdown-block-ranges [state]
   (j/let [rs (volatile! [])]
     ;; ^:js {:keys [from to]} (.-visibleRanges view)
     ;; TODO: reimplement visible range
-
     (.. (syntaxTree state)
-        (iterate (j/obj #_#_#_#_ :from from :to to
-                        :enter
+        (iterate (j/obj :enter
                         (fn [node]
                           ;; only enter children at the top document
-                          (if (= "Document" (.. ^js node -type -name))
+                          (if (doc? node)
                             true
                             (do
-                              (when (fenced-code? node)
-                                (vswap! rs conj {:from (n/start node) :to (n/end node) :type :code}))
+                              ;; TODO: maybe collect chuncks of non-code nodes
+                              (vswap! rs conj
+                                      {:from (n/start node)
+                                       :to (n/end node)
+                                       :type (.. node -type)})
                               false))))))
-    @rs))
+    @rs
+    #_ (complete-with-text-chunks @rs (.. state -doc -lenght ))))
 
-
-(def dbg (atom nil))
-
-(defn widget [])
-
-(comment
-
-  #js {}
-
-  (js/console.log (WidgetType.))
-
-  (js/console.log (doto (.-prototype WidgetType) (gobject/extend #js {:foo "bar"})))
-  (js/console.log (WidgetType.))
-  (js/console.log (Widget.))
-  (js/console.log (.-estimatedHeight (Widget.)))
-
-
-
-  )
 (defclass Widget
   (extends WidgetType)
-  (constructor [this {:keys [from to state]}]
-               (js/console.log :widget/state state)
-
-               (js/console.log :md (md/->hiccup (.. ^js state -doc (sliceString from to))) )
-               (j/assoc! this
-                         :from from :to to
-                         :ignoreEvent (fn [] false)
-                         :toDOM (fn []
-                                       ;; TODO: maybe in a more reactish way?
-                                       ;; in case of custom md renderers with reagent
-                                       (doto (js/document.createElement "div")
-                                         (.. -classList (add "border" "m-2" "p-2"))
-                                         (j/assoc! :innerHTML
-                                                   (rdom.server/render-to-static-markup
-                                                    [:div.flex
-                                                     [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold {:id "edit-butto"} "edit"]
-                                                     (md/->hiccup (.. ^js state -doc (sliceString from to)))])))))
-               this))
+  (constructor [this {:keys [from to state type]}]
+    (j/assoc! this
+              :from from :to to
+              :ignoreEvent (fn [] false)
+              :toDOM (fn []
+                       ;; TODO: maybe in a more reactish way?
+                       ;; in case of custom md renderers with reagent
+                       (doto (js/document.createElement "div")
+                         (.. -classList (add "border" "m-2" "p-2" (str "block" (.-name type))))
+                         (j/assoc! :innerHTML
+                                   (rdom.server/render-to-static-markup
+                                    [:div.flex
+                                     [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold {:id "edit-butto"} "edit"]
+                                     (md/->hiccup (.. ^js state -doc (sliceString from to)))])))))))
 
 (defn widgets [state]
-  ;; TODO: fix ranges into [ {:type :from :to} ]
-  (let [[{:keys [from]} :as fcr] (fence-code-ranges state)
-        d (.replace Decoration
-                    (j/obj :widget (Widget. {:from 0 :to from :state state})
-                           :block true))]
-    (let [decos (.set Decoration (into-array [(.range d 0 from)]))]
-      (js/console.log :fcr fcr :deco d :to from :decos decos)
-      decos)))
+  (.set Decoration
+        (into-array
+         (mapv (fn [{:as block :keys [from to type]}]
+                 (.. Decoration
+                     (replace (j/obj :widget (Widget. (assoc block :state state))
+                                     :block true))
+                     (range from to)))
+               (markdown-block-ranges state)))))
 
-(def state (.define StateField
-                    (j/lit {:create (fn [state] (widgets state))
-                            :update (fn [decos ^js tr]
-                                      (let [clicked? (when-not (.-docChanged tr)
-                                                       (->> tr .-annotations (some #(= "select.pointer" (.-value %)))))
-                                            clicked-at (when clicked? (some-> tr .-selection .-main .-head))]
-                                        (js/console.log :update/tr tr
-                                                        :clicked-at clicked-at
-                                                        :update/selected-at
-                                                        (some-> tr .-selection .-main .-head)
-                                                        :changed? (.-docChanged tr)
-
-                                                        )
-                                        (if clicked-at
-                                          (.update decos
-                                                   (j/obj :filter
-                                                          (fn [from to value]
-                                                            (js/console.log :deco/val value)
-                                                            (if (= clicked-at (.. value -widget -to))
-                                                              false
-                                                              true)))
-                                                   )
-                                          ;; TODO: call widgets from state
-                                          decos)))
-                            :provide (fn [state] (.. EditorView -decorations (from state)))})))
-
-(comment
-
-  (js/console.log :LMD (.-FencedCode lezer-markdown/parser.nodeTypes))
-
-
-  (fence-code-ranges @dbg)
-
-  (doseq [r (.. @dbg -visibleRanges)]
-    (j/let [^:js {:keys [from to]} r]
-      #_(js/console.log :vr/from from :to to)
-      (.. (syntaxTree (.. @dbg -state))
-          (iterate (j/obj :from from :to to
-                          :enter
-                          (fn [node]
-                            ;; only enter children at the top document
-                            (if (= "Document" (.. node -type -name))
-                              true
-                              (do
-                                (js/console.log :node-name (.. node -name)
-                                                :node-id (.. node -type -id)
-                                                :is-fenced-code? (fenced-code? node)
-                                                :node-props (.. node -type -props)
-                                                :is-top? (.. node -type -isTop)
-                                                :is-leaf-block? (.. node -type (is "LeafBlock"))
-                                                :node-from (.-from node)
-                                                :node-to (.-to node)
-
-                                                :text (.. @dbg -state -doc (sliceString (.-from node)
-                                                                                        (.-to node)))
-
-                                                )
-                                false))))))))
-
-  ;; doc up to the beginning of next code block
-  (.. @dbg -state -doc (sliceString 0 168))
-  (.. @dbg -state -doc (sliceString 168 237))
-  )
+(def markdown-edit-decorations
+  (.define StateField
+           (j/lit {:create (fn [state] (widgets state))
+                   :update (fn [decos ^js tr]
+                             (let [clicked? (when-not (.-docChanged tr)
+                                              (->> tr .-annotations (some #(= "select.pointer" (.-value %)))))
+                                   clicked-at (when clicked? (some-> tr .-selection .-main .-head))]
+                               (js/console.log :update/tr tr
+                                               :clicked-at clicked-at
+                                               :update/selected-at
+                                               (some-> tr .-selection .-main .-head)
+                                               :changed? (.-docChanged tr))
+                               (if clicked-at
+                                 (.update decos
+                                          (j/obj :filter
+                                                 (fn [from to value]
+                                                   (js/console.log :widget/from (.. value -widget -from)
+                                                                   :widget/to (.. value -widget -to))
+                                                   (if (= clicked-at (.. value -widget -to))
+                                                     false
+                                                     true))))
+                                 ;; TODO: call widgets from state
+                                 decos)))
+                   :provide (fn [state] (.. EditorView -decorations (from state)))})))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
@@ -235,22 +175,15 @@
                                                     :state (.create EditorState
                                                                     (j/obj :doc (str/trim doc)
                                                                            :extensions (into-array
-                                                                                        (cond-> [(syntaxHighlighting defaultHighlightStyle)
-                                                                                                 #_(.. EditorState -allowMultipleSelections (of editable?))
-                                                                                                 (foldGutter)
-                                                                                                 (.. EditorView -editable (of editable?))
-                                                                                                 (.of view/keymap cm-clj/complete-keymap)
-                                                                                                 (markdown (j/obj :base markdownLanguage
-                                                                                                                  :defaultCodeLanguage clojure-lang))
-                                                                                                 theme
-                                                                                                 state]
-
-                                                                                          )))))))))))}])
-
-(comment
-  (js/console.log :vp ViewPlugin)
-
-  )
+                                                                                        [(syntaxHighlighting defaultHighlightStyle)
+                                                                                         #_(.. EditorState -allowMultipleSelections (of editable?))
+                                                                                         (foldGutter)
+                                                                                         (.. EditorView -editable (of editable?))
+                                                                                         (.of view/keymap cm-clj/complete-keymap)
+                                                                                         theme
+                                                                                         (markdown (j/obj :base markdownLanguage
+                                                                                                          :defaultCodeLanguage clojure-lang))
+                                                                                         markdown-edit-decorations]))))))))))}])
 
 (defn samples []
   (into [:<>]
