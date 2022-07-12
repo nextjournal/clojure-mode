@@ -99,8 +99,6 @@
                               (when (fenced-code? node)
                                 (vswap! vblocks (fn [blocks]
                                                   (let [{:keys [to]} (peek blocks)]
-                                                    (js/console.log :previous/to to
-                                                                    :current/from (n/start node))
                                                     (cond-> blocks
                                                       (and (not (zero? (n/start node)))
                                                            (or (not to) (not= (inc to) (n/start node))))
@@ -120,22 +118,24 @@
         (not= doc-end (:to to))
         (conj {:from to :to doc-end :type :markdown})))))
 
+(defn render-markdown [text view]
+  (let [el (js/document.createElement "div")]
+    (js/console.log :render-markdown/view view )
+    (rdom/render [:div.flex.border.m-2.p-2
+                  [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold
+                   {:on-click (fn [e]
+                                ;; TODO: dispatch annotatated view event or effect
+                                )} "edit"]
+                  (md/->hiccup text)] el)
+    el))
+
 (defclass Widget
   (extends WidgetType)
   (constructor [this {:keys [from to state type]}]
     (j/assoc! this
               :from from :to to
               :ignoreEvent (fn [] false)
-              :toDOM (fn []
-                       ;; TODO: maybe in a more reactish way?
-                       ;; in case of custom md renderers with reagent
-                       (doto (js/document.createElement "div")
-                         (.. -classList (add "border" "m-2" "p-2" (str "block-" (name type))))
-                         (j/assoc! :innerHTML
-                                   (rdom.server/render-to-static-markup
-                                    [:div.flex
-                                     [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold {:id "edit-butto"} "edit"]
-                                     (md/->hiccup (.. ^js state -doc (sliceString from to)))])))))))
+              :toDOM (partial render-markdown (.. ^js state -doc (sliceString from to))))))
 
 (defn widgets [state]
   (.set Decoration
