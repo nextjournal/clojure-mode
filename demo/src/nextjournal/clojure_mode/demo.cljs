@@ -136,8 +136,8 @@
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText"))
                        widget))]
-    (rdom/render [:div.flex.rounded.border.m-2.p-2
-                  [:button.rounded.bg-blue-300.text-white.text-lg.mr-2
+    (rdom/render [:div.flex.rounded.border.m-2.p-2 {:class (when (= :code (.-type widget)) "bg-slate-100")}
+                  [:button.rounded.bg-blue-300.text-white.text-xl.pb-6.mr-5
                    ;; MAYBE: just on cursor enter
                    {:style {:width "25px" :height "25px"}
                     :on-click (fn [e]
