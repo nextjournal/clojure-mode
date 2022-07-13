@@ -3,7 +3,7 @@
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration DecorationSet WidgetType]]
+            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType]]
             ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clerk.viewer :as v]
@@ -117,12 +117,8 @@
         (not= doc-end (:to to))
         (conj {:from to :to doc-end :type :markdown})))))
 
-(def dbg (atom nil))
-
 (defn render-markdown [widget text view]
   (let [el (js/document.createElement "div")]
-    (js/console.log :render-markdown/view view )
-    (reset! dbg view)
     (rdom/render [:div.flex.rounded.border.m-2.p-2
                   [:button.rounded.bg-blue-300.text-white.text-lg.mr-2
                    ;; MAYBE: just on cursor enter
@@ -159,23 +155,35 @@
                      (range from to)))
                (markdown-block-ranges state)))))
 
+(defn widget-seq "debug utility for iterating widgets in a DecorationSet" [^js ws]
+  (let [iterator (.iter ws)]
+    ((fn step []
+       (when-some [w (some-> iterator .-value .-widget)]
+         (.next iterator)
+         (cons w (lazy-seq (step))))))))
+
 (def markdown-preview
   (.define StateField
            (j/obj :provide (fn [state] (.. EditorView -decorations (from state)))
                   :create (fn [state] (widgets state))
                   :update (fn [decos ^js tr]
+                            ;; TODO: fix dispatching changes twice
                             (let [clicked-widget
                                   (when-not (.-docChanged tr)
                                     (->> tr .-annotations
                                          (some #(and (= :edit-widget (:type (.-value %)))
                                                      (:widget (.-value %))))))]
-                              (js/console.log :update/tr tr :widget clicked-widget)
+                              (js/console.log :widget clicked-widget)
                               (cond clicked-widget
                                     (.update decos
                                              (j/obj :filter
                                                     (fn [_ _ ^js value]
                                                       (not (.. value -widget (eq clicked-widget))))))
-                                    (.-docChanged tr) (widgets (.-state tr))
+                                    (.-docChanged tr)
+                                    (.update (widgets (.-state tr)) ;; TODO: recompute only within range
+                                             (j/obj :filter
+                                                    (fn [from to _]
+                                                      (not (<= from (.. tr -selection -main -head) to)))))
                                     'else decos))))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
@@ -303,7 +311,6 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix errors when entering a newline
 - [ ] fix extra space when entering a newline
 - [ ] fix errors on Ctrl-K
-- [ ] bring Clerk stylesheet in demo
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-editor"))
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
@@ -321,10 +328,11 @@ have an editor with ~~mono~~ _mixed language support_.
 ```
 
 ## Todo
-- [x] resolve **inner nodes**
-- [ ] fix extra spacing when autoformatting
-- [ ] fix errors when entering newline
-- [ ] fix errors on Ctrl-K
+- [x] Use markdown grammar to split document à la Clerk
+- [x] implement block widgets with previews
+- [ ] make previews editable on click
+- [ ] toggle previews editable on cursor enter/leave
+- [ ] fix dispatching changes/annotations twice
 - [ ] bring Clerk stylesheet in demo
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-preview"))
