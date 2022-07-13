@@ -117,7 +117,7 @@
         (not= doc-end (:to to))
         (conj {:from to :to doc-end :type :markdown})))))
 
-(defn render-markdown [widget text view]
+(defn render-markdown [^js widget ^js view]
   (let [el (js/document.createElement "div")]
     (rdom/render [:div.flex.rounded.border.m-2.p-2
                   [:button.rounded.bg-blue-300.text-white.text-lg.mr-2
@@ -130,30 +130,29 @@
                                                   (.. Transaction -userEvent
                                                       (of {:type :edit-widget
                                                            :widget widget})))))} "✐"]
-
-
-                  [:div.viewer-markdown [sv/inspect-paginated (v/with-viewer :markdown text)]]] el)
+                  [:div.viewer-markdown [sv/inspect-paginated (v/with-viewer :markdown
+                                                                (.. view -state -doc (sliceString (.-from widget) (.-to widget))))]]] el)
     el))
 
 (defclass Widget
   (extends WidgetType)
-  (constructor [this {:keys [from to state type]}]
+  (constructor [this {:keys [from to type]}]
     (j/assoc! this
               :from from :to to
-              :toDOM (partial render-markdown this (.. ^js state -doc (sliceString from to)))
+              :ignoreEvent (constantly false)
+              :toDOM (partial render-markdown this)
               :eq (fn [other]
                     (and (identical? (.-from this) (.-from other))
                          (identical? (.-to this) (.-to other)))))))
 
-(defn widgets [state]
+(defn widgets [blocks]
   (.set Decoration
         (into-array
-         (mapv (fn [{:as block :keys [from to type]}]
-                 (.. Decoration
-                     (replace (j/obj :widget (Widget. (assoc block :state state))
-                                     :block true))
-                     (range from to)))
-               (markdown-block-ranges state)))))
+         (map (fn [{:as block :keys [from to type]}]
+                (.. Decoration
+                    (replace (j/obj :widget (Widget. block)
+                                    :block true))
+                    (range from to))) blocks))))
 
 (defn widget-seq "debug utility for iterating widgets in a DecorationSet" [^js ws]
   (let [iterator (.iter ws)]
@@ -164,27 +163,27 @@
 
 (def markdown-preview
   (.define StateField
-           (j/obj :provide (fn [state] (.. EditorView -decorations (from state)))
-                  :create (fn [state] (widgets state))
-                  :update (fn [decos ^js tr]
+           (j/obj :provide (fn [widgets] (.. EditorView -decorations (from widgets)))
+                  :create (fn [doc-state] (widgets (markdown-block-ranges doc-state)))
+                  :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
                             (let [clicked-widget
                                   (when-not (.-docChanged tr)
                                     (->> tr .-annotations
                                          (some #(and (= :edit-widget (:type (.-value %)))
                                                      (:widget (.-value %))))))]
-                              (js/console.log :widget clicked-widget)
+                              (js/console.log :widget clicked-widget :w/to (when clicked-widget (.-to clicked-widget)))
                               (cond clicked-widget
-                                    (.update decos
+                                    (.update widgets
                                              (j/obj :filter
                                                     (fn [_ _ ^js value]
                                                       (not (.. value -widget (eq clicked-widget))))))
                                     (.-docChanged tr)
-                                    (.update (widgets (.-state tr)) ;; TODO: recompute only within range
+                                    (.update (widgets (markdown-block-ranges (.-state tr))) ;; TODO: recompute only within range
                                              (j/obj :filter
                                                     (fn [from to _]
                                                       (not (<= from (.. tr -selection -main -head) to)))))
-                                    'else decos))))))
+                                    'else widgets))))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
