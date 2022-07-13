@@ -135,18 +135,27 @@
   (let [el (js/document.createElement "div")
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText"))
-                       widget))]
-    (rdom/render [:div.flex.rounded.border.m-2.p-2 {:class (when (= :code (.-type widget)) "bg-slate-100")}
-                  [:button.rounded.bg-blue-300.text-white.text-xl.pb-6.mr-5
+                       widget))
+        code-text (.. view -state -doc (sliceString from to))]
+    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2 {:class (when (= :code (.-type widget)) "bg-slate-100")}
+                  [:button.rounded.bg-blue-300.text-white.text-xl.pb-6
                    ;; MAYBE: just on cursor enter
                    {:style {:width "25px" :height "25px"}
                     :on-click (fn [e]
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (.. view (dispatch #js{:effects (.of edit-block-effect widget)})))} "✐"]
-                  [:div.viewer-markdown
-                   [sv/inspect-paginated (v/with-viewer (.-type widget)
-                                           (.. view -state -doc (sliceString from to)))]]] el)
+                  [:div.mt-3
+                   [:div.viewer-markdown
+                    [sv/inspect-paginated (v/with-viewer (.-type widget) code-text
+                                            )]]
+                   (when (= :code (.-type widget))
+                     [:div {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
+                      (when-some [{:keys [error result]} (sci/eval-string code-text)]
+                        (cond
+                          error [:div.red error]
+                          (react/isValidElement result) result
+                          'else (sv/inspect-paginated result)))])]] el)
     el))
 
 (defclass Widget
@@ -378,13 +387,18 @@ have an editor with ~~mono~~ _mixed language support_.
   \"to all questions\"
   []
   (inc 41))
+
+(v/html [:h2 (str \"The Answer is: \" (the-answer))])
 ```
 
 ## Todo
 - [x] Use markdown grammar to split document à la Clerk
 - [x] implement block widgets with previews
+- [x] make previews editable on click
+- [ ] make previews selectable with arrow keys
 - [ ] make previews editable on click
 - [ ] toggle previews editable on cursor enter/leave
+- [x] add code block SCI results
 - [ ] fix dispatching changes/annotations twice
 - [ ] bring Clerk stylesheet in demo
 - [ ] choose keybindings
