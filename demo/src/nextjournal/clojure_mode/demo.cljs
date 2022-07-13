@@ -9,6 +9,7 @@
             [nextjournal.clerk.viewer :as v]
             [applied-science.js-interop :as j]
             [shadow.cljs.modern :refer (defclass)]
+            [shadow.resource :as rc]
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
@@ -336,6 +337,11 @@
     (.. (js/document.querySelectorAll ".mod,.alt,.ctrl")
         (forEach #(when-let [k (get mapping (.-innerHTML %))]
                     (set! (.-innerHTML %) k)))))
+
+  ;; set viewer tailwind stylesheet
+  (j/assoc! (js/document.getElementById "viewer-stylesheet")
+            :innerHTML (rc/inline "stylesheets/viewer.css"))
+
   (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# Hello Markdown
