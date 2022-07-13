@@ -126,6 +126,9 @@
    (some (fn [{:as block :keys [from to]}] (when (<= from pos to) block))
          (state->blocks state))))
 
+(defonce show-preview-effect (.define StateEffect))
+(defonce edit-block-effect (.define StateEffect))
+
 (defn render-markdown [^js widget ^js view]
   (let [el (js/document.createElement "div")]
     (rdom/render [:div.flex.rounded.border.m-2.p-2
@@ -134,11 +137,8 @@
                    {:style {:width "25px" :height "25px"}
                     :on-click (fn [e]
                                 (.preventDefault e)
-                                (.dispatch view
-                                           (j/obj :annotations
-                                                  (.. Transaction -userEvent
-                                                      (of {:type :edit-widget
-                                                           :widget widget})))))} "✐"]
+                                (.stopPropagation e)
+                                (.. view (dispatch #js{:effects (.of edit-block-effect widget)})))} "✐"]
                   [:div.viewer-markdown [sv/inspect-paginated (v/with-viewer :markdown
                                                                 (.. view -state -doc (sliceString (.-from widget) (.-to widget))))]]] el)
     el))
@@ -169,8 +169,6 @@
          (.next iterator)
          (cons w (lazy-seq (step))))))))
 
-(defonce show-preview-effect (.define StateEffect))
-
 (defn run-alt-enter [^js view]
   (when-some [block (block-at (.-state view))]
     (.. view (dispatch #js{:effects (.of show-preview-effect (block->widget block))}))))
@@ -186,25 +184,17 @@
                   :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
                   :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
-                            (let [meta-enter (some #(and (.is ^js % show-preview-effect) %) (.-effects tr))
-
-
-                                  clicked-widget
-                                  (when-not (.-docChanged tr)
-                                    (->> tr .-annotations
-                                         (some #(and (= :edit-widget (:type (.-value %)))
-                                                     (:widget (.-value %))))))]
-                              (when clicked-widget (js/console.log :widget clicked-widget))
-                              (when meta-enter (js/console.log :meta-enter meta-enter))
-                              (cond meta-enter
+                            (let [show-preview (some #(and (.is ^js % show-preview-effect) %) (.-effects tr))
+                                  edit-block   (some #(and (.is ^js % edit-block-effect) %) (.-effects tr))]
+                              (cond show-preview
                                     (.update widgets
                                              (j/obj :sort true
-                                                    :add (j/lit [(.-value meta-enter)])))
-                                    clicked-widget
+                                                    :add (j/lit [(.-value show-preview)])))
+                                    edit-block
                                     (.update widgets
                                              (j/obj :filter
                                                     (fn [_ _ ^js value]
-                                                      (not (.. value -widget (eq clicked-widget))))))
+                                                      (not (.. value -widget (eq (.-value edit-block)))))))
                                     (.-docChanged tr)
                                     (.update (blocks->widgets (state->blocks (.-state tr)))
                                              ;; TODO: recompute only within range
