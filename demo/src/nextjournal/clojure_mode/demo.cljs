@@ -6,6 +6,7 @@
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration DecorationSet WidgetType]]
             ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
+            [nextjournal.clerk.viewer :as v]
             [applied-science.js-interop :as j]
             [shadow.cljs.modern :refer (defclass)]
             [clojure.string :as str]
@@ -122,16 +123,20 @@
   (let [el (js/document.createElement "div")]
     (js/console.log :render-markdown/view view )
     (reset! dbg view)
-    (rdom/render [:div.flex.border.m-2.p-2
-                  [:button.rounded.bg-blue-300.text-white.py-2.px-4.mr-2.font-bold
+    (rdom/render [:div.flex.rounded.border.m-2.p-2
+                  [:button.rounded.bg-blue-300.text-white.text-lg.mr-2
                    ;; MAYBE: just on cursor enter
-                   {:on-click (fn [_]
+                   {:style {:width "25px" :height "25px"}
+                    :on-click (fn [e]
+                                (.preventDefault e)
                                 (.dispatch view
                                            (j/obj :annotations
                                                   (.. Transaction -userEvent
                                                       (of {:type :edit-widget
-                                                           :widget widget})))))} "edit"]
-                  (md/->hiccup text)] el)
+                                                           :widget widget})))))} "✐"]
+
+
+                  [:div.viewer-markdown [sv/inspect-paginated (v/with-viewer :markdown text)]]] el)
     el))
 
 (defclass Widget
@@ -311,6 +316,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix extra spacing when autoformatting
 - [ ] fix errors when entering newline
 - [ ] fix errors on Ctrl-K
+- [ ] bring Clerk stylesheet in demo
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-editor"))
 
