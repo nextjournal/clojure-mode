@@ -111,6 +111,7 @@
                                                       (conj
                                                        {:from (n/start node)
                                                         :to (n/end node)
+                                                        :node (.-node node)
                                                         :type :code}))))))
                               false))))))
     (let [blocks @vblocks
@@ -130,7 +131,10 @@
 (defonce edit-block-effect (.define StateEffect))
 
 (defn render-markdown [^js widget ^js view]
-  (let [el (js/document.createElement "div")]
+  (let [el (js/document.createElement "div")
+        [from to] ((juxt n/start n/end)
+                   (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText"))
+                       widget))]
     (rdom/render [:div.flex.rounded.border.m-2.p-2
                   [:button.rounded.bg-blue-300.text-white.text-lg.mr-2
                    ;; MAYBE: just on cursor enter
@@ -139,15 +143,16 @@
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (.. view (dispatch #js{:effects (.of edit-block-effect widget)})))} "✐"]
-                  [:div.viewer-markdown [sv/inspect-paginated (v/with-viewer :markdown
-                                                                (.. view -state -doc (sliceString (.-from widget) (.-to widget))))]]] el)
+                  [:div.viewer-markdown
+                   [sv/inspect-paginated (v/with-viewer (.-type widget)
+                                           (.. view -state -doc (sliceString from to)))]]] el)
     el))
 
 (defclass Widget
   (extends WidgetType)
-  (constructor [this {:keys [from to type]}]
+  (constructor [this {:keys [from to type node]}]
     (j/assoc! this
-              :from from :to to
+              :from from :to to :type type :node node
               :ignoreEvent (constantly false)
               :toDOM (partial render-markdown this)
               :eq (fn [other]
@@ -376,7 +381,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] toggle previews editable on cursor enter/leave
 - [ ] fix dispatching changes/annotations twice
 - [ ] bring Clerk stylesheet in demo
-- [ ] etc etc.
+- [ ] choose keybindings
 "}]]] (js/document.getElementById "markdown-preview"))
 
   (when (linux?)
