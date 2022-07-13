@@ -3,14 +3,13 @@
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType]]
+            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap]]
             ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clerk.viewer :as v]
             [applied-science.js-interop :as j]
             [shadow.cljs.modern :refer (defclass)]
             [clojure.string :as str]
-            [nextjournal.markdown :as md]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
             [nextjournal.clojure-mode.node :as n]
@@ -19,8 +18,7 @@
             [nextjournal.clojure-mode.test-utils :as test-utils]
             ["react" :as react]
             [reagent.core :as r]
-            [reagent.dom :as rdom]
-            [reagent.dom.server :as rdom.server]))
+            [reagent.dom :as rdom]))
 
 (def theme
   (.theme EditorView
@@ -82,10 +80,15 @@
     (finally
      (j/call @!view :destroy))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  Markdown editor
+
+(defn ->cursor-pos [^js x] (.. x -selection -main -head))
 (defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 
-(defn markdown-block-ranges [state]
+(defn state->blocks [state]
   (let [vblocks (volatile! [])]
     ;; ^:js {:keys [from to]} (.-visibleRanges view)
     ;; TODO: reimplement visible range
@@ -117,6 +120,12 @@
         (not= doc-end (:to to))
         (conj {:from to :to doc-end :type :markdown})))))
 
+(defn block-at
+  ([state] (block-at state (->cursor-pos state)))
+  ([state pos]
+   (some (fn [{:as block :keys [from to]}] (when (<= from pos to) block))
+         (state->blocks state))))
+
 (defn render-markdown [^js widget ^js view]
   (let [el (js/document.createElement "div")]
     (rdom/render [:div.flex.rounded.border.m-2.p-2
@@ -145,14 +154,13 @@
                     (and (identical? (.-from this) (.-from other))
                          (identical? (.-to this) (.-to other)))))))
 
-(defn widgets [blocks]
-  (.set Decoration
-        (into-array
-         (map (fn [{:as block :keys [from to type]}]
-                (.. Decoration
-                    (replace (j/obj :widget (Widget. block)
-                                    :block true))
-                    (range from to))) blocks))))
+(defn block->widget [{:as block :keys [from to]}]
+  (.. Decoration
+      (replace (j/obj :widget (Widget. block) :block true))
+      (range from to)))
+
+(defn blocks->widgets [blocks]
+  (.set Decoration (into-array (map block->widget blocks))))
 
 (defn widget-seq "debug utility for iterating widgets in a DecorationSet" [^js ws]
   (let [iterator (.iter ws)]
@@ -161,28 +169,46 @@
          (.next iterator)
          (cons w (lazy-seq (step))))))))
 
+(defonce show-preview-effect (.define StateEffect))
+
+(defn run-alt-enter [^js view]
+  (when-some [block (block-at (.-state view))]
+    (.. view (dispatch #js{:effects (.of show-preview-effect (block->widget block))}))))
+
 (def markdown-preview
+  "State field extensions for book-keeping preview state. Also providing:
+  * a decoration-set extension for markdown block previews
+  * a keymap extension for toggling preview mode from within a block"
   (.define StateField
-           (j/obj :provide (fn [widgets] (.. EditorView -decorations (from widgets)))
-                  :create (fn [doc-state] (widgets (markdown-block-ranges doc-state)))
+           (j/obj :provide (fn [widgets] ;; Extensions
+                             (j/lit [(.. EditorView -decorations (from widgets))
+                                     (.of keymap (j/lit [{:key "Alt-Enter" :run run-alt-enter}]))]))
+                  :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
                   :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
-                            (let [clicked-widget
+                            (let [meta-enter (some #(and (.is ^js % show-preview-effect) %) (.-effects tr))
+
+
+                                  clicked-widget
                                   (when-not (.-docChanged tr)
                                     (->> tr .-annotations
                                          (some #(and (= :edit-widget (:type (.-value %)))
                                                      (:widget (.-value %))))))]
-                              (js/console.log :widget clicked-widget :w/to (when clicked-widget (.-to clicked-widget)))
-                              (cond clicked-widget
+                              (when clicked-widget (js/console.log :widget clicked-widget))
+                              (when meta-enter (js/console.log :meta-enter meta-enter))
+                              (cond meta-enter
+                                    (.update widgets
+                                             (j/obj :sort true
+                                                    :add (j/lit [(.-value meta-enter)])))
+                                    clicked-widget
                                     (.update widgets
                                              (j/obj :filter
                                                     (fn [_ _ ^js value]
                                                       (not (.. value -widget (eq clicked-widget))))))
                                     (.-docChanged tr)
-                                    (.update (widgets (markdown-block-ranges (.-state tr))) ;; TODO: recompute only within range
-                                             (j/obj :filter
-                                                    (fn [from to _]
-                                                      (not (<= from (.. tr -selection -main -head) to)))))
+                                    (.update (blocks->widgets (state->blocks (.-state tr)))
+                                             ;; TODO: recompute only within range
+                                             (j/obj :filter (fn [from to _] (not (<= from (->cursor-pos tr) to)))))
                                     'else widgets))))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
@@ -281,6 +307,31 @@
                          [:td.px-3.py-1.align-top.text-sm]
                          [:td.px-3.py-1.align-top]])]))))])
 
+(defn markdown-preview-keybinding-table []
+  [:table.w-full.text-sm
+   [:thead
+    [:tr.border-t
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Command"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Keybinding"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Alternate Binding"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 {:style {:min-width 290}} "Description"]]]
+   (into [:tbody]
+         (->> {:show-preview [{:key "Alt-Enter" :doc "Renders markdown block"}]}
+              (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
+                     [:<>
+                      [:tr.border-t.hover:bg-gray-100
+                       [:td.px-3.py-1.align-top.monospace.whitespace-nowrap [:b (name command)]]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-nowrap (render-key key)]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-nowrap (some-> alternate-key render-key)]
+                       [:td.px-3.py-1.align-top doc]]
+                      (when shift
+                        [:tr.border-t.hover:bg-gray-100
+                         [:td.px-3.py-1.align-top [:b (name shift)]]
+                         [:td.px-3.py-1.align-top.text-sm.whitespace-nowrap.text-right
+                          (render-key (str "Shift-" key))]
+                         [:td.px-3.py-1.align-top.text-sm]
+                         [:td.px-3.py-1.align-top]])]))))])
+
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
   (.. (js/document.querySelectorAll "[clojure-mode]")
@@ -312,9 +363,11 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix errors on Ctrl-K
 - [ ] etc etc.
 "}]] (js/document.getElementById "markdown-editor"))
-  (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
-                [markdown-editor {:extensions [markdown-preview]
-                                  :doc "# Hello Markdown
+  (rdom/render [:div
+                [:div.mb-5.bg-white.border [markdown-preview-keybinding-table]]
+                [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+                 [markdown-editor {:extensions [markdown-preview]
+                                        :doc "# Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
 have an editor with ~~mono~~ _mixed language support_.
@@ -334,7 +387,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix dispatching changes/annotations twice
 - [ ] bring Clerk stylesheet in demo
 - [ ] etc etc.
-"}]] (js/document.getElementById "markdown-preview"))
+"}]]] (js/document.getElementById "markdown-preview"))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
