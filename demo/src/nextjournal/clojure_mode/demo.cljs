@@ -159,51 +159,47 @@
                      (range from to)))
                (markdown-block-ranges state)))))
 
-(def markdown-edit-decorations
+(def markdown-preview
   (.define StateField
-           (j/lit {:create (fn [state] (widgets state))
-                   :update (fn [decos ^js tr]
-                             (let [clicked-widget
-                                   (when-not (.-docChanged tr)
-                                     (->> tr .-annotations
-                                          (some #(and (= :edit-widget (:type (.-value %)))
-                                                      (:widget (.-value %))))))]
-                               (js/console.log :update/tr tr :widget clicked-widget)
-                               (cond clicked-widget
-                                     (.update decos
-                                              (j/obj :filter
-                                                     (fn [_ _ ^js value]
-                                                       (not (.. value -widget (eq clicked-widget))))))
-                                     (.-docChanged tr) (widgets (.-state tr))
-                                     'else decos)))
-                   :provide (fn [state] (.. EditorView -decorations (from state)))})))
+           (j/obj :provide (fn [state] (.. EditorView -decorations (from state)))
+                  :create (fn [state] (widgets state))
+                  :update (fn [decos ^js tr]
+                            (let [clicked-widget
+                                  (when-not (.-docChanged tr)
+                                    (->> tr .-annotations
+                                         (some #(and (= :edit-widget (:type (.-value %)))
+                                                     (:widget (.-value %))))))]
+                              (js/console.log :update/tr tr :widget clicked-widget)
+                              (cond clicked-widget
+                                    (.update decos
+                                             (j/obj :filter
+                                                    (fn [_ _ ^js value]
+                                                      (not (.. value -widget (eq clicked-widget))))))
+                                    (.-docChanged tr) (widgets (.-state tr))
+                                    'else decos))))))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
                                     (.. cm-clj/default-extensions (slice 1))))
 
-(defn markdown-editor [{:keys [doc-update doc editable?] :or {editable? true}}]
-  [:div {:ref (fn [el]
-                (when el
-                  (let [prev-view (j/get el :editorView)]
-                    (when (or (nil? prev-view)
-                              (and (not editable?)
-                                   (not= doc (.. prev-view -state toString))))
-                      (some-> prev-view (j/call :destroy))
-                      (j/assoc! el :editorView
-                                (EditorView. (j/obj :parent el
-                                                    :state (.create EditorState
-                                                                    (j/obj :doc (str/trim doc)
-                                                                           :extensions (into-array
-                                                                                        [(syntaxHighlighting defaultHighlightStyle)
-                                                                                         #_(.. EditorState -allowMultipleSelections (of editable?))
-                                                                                         (foldGutter)
-                                                                                         (.. EditorView -editable (of editable?))
-                                                                                         (.of view/keymap cm-clj/complete-keymap)
-                                                                                         theme
-                                                                                         (markdown (j/obj :base markdownLanguage
-                                                                                                          :defaultCodeLanguage clojure-lang))
-                                                                                         markdown-edit-decorations]))))))))))}])
+(defn markdown-editor [{:keys [doc editable? extensions] :or {editable? true}}]
+  [:div {:ref (fn [^js el]
+                (if-not el
+                  (some-> el .-editorView .destroy)
+                  (j/assoc! el :editorView
+                            (EditorView. (j/obj :parent el
+                                                :state (.create EditorState
+                                                                (j/obj :doc (str/trim doc)
+                                                                       :extensions (into-array
+                                                                                    (cond-> [(syntaxHighlighting defaultHighlightStyle)
+                                                                                             (foldGutter)
+                                                                                             (.. EditorView -editable (of editable?))
+                                                                                             (.of view/keymap cm-clj/complete-keymap)
+                                                                                             theme
+                                                                                             (markdown (j/obj :base markdownLanguage
+                                                                                                              :defaultCodeLanguage clojure-lang))]
+                                                                                      (seq extensions)
+                                                                                      (concat extensions))))))))))}])
 
 (defn samples []
   (into [:<>]
@@ -279,27 +275,40 @@
                          [:td.px-3.py-1.align-top]])]))))])
 
 (defn ^:dev/after-load render []
-
-  #_
   (rdom/render [samples] (js/document.getElementById "editor"))
-
-
-  #_
   (.. (js/document.querySelectorAll "[clojure-mode]")
       (forEach #(when-not (.-firstElementChild %)
                   (rdom/render [editor (str/trim (.-innerHTML %))] %))))
-
   (let [mapping (key-mapping)]
     (.. (js/document.querySelectorAll ".mod,.alt,.ctrl")
         (forEach #(when-let [k (get mapping (.-innerHTML %))]
                     (set! (.-innerHTML %) k)))))
-
-
   (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
-
-
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
-                [markdown-editor {:doc "# ✏️ Hello Markdown
+                [markdown-editor {:doc "# Hello Markdown
+
+Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
+have an editor with ~~mono~~ _mixed language support_.
+
+```clojure
+(defn the-answer
+  \"to all questions\"
+  []
+  (inc 41))
+```
+
+## Todo
+- [x] resolve **inner nodes**
+- [ ] fix extra spacing when autoformatting after paredit movements
+- [ ] fix errors when entering a newline
+- [ ] fix extra space when entering a newline
+- [ ] fix errors on Ctrl-K
+- [ ] bring Clerk stylesheet in demo
+- [ ] etc etc.
+"}]] (js/document.getElementById "markdown-editor"))
+  (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+                [markdown-editor {:extensions [markdown-preview]
+                                  :doc "# Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
 have an editor with ~~mono~~ _mixed language support_.
@@ -318,7 +327,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix errors on Ctrl-K
 - [ ] bring Clerk stylesheet in demo
 - [ ] etc etc.
-"}]] (js/document.getElementById "markdown-editor"))
+"}]] (js/document.getElementById "markdown-preview"))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
