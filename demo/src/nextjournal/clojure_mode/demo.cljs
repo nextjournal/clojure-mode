@@ -144,8 +144,10 @@
   (constructor [this {:keys [from to state type]}]
     (j/assoc! this
               :from from :to to
-              :ignoreEvent (fn [] true)
-              :toDOM (partial render-markdown this (.. ^js state -doc (sliceString from to))))))
+              :toDOM (partial render-markdown this (.. ^js state -doc (sliceString from to)))
+              :eq (fn [other]
+                    (and (identical? (.-from this) (.-from other))
+                         (identical? (.-to this) (.-to other)))))))
 
 (defn widgets [state]
   (.set Decoration
@@ -167,15 +169,13 @@
                                           (some #(and (= :edit-widget (:type (.-value %)))
                                                       (:widget (.-value %))))))]
                                (js/console.log :update/tr tr :widget clicked-widget)
-                               (if clicked-widget
-                                 (.update decos
-                                          (j/obj :filter
-                                                 (fn [_ _ value]
-                                                   (js/console.log :w (.-widget value) )
-                                                   ;; TODO: eq check
-                                                   true)))
-                                 ;; TODO: call widgets from state on updates
-                                 decos)))
+                               (cond clicked-widget
+                                     (.update decos
+                                              (j/obj :filter
+                                                     (fn [_ _ ^js value]
+                                                       (not (.. value -widget (eq clicked-widget))))))
+                                     (.-docChanged tr) (widgets (.-state tr))
+                                     'else decos)))
                    :provide (fn [state] (.. EditorView -decorations (from state)))})))
 
 ;; syntax (an LRParser) + support (a set of extensions)
