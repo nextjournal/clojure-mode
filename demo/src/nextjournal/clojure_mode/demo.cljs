@@ -327,7 +327,7 @@
                           (when-not (zero? i) [:span " + "])
                           [:kbd.kbd k]]) keys))))
 
-(defn key-bindings-table []
+(defn key-bindings-table [keymap]
   [:table.w-full.text-sm
    [:thead
     [:tr.border-t
@@ -336,34 +336,8 @@
      [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Alternate Binding"]
      [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 {:style {:min-width 290}} "Description"]]]
    (into [:tbody]
-         (->> keymap/paredit-keymap*
-              (merge (sci/keymap* "Alt"))
+         (->> keymap
               (sort-by first)
-              (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
-                     [:<>
-                      [:tr.border-t.hover:bg-gray-100
-                       [:td.px-3.py-1.align-top.monospace.whitespace-nowrap [:b (name command)]]
-                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-nowrap (render-key key)]
-                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-nowrap (some-> alternate-key render-key)]
-                       [:td.px-3.py-1.align-top doc]]
-                      (when shift
-                        [:tr.border-t.hover:bg-gray-100
-                         [:td.px-3.py-1.align-top [:b (name shift)]]
-                         [:td.px-3.py-1.align-top.text-sm.whitespace-nowrap.text-right
-                          (render-key (str "Shift-" key))]
-                         [:td.px-3.py-1.align-top.text-sm]
-                         [:td.px-3.py-1.align-top]])]))))])
-
-(defn markdown-preview-keybinding-table []
-  [:table.w-full.text-sm
-   [:thead
-    [:tr.border-t
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Command"]
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Keybinding"]
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Alternate Binding"]
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 {:style {:min-width 290}} "Description"]]]
-   (into [:tbody]
-         (->> {:show-preview [{:key "Alt-Enter" :doc "Renders markdown block"}]}
               (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
                      [:<>
                       [:tr.border-t.hover:bg-gray-100
@@ -393,7 +367,7 @@
   (j/assoc! (js/document.getElementById "viewer-stylesheet")
             :innerHTML (rc/inline "stylesheets/viewer.css"))
 
-  (rdom/render [key-bindings-table] (js/document.getElementById "docs"))
+  (rdom/render [key-bindings-table (merge keymap/paredit-keymap* (sci/keymap* "Alt"))] (js/document.getElementById "docs"))
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# Hello Markdown
 
@@ -416,7 +390,13 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix dark theme
 "}]] (js/document.getElementById "markdown-editor"))
   (rdom/render [:div
-                [:div.mb-5.bg-white.border [markdown-preview-keybinding-table]]
+                [:div.mb-5.bg-white.max-w-4xl.mx-auto.border
+                 [key-bindings-table {:toggle-preview
+                                      [{:key "Esc" :doc "Toggles between preview and edit mode"}]
+                                      :select-previous-block
+                                      [{:key "ArrowUp" :doc "Selects block before the current selection"}]
+                                      :select-next-block
+                                      [{:key "ArrowDown" :doc "Selects block after the current selection"}]}]]
                 [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                  [markdown-editor {:extensions [markdown-preview]
                                         :doc "# Hello Markdown
