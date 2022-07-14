@@ -211,18 +211,13 @@
                                      (.of keymap (j/lit [{:key "Escape" :run enter-preview}]))]))
                   :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
                   :update (fn [^js widgets ^js tr]
-
                             ;; TODO: fix dispatching changes twice
                             (let [show-preview (get-effect tr show-preview-effect)
                                   edit-block (get-effect tr edit-block-effect)
                                   goto-block (get-effect tr goto-block-effect)]
-                              (cond goto-block
-                                    (blocks->widgets (state->blocks (.-state tr)))
+                              (cond (or goto-block show-preview)
+                                    (blocks->widgets (state->blocks (.-state tr))) ;; re-draw on selection changed
 
-                                    show-preview
-                                    (.update widgets
-                                             (j/obj :sort true
-                                                    :add (j/lit [(.-value show-preview)])))
                                     edit-block
                                     (.update widgets
                                              (j/obj :filter
@@ -231,8 +226,8 @@
 
                                     (.-docChanged tr)
                                     (.update (blocks->widgets (state->blocks (.-state tr)))
-                                             ;; TODO: recompute only within range
                                              (j/obj :filter (fn [from to _] (not (<= from (->cursor-pos tr) to)))))
+
                                     'else widgets))))))
 
 (defn get-preview-decorations [^js view]
@@ -244,21 +239,17 @@
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 
 (defn inside-preview? [^js view]
-  (let [pos (->cursor-pos (.-state view))
-        inside? (some (partial within? pos) (rangeset-seq (get-preview-decorations view)))]
-    (js/console.log :inside? inside?)
-    inside?))
+  (some (partial within? (->cursor-pos (.-state view)))
+        (rangeset-seq (get-preview-decorations view))))
 
 (defn dispatch-goto-block [^js e ^js view]
-  (when-some [dir (case (.-which e) 40 :down 38 :up nil)]
-    (when (inside-preview? view)
-      (let [pos (->cursor-pos (.-state view))
-            next-range (get-next (cond-> (rangeset-seq (get-preview-decorations view))
-                                   (= :up dir) reverse) pos)
-            next-pos (when next-range (inc (:from next-range)))]
-        (when next-pos
-          (.. view (dispatch (j/lit {:effects [(.of goto-block-effect true)]
-                                     :selection {:head next-pos :anchor next-pos}}))))
+  (when-some [dir (when (inside-preview? view)
+                    (case (.-which e) 40 :down 38 :up nil))]
+    (let [next-range (get-next (cond-> (rangeset-seq (get-preview-decorations view)) (= :up dir) reverse)
+                               (->cursor-pos (.-state view)))]
+      (when-some [next-pos (when next-range (inc (:from next-range)))]
+        (.. view (dispatch (j/lit {:effects [(.of goto-block-effect true)]
+                                   :selection {:head next-pos :anchor next-pos}})))
         true))))
 
 (def markdown-preview (j/lit [(.highest Prec (.domEventHandlers EditorView (j/obj :keydown dispatch-goto-block)))
