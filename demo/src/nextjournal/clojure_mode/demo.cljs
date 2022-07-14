@@ -151,15 +151,13 @@
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText")) widget))
         code-text (.. view -state -doc (sliceString from to))]
-    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2
-                  {:class [(when (= :code (.-type widget)) "bg-slate-100")
-                           (when (.-isSelected widget) "ring-4")]}
-                  [:button.rounded.bg-blue-300.text-white.text-xl.pb-6
-                   {:style {:width "25px" :height "25px"}
-                    :on-click (fn [e]
-                                (.preventDefault e)
-                                (.stopPropagation e)
-                                (.. view (dispatch #js{:effects (.of edit-block-effect widget)})))} "✐"]
+    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
+                  {:on-click (fn [_e]
+                               (.. view (dispatch (j/lit {:effects (.of edit-block-effect widget)
+                                                          :selection {:anchor (inc from)}}))))
+                   :class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]}
+                  [:button.rounded.bg-blue-300.text-white.text-lg
+                   {:style {:width "23px" :height "23px" :line-height "5px"}} "✐"]
                   [:div.mt-3
                    [:div.viewer-markdown
                     [sv/inspect-paginated (v/with-viewer (.-type widget) code-text)]]
@@ -204,6 +202,16 @@
 
 (defn get-effect [^js tr effect-type] (some #(and (.is ^js % effect-type) %) (.-effects tr)))
 
+(defn preview-at-pos [ranges pos]
+  (some #(when (within? pos %) (:widget %)) (rangeset-seq ranges)))
+
+(defn sel-enters-preview-block? [^js widgets ^js tr]
+  (let [pos (->cursor-pos (.-state tr))
+        prev-pos (->cursor-pos (.-startState tr))]
+
+    (js/console.log :pos pos :prev-pos prev-pos)
+    false))
+
 (def markdown-preview-decorations
   "State field extensions for book-keeping preview state. Also providing:
   * a decoration-set extension for markdown block previews
@@ -238,9 +246,7 @@
   (first (next (drop-while (complement #(and (<= (:from %) pos) (< pos (:to %)))) ranges))))
 
 (defn preview-at-cursor [^js view]
-  (let [cursor-pos (->cursor-pos (.-state view))]
-    (some #(when (within? cursor-pos %) (:widget %))
-          (rangeset-seq (get-preview-decorations view)))))
+  (preview-at-pos (get-preview-decorations view) (->cursor-pos (.-state view))))
 
 (defn dispatch-goto-block [^js e ^js view]
   (when-some [dir (when (preview-at-cursor view)
@@ -424,7 +430,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [x] implement block widgets with previews
 - [x] make previews editable on click
 - [ ] make previews selectable with arrow keys
-- [ ] make previews editable on click
+- [x] make previews editable on click
 - [ ] fix loosing selection
 - [ ] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
