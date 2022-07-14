@@ -143,17 +143,14 @@
 (defonce edit-block-effect (.define StateEffect))
 (defonce goto-block-effect (.define StateEffect))
 
-(defn widget-selected? [widget view]
-  (<= (.-from widget) (->cursor-pos (.-state view)) (.-to widget)))
-
 (defn render-markdown [^js widget ^js view]
   (let [el (js/document.createElement "div")
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText")) widget))
         code-text (.. view -state -doc (sliceString from to))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
-                  {:on-click (fn [_e]
-                               (.. view (dispatch (j/lit {:effects (.of edit-block-effect widget)
+                  {:on-click (fn [_e]                       ;; try with just from
+                               (.. view (dispatch (j/lit {:effects (.of edit-block-effect (inc from))
                                                           :selection {:anchor (inc from)}}))))
                    :class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]}
                   [:button.rounded.bg-blue-300.text-white.text-lg
@@ -172,12 +169,13 @@
 
 (defclass Widget
   (extends WidgetType)
-  (constructor [this {:keys [from to type node selected?]}]
+  (constructor [this {:as opts :keys [from to type node selected?]}]
     (j/assoc! this
               :from from :to to :type type :node node
               :isSelected selected?
               :ignoreEvent (constantly false)
               :toDOM (partial render-markdown this)
+              :contains (fn [pos] (within? pos opts))
               :eq (fn [^js other]
                     (and (identical? (.-from this) (.-from other))
                          (identical? (.-to this) (.-to other))
@@ -200,7 +198,8 @@
            (.next iterator)                                 ;; TODO: remove widget
            (cons {:from from :to to :widget (.-widget val)} (lazy-seq (step)))))))))
 
-(defn get-effect [^js tr effect-type] (some #(and (.is ^js % effect-type) %) (.-effects tr)))
+(defn get-effect-value [^js tr effect-type]
+  (some #(and (.is ^js % effect-type) (.-value ^js %)) (.-effects tr)))
 
 (defn preview-at-pos [ranges pos]
   (some #(when (within? pos %) (:widget %)) (rangeset-seq ranges)))
@@ -221,17 +220,17 @@
                   :create (fn [doc-state] (blocks->widgets (state->blocks doc-state {:select? false})))
                   :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
-                            (let [show-preview (get-effect tr show-preview-effect)
-                                  edit-block   (get-effect tr edit-block-effect)
-                                  goto-block   (get-effect tr goto-block-effect)]
+                            (let [show-preview  (get-effect-value tr show-preview-effect)
+                                  edit-block-at (get-effect-value tr edit-block-effect)
+                                  goto-block    (get-effect-value tr goto-block-effect)]
                               (cond (or goto-block show-preview)
                                     (blocks->widgets (state->blocks (.-state tr))) ;; re-draw on selection changed
 
-                                    edit-block
-                                    (.update widgets
+                                    edit-block-at
+                                    (.update (blocks->widgets (state->blocks (.-state tr)))
                                              (j/obj :filter
                                                     (fn [_ _ ^js value]
-                                                      (not (.. value -widget (eq (.-value edit-block)))))))
+                                                      (not (.. value -widget (contains edit-block-at))))))
 
                                     (.-docChanged tr)
                                     (.update (blocks->widgets (state->blocks (.-state tr)))
@@ -255,12 +254,12 @@
                                (->cursor-pos (.-state view)))]
       (when-some [next-pos (when next-range (inc (:from next-range)))]
         (.. view (dispatch (j/lit {:effects [(.of goto-block-effect true)]
-                                   :selection {:head next-pos :anchor next-pos}})))
+                                   :selection {:anchor next-pos}})))
         true))))
 
 (defn toggle-edit-mode [^js view]
   (if-some [widget (preview-at-cursor view)]
-    (.. view (dispatch #js{:effects (.of edit-block-effect widget)}))
+    (.. view (dispatch #js{:effects (.of edit-block-effect (.-from widget))}))
     (when-some [block (block-at (.-state view))]
       (.. view (dispatch #js{:effects (.of show-preview-effect (block->widget block))})))))
 
