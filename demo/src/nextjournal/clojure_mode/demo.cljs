@@ -141,8 +141,7 @@
 (defn render-markdown [^js widget ^js view]
   (let [el (js/document.createElement "div")
         [from to] ((juxt n/start n/end)
-                   (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText"))
-                       widget))
+                   (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText")) widget))
         code-text (.. view -state -doc (sliceString from to))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2
                   {:class [(when (= :code (.-type widget)) "bg-slate-100")
@@ -239,20 +238,28 @@
 (defn get-preview-decorations [^js view]
   (.. view -state (field markdown-preview-decorations)))
 
-(defn get-next [ranges pos]
+(defn get-next "Gets the first range after the one containing pos" [ranges pos]
   (first (next (drop-while (complement #(and (<= (:from %) pos) (< pos (:to %)))) ranges))))
+
+(defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
+
+(defn inside-preview? [^js view]
+  (let [pos (->cursor-pos (.-state view))
+        inside? (some (partial within? pos) (rangeset-seq (get-preview-decorations view)))]
+    (js/console.log :inside? inside?)
+    inside?))
 
 (defn dispatch-goto-block [^js e ^js view]
   (when-some [dir (case (.-which e) 40 :down 38 :up nil)]
-    (let [pos (->cursor-pos (.-state view))
-          next-range (get-next (cond-> (rangeset-seq (get-preview-decorations view))
-                                 (= :up dir) reverse) pos)
-          next-pos (when next-range (inc (:from next-range)))]
-      (js/console.log :pos pos :NR next-range :NP next-pos)
-      (when next-pos
-        (.. view (dispatch (j/lit {:effects [(.of goto-block-effect true)]
-                                   :selection {:head next-pos :anchor next-pos}}))))
-      true)))
+    (when (inside-preview? view)
+      (let [pos (->cursor-pos (.-state view))
+            next-range (get-next (cond-> (rangeset-seq (get-preview-decorations view))
+                                   (= :up dir) reverse) pos)
+            next-pos (when next-range (inc (:from next-range)))]
+        (when next-pos
+          (.. view (dispatch (j/lit {:effects [(.of goto-block-effect true)]
+                                     :selection {:head next-pos :anchor next-pos}}))))
+        true))))
 
 (def markdown-preview (j/lit [(.highest Prec (.domEventHandlers EditorView (j/obj :keydown dispatch-goto-block)))
                               markdown-preview-decorations]))
