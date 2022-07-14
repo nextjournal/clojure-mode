@@ -130,16 +130,24 @@
 
 (defonce show-preview-effect (.define StateEffect))
 (defonce edit-block-effect (.define StateEffect))
+(def move-preview-selection (.define StateEffect))
+
+(defn widget-selected? [widget view]
+  (<= (.-from widget) (->cursor-pos (.-state view)) (.-to widget)))
 
 (defn render-markdown [^js widget ^js view]
+  (js/console.log :render-markdown/cp (->cursor-pos (.-state view))
+                  :widget/selected? (widget-selected? widget view)
+                  :widget/from-to (.-from widget) (.-to widget))
   (let [el (js/document.createElement "div")
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText"))
                        widget))
         code-text (.. view -state -doc (sliceString from to))]
-    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2 {:class (when (= :code (.-type widget)) "bg-slate-100")}
+    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2
+                  {:class [(when (= :code (.-type widget)) "bg-slate-100")
+                           (when (widget-selected? widget view) "ring-4")]}
                   [:button.rounded.bg-blue-300.text-white.text-xl.pb-6
-                   ;; MAYBE: just on cursor enter
                    {:style {:width "25px" :height "25px"}
                     :on-click (fn [e]
                                 (.preventDefault e)
@@ -184,23 +192,41 @@
          (.next iterator)
          (cons w (lazy-seq (step))))))))
 
-(defn run-alt-enter [^js view]
+(defn enter-preview [^js view]
   (when-some [block (block-at (.-state view))]
     (.. view (dispatch #js{:effects (.of show-preview-effect (block->widget block))}))))
+
+(defn get-effect [^js tr effect-type] (some #(and (.is ^js % effect-type) %) (.-effects tr)))
+
+(defn select-preview-block [dir view]
+  (js/console.log :select dir view)
+  (.. view (dispatch #js{:effects (.of move-preview-selection dir)})))
+
+(def block-selection
+  (.define StateField
+           (j/obj :create (fn [doc-state] {:current 0
+                                           :blocks (state->blocks doc-state)})
+                  :update (fn [state tr]
+                            (js/console.log :update state)
+                            state))))
 
 (def markdown-preview
   "State field extensions for book-keeping preview state. Also providing:
   * a decoration-set extension for markdown block previews
   * a keymap extension for toggling preview mode from within a block"
   (.define StateField
-           (j/obj :provide (fn [widgets] ;; Extensions
-                             (j/lit [(.. EditorView -decorations (from widgets))
-                                     (.of keymap (j/lit [{:key "Alt-Enter" :run run-alt-enter}]))]))
+           (j/obj :provide (fn [widgets]                    ;; Extensions
+                             (j/lit [block-selection
+                                     (.. EditorView -decorations (from widgets))
+                                     (.of keymap (j/lit [{:key "Escape" :run enter-preview}]))
+                                     (.of keymap (j/lit [{:key "ArrowUp" :run (partial select-preview-block :up)}]))
+                                     (.of keymap (j/lit [{:key "ArrowDown" :run (partial select-preview-block :down)}]))
+                                     ]))
                   :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
                   :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
-                            (let [show-preview (some #(and (.is ^js % show-preview-effect) %) (.-effects tr))
-                                  edit-block   (some #(and (.is ^js % edit-block-effect) %) (.-effects tr))]
+                            (let [show-preview (get-effect tr show-preview-effect)
+                                  edit-block (get-effect tr edit-block-effect)]
                               (cond show-preview
                                     (.update widgets
                                              (j/obj :sort true
@@ -371,7 +397,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix errors when entering a newline
 - [ ] fix extra space when entering a newline
 - [ ] fix errors on Ctrl-K
-- [ ] etc etc.
+- [ ] fix dark theme
 "}]] (js/document.getElementById "markdown-editor"))
   (rdom/render [:div
                 [:div.mb-5.bg-white.border [markdown-preview-keybinding-table]]
