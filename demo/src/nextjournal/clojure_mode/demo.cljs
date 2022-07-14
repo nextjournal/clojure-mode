@@ -154,8 +154,7 @@
                                 (.. view (dispatch #js{:effects (.of edit-block-effect widget)})))} "✐"]
                   [:div.mt-3
                    [:div.viewer-markdown
-                    [sv/inspect-paginated (v/with-viewer (.-type widget) code-text
-                                            )]]
+                    [sv/inspect-paginated (v/with-viewer (.-type widget) code-text)]]
                    (when (= :code (.-type widget))
                      [:div {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
                       (when-some [{:keys [error result]} (sci/eval-string code-text)]
@@ -195,10 +194,6 @@
            (.next iterator)                                 ;; TODO: remove widget
            (cons {:from from :to to :widget (.-widget val)} (lazy-seq (step)))))))))
 
-(defn enter-preview [^js view]
-  (when-some [block (block-at (.-state view))]
-    (.. view (dispatch #js{:effects (.of show-preview-effect (block->widget block))}))))
-
 (defn get-effect [^js tr effect-type] (some #(and (.is ^js % effect-type) %) (.-effects tr)))
 
 (def markdown-preview-decorations
@@ -206,9 +201,7 @@
   * a decoration-set extension for markdown block previews
   * a keymap extension for toggling preview mode from within a block"
   (.define StateField
-           (j/obj :provide (fn [widgets]                    ;; Extensions
-                             (j/lit [(.. EditorView -decorations (from widgets))
-                                     (.of keymap (j/lit [{:key "Escape" :run enter-preview}]))]))
+           (j/obj :provide (fn [widgets] (.. EditorView -decorations (from widgets)))
                   :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
                   :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
@@ -238,12 +231,13 @@
 
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 
-(defn inside-preview? [^js view]
-  (some (partial within? (->cursor-pos (.-state view)))
-        (rangeset-seq (get-preview-decorations view))))
+(defn preview-at-cursor [^js view]
+  (let [cursor-pos (->cursor-pos (.-state view))]
+    (some #(when (within? cursor-pos %) (:widget %))
+          (rangeset-seq (get-preview-decorations view)))))
 
 (defn dispatch-goto-block [^js e ^js view]
-  (when-some [dir (when (inside-preview? view)
+  (when-some [dir (when (preview-at-cursor view)
                     (case (.-which e) 40 :down 38 :up nil))]
     (let [next-range (get-next (cond-> (rangeset-seq (get-preview-decorations view)) (= :up dir) reverse)
                                (->cursor-pos (.-state view)))]
@@ -252,8 +246,17 @@
                                    :selection {:head next-pos :anchor next-pos}})))
         true))))
 
-(def markdown-preview (j/lit [(.highest Prec (.domEventHandlers EditorView (j/obj :keydown dispatch-goto-block)))
-                              markdown-preview-decorations]))
+(defn toggle-edit-mode [^js view]
+  (if-some [widget (preview-at-cursor view)]
+    (.. view (dispatch #js{:effects (.of edit-block-effect widget)}))
+    (when-some [block (block-at (.-state view))]
+      (.. view (dispatch #js{:effects (.of show-preview-effect (block->widget block))})))))
+
+(def markdown-preview
+  "An extension turning a Markdown document in a blockwise preview-able editor"
+  (j/lit [(.highest Prec (.domEventHandlers EditorView (j/obj :keydown dispatch-goto-block)))
+          (.of keymap (j/lit [{:key "Escape" :run toggle-edit-mode}]))
+          markdown-preview-decorations]))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
