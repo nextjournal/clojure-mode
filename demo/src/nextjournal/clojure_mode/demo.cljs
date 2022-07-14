@@ -88,41 +88,49 @@
 (defn ->cursor-pos [^js x] (.. x -selection -main -head))
 (defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 
-(defn state->blocks [state]
-  (let [vblocks (volatile! [])]
-    ;; ^:js {:keys [from to]} (.-visibleRanges view)
-    ;; TODO: reimplement visible range
-    (.. (syntaxTree state)
-        (iterate (j/obj :enter
-                        (fn [node]
-                          (if (doc? node)
-                            true ;; only enter into children of the top document
-                            (do
-                              (when (fenced-code? node)
-                                (vswap! vblocks (fn [blocks]
-                                                  (let [{:keys [to]} (peek blocks)]
-                                                    (cond-> blocks
-                                                      (and (not (zero? (n/start node)))
-                                                           (or (not to) (not= (inc to) (n/start node))))
-                                                      (conj {:from (or to 0)
-                                                             :to (n/start node)
-                                                             :type :markdown})
-                                                      'always
-                                                      (conj
-                                                       {:from (n/start node)
-                                                        :to (n/end node)
-                                                        :node (.-node node)
-                                                        :type :code}))))))
-                              false))))))
-    (let [blocks @vblocks
-          doc-end (.. state -doc -length)
-          {:keys [to]} (peek blocks)
-          pos (->cursor-pos state)]
-      (map (fn [{:as b :keys [from to]}] (cond-> b (and (<= from pos) (< pos to)) (assoc :selected? true)))
-           (cond-> blocks
-             (not= doc-end (:to to))
-             (conj {:from to :to doc-end :type :markdown}))))))
+(defn state->blocks
+  "Partitions the document in state into ranges delimited by code blocks"
+  ([state] (state->blocks state {:select? true}))
+  ([state {:keys [select?]}]
+   (let [vblocks (volatile! [])]
+     ;; ^:js {:keys [from to]} (.-visibleRanges view)
+     ;; TODO: reimplement visible range
+     (.. (syntaxTree state)
+         (iterate (j/obj :enter
+                         (fn [node]
+                           (if (doc? node)
+                             true ;; only enter into children of the top level document
+                             (do
+                               (when (fenced-code? node)
+                                 (vswap! vblocks (fn [blocks]
+                                                   (let [{:keys [to]} (peek blocks)]
+                                                     (cond-> blocks
+                                                       (and (not (zero? (n/start node)))
+                                                            (or (not to) (not= (inc to) (n/start node))))
+                                                       (conj {:from (or to 0)
+                                                              :to (n/start node)
+                                                              :type :markdown})
+                                                       'always
+                                                       (conj
+                                                        {:from (n/start node)
+                                                         :to (n/end node)
+                                                         :node (.-node node)
+                                                         :type :code}))))))
+                               false))))))
+     (let [blocks @vblocks
+           doc-end (.. state -doc -length)
+           {:keys [to]} (peek blocks)
+           pos (->cursor-pos state)]
+       (cond-> blocks
+         (not= doc-end to)
+         (conj {:from to :to doc-end :type :markdown})
+         select?
+         (->> (map (fn [b]
+                     (cond-> b
+                       (within? pos b)
+                       (assoc :selected? true))))))))))
 
 (defn block-at
   ([state] (block-at state (->cursor-pos state)))
@@ -202,12 +210,12 @@
   * a keymap extension for toggling preview mode from within a block"
   (.define StateField
            (j/obj :provide (fn [widgets] (.. EditorView -decorations (from widgets)))
-                  :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
+                  :create (fn [doc-state] (blocks->widgets (state->blocks doc-state {:select? false})))
                   :update (fn [^js widgets ^js tr]
                             ;; TODO: fix dispatching changes twice
                             (let [show-preview (get-effect tr show-preview-effect)
-                                  edit-block (get-effect tr edit-block-effect)
-                                  goto-block (get-effect tr goto-block-effect)]
+                                  edit-block   (get-effect tr edit-block-effect)
+                                  goto-block   (get-effect tr goto-block-effect)]
                               (cond (or goto-block show-preview)
                                     (blocks->widgets (state->blocks (.-state tr))) ;; re-draw on selection changed
 
@@ -228,8 +236,6 @@
 
 (defn get-next "Gets the first range after the one containing pos" [ranges pos]
   (first (next (drop-while (complement #(and (<= (:from %) pos) (< pos (:to %)))) ranges))))
-
-(defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 
 (defn preview-at-cursor [^js view]
   (let [cursor-pos (->cursor-pos (.-state view))]
@@ -419,6 +425,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [x] make previews editable on click
 - [ ] make previews selectable with arrow keys
 - [ ] make previews editable on click
+- [ ] fix loosing selection
 - [ ] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
 - [ ] fix dispatching changes/annotations twice
