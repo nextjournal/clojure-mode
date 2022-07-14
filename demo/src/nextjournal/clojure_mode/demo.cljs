@@ -2,7 +2,7 @@
   (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport syntaxTree]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
-            ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction]]
+            ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction Prec]]
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap]]
             ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
@@ -117,10 +117,12 @@
                               false))))))
     (let [blocks @vblocks
           doc-end (.. state -doc -length)
-          {:keys [to]} (peek blocks)]
-      (cond-> blocks
-        (not= doc-end (:to to))
-        (conj {:from to :to doc-end :type :markdown})))))
+          {:keys [to]} (peek blocks)
+          pos (->cursor-pos state)]
+      (map (fn [{:as b :keys [from to]}] (cond-> b (and (<= from pos) (< pos to)) (assoc :selected? true)))
+           (cond-> blocks
+             (not= doc-end (:to to))
+             (conj {:from to :to doc-end :type :markdown}))))))
 
 (defn block-at
   ([state] (block-at state (->cursor-pos state)))
@@ -128,17 +130,15 @@
    (some (fn [{:as block :keys [from to]}] (when (<= from pos to) block))
          (state->blocks state))))
 
+;; FXs
 (defonce show-preview-effect (.define StateEffect))
 (defonce edit-block-effect (.define StateEffect))
-(def move-preview-selection (.define StateEffect))
+(defonce goto-block-effect (.define StateEffect))
 
 (defn widget-selected? [widget view]
   (<= (.-from widget) (->cursor-pos (.-state view)) (.-to widget)))
 
 (defn render-markdown [^js widget ^js view]
-  (js/console.log :render-markdown/cp (->cursor-pos (.-state view))
-                  :widget/selected? (widget-selected? widget view)
-                  :widget/from-to (.-from widget) (.-to widget))
   (let [el (js/document.createElement "div")
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText"))
@@ -146,7 +146,7 @@
         code-text (.. view -state -doc (sliceString from to))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2
                   {:class [(when (= :code (.-type widget)) "bg-slate-100")
-                           (when (widget-selected? widget view) "ring-4")]}
+                           (when (.-isSelected widget) "ring-4")]}
                   [:button.rounded.bg-blue-300.text-white.text-xl.pb-6
                    {:style {:width "25px" :height "25px"}
                     :on-click (fn [e]
@@ -168,14 +168,16 @@
 
 (defclass Widget
   (extends WidgetType)
-  (constructor [this {:keys [from to type node]}]
+  (constructor [this {:keys [from to type node selected?]}]
     (j/assoc! this
               :from from :to to :type type :node node
+              :isSelected selected?
               :ignoreEvent (constantly false)
               :toDOM (partial render-markdown this)
-              :eq (fn [other]
+              :eq (fn [^js other]
                     (and (identical? (.-from this) (.-from other))
-                         (identical? (.-to this) (.-to other)))))))
+                         (identical? (.-to this) (.-to other))
+                         (identical? (.-isSelected this) (.-isSelected other))))))) ;; redraw on selection change
 
 (defn block->widget [{:as block :keys [from to]}]
   (.. Decoration
@@ -185,12 +187,14 @@
 (defn blocks->widgets [blocks]
   (.set Decoration (into-array (map block->widget blocks))))
 
-(defn widget-seq "debug utility for iterating widgets in a DecorationSet" [^js ws]
+(defn rangeset-seq "Returns ranges in a DecorationSet as a lazy-seq" [^js ws]
+  ;; TODO: optimize with from
   (let [iterator (.iter ws)]
     ((fn step []
-       (when-some [w (some-> iterator .-value .-widget)]
-         (.next iterator)
-         (cons w (lazy-seq (step))))))))
+       (when-some [val (.-value iterator)]
+         (let [from (.-from iterator) to (.-to iterator)]
+           (.next iterator)                                 ;; TODO: remove widget
+           (cons {:from from :to to :widget (.-widget val)} (lazy-seq (step)))))))))
 
 (defn enter-preview [^js view]
   (when-some [block (block-at (.-state view))]
@@ -198,36 +202,25 @@
 
 (defn get-effect [^js tr effect-type] (some #(and (.is ^js % effect-type) %) (.-effects tr)))
 
-(defn select-preview-block [dir view]
-  (js/console.log :select dir view)
-  (.. view (dispatch #js{:effects (.of move-preview-selection dir)})))
-
-(def block-selection
-  (.define StateField
-           (j/obj :create (fn [doc-state] {:current 0
-                                           :blocks (state->blocks doc-state)})
-                  :update (fn [state tr]
-                            (js/console.log :update state)
-                            state))))
-
-(def markdown-preview
+(def markdown-preview-decorations
   "State field extensions for book-keeping preview state. Also providing:
   * a decoration-set extension for markdown block previews
   * a keymap extension for toggling preview mode from within a block"
   (.define StateField
            (j/obj :provide (fn [widgets]                    ;; Extensions
-                             (j/lit [block-selection
-                                     (.. EditorView -decorations (from widgets))
-                                     (.of keymap (j/lit [{:key "Escape" :run enter-preview}]))
-                                     (.of keymap (j/lit [{:key "ArrowUp" :run (partial select-preview-block :up)}]))
-                                     (.of keymap (j/lit [{:key "ArrowDown" :run (partial select-preview-block :down)}]))
-                                     ]))
+                             (j/lit [(.. EditorView -decorations (from widgets))
+                                     (.of keymap (j/lit [{:key "Escape" :run enter-preview}]))]))
                   :create (fn [doc-state] (blocks->widgets (state->blocks doc-state)))
                   :update (fn [^js widgets ^js tr]
+
                             ;; TODO: fix dispatching changes twice
                             (let [show-preview (get-effect tr show-preview-effect)
-                                  edit-block (get-effect tr edit-block-effect)]
-                              (cond show-preview
+                                  edit-block (get-effect tr edit-block-effect)
+                                  goto-block (get-effect tr goto-block-effect)]
+                              (cond goto-block
+                                    (blocks->widgets (state->blocks (.-state tr)))
+
+                                    show-preview
                                     (.update widgets
                                              (j/obj :sort true
                                                     :add (j/lit [(.-value show-preview)])))
@@ -236,11 +229,33 @@
                                              (j/obj :filter
                                                     (fn [_ _ ^js value]
                                                       (not (.. value -widget (eq (.-value edit-block)))))))
+
                                     (.-docChanged tr)
                                     (.update (blocks->widgets (state->blocks (.-state tr)))
                                              ;; TODO: recompute only within range
                                              (j/obj :filter (fn [from to _] (not (<= from (->cursor-pos tr) to)))))
                                     'else widgets))))))
+
+(defn get-preview-decorations [^js view]
+  (.. view -state (field markdown-preview-decorations)))
+
+(defn get-next [ranges pos]
+  (first (next (drop-while (complement #(and (<= (:from %) pos) (< pos (:to %)))) ranges))))
+
+(defn dispatch-goto-block [^js e ^js view]
+  (when-some [dir (case (.-which e) 40 :down 38 :up nil)]
+    (let [pos (->cursor-pos (.-state view))
+          next-range (get-next (cond-> (rangeset-seq (get-preview-decorations view))
+                                 (= :up dir) reverse) pos)
+          next-pos (when next-range (inc (:from next-range)))]
+      (js/console.log :pos pos :NR next-range :NP next-pos)
+      (when next-pos
+        (.. view (dispatch (j/lit {:effects [(.of goto-block-effect true)]
+                                   :selection {:head next-pos :anchor next-pos}}))))
+      true)))
+
+(def markdown-preview (j/lit [(.highest Prec (.domEventHandlers EditorView (j/obj :keydown dispatch-goto-block)))
+                              markdown-preview-decorations]))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
