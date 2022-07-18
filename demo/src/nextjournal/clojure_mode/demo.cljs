@@ -106,6 +106,7 @@
 (defn edit-at [{:as doc :keys [blocks]} _tr pos]
   ;; TODO: check if doable with idx instead of pos
   (-> doc
+      (update :blocks (partial mapv #(dissoc % :edit?)))
       (assoc-in [:blocks (pos->block-idx blocks pos) :edit?] true)
       (dissoc :selected)))
 
@@ -157,7 +158,8 @@
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText")) widget))
         code-text (.. view -state -doc (sliceString from to))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
-                  {:on-click (fn [_e]
+                  {:on-click (fn [e]
+                               (.preventDefault e)
                                (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [(inc from)]})
                                                           :selection {:anchor (inc from)}}))))
                    :class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]}
@@ -200,7 +202,7 @@
                                 (.-docChanged tr)
                                 (-> doc
                                     (assoc :blocks (state->blocks (.-state tr)))
-                                    (edit-at tr (->cursor-pos (.-state tr))))
+                                    (edit-at tr (->cursor-pos tr)))
                                 'else doc))))))
 
 (defn block->widget [{:as block :keys [from to]}]
@@ -224,15 +226,47 @@
 
 (defn bounded-inc [i b] (min (dec b) (inc i)))
 (defn bounded-dec [i] (max 0 (dec i)))
+
+(defn get-next-block [^js view blocks key]
+  (let [pos (->cursor-pos (.-state view))
+        index (pos->block-idx blocks pos)
+        next-index (case key
+                     (:up :left) (bounded-dec index)
+                     (:down :right) (bounded-inc index (count blocks)))]
+    (when (not= next-index index)
+      (let [line (.. view -state -doc (lineAt pos))
+            next-block (get blocks next-index)]
+        ;; blocks span entire lines we can argue by an offset of at most the current line + 1
+        (case key
+          (:down :right)
+          (let [offset (when (= :down key) (- (.-to line) pos))
+                new-pos (cond-> (inc pos) offset (+ offset))
+                end (.. view -state -doc -length)]
+            (when (or (<= (:from next-block) new-pos)
+                      (and (= :down key)
+                           ;; we'd reach end of doc by jumping across decorations
+                           (= end (.. view (moveVertically (.. view -state -selection -main) true) -anchor))))
+              next-block))
+
+          (:up :left)
+          (let [offset (when (= :up key) (- pos (.-from line)))
+                new-pos (cond-> (dec pos) offset (- offset))]
+            (when (or (< new-pos (:to next-block))
+                      (and (= :up key)
+                           ;; we'd reach start of doc by jumping across decorations
+                           (= 0 (.. view (moveVertically (.. view -state -selection -main) false) -anchor))))
+              next-block)))))))
+
 (defn handle-keydown [^js e ^js view]
-  (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc nil)]
-    (let [{:as doc :keys [selected blocks]} (.. view -state (field doc-state))]
+  (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
+    (let [end (.. view -state -doc -length)
+          {:keys [selected blocks]} (.. view -state (field doc-state))]
       (cond
         ;; toggle edit mode
         (= :esc key)
         (if selected
           (let [at (inc (:from (get blocks selected)))]
-            (js/console.log :At at )
+            (js/console.log :At at)
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                        :selection {:anchor at}})))
             true)
@@ -247,10 +281,19 @@
         ;; move up/down selection
         (and selected (or (= :up key) (= :down key)))
         (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count blocks)))]
-          (js/console.log :anchor (inc (:from (get blocks at))) )
+          (js/console.log :anchor (inc (:from (get blocks at))))
           (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (get blocks at)))}
                                      :effects (.of doc-apply-op {:op preview-at :args [at]})})))
           false)
+
+        ;; check we're entering a preview from an edit region
+        ;; (not selected) implies we're in edit
+        (and (not selected) (or (= :up key) (= :down key) (= :left key) (= :right key)))
+        (when-some [next-block (get-next-block view blocks key)]
+          (let [at (if (#{:up :left} key) (dec (:to next-block)) (inc (:from next-block)))]
+            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
+                                       :selection {:anchor at}})))
+            true))
 
         'else false))))
 
