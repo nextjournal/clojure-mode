@@ -88,7 +88,7 @@
 (defn ->cursor-pos [^js x] (.. x -selection -main -head))
 (defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
-(defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
+(defn within? [pos {:keys [from to]}] (<= from pos to))
 
 ;; FXs
 (defonce doc-apply-op (.define StateEffect))
@@ -101,8 +101,8 @@
 ;; Doc
 ;; { :selected :: Set | Int , :blocks [Map] }
 
-;; ops
-(defn pos->block-idx [blocks pos] (some (fn [[i b]] (when (within? pos b) i)) (zipmap (range) blocks)))
+;; Doc Ops
+(defn pos->block-idx [blocks pos] (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
 (defn edit-at [{:as doc :keys [blocks]} _tr pos]
   ;; TODO: check if doable with idx instead of pos
   (-> doc
@@ -259,8 +259,7 @@
 
 (defn handle-keydown [^js e ^js view]
   (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
-    (let [end (.. view -state -doc -length)
-          {:keys [selected blocks]} (.. view -state (field doc-state))]
+    (let [{:keys [selected blocks]} (.. view -state (field doc-state))]
       (cond
         ;; toggle edit mode
         (= :esc key)
