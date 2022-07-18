@@ -169,12 +169,14 @@
                    [:div.viewer-markdown
                     [sv/inspect-paginated (v/with-viewer (.-type widget) code-text)]]
                    (when (= :code (.-type widget))
-                     [:div {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-                      (when-some [{:keys [error result]} (sci/eval-string code-text)]
-                        (cond
-                          error [:div.red error]
-                          (react/isValidElement result) result
-                          'else (sv/inspect-paginated result)))])]] el)
+                     [:<>
+                      [:hr.border]
+                      [:div {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
+                       (when-some [{:keys [error result]} (sci/eval-string code-text)]
+                         (cond
+                           error [:div.red error]
+                           (react/isValidElement result) result
+                           'else (sv/inspect-paginated result)))]])]] el)
     el))
 
 (defclass Widget
