@@ -115,10 +115,10 @@
   (-> doc
       (update :blocks (partial mapv #(dissoc % :edit?)))
       (assoc :selected idx)
-      (dissoc :edit-all?)))
+      (dissoc :edit-all? :doc-changed?)))
 
 (defn edit-all [doc _tr]
-  (-> doc (assoc :edit-all? true) (dissoc :selected)))
+  (-> doc (assoc :edit-all? true) (dissoc :selected :doc-changed?)))
 
 ;; Codemirror State to Blocks
 (defn state->blocks
@@ -210,6 +210,9 @@
                                 apply-op (apply op doc tr args)
                                 (.-docChanged tr)
                                 (-> doc
+                                    (assoc :doc-changed? true)
+                                    ;; block state is rebuilt at each edit
+                                    ;; we might consider mapping a codemirror range-set through tr changes instead
                                     (assoc :blocks (state->blocks (.-state tr)))
                                     (edit-at tr (->cursor-pos tr)))
                                 'else doc))))))
@@ -268,6 +271,7 @@
 (defn bounded-inc [i b] (min (dec b) (inc i)))
 (defn bounded-dec [i] (max 0 (dec i)))
 
+;; Keyborad event handling
 (defn get-next-block [^js view blocks key]
   (let [pos (->cursor-pos (.-state view))
         index (pos->block-idx blocks pos)
@@ -300,9 +304,9 @@
 
 (defn handle-keydown [^js e ^js view]
   (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
-    (let [{:keys [edit-all? selected blocks]} (.. view -state (field doc-state))]
+    (let [{:keys [doc-changed? edit-all? selected blocks]} (.. view -state (field doc-state))]
       (cond
-        ;; toggle edit mode (Selected -> EditOne -> EditAll)
+        ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
         (= :esc key)
         (cond
           selected
@@ -311,13 +315,13 @@
                                        :selection {:anchor at}})))
             true)
 
-          edit-all?
+          (or doc-changed? edit-all?)
           (let [idx (pos->block-idx blocks (->cursor-pos (.-state view)))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select :args [idx]})
                                        :selection {:anchor (->cursor-pos (.-state view))}})))
             true)
 
-          'else
+          'edit-one
           (do (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-all})})))
               true))
 
@@ -480,9 +484,10 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix dark theme
 "}]] (js/document.getElementById "markdown-editor"))
   (rdom/render [:div
+                [:div.text-lg.font-medium.mb-2 [:em "Click on a cell to edit or use the following keybindings"]]
                 [:div.mb-5.bg-white.max-w-4xl.mx-auto.border
                  [key-bindings-table {:toggle-preview
-                                      [{:key "Esc" :doc "Toggles between preview and edit mode"}]
+                                      [{:key "Esc" :doc "Toggles Edit-Cell / Edit-all / Preview-and-select modes"}]
                                       :select-previous-block
                                       [{:key "ArrowUp" :doc "Selects block before the current selection"}]
                                       :select-next-block
