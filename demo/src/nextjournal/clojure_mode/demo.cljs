@@ -3,7 +3,7 @@
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction Prec]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap]]
+            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap Tooltip showTooltip]]
             ["@lezer/markdown" :as lezer-markdown]
             [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clerk.viewer :as v]
@@ -13,6 +13,7 @@
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.demo.sci :as sci]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
@@ -122,7 +123,7 @@
   ([state {:keys [from]}]
    (let [vblocks (volatile! [])]
      (.. (syntaxTree state)
-         (iterate (j/obj #_#_ :from from
+         (iterate (j/obj :from from
                          :enter
                          (fn [node]
                            (if (doc? node)
@@ -152,6 +153,14 @@
          (conj {:from to :to doc-end :type :markdown}))))))
 
 ;; Previews
+(defn eval-code-view [code]
+  [:div.viewer-result {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
+   (when-some [{:keys [error result]} (sci/eval-string code)]
+     (cond
+       error [:div.red error]
+       (react/isValidElement result) result
+       'else (sv/inspect-paginated result)))])
+
 (defn render-markdown [^js widget ^js view]
   (let [el (js/document.createElement "div")
         [from to] ((juxt n/start n/end)
@@ -163,20 +172,14 @@
                                (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [(inc from)]})
                                                           :selection {:anchor (inc from)}}))))
                    :class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]}
-                  [:button.rounded.bg-blue-300.text-white.text-lg
-                   {:style {:width "23px" :height "23px" :line-height "5px"}} "✐"]
                   [:div.mt-3
                    [:div.viewer-markdown
                     [sv/inspect-paginated (v/with-viewer (.-type widget) code-text)]]
                    (when (= :code (.-type widget))
                      [:<>
                       [:hr.border]
-                      [:div {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-                       (when-some [{:keys [error result]} (sci/eval-string code-text)]
-                         (cond
-                           error [:div.red error]
-                           (react/isValidElement result) result
-                           'else (sv/inspect-paginated result)))]])]] el)
+                      [:div.mt-3.ml-3
+                       [eval-code-view code-text]]])]] el)
     el))
 
 (defclass Widget
@@ -192,7 +195,7 @@
                          (identical? (.-to this) (.-to other))
                          (identical? (.-isSelected this) (.-isSelected other))))))) ;; redraw on selection change
 
-;; Doc StateField
+;; Document State Field
 (def doc-state
   "Maintains a document description at block level"
   (.define StateField
@@ -221,10 +224,41 @@
                      (cond-> blocks
                        selected (assoc-in [selected :selected?] true)))))
 
-;; Decoration StateField
+;; Decoration State Field
 (def block-decorations
   "Decorations Facet derived from current Doc state"
   (.. EditorView -decorations (from doc-state doc->preview-decorations)))
+
+;; Tooltips State Field
+(defn eval-region-state [^js state]
+  (let [er (.field state eval-region/region-field)]
+    (when (< 0 (.-size er))
+      (let [i (.. er iter) from (.-from i) to (.-to i)]
+        {:to to :text (.. state -doc (sliceString from to))}))))
+
+(defn eval-region-state->tooltip [{:as ers :keys [to text]}]
+  (js/console.log :ERS ers)
+  (when (seq ers)
+    (j/obj :pos to
+           :above false
+           :strictSide true
+           :arrow true
+           :create (fn [_]
+                     (let [tt-el (js/document.createElement "div")]
+                       (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
+                       (j/obj :dom tt-el))))))
+
+(def tooltip-theme
+  (.theme EditorView
+          (j/lit {".cm-tooltip"
+                  {:background-color "#e2e8f0"
+                   :border "1px solid #cbd5e1"}})))
+
+(def eval-region-tooltip
+  (.define StateField
+           (j/obj :create (constantly nil)
+                  :update (fn [_ ^js tr] (eval-region-state (.-state tr)))
+                  :provide (fn [f] (.from showTooltip f eval-region-state->tooltip)))))
 
 (defn bounded-inc [i b] (min (dec b) (inc i)))
 (defn bounded-dec [i] (max 0 (dec i)))
@@ -267,13 +301,11 @@
         (= :esc key)
         (if selected
           (let [at (inc (:from (get blocks selected)))]
-            (js/console.log :At at)
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                        :selection {:anchor at}})))
             true)
           (let [idx (pos->block-idx blocks (->cursor-pos (.-state view)))
                 {:keys [edit?]} (get blocks idx)]
-            (js/console.log :about-to-preview idx (->cursor-pos (.-state view)))
             (when edit?
               (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-at :args [idx]})
                                          :selection {:anchor (->cursor-pos (.-state view))}})))
@@ -300,9 +332,10 @@
 
 (def markdown-preview
   "An extension turning a Markdown document in a blockwise preview-able editor"
-  (j/lit [(.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))
-          doc-state
-          block-decorations]))
+  (j/lit [doc-state
+          block-decorations
+          eval-region-tooltip tooltip-theme
+          (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))]))
 
 ;; syntax (an LRParser) + support (a set of extensions)
 (def clojure-lang (LanguageSupport. (cm-clj/syntax)
@@ -442,10 +475,18 @@ have an editor with ~~mono~~ _mixed language support_.
                                       :select-previous-block
                                       [{:key "ArrowUp" :doc "Selects block before the current selection"}]
                                       :select-next-block
-                                      [{:key "ArrowDown" :doc "Selects block after the current selection"}]}]]
+                                      [{:key "ArrowDown" :doc "Selects block after the current selection"}]
+                                      :eval-region-at-cursor
+                                      [{:key "Alt" :doc "Selects and evaluates form at cursor or evaluates current selection"}]
+                                      :eval-top-form-at-cursor
+                                      [{:key "Alt-Shift" :doc "Selects and evaluates top form at cursor"}]
+                                      :eval-region-grow
+                                      [{:key "Alt-ArrowUp" :doc "Grows the selected region and evaluates"}]
+                                      :eval-region-shrink
+                                      [{:key "Alt-ArrowUp" :doc "Shrinks the selected region and evaluates"}]}]]
                 [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                  [markdown-editor {:extensions [markdown-preview]
-                                        :doc "# Hello Markdown
+                                   :doc "# Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
 have an editor with ~~mono~~ _mixed language support_.
@@ -466,10 +507,12 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] make previews selectable with arrow keys
 - [x] make previews editable on click
 - [ ] fix loosing selection
-- [ ] toggle previews editable on cursor enter/leave
+- [x] eval region in clojure blocks
+- [x] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
 - [ ] fix dispatching changes/annotations twice
-- [ ] bring Clerk stylesheet in demo
+- [x] bring Clerk stylesheet in demo
+- [ ] toggle edit all by a second hit of ESC
 - [ ] choose keybindings
 "}]]] (js/document.getElementById "markdown-preview"))
 
