@@ -204,7 +204,7 @@
   "Maintains a document description at block level"
   (.define StateField
            (j/obj :create (fn [cm-state] {:selected nil :blocks (state->blocks cm-state)})
-                  :update (fn [doc ^js tr]
+                  :update (fn [{:as doc :keys [blocks]} ^js tr]
                             (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
                               (cond
                                 apply-op (apply op doc tr args)
@@ -214,7 +214,7 @@
                                     ;; block state is rebuilt at each edit
                                     ;; we might consider mapping a codemirror range-set through tr changes instead
                                     (assoc :blocks (state->blocks (.-state tr)))
-                                    (edit-at tr (->cursor-pos tr)))
+                                    (assoc-in [:blocks (pos->block-idx blocks (->cursor-pos tr)) :edit?] true))
                                 'else doc))))))
 
 (defn block->widget [{:as block :keys [from to]}]
@@ -499,7 +499,7 @@ have an editor with ~~mono~~ _mixed language support_.
                                       :eval-region-grow
                                       [{:key "Alt-ArrowUp" :doc "Grows the selected region and evaluates"}]
                                       :eval-region-shrink
-                                      [{:key "Alt-ArrowUp" :doc "Shrinks the selected region and evaluates"}]}]]
+                                      [{:key "Alt-ArrowDown" :doc "Shrinks the selected region and evaluates"}]}]]
                 [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                  [markdown-editor {:extensions [markdown-preview]
                                    :doc "# Hello Markdown
