@@ -105,16 +105,20 @@
 ;; Doc Ops
 (defn pos->block-idx [blocks pos] (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
 (defn edit-at [{:as doc :keys [blocks]} _tr pos]
-  ;; TODO: check if doable with idx instead of pos
+  ;; we're currently allowing just one edit block at a time, this makes mapping of decorations much easier
   (-> doc
       (update :blocks (partial mapv #(dissoc % :edit?)))
       (assoc-in [:blocks (pos->block-idx blocks pos) :edit?] true)
-      (dissoc :selected)))
+      (dissoc :selected :edit-all?)))
 
-(defn preview-at [doc _tr idx]
+(defn preview-all-and-select [doc _tr idx]
   (-> doc
-      (update-in [:blocks idx] dissoc :edit?)
-      (assoc :selected idx)))
+      (update :blocks (partial mapv #(dissoc % :edit?)))
+      (assoc :selected idx)
+      (dissoc :edit-all?)))
+
+(defn edit-all [doc _tr]
+  (-> doc (assoc :edit-all? true) (dissoc :selected)))
 
 ;; Codemirror State to Blocks
 (defn state->blocks
@@ -218,11 +222,13 @@
 (defn into-array* [xf coll] (reduce (xf j/push!) (array) coll))
 #_(into-array* (comp (map inc) (remove odd?)) [1 2 3])
 
-(defn doc->preview-decorations [{:keys [selected blocks]}]
-  (.set Decoration
-        (into-array* (comp (remove :edit?) (map block->widget))
-                     (cond-> blocks
-                       selected (assoc-in [selected :selected?] true)))))
+(defn doc->preview-decorations [{:keys [selected blocks edit-all?]}]
+  (if edit-all?
+    (.-none Decoration)
+    (.set Decoration
+          (into-array* (comp (remove :edit?) (map block->widget))
+                       (cond-> blocks
+                         selected (assoc-in [selected :selected?] true))))))
 
 ;; Decoration State Field
 (def block-decorations
@@ -294,33 +300,39 @@
 
 (defn handle-keydown [^js e ^js view]
   (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
-    (let [{:keys [selected blocks]} (.. view -state (field doc-state))]
+    (let [{:keys [edit-all? selected blocks]} (.. view -state (field doc-state))]
       (cond
-        ;; toggle edit mode
+        ;; toggle edit mode (Selected -> EditOne -> EditAll)
         (= :esc key)
-        (if selected
+        (cond
+          selected
           (let [at (inc (:from (get blocks selected)))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                        :selection {:anchor at}})))
             true)
-          (let [idx (pos->block-idx blocks (->cursor-pos (.-state view)))
-                {:keys [edit?]} (get blocks idx)]
-            (when edit?
-              (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-at :args [idx]})
-                                         :selection {:anchor (->cursor-pos (.-state view))}})))
-              true)))
+
+          edit-all?
+          (let [idx (pos->block-idx blocks (->cursor-pos (.-state view)))]
+            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select :args [idx]})
+                                       :selection {:anchor (->cursor-pos (.-state view))}})))
+            true)
+
+          'else
+          (do (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-all})})))
+              true))
 
         ;; move up/down selection
         (and selected (or (= :up key) (= :down key)))
         (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count blocks)))]
           (js/console.log :anchor (inc (:from (get blocks at))))
           (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (get blocks at)))}
-                                     :effects (.of doc-apply-op {:op preview-at :args [at]})})))
+                                     :effects (.of doc-apply-op {:op preview-all-and-select :args [at]})})))
           false)
 
         ;; check we're entering a preview from an edit region
         ;; (not selected) implies we're in edit
-        (and (not selected) (or (= :up key) (= :down key) (= :left key) (= :right key)))
+        (and (not selected) (not edit-all?) (not (.. view -state (field eval-region-tooltip)))
+             (or (= :up key) (= :down key) (= :left key) (= :right key)))
         (when-some [next-block (get-next-block view blocks key)]
           (let [at (if (#{:up :left} key) (dec (:to next-block)) (inc (:from next-block)))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
@@ -509,9 +521,9 @@ have an editor with ~~mono~~ _mixed language support_.
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
-- [ ] fix dispatching changes/annotations twice
+- [ ] fix (?) dispatching changes/annotations twice
 - [x] bring Clerk stylesheet in demo
-- [ ] toggle edit all by a second hit of ESC
+- [x] toggle edit all by a second hit of ESC
 - [ ] choose keybindings
 "}]]] (js/document.getElementById "markdown-preview"))
 
