@@ -230,14 +230,13 @@
   (.. EditorView -decorations (from doc-state doc->preview-decorations)))
 
 ;; Tooltips State Field
-(defn eval-region-state [^js state]
+(defn eval-region-text [^js state]
   (let [er (.field state eval-region/region-field)]
     (when (< 0 (.-size er))
       (let [i (.. er iter) from (.-from i) to (.-to i)]
         {:to to :text (.. state -doc (sliceString from to))}))))
 
-(defn eval-region-state->tooltip [{:as ers :keys [to text]}]
-  (js/console.log :ERS ers)
+(defn eval-region-text->tooltip [{:as ers :keys [to text]}]
   (when (seq ers)
     (j/obj :pos to
            :above false
@@ -257,8 +256,8 @@
 (def eval-region-tooltip
   (.define StateField
            (j/obj :create (constantly nil)
-                  :update (fn [_ ^js tr] (eval-region-state (.-state tr)))
-                  :provide (fn [f] (.from showTooltip f eval-region-state->tooltip)))))
+                  :update (fn [_ ^js tr] (eval-region-text (.-state tr)))
+                  :provide (fn [f] (.from showTooltip f eval-region-text->tooltip)))))
 
 (defn bounded-inc [i b] (min (dec b) (inc i)))
 (defn bounded-dec [i] (max 0 (dec i)))
