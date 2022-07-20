@@ -232,7 +232,12 @@ have an editor with ~~mono~~ _mixed language support_.
                                       [{:key "Alt-ArrowDown" :doc "Shrinks the selected region and evaluates"}]}]]
                 [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                  [markdown-editor {:extensions (livedoc/extensions
-                                                {:render
+                                                {:tooltip (fn [text _editor-view]
+                                                            (let [tt-el (js/document.createElement "div")]
+                                                              (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
+                                                              (j/obj :dom tt-el)))
+
+                                                 :render
                                                  {:markdown (fn [text]
                                                               [:div.viewer-markdown
                                                                [sv/inspect-paginated (v/with-viewer :markdown text)]])

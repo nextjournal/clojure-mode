@@ -116,14 +116,14 @@
         [from to] ((juxt n/start n/end)
                    (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText")) widget))
         code-text (.. view -state -doc (sliceString from to))
-        {:as cfg :keys [render]} (.. view -state (field config-state))
+        {:keys [render]} (.. view -state (field config-state))
         widget-type (.-type widget)]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
-                  {:on-click (fn [e]
+                  {:class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]
+                   :on-click (fn [e]
                                (.preventDefault e)
                                (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [(inc from)]})
-                                                          :selection {:anchor (inc from)}}))))
-                   :class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]}
+                                                          :selection {:anchor (inc from)}}))))}
                   [:div.mt-3
                    [(widget-type render) code-text] ]] el)
     el))
@@ -190,16 +190,13 @@
       (let [i (.. er iter) from (.-from i) to (.-to i)]
         {:to to :text (.. state -doc (sliceString from to))}))))
 
-(defn eval-region-text->tooltip [{:as ers :keys [to text]}]
+(defn eval-region-text->tooltip [create-fn {:as ers :keys [to text]}]
   (when (seq ers)
     (j/obj :pos to
            :above false
            :strictSide true
            :arrow true
-           :create (fn [_]
-                     (let [tt-el (js/document.createElement "div")]
-                       (rdom/render [:div.p-3 "Ahoi " #_ [eval-code-view text]] tt-el)
-                       (j/obj :dom tt-el))))))
+           :create (partial create-fn text))))
 
 (def tooltip-theme
   (.theme EditorView
@@ -208,15 +205,14 @@
                    :border "1px solid #cbd5e1"}})))
 
 (def eval-region-tooltip
-  ;; TODO
-  "Takes opts returns a Codemirror extension which works in conjunction with `nextjournal.clojure-mode.extensions.eval-region`.
-
-  Options take keys:
-  * `:tooltip-view` of type TooltipView (https://codemirror.net/docs/ref/#view.TooltipView)"
   (.define StateField
            (j/obj :create  (constantly nil)
                   :update  (fn [_ ^js tr] (eval-region-text (.-state tr)))
-                  :provide (fn [f] (.from showTooltip f eval-region-text->tooltip)))))
+                  :provide (fn [f] (.compute showTooltip
+                                             (array f config-state)
+                                             (fn [state]
+                                               (when-some [tooltip-create-fn (:tooltip (.field state config-state))]
+                                                 (eval-region-text->tooltip tooltip-create-fn (.field state f)))))))))
 
 (defn bounded-inc [i b] (min (dec b) (inc i)))
 (defn bounded-dec [i] (max 0 (dec i)))
@@ -298,22 +294,28 @@
   "An extension turning a Markdown document in a blockwise preview-able editor"
   [doc-state
    block-decorations
-   eval-region-tooltip tooltip-theme
+   eval-region-tooltip
+   tooltip-theme
    (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))])
 
 (defn extensions
-  "Accepts an options map with keys:
-   * `:render`
-      A map with keys `:markdown` `:code`
-   * `:tooltip`
-      A
-  "
-  ([] (cons config-state default-extensions))
-  ([opts] (cons (.init config-state (fn [_] opts)) default-extensions)))
+  "Accepts an `opts` map with optional keys:
+   * `:render` A map with keys `:markdown` and `:code` providing render functions (String -> HTMLElement)
+      for each block type.
+
+   * `:tooltip` (String -> EditorView -> TooltipView) as per https://codemirror.net/docs/ref/#view.TooltipView
+      when present, enables a tooltip extension, receives text spanned by current region as per `nextjournal.clojure-mode.extensions.eval-region`
+   "
+  ([] (extensions {}))
+  ([opts]
+   (cons (cond-> config-state (seq opts) (.init (constantly opts)))
+         default-extensions)))
 
 (defn editor
   "A convenience function/component bundling a basic setup with
-  * markdown+clojure language support
+
+  * markdown + clojure language support
+  * clojure mode extensions
   * configurable rendering options
   * configurable tooltips"
   [doc opts])
