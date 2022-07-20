@@ -10,6 +10,7 @@
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap Tooltip showTooltip]]
             ["@lezer/markdown" :as lezer-markdown]
             [applied-science.js-interop :as j]
+            [clojure.string :as str]
             [shadow.cljs.modern :refer [defclass]]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
@@ -304,7 +305,11 @@
       for each block type.
 
    * `:tooltip` (String -> EditorView -> TooltipView) as per https://codemirror.net/docs/ref/#view.TooltipView
-      when present, enables a tooltip extension, receives text spanned by current region as per `nextjournal.clojure-mode.extensions.eval-region`
+      when present, enables a Codemirror tooltips.
+      Receives text spanned by the current region as per `nextjournal.clojure-mode.extensions.eval-region`, positions
+      a tooltip at the end of the region.
+
+   Returns a default set of codemirror extensions.
    "
   ([] (extensions {}))
   ([opts]
@@ -314,8 +319,22 @@
 (defn editor
   "A convenience function/component bundling a basic setup with
 
-  * markdown + clojure language support
-  * clojure mode extensions
-  * configurable rendering options
-  * configurable tooltips"
-  [doc opts])
+  * markdown + clojure-mode language support and their syntax highlighting
+  * clojure mode keybindings
+  * livedoc extensions configurable via `opts`"
+  [{:as opts extras :extensions :keys [doc]}]
+  [:div {:ref (fn [^js el]
+                (if-not el
+                  (some-> el .-editorView .destroy)
+                  (j/assoc! el :editorView
+                            (EditorView. (j/obj :parent el
+                                                :state (.create EditorState
+                                                                (j/obj :doc (str/trim doc)
+                                                                       :extensions (into-array
+                                                                                    (-> (extensions (select-keys opts [:render :tooltip]))
+                                                                                        (concat [(syntaxHighlighting defaultHighlightStyle)
+                                                                                                 (.of keymap cm-clj/complete-keymap)
+                                                                                                 markdown-language-support])
+                                                                                        (cond->
+                                                                                          (seq extras)
+                                                                                          (concat extras)))))))))))}])
