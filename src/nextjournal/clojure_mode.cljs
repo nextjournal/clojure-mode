@@ -1,6 +1,6 @@
 (ns nextjournal.clojure-mode
   (:require ["@lezer/highlight" :as highlight :refer [tags]]
-            ["@codemirror/language" :as language :refer [LRLanguage]]
+            ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
             ["lezer-clojure" :as lezer-clj]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
@@ -67,6 +67,11 @@
       (sel-history/extension)
       (format/ext-format-changed-lines)
       (eval-region/extension {:modifier "Alt"})])
+
+(def language-support
+  "Eases embedding clojure mode into other languages (e.g. markdown).
+  See https://codemirror.net/docs/ref/#language.LanguageSupport for motivations"
+  (LanguageSupport. (syntax) (.. default-extensions (slice 1))))
 
 (comment
 
