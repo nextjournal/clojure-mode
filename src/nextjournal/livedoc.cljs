@@ -24,7 +24,7 @@
 (defn ->cursor-pos [^js x] (.. x -selection -main -head))
 (defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
-(defn within? [pos {:keys [from to]}] (<= from pos to))
+(defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 
 ;; Config
 (def default-config
@@ -57,7 +57,11 @@
 ;;         :node? SyntaxNode
 ;;         :selected? }
 ;; Doc Ops
-(defn pos->block-idx [blocks pos] (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
+
+(defn pos->block-idx [blocks pos]
+  ;; blocks partition the whole document, the only missing point is the end of the document
+  (or (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks))
+      (dec (count blocks))))
 
 (defn edit-at [{:as doc :keys [blocks]} _tr pos]
   ;; we're currently allowing just one edit block at a time, this makes mapping of decorations much easier
@@ -219,7 +223,7 @@
 (defn bounded-dec [i] (max 0 (dec i)))
 
 ;; Keyborad event handling
-(defn get-next-block [^js view blocks key]
+(defn edit-adjacent-block-at [^js view blocks key]
   (let [pos (->cursor-pos (.-state view))
         index (pos->block-idx blocks pos)
         next-index (case key
@@ -238,16 +242,16 @@
                       (and (= :down key)
                            ;; we'd reach end of doc by jumping across decorations
                            (= end (.. view (moveVertically (.. view -state -selection -main) true) -anchor))))
-              next-block))
+              (.. view -state -doc (lineAt new-pos) -from)))
 
           (:up :left)
           (let [offset (when (= :up key) (- pos (.-from line)))
                 new-pos (cond-> (dec pos) offset (- offset))]
-            (when (or (< new-pos (:to next-block))
+            (when (or (<= new-pos (:to next-block))
                       (and (= :up key)
                            ;; we'd reach start of doc by jumping across decorations
                            (= 0 (.. view (moveVertically (.. view -state -selection -main) false) -anchor))))
-              next-block)))))))
+              (.. view -state -doc (lineAt new-pos) -from))))))))
 
 (defn handle-keydown [^js e ^js view]
   (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
@@ -280,14 +284,13 @@
           false)
 
         ;; check we're entering a preview from an edit region
-        ;; (not selected) implies we're in edit
+        ;; (not selected) implies we're in edit. Also check we're not expanding/shrinking a paredit region
         (and (not selected) (not edit-all?) (not (.. view -state (field eval-region-tooltip)))
              (or (= :up key) (= :down key) (= :left key) (= :right key)))
-        (when-some [next-block (get-next-block view blocks key)]
-          (let [at (if (#{:up :left} key) (dec (:to next-block)) (inc (:from next-block)))]
-            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
-                                       :selection {:anchor at}})))
-            true))
+        (when-some [at (edit-adjacent-block-at view blocks key)]
+          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
+                                     :selection {:anchor at}})))
+          true)
 
         'else false))))
 

@@ -260,6 +260,7 @@ have an editor with ~~mono~~ _mixed language support_.
   []
   (inc 41))
 ```
+
 We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context:
 
 ```
@@ -269,7 +270,6 @@ We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI con
 We're also rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
 
 $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
-
 ```clojure
 (v/html [:h2 (str \"The Answer is: \" (the-answer))])
 ```
@@ -278,9 +278,10 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] Use markdown grammar to split document à la Clerk
 - [x] implement block widgets with previews
 - [x] make previews editable on click
-- [ ] make previews selectable with arrow keys
+- [x] make previews selectable with arrow keys
 - [x] make previews editable on click
-- [ ] fix loosing cursor moving up/down to enter a preview block (Chrome)
+- [x] fix loosing cursor moving up/down to enter a preview block
+- [ ] fix blocks when editing last one in edit-all mode
 - [ ] fix overflow-x in blocks
 - [ ] fix Clerk plotly/vega viewers
 - [x] eval region in clojure blocks
@@ -289,7 +290,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [ ] fix (?) dispatching changes/annotations twice
 - [x] bring Clerk stylesheet in demo
 - [x] toggle edit all by a second hit of ESC
-- [ ] choose keybindings
+- [ ] make livedoc extensions configurable
 "}]]] (js/document.getElementById "markdown-preview"))
 
   (when (linux?)
