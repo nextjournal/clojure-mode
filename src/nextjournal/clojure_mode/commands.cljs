@@ -13,17 +13,11 @@
             (dispatch))
     true))
 
-(defn clj-ctx?
-  "Returns true when current cursor is inside some Clojure tree"
-  [state]
-  (some (comp some? #{"Program"} n/name)
-        (n/ancestors (n/tree state (.. state -selection -main -head)))))
-
 ;; guarded commands: check if we're in a Clojure context in case our tree is mounted
 ;; onto some other language node
 (defn clj-view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
-    (if (clj-ctx? state)
+    (if (n/clj-ctx? state)
       (do (some-> (f state) (dispatch))
           true)
       false)))

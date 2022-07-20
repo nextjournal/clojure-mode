@@ -377,3 +377,11 @@
                  R
                  L
                  mid))))
+
+(defn clj-ctx?
+  "Returns true when current cursor is inside some Clojure node.
+
+  This is useful for limiting certain actions when clojure is nested into another language (e.g. Markdown)"
+  [state]
+  (some (comp some? #{"Program"} name)
+        (ancestors (tree state (.. state -selection -main -head)))))

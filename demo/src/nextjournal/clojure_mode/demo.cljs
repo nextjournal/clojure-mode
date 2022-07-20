@@ -211,6 +211,10 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix extra spacing when autoformatting after paredit movements
 - [ ] fix errors when entering a newline
 - [ ] fix extra space when entering a newline
+- [x] fix nonsense deletions hitting delete key
+- [ ] limit the scope of autoformat (TAB)
+- [ ] limit the scope of kill*
+- [ ] restore autoformat when deleting
 - [ ] fix errors on Ctrl-K
 - [ ] fix dark theme
 - [ ] fix demo error: CssSyntaxError: <css input>:62:15: The `font-inter` class does not exist
