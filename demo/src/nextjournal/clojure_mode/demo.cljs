@@ -1,6 +1,5 @@
 (ns nextjournal.clojure-mode.demo
   (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle syntaxTree]]
-            ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction Prec]]
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap Tooltip showTooltip]]
@@ -80,7 +79,7 @@
      (j/call @!view :destroy))))
 
 ;;  Markdown editors
-(defn markdown-editor [{:keys [doc editable? extensions]}]
+(defn markdown-editor [{:keys [doc extensions]}]
   [:div {:ref (fn [^js el]
                 (if-not el
                   (some-> el .-editorView .destroy)
@@ -92,6 +91,8 @@
                                                                                     (cond-> [(syntaxHighlighting defaultHighlightStyle)
                                                                                              (foldGutter)
                                                                                              (.of view/keymap cm-clj/complete-keymap)
+                                                                                             (history)
+                                                                                             (.of view/keymap historyKeymap)
                                                                                              theme
                                                                                              livedoc/markdown-language-support]
                                                                                       (seq extensions)
@@ -212,6 +213,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix extra space when entering a newline
 - [ ] fix errors on Ctrl-K
 - [ ] fix dark theme
+- [ ] fix demo error: CssSyntaxError: <css input>:62:15: The `font-inter` class does not exist
 "}]] (js/document.getElementById "markdown-editor"))
   (rdom/render [:div
                 [:div.text-lg.font-medium.mb-2 [:em "Click on a cell to edit or use the following keybindings"]]
@@ -258,7 +260,12 @@ have an editor with ~~mono~~ _mixed language support_.
   []
   (inc 41))
 ```
-We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context
+We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context.
+
+This allows to get inline $\\LaTeX$ formulas as well as block ones
+
+$$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
+
 ```clojure
 (v/html [:h2 (str \"The Answer is: \" (the-answer))])
 ```
