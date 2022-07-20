@@ -104,6 +104,7 @@
 
 ;; Doc Ops
 (defn pos->block-idx [blocks pos] (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
+
 (defn edit-at [{:as doc :keys [blocks]} _tr pos]
   ;; we're currently allowing just one edit block at a time, this makes mapping of decorations much easier
   (-> doc
@@ -204,7 +205,7 @@
   "Maintains a document description at block level"
   (.define StateField
            (j/obj :create (fn [cm-state] {:selected nil :blocks (state->blocks cm-state)})
-                  :update (fn [{:as doc :keys [blocks]} ^js tr]
+                  :update (fn [{:as doc :keys [blocks edit-all?]} ^js tr]
                             (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
                               (cond
                                 apply-op (apply op doc tr args)
@@ -213,8 +214,10 @@
                                     (assoc :doc-changed? true)
                                     ;; block state is rebuilt at each edit
                                     ;; we might consider mapping a codemirror range-set through tr changes instead
-                                    (assoc :blocks (state->blocks (.-state tr)))
-                                    (assoc-in [:blocks (pos->block-idx blocks (->cursor-pos tr)) :edit?] true))
+                                    (cond->
+                                      (not edit-all?)
+                                      (-> (assoc :blocks (state->blocks (.-state tr)))
+                                          (edit-at tr (->cursor-pos tr)))))
                                 'else doc))))))
 
 (defn block->widget [{:as block :keys [from to]}]
@@ -328,7 +331,6 @@
         ;; move up/down selection
         (and selected (or (= :up key) (= :down key)))
         (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count blocks)))]
-          (js/console.log :anchor (inc (:from (get blocks at))))
           (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (get blocks at)))}
                                      :effects (.of doc-apply-op {:op preview-all-and-select :args [at]})})))
           false)
@@ -512,7 +514,9 @@ have an editor with ~~mono~~ _mixed language support_.
   \"to all questions\"
   []
   (inc 41))
-
+```
+We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context
+```clojure
 (v/html [:h2 (str \"The Answer is: \" (the-answer))])
 ```
 
@@ -522,7 +526,8 @@ have an editor with ~~mono~~ _mixed language support_.
 - [x] make previews editable on click
 - [ ] make previews selectable with arrow keys
 - [x] make previews editable on click
-- [ ] fix loosing selection
+- [ ] fix loosing cursor moving up/down to enter a preview block (Chrome)
+- [ ] fix y-overflow in blocks
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
