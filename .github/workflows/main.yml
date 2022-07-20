@@ -11,7 +11,7 @@ jobs:
           java-version: '11.0.7'
 
       - name: 🔧 Install clojure
-        uses: DeLaGuardo/setup-clojure@master
+        uses: DeLaGuardo/setup-clojure@9.0
         with:
           cli: '1.10.3.943'
 
