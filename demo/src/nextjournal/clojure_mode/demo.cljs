@@ -1,8 +1,8 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle syntaxTree]]
+  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
             ["@codemirror/commands" :refer [history historyKeymap]]
-            ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction Prec]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap Tooltip showTooltip]]
+            ["@codemirror/state" :refer [EditorState]]
+            ["@codemirror/view" :as view :refer [EditorView]]
             [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clerk.viewer :as v]
             [applied-science.js-interop :as j]
@@ -260,9 +260,13 @@ have an editor with ~~mono~~ _mixed language support_.
   []
   (inc 41))
 ```
-We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context.
+We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context:
 
-This allows to get inline $\\LaTeX$ formulas as well as block ones
+```
+(v/plotly-viewer {:data [{:y [3 1 2]}]})
+```
+
+We're also rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
 
 $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 
@@ -278,6 +282,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] make previews editable on click
 - [ ] fix loosing cursor moving up/down to enter a preview block (Chrome)
 - [ ] fix overflow-x in blocks
+- [ ] fix Clerk plotly/vega viewers
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
