@@ -1,8 +1,9 @@
 (ns nextjournal.clojure-mode.node
   (:refer-clojure :exclude [coll? ancestors string? empty? regexp? name range resolve type])
   (:require ["@lezer/common" :as lz-tree]
-            ["lezer-clojure" :as lezer-clj]
+            ["@lezer/markdown" :as lezer-markdown]
             ["@codemirror/language" :as language]
+            ["lezer-clojure" :as lezer-clj]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.selections :as sel]))
@@ -281,7 +282,7 @@
         node)))
 
 (defn topmost-cursor [state from]
-  (-> (cursor state from 1) .-node up-here .cursor))
+  (-> (tree state from 1) .-node up-here .cursor))
 
 (defn terminal-nodes [state from to]
   (let [^js cursor (topmost-cursor state from)]
@@ -390,6 +391,13 @@
                  L
                  mid))))
 
+(defn embedded?
+  "State position is inside fenced code blocks regardless of clojure syntax."
+  ([state] (embedded? state (.. state -selection -main -head)))
+  ([state pos]
+   (identical? (.-FencedCode lezer-markdown/parser.nodeTypes)
+               (.. state -tree (resolve pos) -type -id))))
+
 (defn within-program?
   "Returns true when position (or current cursor) is inside some Clojure node.
 
@@ -399,3 +407,13 @@
    (let [n (tree state pos)]
      (or (program? n)
          (some program? (ancestors n))))))
+
+(comment
+  ;; test state overlaid nodes
+  (let [state
+        (nextjournal.clojure-mode.test-utils/make-state
+         #js [nextjournal.livedoc/markdown-language-support]
+         "```\n(|  a)\n```")]
+
+    (js/console.log (-> (tree state 4 1) .-node up-here .cursor))
+    (js/console.log (terminal-nodes state 4 9))))

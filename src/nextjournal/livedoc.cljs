@@ -4,11 +4,11 @@
   * per form evaluation inside clojure blocks
   * markdown blocks rendering
   * per-block edit mode"
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle syntaxTree Language indentNodeProp]]
+  (:require ["@codemirror/language" :refer [syntaxHighlighting defaultHighlightStyle syntaxTree Language indentNodeProp]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
-            ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction Prec]]
-            ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap Tooltip showTooltip]]
-            ["@lezer/markdown" :as lezer-markdown :refer [MarkdownParser parser]]
+            ["@codemirror/state" :refer [EditorState StateField StateEffect Prec]]
+            ["@codemirror/view" :as view :refer [EditorView Decoration WidgetType keymap showTooltip]]
+            ["@lezer/markdown" :as lezer-markdown]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [shadow.cljs.modern :refer [defclass]]
