@@ -208,14 +208,14 @@ have an editor with ~~mono~~ _mixed language support_.
 
 ## Todo
 - [x] resolve **inner nodes**
-- [ ] fix extra spacing when autoformatting after paredit movements
+- [x] fix extra spacing when autoformatting after paredit movements
 - [x] fix errors when entering a newline
 - [ ] fix extra space when entering a newline
 - [x] fix nonsense deletions hitting delete key
 - [x] limit the scope of autoformat (TAB)
 - [x] limit the scope of kill*
 - [ ] restore autoformat when deleting
-- [ ] keep parens balanced when deleting backward
+- [x] keep parens balanced when deleting backward
 - [x] fix errors on Ctrl-K
 - [ ] fix dark theme
 - [ ] fix demo error: CssSyntaxError: <css input>:62:15: The `font-inter` class does not exist

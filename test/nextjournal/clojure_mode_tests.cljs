@@ -115,6 +115,15 @@
         "\"| \"" "\"| \""                                   ;; do not delete string with whitespace
         ":x  :a |" ":x  :a|"                                ;; do not format on backspace
         "\"[|]\"" "\"|]\""                                  ;; normal deletion inside strings
+        ))
+
+    (testing "handle backspace (embedded)"
+      (are [input expected]
+        (= (apply-embedded-f close-brackets/handle-backspace input)
+           expected)
+        "```\n()|\n```" "```\n(|)\n```"
+        "```\n[[]]|\n```" "```\n[[]|]\n```"
+        "```\n(| )\n```"  "```\n|\n```"
         )))
 
   (deftest indentSelection
