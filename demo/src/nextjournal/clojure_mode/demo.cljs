@@ -214,6 +214,7 @@ have an editor with ~~mono~~ _mixed language support_.
 - [x] fix nonsense deletions hitting delete key
 - [x] limit the scope of autoformat (TAB)
 - [x] limit the scope of kill*
+- [x] limit the scope of eval-region
 - [ ] restore autoformat when deleting
 - [x] keep parens balanced when deleting backward
 - [x] fix errors on Ctrl-K

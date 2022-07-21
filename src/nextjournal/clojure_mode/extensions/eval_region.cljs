@@ -76,16 +76,16 @@
 (defonce region-field
   (.define StateField
            (j/lit
-            {:create  (constantly (.-none Decoration))
-             :update  (j/fn [_value ^:js {:keys [state]}]
-                        (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
-                              spec (if Enter mark-spec-highlight mark-spec)]
-                          (if-let [range (cond (and Alt Shift) (top-level-node state)
-                                               Alt (or (u/guard (main-selection state)
-                                                                #(not (j/get % :empty)))
-                                                       (cursor-range state)))]
-                            (single-mark spec range)
-                            (.-none Decoration))))})))
+            {:create (constantly (.-none Decoration))
+             :update (j/fn [_value ^:js {:keys [state]}]
+                       (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
+                             spec (if Enter mark-spec-highlight mark-spec)]
+                         (if-some [range (when (or (n/embedded? state) (n/within-program? state))
+                                           (cond (and Alt Shift) (top-level-node state)
+                                                 Alt (or (u/guard (main-selection state) #(not (j/get % :empty)))
+                                                         (cursor-range state))))]
+                           (single-mark spec range)
+                           (.-none Decoration))))})))
 
 
 (defn get-region-field [^js state] (.field state region-field))
