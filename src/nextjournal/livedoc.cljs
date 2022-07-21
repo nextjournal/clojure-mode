@@ -4,11 +4,11 @@
   * per form evaluation inside clojure blocks
   * markdown blocks rendering
   * per-block edit mode"
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LanguageSupport syntaxTree]]
+  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle syntaxTree Language indentNodeProp]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Transaction Prec]]
             ["@codemirror/view" :as view :refer [EditorView ViewPlugin Decoration WidgetType keymap Tooltip showTooltip]]
-            ["@lezer/markdown" :as lezer-markdown]
+            ["@lezer/markdown" :as lezer-markdown :refer [MarkdownParser parser]]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
             [shadow.cljs.modern :refer [defclass]]
@@ -17,14 +17,18 @@
             [nextjournal.clojure-mode.node :as n]
             [reagent.dom :as rdom]))
 
-(def markdown-language-support
-  (markdown (j/obj :base markdownLanguage
-                   :defaultCodeLanguage cm-clj/language-support)))
+(def ^js markdown-language-support
+  (markdown (j/obj :defaultCodeLanguage cm-clj/language-support
+                   :base (Language. (.-data markdownLanguage)
+                                    (.. markdownLanguage
+                                        -parser (configure
+                                                 (j/lit {:props [(.add indentNodeProp
+                                                                       (j/obj :Document (constantly 0)))]})))))))
 
-(defn ->cursor-pos [^js x] (.. x -selection -main -head))
-(defn doc? [node] (= (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
-(defn fenced-code? [node] (= (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn doc? [node] (identical? (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn fenced-code? [node] (identical? (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
+(defn ->cursor-pos [^js x] (.. x -selection -main -head))
 
 ;; Config
 (def default-config

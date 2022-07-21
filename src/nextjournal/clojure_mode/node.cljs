@@ -391,10 +391,11 @@
                  mid))))
 
 (defn within-program?
-  "Returns true when current cursor is inside some Clojure node.
+  "Returns true when position (or current cursor) is inside some Clojure node.
 
   This is useful for limiting certain actions when clojure is nested into another language (e.g. Markdown)"
-  [state]
-  (let [n (tree state (.. state -selection -main -head))]
-    (or (program? n)
-        (some program? (ancestors n)))))
+  ([state] (within-program? state (.. state -selection -main -head)))
+  ([state pos]
+   (let [n (tree state pos)]
+     (or (program? n)
+         (some program? (ancestors n))))))

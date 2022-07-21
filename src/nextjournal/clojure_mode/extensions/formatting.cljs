@@ -126,7 +126,7 @@
                   :insert (spaces state (- indent current-indent))}
             -1 #js{:from (+ from indent)
                    :to (+ from current-indent)}))
-        space-changes (when format-spaces?
+        space-changes (when (and format-spaces? (n/within-program? state from))
                         (space-changes state
                                        (+ from current-indent)
                                        (+ from (count text))))]
