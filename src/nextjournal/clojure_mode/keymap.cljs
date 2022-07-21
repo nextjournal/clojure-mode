@@ -105,8 +105,7 @@
      :preventDefault true}]
    :kill
    [{:key "Ctrl-k"
-     :doc "Remove all forms from cursor to end of line"
-     :preventDefault true}]
+     :doc "Remove all forms from cursor to end of line"}]
    :nav-left
    [{:key "Alt-ArrowLeft"
      :shift :nav-select-left

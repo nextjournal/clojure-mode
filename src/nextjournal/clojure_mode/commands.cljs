@@ -7,15 +7,12 @@
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]))
 
-(defn view-command [f]
-  (j/fn [^:js {:keys [^js state dispatch]}]
-    (some-> (f state)
-            (dispatch))
-    true))
 
-;; guarded commands: check if we're in a Clojure context in case our tree is mounted
-;; onto some other language node
-(defn clj-view-command [f]
+(defn view-command
+  "Takes an `f` : EditorState -> TransactionSpec and turns it into a Command (https://codemirror.net/docs/ref/#view.Command).
+  Before firing `f`, checks if state position is within a clojure program, this is useful to restrict commands to clojure
+  syntax when embedded in some parent language (e.g. markdown)."
+  [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
     (if (n/within-program? state)
       (do (some-> (f state) (dispatch))
@@ -257,7 +254,7 @@
 (def barf-backward (view-command (barf -1)))
 (def selection-grow (view-command sel-history/selection-grow*))
 (def selection-return (view-command sel-history/selection-return*))
-(def enter-and-indent (clj-view-command enter-and-indent*))
+(def enter-and-indent (view-command enter-and-indent*))
 
 (def paredit-index
   {:indent indent
