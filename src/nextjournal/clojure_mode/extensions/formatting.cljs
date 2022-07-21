@@ -150,7 +150,7 @@
 (defn format-transaction [^js tr]
   (let [origin (u/get-user-event-annotation tr)]
     (if-some [changes
-              (when (n/clj-ctx? (.-startState tr))
+              (when (n/within-program? (.-startState tr))
                 (case origin
                   ("input" "input.type"
                    "delete"

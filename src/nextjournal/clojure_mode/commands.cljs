@@ -17,7 +17,7 @@
 ;; onto some other language node
 (defn clj-view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
-    (if (n/clj-ctx? state)
+    (if (n/within-program? state)
       (do (some-> (f state) (dispatch))
           true)
       false)))

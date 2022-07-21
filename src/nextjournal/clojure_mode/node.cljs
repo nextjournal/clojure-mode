@@ -134,10 +134,17 @@
 
 (defn error? [^js node] (error-type? node))
 (defn top? [node] (top-type? (type node)))
+
+(defn program? [node] (identical? "Program" (name node)))
 (defn string? [node] (identical? "String" (name node)))
 (defn regexp? [node] (identical? "RegExp" (name node)))
 (defn line-comment? [node] (identical? "LineComment" (name node)))
 (defn discard? [node] (identical? "Discard" (name node)))
+
+(comment
+  ;; find a node type id at load time, maybe faster checks?
+  (some #(and (.is % "Program") (.-id %))
+        (.. lezer-clj -parser -nodeSet -types)))
 
 (defn coll? [node]
   (coll-type? (type node)))
@@ -243,6 +250,11 @@
       (regexp? node)))
 
 (defn ^js tree
+  "Returns a (Tree https://lezer.codemirror.net/docs/ref/#common.Tree) for editor state
+  or the SyntaxNode at pos.
+
+  If pos is given and we're using Clojure language support embedded in other languages (e.g. markdown)
+  enters overlaid Clojure nodes (https://lezer.codemirror.net/docs/ref/#common.MountedTree)."
   ([^js state] (language/syntaxTree state))
   ([^js state pos] (-> state language/syntaxTree (.resolveInner pos)))
   ([^js state pos dir] (-> state language/syntaxTree (.resolveInner pos dir))))
@@ -378,10 +390,11 @@
                  L
                  mid))))
 
-(defn clj-ctx?
+(defn within-program?
   "Returns true when current cursor is inside some Clojure node.
 
   This is useful for limiting certain actions when clojure is nested into another language (e.g. Markdown)"
   [state]
-  (some (comp some? #{"Program"} name)
-        (ancestors (tree state (.. state -selection -main -head)))))
+  (let [n (tree state (.. state -selection -main -head))]
+    (or (program? n)
+        (some program? (ancestors n)))))
