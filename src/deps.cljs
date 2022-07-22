@@ -1,6 +1,7 @@
 {:npm-deps
  {"@codemirror/autocomplete" "^6.0.2"
   "@codemirror/commands" "^6.0.0"
+  "@codemirror/lang-markdown" "6.0.0"
   "@codemirror/language" "^6.1.0"
   "@codemirror/lint" "^6.0.0"
   "@codemirror/search" "^6.0.0"
