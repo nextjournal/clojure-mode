@@ -122,19 +122,20 @@
 ;; Block Previews
 (defn render-block-preview [^js widget ^js view]
   (let [el (js/document.createElement "div")
-        [from to] ((juxt n/start n/end)
-                   (or (when (.-node widget) (j/call-in widget [:node :getChild] "CodeText")) widget))
-        code-text (.. view -state -doc (sliceString from to))
-        {:keys [render]} (.. view -state (field config-state))
-        widget-type (.-type widget)]
+        widget-type (.-type widget)
+        node (if (= :code widget-type) (j/call-in widget [:node :getChild] "CodeText") widget)
+        code-or-markdown (if-some [[from to] (when node ((juxt n/start n/end) node))]
+                           (.. view -state -doc (sliceString from to))
+                           "")
+        {:keys [render]} (.. view -state (field config-state))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
                   {:class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]
                    :on-click (fn [e]
                                (.preventDefault e)
-                               (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [(inc from)]})
-                                                          :selection {:anchor (inc from)}}))))}
+                               (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [(.-from widget)]})
+                                                          :selection {:anchor (.-from widget)}}))))}
                   [:div.mt-3
-                   [(widget-type render) code-text] ]] el)
+                   [(widget-type render) code-or-markdown] ]] el)
     el))
 
 (defclass BlockPreviewWidget

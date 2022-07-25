@@ -172,7 +172,7 @@
 
 (defn eval-code-view [code]
   [:div.viewer-result {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-   (when-some [{:keys [error result]} (sci/eval-string code)]
+   (when-some [{:keys [error result]} (when (seq (str/trim code)) (sci/eval-string code))]
      (cond
        error [:div.red error]
        (react/isValidElement result) result
@@ -297,6 +297,9 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] bring Clerk stylesheet in demo
 - [x] toggle edit all by a second hit of ESC
 - [ ] make livedoc extensions configurable
+- [ ] fix moving to the right in backticks
+- [ ] autoclose backticks
+- [x] fix eval for empty code cells
 "}]]] (js/document.getElementById "markdown-preview"))
 
   (when (linux?)
