@@ -25,8 +25,8 @@
                                                  (j/lit {:props [(.add indentNodeProp
                                                                        (j/obj :Document (constantly 0)))]})))))))
 
-(defn doc? [node] (identical? (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
-(defn fenced-code? [node] (identical? (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn doc? [^js node] (identical? (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn fenced-code? [^js node] (identical? (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 (defn ->cursor-pos [^js x] (.. x -selection -main -head))
 
@@ -299,12 +299,23 @@
 
         'else false))))
 
+(defn handle-open-backtick [^js view]
+  (let [state (.-state view)]
+    (when (doc? (.-tree state))
+      (let [sel (.. state -selection -main)]
+        (when (and (.-empty sel)
+                   (identical? "``" (.. state -doc (lineAt (.-anchor sel)) -text)))
+          (.dispatch view
+                     (.update state (j/lit {:changes [{:insert "\n```"
+                                                       :from (.-anchor sel)}]}))))))))
+
 (def default-extensions
   "An extension turning a Markdown document in a blockwise preview-able editor"
-  [doc-state
+  [(.low Prec doc-state)
    block-decorations
    eval-region-tooltip
    tooltip-theme
+   (.high Prec (.of keymap (j/lit [{:key \` :run handle-open-backtick}])))
    (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))])
 
 (defn extensions
