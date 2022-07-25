@@ -56,7 +56,8 @@
 (defn get-modifier-field [^js state] (.field state modifier-field))
 
 (j/defn set-modifier-field! [^:js {:as view :keys [dispatch state]} value]
-  (dispatch #js{:effects (.of modifier-effect value)}))
+  (dispatch #js{:effects (.of modifier-effect value)
+                :userEvent "evalregion"}))
 
 (j/defn mark [spec ^:js {:keys [from to]}]
   (-> (.mark Decoration spec)
