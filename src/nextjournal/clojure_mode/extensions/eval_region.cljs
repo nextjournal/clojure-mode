@@ -115,7 +115,8 @@
                                              (= "Enter" (keyName event)))
                                         (assoc "Enter" true))]
                              (when (not= prev next)
-                               (set-modifier-field! view next))))
+                               (set-modifier-field! view next))
+                             false))
         handle-backspace (j/fn [^:js {:as view :keys [state dispatch]}]
                            (j/let [^:js {:keys [from to]} (current-range state)]
                              (when (not= from to)

@@ -8,16 +8,10 @@
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]))
 
 
-(defn view-command
-  "Takes an `f` : EditorState -> TransactionSpec and turns it into a Command (https://codemirror.net/docs/ref/#view.Command).
-  Before firing `f`, checks if state position is within a clojure program, this is useful to restrict commands to clojure
-  syntax when embedded in some parent language (e.g. markdown)."
-  [f]
+(defn view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
-    (if (n/within-program? state)
-      (do (some-> (f state) (dispatch))
-          true)
-      false)))
+    (some-> (f state) (dispatch))
+    true))
 
 (defn unwrap* [state]
   (u/update-ranges state
