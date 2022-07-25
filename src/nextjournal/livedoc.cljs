@@ -36,8 +36,8 @@
    {:markdown (fn [text] [:pre.md text])
     :code (fn [code] [:pre.code code])}})
 
-(def config-state
-  "Configurable entrypoint see also `extensions/1` fn below."
+(defonce ^{:doc "Configurable entrypoint see also `extensions/1` fn below."}
+  config-state
   (.define StateField
            (j/obj :create (constantly default-config)
                   :update (fn [cfg _] cfg))))
@@ -167,7 +167,7 @@
                                     (cond->
                                       (not edit-all?)
                                       (-> (assoc :blocks (state->blocks (.-state tr)))
-                                          (edit-at tr (->cursor-pos tr)))))
+                                          (edit-at tr (->cursor-pos (.-state tr))))))
                                 'else doc))))))
 
 (defn block->widget [{:as block :keys [from to]}]
