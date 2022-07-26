@@ -295,7 +295,7 @@
                      (:down :right) (bounded-inc index (count blocks)))]
     (when (not= next-index index)
       (let [line (.. view -state -doc (lineAt pos))
-            next-block (get blocks next-index)]
+            next-block (nth blocks next-index)]
         ;; blocks span entire lines we can argue by an offset of at most the current line + 1
         (case key
           (:down :right)
@@ -351,12 +351,9 @@
 
         ;; check we're entering a preview from an edit region
         ;; (not selected) implies we're in edit. Also check we're not expanding/shrinking a paredit region
-        ;; FIXME
-        false
-        #_
         (and (not selected) (not edit-all?) (not (.. view -state (field eval-region-tooltip)))
              (or (= :up key) (= :down key) (= :left key) (= :right key)))
-        (when-some [at (edit-adjacent-block-at view blocks key)]
+        (when-some [at (edit-adjacent-block-at view block-seq key)]
           (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                      :selection {:anchor at}})))
           true)
