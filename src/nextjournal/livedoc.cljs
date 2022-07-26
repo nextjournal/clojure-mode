@@ -327,20 +327,18 @@
         (= :esc key)
         (cond
           selected
-          (let [at (inc (:from (nth blocks selected)))]
+          (let [at (inc (:from (nth block-seq selected)))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                        :selection {:anchor at}})))
             true)
 
-          ;; FIXME
-          true #_ (or doc-changed? edit-all?)
+          (or doc-changed? edit-all?)
           (do
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select})
                                        #_#_ :selection {:anchor (->cursor-pos (.-state view))}})))
             true)
 
-          ;; FIXME
-          false #_ 'edit-one
+          'edit-one
           (do (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-all})})))
               true))
 
