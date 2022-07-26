@@ -50,7 +50,7 @@
   [^js tr effect-type]
   (some #(and (.is ^js % effect-type) (.-value ^js %)) (.-effects tr)))
 
-;; Doc { :blocks [Block]
+;; Doc { :blocks [Decoration]
 ;;       :selected (Set | Int)
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
@@ -69,21 +69,29 @@
   (or (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks))
       (dec (count blocks))))
 
-(defn edit-at [doc _tr pos]
-  (-> doc
-      (dissoc :selected :edit-all?)
-      (update :blocks
-              #(.update ^js %
-                        (j/obj :filter
-                               (fn [from to _]
-                                 (not (and (<= from pos) (< pos to)))))))))
+(declare block-opts->widget)
+(defn edit-at [{:as doc :keys [selected blocks]} _tr pos]
+  (let [{:keys [from to widget]} (when selected (nth (rangeset-seq blocks) selected))]
+    (js/console.log :edit-at/pos pos :selected widget)
+    (-> doc
+        (dissoc :selected :edit-all?)
+        (update :blocks
+                #(.update ^js %
+                          (cond-> (j/obj :filter
+                                         (fn [from to val]
+                                           (js/console.log :filter from to val)
+                                           (not (or (and (<= from pos) (< pos to))
+                                                    (and widget (identical? (.-id widget)
+                                                                            (.. val -widget -id)))))))
+                            (and widget (not (and (<= from pos) (< pos to))))
+                            (j/assoc! :add (array (block-opts->widget (.-spec widget))))))))))
 
 (declare state->blocks)
 (defn preview-all-and-select [doc tr]
   (let [blocks (.set Decoration (state->blocks (.-state tr)))]
     (-> doc
         (assoc :blocks  blocks)
-        (assoc :selected (pos->block-idx (rangeset-seq blocks) (.. tr -state -selection -main -anchor)))
+        (assoc :selected (pos->block-idx (rangeset-seq blocks) (->cursor-pos (.-state tr))))
         (dissoc :edit-all? :doc-changed?))))
 
 (defn edit-all [doc _tr]
@@ -92,14 +100,16 @@
       (assoc :edit-all? true
              :blocks (.-none Decoration))))
 
-(declare block-opts->widget)
-
-;; (.set Decoration (into-array* (map block->widget) (state->blocks cm-state)))
 ;; Codemirror State to Blocks
+(defn with-selection [state select? opts]
+  (cond-> opts
+    (and select? (within? (->cursor-pos state) opts))
+    (assoc :selected? true)))
+
 (defn state->blocks
   "Partitions the document into ranges delimited by code blocks"
-  ([state] (state->blocks state {:from 0}))
-  ([state {:keys [from]}]
+  ([state] (state->blocks state {:from 0 :select? true}))
+  ([state {:keys [from select?]}]
    (let [^js blocks (array)]
      (.. (syntaxTree state)
          (iterate (j/obj :from from
@@ -113,26 +123,26 @@
                                    (cond-> blocks
                                      (and (not (zero? (n/start node)))
                                           (or (not to) (not= (inc to) (n/start node))))
-                                     (j/push! (block-opts->widget state
-                                                                  {:from (or to 0)
-                                                                   :to (n/start node)
-                                                                   :type :markdown}))
+                                     (j/push! (block-opts->widget (with-selection state select?
+                                                                                  {:from (or to 0)
+                                                                                   :to (n/start node)
+                                                                                   :type :markdown})))
                                      'always
-                                     (j/push! (block-opts->widget state
-                                                                  {:from (n/start node)
-                                                                   :to (n/end node)
-                                                                   :node (.-node node)
-                                                                   :type :code})))))
+                                     (j/push! (block-opts->widget (with-selection state select?
+                                                                                  {:from (n/start node)
+                                                                                   :to (n/end node)
+                                                                                   :node (.-node node)
+                                                                                   :type :code}))))))
                                false))))))
 
      (let [doc-end (.. state -doc -length)
            to (some-> blocks (.at -1) .-to)]
        (cond-> blocks
          (not= doc-end to)
-         (j/push! (block-opts->widget state
-                                      {:from to
-                                       :to doc-end
-                                       :type :markdown})))))))
+         (j/push! (block-opts->widget (with-selection state select?
+                                                      {:from to
+                                                       :to doc-end
+                                                       :type :markdown}))))))))
 
 (declare get-blocks get-block-at get-block-by-id)
 
@@ -140,6 +150,7 @@
 (defn render-block-preview [^js widget ^js view]
   ;; TODO: move text extraction out of here (close to syntax iteration)
   (let [el (js/document.createElement "div")
+        _ (j/assoc! el :widget widget)
         widget-type (.-type widget)
         node (if (= :code widget-type) (j/call-in widget [:node :getChild] "CodeText") widget)
         code-or-markdown (if-some [[from to] (when node ((juxt n/start n/end) node))]
@@ -150,15 +161,12 @@
                   {:class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]
                    :on-click (fn [e]
                                (.preventDefault e)
-                               (js/console.log :widget/click
-                                               (.-id widget)
-                                               (get-block-by-id (.-state view) (.-id widget)))
-
+                               (js/console.log :widget/click (.. widget -id toString))
                                (when-some [{:keys [from]} (get-block-by-id (.-state view) (.-id widget))]
                                  (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
                                                             :selection {:anchor from}})))))}
                   [:div.mt-3
-                   [(widget-type render) code-or-markdown] ]] el)
+                   [(widget-type render) code-or-markdown]]] el)
     el))
 
 (defclass BlockPreviewWidget
@@ -171,7 +179,7 @@
                          :isSelected selected?
                          :ignoreEvent (constantly false)
                          :toDOM (partial render-block-preview this)
-
+                         :spec (dissoc opts :selected?)
                          ;; TODO: try to use text equality
                          #_#_
                          :eq (fn [^js other]
@@ -180,13 +188,10 @@
                                     (identical? (.-isSelected this) (.-isSelected other))))))) ;; redraw on selection change
 
 ;; Document State Field
-(defn block-opts->widget [state {:as opts :keys [from to]}]
+(defn block-opts->widget
+  [{:as opts :keys [from to]}]
   (.. Decoration
-      (replace (j/obj :block true
-                      :widget (BlockPreviewWidget.
-                               (cond-> opts
-                                 (and state (within? (->cursor-pos state) {:from from :to to}))
-                                 (assoc :selected? true)))))
+      (replace (j/obj :block true :widget (BlockPreviewWidget. opts)))
       (range from to)))
 
 (defn into-array* [xf coll] (reduce (xf j/push!) (array) coll))
@@ -207,26 +212,19 @@
            (j/obj
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
-                      ;; TODO: start with none selected
-                      {:selected 0
-                       :blocks (.set Decoration (state->blocks cm-state))})
+
+                      {:selected nil
+                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
-                        (js/console.log :OP apply-op )
                         (cond
                           apply-op (apply op doc tr args)
                           (.-docChanged tr)
                           (-> doc
                               (assoc :doc-changed? true)
-                              ;; block state is rebuilt at each edit
-                              ;; we might consider mapping a codemirror range-set through tr changes instead
                               (cond->
                                 (not edit-all?)
-
-                                (update :blocks #(.map ^js % (.-changes tr)))
-                                #_
-                                (-> (assoc :blocks (state->blocks (.-state tr)))
-                                    (edit-at tr (->cursor-pos (.-state tr))))))
+                                (update :blocks #(.map ^js % (.-changes tr)))))
 
                           'else doc))))))
 
@@ -321,14 +319,15 @@
 
 (defn handle-keydown [^js e ^js view]
   (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
-    (let [{:keys [doc-changed? edit-all? selected blocks]} (.. view -state (field doc-state))]
+    (let [{:keys [doc-changed? edit-all? selected blocks]} (.. view -state (field doc-state))
+          block-seq (rangeset-seq blocks)]
+      (js/console.log :key key :selected selected )
       (cond
         ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
         (= :esc key)
         (cond
-          ;; FIXME
-          false #_ selected
-          (let [at (inc (:from (get blocks selected)))]
+          selected
+          (let [at (inc (:from (nth blocks selected)))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                        :selection {:anchor at}})))
             true)
@@ -346,6 +345,9 @@
               true))
 
         ;; move up/down selection
+        ;; FIXME
+        false
+        #_
         (and selected (or (= :up key) (= :down key)))
         (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count blocks)))]
           (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (get blocks at)))}
@@ -354,6 +356,9 @@
 
         ;; check we're entering a preview from an edit region
         ;; (not selected) implies we're in edit. Also check we're not expanding/shrinking a paredit region
+        ;; FIXME
+        false
+        #_
         (and (not selected) (not edit-all?) (not (.. view -state (field eval-region-tooltip)))
              (or (= :up key) (= :down key) (= :left key) (= :right key)))
         (when-some [at (edit-adjacent-block-at view blocks key)]
