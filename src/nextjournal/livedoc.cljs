@@ -343,14 +343,11 @@
               true))
 
         ;; move up/down selection
-        ;; FIXME
-        false
-        #_
         (and selected (or (= :up key) (= :down key)))
-        (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count blocks)))]
-          (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (get blocks at)))}
-                                     :effects (.of doc-apply-op {:op preview-all-and-select :args [at]})})))
-          false)
+        (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
+          (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (nth block-seq at)))}
+                                     :effects (.of doc-apply-op {:op preview-all-and-select})})))
+          true)
 
         ;; check we're entering a preview from an edit region
         ;; (not selected) implies we're in edit. Also check we're not expanding/shrinking a paredit region
