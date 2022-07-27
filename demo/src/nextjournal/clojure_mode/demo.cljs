@@ -10,7 +10,7 @@
             [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.livedoc :as livedoc]
-            [nextjournal.clojure-mode.demo.sci :as sci]
+            [nextjournal.clojure-mode.demo.sci :as demo.sci]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
@@ -53,15 +53,15 @@
 
 (defn editor [source {:keys [eval?]}]
   (r/with-let [!view (r/atom nil)
-               last-result (when eval? (r/atom (sci/eval-string source)))
+               last-result (when eval? (r/atom (demo.sci/eval-string source)))
                mount! (fn [el]
                         (when el
                           (reset! !view (new EditorView
                                              (j/obj :state
                                                     (test-utils/make-state
                                                      (cond-> #js [extensions]
-                                                       eval? (.concat #js [(sci/extension {:modifier "Alt"
-                                                                                           :on-result (partial reset! last-result)})]))
+                                                       eval? (.concat #js [(demo.sci/extension {:modifier "Alt"
+                                                                                                :on-result (partial reset! last-result)})]))
                                                      source)
                                                     :parent el)))))]
     [:div
@@ -170,13 +170,15 @@
                          [:td.px-3.py-1.align-top.text-sm]
                          [:td.px-3.py-1.align-top]])]))))])
 
-(defn eval-code-view [code]
-  [:div.viewer-result {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-   (when-some [{:keys [error result]} (when (seq (str/trim code)) (sci/eval-string code))]
-     (cond
-       error [:div.red error]
-       (react/isValidElement result) result
-       'else (sv/inspect-paginated result)))])
+(defn eval-code-view
+  ([code] (eval-code-view @sv/!sci-ctx code))
+  ([ctx code]
+   [:div.viewer-result {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
+    (when-some [{:keys [error result]} (when (seq (str/trim code)) (demo.sci/eval-string ctx code))]
+      (cond
+        error [:div.red error]
+        (react/isValidElement result) result
+        'else (sv/inspect-paginated result)))]))
 
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
@@ -192,7 +194,7 @@
   (j/assoc! (js/document.getElementById "viewer-stylesheet")
             :innerHTML (rc/inline "stylesheets/viewer.css"))
 
-  (rdom/render [key-bindings-table (merge keymap/paredit-keymap* (sci/keymap* "Alt"))] (js/document.getElementById "docs"))
+  (rdom/render [key-bindings-table (merge keymap/paredit-keymap* (demo.sci/keymap* "Alt"))] (js/document.getElementById "docs"))
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# Hello Markdown
 
@@ -221,6 +223,8 @@ have an editor with ~~mono~~ _mixed language support_.
 - [ ] fix dark theme
 - [ ] fix demo error: CssSyntaxError: <css input>:62:15: The `font-inter` class does not exist
 "}]] (js/document.getElementById "markdown-editor"))
+
+  ;; livedoc
   (rdom/render [:div
                 [:div.text-lg.font-medium.mb-2 [:em "Click on a cell to edit or use the following keybindings"]]
                 [:div.mb-5.bg-white.max-w-4xl.mx-auto.border
@@ -303,9 +307,12 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] fix eval for empty code cells
 "}]]] (js/document.getElementById "markdown-preview"))
 
-
   (-> (js/fetch "https://raw.githubusercontent.com/applied-science/js-interop/master/README.md")
       (.then #(.text %))
+      (.then #(-> %  ;; literal fixes
+                  (str/replace "…some javascript object…" ":x 123")
+                  (str/replace "…" "'…")
+                  (str/replace "..." "'…")))
       (.then (fn [markdown-doc]
                (js/console.log :text markdown-doc)
                (rdom/render
@@ -321,12 +328,27 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                                [:div.viewer-markdown
                                                 [sv/inspect-paginated (v/with-viewer :markdown text)]])
 
-                                   :code (fn [text]
-                                           [:<>
-                                            [sv/inspect-paginated (v/with-viewer :code text)]
-                                            [:hr.border]
-                                            [:div.mt-2.ml-3 [eval-code-view text]]])}}]]
+                                   :code (let [ctx' (sci.core/merge-opts
+                                                     (sci.core/fork @sv/!sci-ctx)
+                                                     ;; FIXME: a more sane approach to js-interop ctx fixes
+                                                     {:namespaces {'my.app {'.-x :x '.-y :y '.-a :a '.-b :b '.-c :c}
+                                                                   'cljs.core {'implements? (fn [c i] false)
+                                                                               'ISeq nil}}})]
+                                           (fn [text]
+                                             [:<>
+                                              [sv/inspect-paginated (v/with-viewer :code text)]
+                                              [:hr.border]
+                                              [:div.mt-2.ml-3 [eval-code-view ctx' text]]]))}}]]
                 (js/document.getElementById "markdown-preview-large")))))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
+
+(comment
+  (let [ctx' (sci.core/fork @sv/!sci-ctx)
+        ctx'' (sci.core/merge-opts ctx' {:namespaces {'foo {'bar "ahoi"}}})]
+
+    (demo.sci/eval-string ctx'' "(def o (j/assoc! #js {:a 1} :b 2))")
+    (demo.sci/eval-string ctx'' "(j/lookup (j/assoc! #js {:a 1} :b 2))")
+    (demo.sci/eval-string ctx'' "(j/get o :b)")
+    (demo.sci/eval-string ctx'' "(j/let [^:js {:keys [a b]} o] (map inc [a b]))")))
