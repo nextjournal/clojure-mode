@@ -180,12 +180,7 @@
                          :ignoreEvent (constantly false)
                          :toDOM (partial render-block-preview this)
                          :spec (dissoc opts :selected?)
-                         ;; TODO: try to use text equality
-                         #_#_
-                         :eq (fn [^js other]
-                               (and (identical? (.-from this) (.-from other))
-                                    (identical? (.-to this) (.-to other))
-                                    (identical? (.-isSelected this) (.-isSelected other))))))) ;; redraw on selection change
+                         :eq (fn [^js other] (identical? (.-id this) (.-id other))))))
 
 ;; Document State Field
 (defn block-opts->widget
@@ -194,25 +189,12 @@
       (replace (j/obj :block true :widget (BlockPreviewWidget. opts)))
       (range from to)))
 
-(defn into-array* [xf coll] (reduce (xf j/push!) (array) coll))
-#_(into-array* (comp (map inc) (remove odd?)) [1 2 3])
-
-#_
-(defn doc->preview-decorations [{:keys [selected blocks edit-all?]}]
-  (if edit-all?
-    (.-none Decoration)
-    (.set Decoration
-          (into-array* (comp (remove :edit?) (map block-opts->widget))
-                       (cond-> blocks
-                         selected (assoc-in [selected :selected?] true))))))
-
 (defonce ^{:doc "Maintains a document description at block level"}
   doc-state
   (.define StateField
            (j/obj
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
-
                       {:selected nil
                        :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
