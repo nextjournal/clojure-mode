@@ -287,8 +287,9 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] make previews selectable with arrow keys
 - [x] make previews editable on click
 - [x] fix loosing cursor moving up/down to enter a preview block
-- [ ] fix blocks when editing last one in edit-all mode
+- [x] fix blocks when editing last one in edit-all mode
 - [ ] fix overflow-x in blocks
+- [ ] fix selecting positions with click in editable sections between previews
 - [ ] fix Clerk plotly/vega viewers
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave
@@ -296,9 +297,9 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [ ] fix (?) dispatching changes/annotations twice
 - [x] bring Clerk stylesheet in demo
 - [x] toggle edit all by a second hit of ESC
-- [ ] make livedoc extensions configurable
-- [ ] fix moving to the right in backticks
-- [ ] autoclose backticks
+- [x] make livedoc extensions configurable
+- [x] fix moving to the right in backticks
+- [x] autoclose backticks
 - [x] fix eval for empty code cells
 "}]]] (js/document.getElementById "markdown-preview"))
 
