@@ -289,6 +289,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] fix loosing cursor moving up/down to enter a preview block
 - [ ] fix blocks when editing last one in edit-all mode
 - [ ] fix overflow-x in blocks
+- [ ] fix selecting positions with click in editable sections between previews
 - [ ] fix Clerk plotly/vega viewers
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave

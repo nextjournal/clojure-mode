@@ -273,12 +273,10 @@
 ;; Keyborad event handling
 (defn edit-adjacent-block-at [^js view blocks key]
   (let [pos (->cursor-pos (.-state view))]
-    (when-some [next-block (when-not (pos->block-idx blocks pos)
-                             ;; ⬆ we're not inside any preview block
-                             ;; ⬇ get the first adjacent block met wrt the current movement direction
-                             (case key
-                               (:up :left) (some (when-fn #(<= (:to %) pos)) (reverse blocks))
-                               (:down :right) (some (when-fn #(< pos (:from %))) blocks)))]
+    ;; get the first adjacent block we meet wrt the current movement direction
+    (when-some [next-block (case key
+                             (:up :left) (some (when-fn #(<= (:to %) pos)) (reverse blocks))
+                             (:down :right) (some (when-fn #(<= pos (:from %))) blocks))]
       (let [line (.. view -state -doc (lineAt pos))]
         ;; blocks span entire lines we can argue by an offset of at most the current line + 1
         (case key
@@ -286,7 +284,7 @@
           (let [offset (when (= :down key) (- (.-to line) pos))
                 new-pos (cond-> (inc pos) offset (+ offset))
                 end (.. view -state -doc -length)]
-            (when (or (<= (:from next-block) new-pos)
+            (when (or (< (:from next-block) new-pos)
                       (and (= :down key)
                            ;; we'd reach end of doc by jumping across decorations
                            (= end (.. view (moveVertically (.. view -state -selection -main) true) -anchor))))
