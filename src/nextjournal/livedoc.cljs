@@ -4,7 +4,7 @@
   * per form evaluation inside clojure blocks
   * markdown blocks rendering
   * per-block edit mode"
-  (:require ["@codemirror/language" :refer [syntaxHighlighting defaultHighlightStyle syntaxTree Language indentNodeProp]]
+  (:require ["@codemirror/language" :refer [syntaxHighlighting defaultHighlightStyle syntaxTree Language LanguageSupport indentNodeProp]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Prec Range]]
             ["@codemirror/view" :as view :refer [EditorView Decoration WidgetType keymap showTooltip]]
@@ -17,18 +17,31 @@
             [nextjournal.clojure-mode.node :as n]
             [reagent.dom :as rdom]))
 
-(def ^js markdown-language-support
-  (markdown (j/obj :defaultCodeLanguage cm-clj/language-support
-                   :base (Language. (.-data markdownLanguage)
-                                    (.. markdownLanguage
-                                        -parser (configure
-                                                 (j/lit {:props [(.add indentNodeProp
-                                                                       (j/obj :Document (constantly 0)))]})))))))
-
+;; Helpers
 (defn doc? [^js node] (identical? (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [^js node] (identical? (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
-(defn ->cursor-pos [^js x] (.. x -selection -main -head))
+(defn ->cursor-pos [^js x] (.. x -selection -main -anchor))
+
+(defn rangeset-seq
+  "Returns a lazy-seq of ranges inside a RangeSet (like a Decoration set)"
+  [^js rset]
+  (let [iterator (.iter rset)]
+    ((fn step []
+       (when-some [val (.-value iterator)]
+         (let [from (.-from iterator) to (.-to iterator)]
+           (.next iterator)
+           (cons {:from from :to to :widget (.-widget val)}
+                 (lazy-seq (step)))))))))
+
+(defn when-fn [p] (fn [x] (when (p x) x)))
+(defn block-at [blocks pos] (some (when-fn (partial within? pos)) blocks))
+(declare get-blocks)
+(defn get-block-by-id [state id]
+  (some (when-fn #(identical? id (-> % :widget .-id))) (get-blocks state)))
+(defn pos->block-idx [blocks pos]
+  ;; blocks partition the whole document, the only missing point is the end of the document
+  (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
 
 ;; Config
 (def default-config
@@ -44,25 +57,20 @@
 
 ;; FXs
 (defonce doc-apply-op (.define StateEffect))
-
 (defn get-effect-value
   "Get first effect value matching type from a transaction"
   [^js tr effect-type]
   (some #(and (.is ^js % effect-type) (.-value ^js %)) (.-effects tr)))
 
+;; Doc Operations
+;;
 ;; Doc { :blocks [Decoration]
 ;;       :selected (Set | Int)
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
-;;
-;; Doc Ops
 
-(declare rangeset-seq)
-(defn pos->block-idx [blocks pos]
-  ;; blocks partition the whole document, the only missing point is the end of the document
-  (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
+(declare block-opts->widget state->blocks)
 
-(declare block-opts->widget block-at)
 (defn edit-at [{:as doc :keys [selected blocks last-edited]} _tr pos]
   (let [block-seq (rangeset-seq blocks)
         {selected-widget :widget} (when selected (nth block-seq selected))
@@ -85,7 +93,6 @@
                                      last-edited
                                      (j/push! (block-opts->widget (.-spec last-edited)))))))))))
 
-(declare state->blocks)
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
   (let [blocks (.set Decoration (state->blocks (.-state tr)))]
@@ -100,7 +107,73 @@
       (assoc :edit-all? true
              :blocks (.-none Decoration))))
 
-;; Codemirror State to Blocks
+;; Doc State Field
+(defonce ^{:doc "Maintains a document description at block level"}
+  doc-state
+  (.define StateField
+           (j/obj
+            :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
+            :create (fn [cm-state]
+                      {:selected nil
+                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
+            :update (fn [{:as doc :keys [edit-all?]} ^js tr]
+                      (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
+                        (cond
+                          apply-op (apply op doc tr args)
+                          (.-docChanged tr)
+                          (-> doc
+                              (assoc :doc-changed? true)
+                              (cond->
+                                (not edit-all?)
+                                (update :blocks #(.map ^js % (.-changes tr)))))
+
+                          'else doc))))))
+
+(defn get-blocks [state] (-> state (.field doc-state) :blocks rangeset-seq))
+
+;; Block Previews
+(defn render-block-preview [^js widget ^js view]
+  ;; TODO: move text extraction out of here (close to syntax iteration)
+  (let [el (js/document.createElement "div")
+        _ (j/assoc! el :widget widget)
+        widget-type (.-type widget)
+        node (if (= :code widget-type) (j/call-in widget [:node :getChild] "CodeText") widget)
+        code-or-markdown (if-some [[from to] (when node ((juxt n/start n/end) node))]
+                           (.. view -state -doc (sliceString from to))
+                           "")
+        {:keys [render]} (.. view -state (field config-state))]
+    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
+                  {:class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]
+                   :on-click (fn [e]
+                               (.preventDefault e)
+                               ;; since decorations might be mapped I cannot argue by widget's from/to
+                               (when-some [{:keys [from]} (get-block-by-id (.-state view) (.-id widget))]
+                                 (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
+                                                            :selection {:anchor from}})))))}
+                  [:div.mt-3
+                   [(widget-type render) code-or-markdown]]] el)
+    el))
+
+(defclass BlockPreviewWidget
+  (extends WidgetType)
+  (constructor [this {:as opts :keys [from to type node selected?]}]
+               ;; TODO: remove from/to in favour of text
+               (j/assoc! this
+                         :id (random-uuid)
+                         :from from :to to :type type :node node
+                         :isSelected selected?
+                         :ignoreEvent (constantly false)
+                         :toDOM (partial render-block-preview this)
+                         :spec (dissoc opts :selected?)
+                         :eq (fn [^js other] (identical? (.-id this) (.-id other))))))
+
+(defn block-opts->widget
+  [{:as opts :keys [from to]}]
+  (.. Decoration
+      (replace (j/obj :block true :widget (BlockPreviewWidget. opts)))
+      (range from to)))
+
+;; Codemirror State Syntax Tree to Blocks
 (defn with-selection [state select? opts]
   (cond-> opts
     (and select? (within? (->cursor-pos state) opts))
@@ -144,97 +217,6 @@
                                                        :to doc-end
                                                        :type :markdown}))))))))
 
-(declare get-blocks get-block-by-id)
-
-;; Block Previews
-(defn render-block-preview [^js widget ^js view]
-  ;; TODO: move text extraction out of here (close to syntax iteration)
-  (let [el (js/document.createElement "div")
-        _ (j/assoc! el :widget widget)
-        widget-type (.-type widget)
-        node (if (= :code widget-type) (j/call-in widget [:node :getChild] "CodeText") widget)
-        code-or-markdown (if-some [[from to] (when node ((juxt n/start n/end) node))]
-                           (.. view -state -doc (sliceString from to))
-                           "")
-        {:keys [render]} (.. view -state (field config-state))]
-    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
-                  {:class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]
-                   :on-click (fn [e]
-                               (.preventDefault e)
-                               (js/console.log :widget/click (.. widget -id toString))
-                               (when-some [{:keys [from]} (get-block-by-id (.-state view) (.-id widget))]
-                                 (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
-                                                            :selection {:anchor from}})))))}
-                  [:div.mt-3
-                   [(widget-type render) code-or-markdown]]] el)
-    el))
-
-(defclass BlockPreviewWidget
-  (extends WidgetType)
-  (constructor [this {:as opts :keys [from to type node selected?]}]
-               ;; TODO: remove from/to in favour of text
-               (j/assoc! this
-                         :id (random-uuid)
-                         :from from :to to :type type :node node
-                         :isSelected selected?
-                         :ignoreEvent (constantly false)
-                         :toDOM (partial render-block-preview this)
-                         :spec (dissoc opts :selected?)
-                         :eq (fn [^js other] (identical? (.-id this) (.-id other))))))
-
-;; Document State Field
-(defn block-opts->widget
-  [{:as opts :keys [from to]}]
-  (.. Decoration
-      (replace (j/obj :block true :widget (BlockPreviewWidget. opts)))
-      (range from to)))
-
-(defonce ^{:doc "Maintains a document description at block level"}
-  doc-state
-  (.define StateField
-           (j/obj
-            :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
-            :create (fn [cm-state]
-                      {:selected nil
-                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
-            :update (fn [{:as doc :keys [edit-all?]} ^js tr]
-                      (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
-                        (cond
-                          apply-op (apply op doc tr args)
-                          (.-docChanged tr)
-                          (-> doc
-                              (assoc :doc-changed? true)
-                              (cond->
-                                (not edit-all?)
-                                (update :blocks #(.map ^js % (.-changes tr)))))
-
-                          'else doc))))))
-
-(defn rangeset-seq
-  "Returns ranges in a DecorationSet as a lazy-seq" [^js rset]
-  (let [iterator (.iter rset)]
-    ((fn step []
-       (when-some [val (.-value iterator)]
-         (let [from (.-from iterator) to (.-to iterator)]
-           (.next iterator)
-           (cons {:from from :to to :widget (.-widget val)}
-                 (lazy-seq (step)))))))))
-
-(defn get-blocks [state] (-> state (.field doc-state) :blocks rangeset-seq))
-
-(defn when-fn [p] (fn [x] (when (p x) x)))
-
-(defn block-at [blocks pos] (some (when-fn (partial within? pos)) blocks))
-
-(defn get-block-at
-  ([state] (get-block-at state (->cursor-pos state)))
-  ([state pos] (block-at (get-blocks state) pos)))
-
-(defn get-block-by-id [state id]
-  (some (when-fn #(identical? id (-> % :widget .-id))) (get-blocks state)))
-
-;; Decoration State Field
-
 ;; Tooltips State Field
 ;; depends on `nextjournal.clojure-mode.extensions.eval-region`
 (defn eval-region-text [^js state]
@@ -267,10 +249,10 @@
                                                (when-some [tooltip-create-fn (:tooltip (.field state config-state))]
                                                  (eval-region-text->tooltip tooltip-create-fn (.field state f)))))))))
 
+;; Keyborad Event handling
 (defn bounded-inc [i b] (min (dec b) (inc i)))
 (defn bounded-dec [i] (max 0 (dec i)))
 
-;; Keyborad event handling
 (defn edit-adjacent-block-at [^js view blocks key]
   (let [pos (->cursor-pos (.-state view))]
     ;; get the first adjacent block we meet wrt the current movement direction
@@ -303,7 +285,6 @@
   (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
     (let [{:keys [doc-changed? edit-all? selected blocks]} (.. view -state (field doc-state))
           block-seq (rangeset-seq blocks)]
-      (js/console.log :key key :selected selected )
       (cond
         ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
         (= :esc key)
@@ -342,24 +323,12 @@
 
         'else false))))
 
-(defn handle-open-backtick [^js view]
-  (let [state (.-state view)]
-    (when (doc? (.-tree state))
-      (let [sel (.. state -selection -main)]
-        (when (and (.-empty sel)
-                   (identical? "``" (.. state -doc (lineAt (.-anchor sel)) -text)))
-          (.dispatch view
-                     (.update state (j/lit {:changes [{:insert "\n```"
-                                                       :from (.-anchor sel)}]}))))))))
-
 (def default-extensions
   "An extension turning a Markdown document in a blockwise preview-able editor"
   [(.low Prec doc-state)
-   #_ block-decorations
+   (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))
    eval-region-tooltip
-   tooltip-theme
-   (.high Prec (.of keymap (j/lit [{:key \` :run handle-open-backtick}])))
-   (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))])
+   tooltip-theme])
 
 (defn extensions
   "Accepts an `opts` map with optional keys:
@@ -378,6 +347,33 @@
    (cons (cond-> config-state (seq opts) (.init (constantly opts)))
          default-extensions)))
 
+;; Markdown Language Support
+
+(defn handle-open-backticks [^js view]
+  (let [state (.-state view)]
+    (when (doc? (.-tree state))
+      (let [sel (.. state -selection -main)]
+        (when (and (.-empty sel)
+                   (identical? "``" (.. state -doc (lineAt (.-anchor sel)) -text)))
+          (.dispatch view
+                     (.update state (j/lit {:changes [{:insert "\n```"
+                                                       :from (.-anchor sel)}]}))))))))
+(def ^js markdown-language-support
+  (let [^js md
+        (markdown (j/obj :defaultCodeLanguage cm-clj/language-support
+                         :base (Language.
+                                (.-data markdownLanguage)
+                                (.. markdownLanguage
+                                    -parser (configure
+                                             ;; fixes indentation base for clojure inside fenced code blocks ⬇
+                                             (j/lit {:props [(.add indentNodeProp
+                                                                   (j/obj :Document (constantly 0)))]}))))))]
+    (LanguageSupport.
+     (.-language md)
+     (array (.-support md)
+            (.high Prec (.of keymap (j/lit [{:key \` :run handle-open-backticks}])))))))
+
+;; Editor
 (defn editor
   "A convenience function/component bundling a basic setup with
 
