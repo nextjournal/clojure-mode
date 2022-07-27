@@ -312,7 +312,10 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
       (.then #(-> %  ;; literal fixes
                   (str/replace "…some javascript object…" ":x 123")
                   (str/replace "…" "'…")
-                  (str/replace "..." "'…")))
+                  (str/replace "..." "'…")
+                  (str/replace "default-value" "'default-value")
+                  (str/replace "default" "'default")
+                  (str/replace "! a 10)" "! (into-array [1 2 3]) 10)")))
       (.then (fn [markdown-doc]
                (js/console.log :text markdown-doc)
                (rdom/render
@@ -331,9 +334,13 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                    :code (let [ctx' (sci.core/merge-opts
                                                      (sci.core/fork @sv/!sci-ctx)
                                                      ;; FIXME: a more sane approach to js-interop ctx fixes
-                                                     {:namespaces {'my.app {'.-x :x '.-y :y '.-a :a '.-b :b '.-c :c}
+                                                     {:namespaces {'my.app {'.-x :x '.-y :y '.-a :a '.-b :b '.-c :c
+                                                                            'some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}]}
                                                                    'cljs.core {'implements? (fn [c i] false)
                                                                                'ISeq nil}}})]
+                                           (demo.sci/eval-string ctx' (str "(def obj #js {:x 1 :y 2 :z 3})"
+                                                                           "(def some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}])"
+                                                                           "(def .-x :x)(def .-y :y)(def .-a :a)"))
                                            (fn [text]
                                              [:<>
                                               [sv/inspect-paginated (v/with-viewer :code text)]
@@ -351,4 +358,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
     (demo.sci/eval-string ctx'' "(def o (j/assoc! #js {:a 1} :b 2))")
     (demo.sci/eval-string ctx'' "(j/lookup (j/assoc! #js {:a 1} :b 2))")
     (demo.sci/eval-string ctx'' "(j/get o :b)")
+    (demo.sci/eval-string ctx'' "(into-array [1 2 3])")
+
+    ;; this is not evaluable as-is in sci
     (demo.sci/eval-string ctx'' "(j/let [^:js {:keys [a b]} o] (map inc [a b]))")))
