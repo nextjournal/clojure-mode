@@ -303,5 +303,30 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] fix eval for empty code cells
 "}]]] (js/document.getElementById "markdown-preview"))
 
+
+  (-> (js/fetch "https://raw.githubusercontent.com/applied-science/js-interop/master/README.md")
+      (.then #(.text %))
+      (.then (fn [markdown-doc]
+               (js/console.log :text markdown-doc)
+               (rdom/render
+                [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+                 [livedoc/editor {:doc markdown-doc
+                                  :tooltip (fn [text _editor-view]
+                                             (let [tt-el (js/document.createElement "div")]
+                                               (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
+                                               (j/obj :dom tt-el)))
+
+                                  :render
+                                  {:markdown (fn [text]
+                                               [:div.viewer-markdown
+                                                [sv/inspect-paginated (v/with-viewer :markdown text)]])
+
+                                   :code (fn [text]
+                                           [:<>
+                                            [sv/inspect-paginated (v/with-viewer :code text)]
+                                            [:hr.border]
+                                            [:div.mt-2.ml-3 [eval-code-view text]]])}}]]
+                (js/document.getElementById "markdown-preview-large")))))
+
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
