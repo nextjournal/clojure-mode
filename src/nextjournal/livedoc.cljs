@@ -60,8 +60,7 @@
 (declare rangeset-seq)
 (defn pos->block-idx [blocks pos]
   ;; blocks partition the whole document, the only missing point is the end of the document
-  (or (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks))
-      (dec (count blocks))))
+  (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
 
 (declare block-opts->widget block-at)
 (defn edit-at [{:as doc :keys [selected blocks last-edited]} _tr pos]
@@ -88,6 +87,7 @@
 
 (declare state->blocks)
 (defn preview-all-and-select [doc tr]
+  ;; rebuild all decorations to get new selection right (investigate filter/add)
   (let [blocks (.set Decoration (state->blocks (.-state tr)))]
     (-> doc
         (assoc :blocks  blocks)
@@ -272,14 +272,14 @@
 
 ;; Keyborad event handling
 (defn edit-adjacent-block-at [^js view blocks key]
-  (let [pos (->cursor-pos (.-state view))
-        index (pos->block-idx blocks pos)
-        next-index (case key
-                     (:up :left) (bounded-dec index)
-                     (:down :right) (bounded-inc index (count blocks)))]
-    (when (not= next-index index)
-      (let [line (.. view -state -doc (lineAt pos))
-            next-block (nth blocks next-index)]
+  (let [pos (->cursor-pos (.-state view))]
+    (when-some [next-block (when-not (pos->block-idx blocks pos)
+                             ;; ⬆ we're not inside any preview block
+                             ;; ⬇ get the first adjacent block met wrt the current movement direction
+                             (case key
+                               (:up :left) (some (when-fn #(<= (:to %) pos)) (reverse blocks))
+                               (:down :right) (some (when-fn #(< pos (:from %))) blocks)))]
+      (let [line (.. view -state -doc (lineAt pos))]
         ;; blocks span entire lines we can argue by an offset of at most the current line + 1
         (case key
           (:down :right)
@@ -311,7 +311,7 @@
         (= :esc key)
         (cond
           selected
-          (let [at (inc (:from (nth block-seq selected)))]
+          (let [at (:from (nth block-seq selected))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                        :selection {:anchor at}})))
             true)
@@ -327,7 +327,7 @@
               true))
 
         ;; move up/down selection
-        (and selected (or (= :up key) (= :down key)))
+        selected #_ (not= :esc key)
         (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
           (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (nth block-seq at)))}
                                      :effects (.of doc-apply-op {:op preview-all-and-select})})))
@@ -335,8 +335,8 @@
 
         ;; check we're entering a preview from an edit region
         ;; (not selected) implies we're in edit. Also check we're not expanding/shrinking a paredit region
-        (and (not selected) (not edit-all?) (not (.. view -state (field eval-region-tooltip)))
-             (or (= :up key) (= :down key) (= :left key) (= :right key)))
+        (and (not= :esc key) (not selected) (not edit-all?)
+             (not (.. view -state (field eval-region-tooltip))))
         (when-some [at (edit-adjacent-block-at view block-seq key)]
           (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
                                      :selection {:anchor at}})))
