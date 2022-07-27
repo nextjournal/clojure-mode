@@ -6,7 +6,7 @@
   * per-block edit mode"
   (:require ["@codemirror/language" :refer [syntaxHighlighting defaultHighlightStyle syntaxTree Language LanguageSupport indentNodeProp]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
-            ["@codemirror/state" :refer [EditorState StateField StateEffect Prec Range]]
+            ["@codemirror/state" :refer [EditorState StateField StateEffect Prec]]
             ["@codemirror/view" :as view :refer [EditorView Decoration WidgetType keymap showTooltip]]
             ["@lezer/markdown" :as lezer-markdown]
             [applied-science.js-interop :as j]
