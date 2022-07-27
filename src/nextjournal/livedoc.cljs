@@ -297,8 +297,7 @@
 
           (or doc-changed? edit-all?)
           (do
-            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select})
-                                       #_#_ :selection {:anchor (->cursor-pos (.-state view))}})))
+            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select})})))
             true)
 
           'edit-one
@@ -307,8 +306,8 @@
 
         ;; move up/down selection
         selected #_ (not= :esc key)
-        (let [at (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
-          (.. view (dispatch (j/lit {:selection {:anchor (inc (:from (nth block-seq at)))}
+        (let [next-idx (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
+          (.. view (dispatch (j/lit {:selection {:anchor (:from (nth block-seq next-idx))}
                                      :effects (.of doc-apply-op {:op preview-all-and-select})})))
           true)
 
