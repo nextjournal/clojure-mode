@@ -55,13 +55,7 @@
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
 ;;
-;; Block { :from Int
-;;         :to Int
-;;         :type (:code | :markdown)
-;;         :node? SyntaxNode
-;;         :selected? }
 ;; Doc Ops
-
 
 (declare rangeset-seq)
 (defn pos->block-idx [blocks pos]
@@ -69,22 +63,28 @@
   (or (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks))
       (dec (count blocks))))
 
-(declare block-opts->widget)
-(defn edit-at [{:as doc :keys [selected blocks]} _tr pos]
-  (let [{:keys [from to widget]} (when selected (nth (rangeset-seq blocks) selected))]
-    (js/console.log :edit-at/pos pos :selected widget)
-    (-> doc
-        (dissoc :selected :edit-all?)
-        (update :blocks
-                #(.update ^js %
-                          (cond-> (j/obj :filter
-                                         (fn [from to val]
-                                           (js/console.log :filter from to val)
-                                           (not (or (and (<= from pos) (< pos to))
-                                                    (and widget (identical? (.-id widget)
-                                                                            (.. val -widget -id)))))))
-                            (and widget (not (and (<= from pos) (< pos to))))
-                            (j/assoc! :add (array (block-opts->widget (.-spec widget))))))))))
+(declare block-opts->widget block-at)
+(defn edit-at [{:as doc :keys [selected blocks last-edited]} _tr pos]
+  (let [block-seq (rangeset-seq blocks)
+        {selected-widget :widget} (when selected (nth block-seq selected))
+        {:keys [widget]} (block-at block-seq pos)]
+    (cond-> doc
+      widget
+      (-> (dissoc :selected :edit-all?)
+          (assoc :last-edited widget)
+          (update :blocks
+                  #(.update ^js %
+                            (j/obj :filter
+                                   (fn [_ _ val]
+                                     (not (or (identical? (.-id widget) (.. val -widget -id))
+                                              (and selected-widget
+                                                   (identical? (.-id selected-widget) (.. val -widget -id))))))
+                                   :add
+                                   (cond-> (array)
+                                     (and selected-widget (not (identical? (.-id widget) (.-id selected-widget))))
+                                     (j/push! (block-opts->widget (.-spec selected-widget)))
+                                     last-edited
+                                     (j/push! (block-opts->widget (.-spec last-edited)))))))))))
 
 (declare state->blocks)
 (defn preview-all-and-select [doc tr]
@@ -92,11 +92,11 @@
     (-> doc
         (assoc :blocks  blocks)
         (assoc :selected (pos->block-idx (rangeset-seq blocks) (->cursor-pos (.-state tr))))
-        (dissoc :edit-all? :doc-changed?))))
+        (dissoc :edit-all? :doc-changed? :last-edited))))
 
 (defn edit-all [doc _tr]
   (-> doc
-      (dissoc :selected :doc-changed?)
+      (dissoc :selected :doc-changed? :last-edited)
       (assoc :edit-all? true
              :blocks (.-none Decoration))))
 
@@ -144,7 +144,7 @@
                                                        :to doc-end
                                                        :type :markdown}))))))))
 
-(declare get-blocks get-block-at get-block-by-id)
+(declare get-blocks get-block-by-id)
 
 ;; Block Previews
 (defn render-block-preview [^js widget ^js view]
@@ -242,12 +242,14 @@
 
 (defn when-fn [p] (fn [x] (when (p x) x)))
 
+(defn block-at [blocks pos] (some (when-fn (partial within? pos)) blocks))
+
 (defn get-block-at
   ([state] (get-block-at state (->cursor-pos state)))
-  ([state pos] (some #(when (within? pos %) %) (get-blocks state))))
+  ([state pos] (block-at (get-blocks state) pos)))
 
 (defn get-block-by-id [state id]
-  (some #(when (identical? id (-> % :widget .-id)) %) (get-blocks state)))
+  (some (when-fn #(identical? id (-> % :widget .-id))) (get-blocks state)))
 
 ;; Decoration State Field
 
