@@ -4,7 +4,7 @@
   * per form evaluation inside clojure blocks
   * markdown blocks rendering
   * per-block edit mode"
-  (:require ["@codemirror/language" :refer [syntaxHighlighting defaultHighlightStyle syntaxTree Language LanguageSupport indentNodeProp]]
+  (:require ["@codemirror/language" :refer [syntaxHighlighting defaultHighlightStyle syntaxTree ensureSyntaxTree Language LanguageSupport indentNodeProp]]
             ["@codemirror/lang-markdown" :as MD :refer [markdown markdownLanguage]]
             ["@codemirror/state" :refer [EditorState StateField StateEffect Prec]]
             ["@codemirror/view" :as view :refer [EditorView Decoration WidgetType keymap showTooltip]]
@@ -184,7 +184,13 @@
   ([state] (state->blocks state {:from 0 :select? true}))
   ([state {:keys [from select?]}]
    (let [^js blocks (array)]
-     (.. (syntaxTree state)
+     ;; TODO: parse only the visible part in viewport / call again when viewport changs
+     ;; or delay the state-field until syntax parsing has reached the end
+     ;; see also https://codemirror.net/docs/ref/#language.forceParsing (in a high-prec plugin with EditorView access)
+     ;; `ensureSyntaxTree` forces parsing of the whole document within 1sec and returns nil otherwise
+     ;; `syntaxTree` returns the available tree constructed at the time of call
+     (.. (or (ensureSyntaxTree state (.. state -doc -length) 1000)
+             (syntaxTree state))
          (iterate (j/obj :from from
                          :enter
                          (fn [node]
