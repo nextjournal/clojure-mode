@@ -35,7 +35,7 @@
                  (lazy-seq (step)))))))))
 
 (defn when-fn [p] (fn [x] (when (p x) x)))
-(defn block-at [blocks pos] (some (when-fn (partial within? pos)) blocks))
+(defn block-at [blocks pos] (some (when-fn (partial within? pos)) (rangeset-seq blocks)))
 (declare get-blocks)
 (defn get-block-by-id [state id]
   (some (when-fn #(identical? id (-> % :widget .-id))) (get-blocks state)))
@@ -71,27 +71,12 @@
 
 (declare block-opts->widget state->blocks)
 
-(defn edit-at [{:as doc :keys [selected blocks last-edited]} _tr pos]
-  (let [block-seq (rangeset-seq blocks)
-        {selected-widget :widget} (when selected (nth block-seq selected))
-        {:keys [widget]} (block-at block-seq pos)]
-    (cond-> doc
-      widget
-      (-> (dissoc :selected :edit-all?)
-          (assoc :last-edited widget)
-          (update :blocks
-                  #(.update ^js %
-                            (j/obj :filter
-                                   (fn [_ _ val]
-                                     (not (or (identical? (.-id widget) (.. val -widget -id))
-                                              (and selected-widget
-                                                   (identical? (.-id selected-widget) (.. val -widget -id))))))
-                                   :add
-                                   (cond-> (array)
-                                     (and selected-widget (not (identical? (.-id widget) (.-id selected-widget))))
-                                     (j/push! (block-opts->widget (.-spec selected-widget)))
-                                     last-edited
-                                     (j/push! (block-opts->widget (.-spec last-edited)))))))))))
+(defn edit-at [doc tr pos]
+  (-> doc
+      (dissoc :selected :edit-all?)
+      (assoc :blocks
+             (.update (.set Decoration (state->blocks (.-state tr)))
+                      (j/obj :filter (fn [from to _val] (not (and (<= from pos) (< pos to)))))))))
 
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
@@ -99,11 +84,11 @@
     (-> doc
         (assoc :blocks  blocks)
         (assoc :selected (pos->block-idx (rangeset-seq blocks) (->cursor-pos (.-state tr))))
-        (dissoc :edit-all? :doc-changed? :last-edited))))
+        (dissoc :edit-all? :doc-changed?))))
 
 (defn edit-all [doc _tr]
   (-> doc
-      (dissoc :selected :doc-changed? :last-edited)
+      (dissoc :selected :doc-changed?)
       (assoc :edit-all? true
              :blocks (.-none Decoration))))
 
