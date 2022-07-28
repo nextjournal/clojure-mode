@@ -324,6 +324,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                (rdom/render
                 [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
                  [livedoc/editor {:doc markdown-doc
+                                  :extensions [theme]
                                   :tooltip (fn [text _editor-view]
                                              (let [tt-el (js/document.createElement "div")]
                                                (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
