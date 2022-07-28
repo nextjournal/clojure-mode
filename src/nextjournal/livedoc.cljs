@@ -69,18 +69,18 @@
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
 
-(declare block-opts->widget state->blocks)
+(declare state->blocks)
 
 (defn edit-at [doc tr pos]
   (-> doc
       (dissoc :selected :edit-all?)
       (assoc :blocks
-             (.update (.set Decoration (state->blocks (.-state tr)))
+             (.update (state->blocks (.-state tr))
                       (j/obj :filter (fn [from to _val] (not (and (<= from pos) (< pos to)))))))))
 
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
-  (let [blocks (.set Decoration (state->blocks (.-state tr)))]
+  (let [blocks (state->blocks (.-state tr))]
     (-> doc
         (assoc :blocks  blocks)
         (assoc :selected (pos->block-idx (rangeset-seq blocks) (->cursor-pos (.-state tr))))
@@ -100,7 +100,7 @@
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
                       {:selected nil
-                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
+                       :blocks (state->blocks cm-state {:select? false})})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
                         (cond
@@ -117,52 +117,53 @@
 (defn get-blocks [state] (-> state (.field doc-state) :blocks rangeset-seq))
 
 ;; Block Previews
-(defn render-block-preview [^js widget ^js view]
-  ;; TODO: move text extraction out of here (close to syntax iteration)
+(defn render-block-preview [{:as opts :keys [id type selected? text]} ^js view]
   (let [el (js/document.createElement "div")
-        _ (j/assoc! el :widget widget)
-        widget-type (.-type widget)
-        node (if (= :code widget-type) (j/call-in widget [:node :getChild] "CodeText") widget)
-        code-or-markdown (if-some [[from to] (when node ((juxt n/start n/end) node))]
-                           (.. view -state -doc (sliceString from to))
-                           "")
         {:keys [render]} (.. view -state (field config-state))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
-                  {:class [(when (= :code (.-type widget)) "bg-slate-100") (when (.-isSelected widget) "ring-4")]
-                   :on-click (fn [e]
-                               (.preventDefault e)
-                               ;; since decorations might be mapped I cannot argue by widget's from/to
-                               (when-some [{:keys [from]} (get-block-by-id (.-state view) (.-id widget))]
+                  {:class [(when (= :code type) "bg-slate-100") (when selected? "ring-4")]
+                   :on-click (fn [_e]
+                               ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
+                               (when-some [{:keys [from]} (get-block-by-id (.-state view) id)]
                                  (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
                                                             :selection {:anchor from}})))))}
                   [:div.mt-3
-                   [(widget-type render) code-or-markdown]]] el)
+                   [(type render) text]]] el)
     el))
 
 (defclass BlockPreviewWidget
   (extends WidgetType)
-  (constructor [this {:as opts :keys [from to type node selected?]}]
-               ;; TODO: remove from/to in favour of text
-               (j/assoc! this
-                         :id (random-uuid)
-                         :from from :to to :type type :node node
-                         :isSelected selected?
-                         :ignoreEvent (constantly false)
-                         :toDOM (partial render-block-preview this)
-                         :spec (dissoc opts :selected?)
-                         :eq (fn [^js other] (identical? (.-id this) (.-id other))))))
+  (constructor [this opts]
+               (let [id (random-uuid)]
+                 (j/assoc! this
+                           :id id
+                           :text (:text opts)
+                           :ignoreEvent (constantly false)
+                           :toDOM (partial render-block-preview (assoc opts :id id))
+                           :eq (fn [^js other] (identical? (.-id this) (.-id other)))))))
 
-(defn block-opts->widget
+(defn block-opts->decoration
   [{:as opts :keys [from to]}]
   (.. Decoration
-      (replace (j/obj :block true :widget (BlockPreviewWidget. opts)))
+      (replace (j/obj :block true
+                      :widget (BlockPreviewWidget. (select-keys opts [:text :type :selected?]))))
       (range from to)))
 
 ;; Codemirror State Syntax Tree to Blocks
-(defn with-selection [state select? opts]
-  (cond-> opts
-    (and select? (within? (->cursor-pos state) opts))
-    (assoc :selected? true)))
+(defn node-info->decoration [^js state {:as opts :keys [from to node type select?]}]
+  (block-opts->decoration
+   (-> opts
+       (assoc :text (cond
+                      (= :markdown type)
+                      (.. state -doc (sliceString from to))
+                      (= :code type)
+                      (if-some [^js code-text (.getChild node "CodeText")]
+                        ;; if fenced block code is not empty, then it has a CodeText child node
+                        (.. state -doc (sliceString (.-from code-text) (.-to code-text)))
+                        "")))
+       (cond->
+         (and select? (within? (->cursor-pos state) opts))
+         (assoc :selected? true)))))
 
 (defn state->blocks
   "Partitions the document into ranges delimited by code blocks"
@@ -187,26 +188,29 @@
                                    (cond-> blocks
                                      (and (not (zero? (n/start node)))
                                           (or (not to) (not= (inc to) (n/start node))))
-                                     (j/push! (block-opts->widget (with-selection state select?
-                                                                                  {:from (or to 0)
-                                                                                   :to (n/start node)
-                                                                                   :type :markdown})))
+                                     (j/push! (node-info->decoration state
+                                                                     {:from (or to 0)
+                                                                      :to (n/start node)
+                                                                      :type :markdown
+                                                                      :select? select?}))
                                      'always
-                                     (j/push! (block-opts->widget (with-selection state select?
-                                                                                  {:from (n/start node)
-                                                                                   :to (n/end node)
-                                                                                   :node (.-node node)
-                                                                                   :type :code}))))))
+                                     (j/push! (node-info->decoration state
+                                                                     {:from (n/start node)
+                                                                      :to (n/end node)
+                                                                      :node (.-node node)
+                                                                      :type :code
+                                                                      :select? select?})))))
                                false))))))
-
      (let [doc-end (.. state -doc -length)
            to (some-> blocks (.at -1) .-to)]
-       (cond-> blocks
-         (not= doc-end to)
-         (j/push! (block-opts->widget (with-selection state select?
-                                                      {:from to
-                                                       :to doc-end
-                                                       :type :markdown}))))))))
+       (.set Decoration
+             (cond-> blocks
+               (not= doc-end to)
+               (j/push! (node-info->decoration state
+                                               {:from to
+                                                :to doc-end
+                                                :type :markdown
+                                                :select? select?}))))))))
 
 ;; Tooltips State Field
 ;; depends on `nextjournal.clojure-mode.extensions.eval-region`
