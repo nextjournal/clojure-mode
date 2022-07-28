@@ -151,7 +151,7 @@
       (range from to)))
 
 ;; Codemirror State Syntax Tree to Blocks
-(defn node-info->decoration [^js state {:as opts :keys [from to node type select?]}]
+(defn node-info->decoration [^js state {:as opts :keys [from to ^js node type select?]}]
   (block-opts->decoration
    (-> opts
        (assoc :text (cond
@@ -180,7 +180,7 @@
              (syntaxTree state))
          (iterate (j/obj :from from
                          :enter
-                         (fn [node]
+                         (fn [^js node]
                            (if (doc? node)
                              true ;; only enter into children of the top level document
                              (do
