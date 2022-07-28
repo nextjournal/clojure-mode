@@ -21,8 +21,10 @@
 (def theme
   (.theme EditorView
           (j/lit {".cm-content" {:white-space "pre-wrap"
-                                 :padding "10px 0"}
-                  "&.cm-focused" {:outline "none"}
+                                 :padding "10px 0"
+                                 :flex "1 1 0"}
+
+                  "&.cm-focused" {:outline "0 !important"}
                   ".cm-line" {:padding "0 9px"
                               :line-height "1.6"
                               :font-size "16px"
@@ -242,7 +244,7 @@ have an editor with ~~mono~~ _mixed language support_.
                                       [{:key "Alt-ArrowUp" :doc "Grows the selected region and evaluates"}]
                                       :eval-region-shrink
                                       [{:key "Alt-ArrowDown" :doc "Shrinks the selected region and evaluates"}]}]]
-                [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+                [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
                  [markdown-editor {:extensions (livedoc/extensions
                                                 {:tooltip (fn [text _editor-view]
                                                             (let [tt-el (js/document.createElement "div")]
@@ -251,11 +253,11 @@ have an editor with ~~mono~~ _mixed language support_.
 
                                                  :render
                                                  {:markdown (fn [text]
-                                                              [:div.viewer-markdown
+                                                              [:div.max-w-prose
                                                                [sv/inspect-paginated (v/with-viewer :markdown text)]])
 
                                                   :code (fn [text]
-                                                          [:<>
+                                                          [:div.max-w-prose
                                                            [sv/inspect-paginated (v/with-viewer :code text)]
                                                            [:hr.border]
                                                            [:div.mt-2.ml-3 [eval-code-view text]]])}})
@@ -320,7 +322,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                   (str/replace "! a 10)" "! (into-array [1 2 3]) 10)")))
       (.then (fn [markdown-doc]
                (rdom/render
-                [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
+                [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
                  [livedoc/editor {:doc markdown-doc
                                   :tooltip (fn [text _editor-view]
                                              (let [tt-el (js/document.createElement "div")]
