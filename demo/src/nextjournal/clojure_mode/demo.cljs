@@ -294,6 +294,8 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] fix blocks when editing last one in edit-all mode
 - [ ] fix overflow-x in blocks
 - [ ] fix selecting positions with click in editable sections between previews
+- [ ] fix scrollIntoView when moving selected block out of viewport
+- [ ] clicking on block close to viewport sides not always results in an edit
 - [ ] fix Clerk plotly/vega viewers
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave
@@ -317,7 +319,6 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                   (str/replace "default" "'default")
                   (str/replace "! a 10)" "! (into-array [1 2 3]) 10)")))
       (.then (fn [markdown-doc]
-               (js/console.log :text markdown-doc)
                (rdom/render
                 [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                  [livedoc/editor {:doc markdown-doc

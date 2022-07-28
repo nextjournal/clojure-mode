@@ -126,7 +126,8 @@
                                ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
                                (when-some [{:keys [from]} (get-block-by-id (.-state view) id)]
                                  (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
-                                                            :selection {:anchor from}})))))}
+                                                            :selection {:anchor from}
+                                                            :scrollIntoView true})))))}
                   [:div.mt-3
                    [(type render) text]]] el)
     el))
@@ -287,7 +288,8 @@
           selected
           (let [at (:from (nth block-seq selected))]
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
-                                       :selection {:anchor at}})))
+                                       :selection {:anchor at}
+                                       :scrollIntoView true})))
             true)
 
           (or doc-changed? edit-all?)
@@ -303,7 +305,8 @@
         selected #_ (not= :esc key)
         (let [next-idx (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
           (.. view (dispatch (j/lit {:selection {:anchor (:from (nth block-seq next-idx))}
-                                     :effects (.of doc-apply-op {:op preview-all-and-select})})))
+                                     :effects (.of doc-apply-op {:op preview-all-and-select})
+                                     :scrollIntoView true})))
           true)
 
         ;; check we're entering a preview from an edit region
@@ -312,7 +315,8 @@
              (not (.. view -state (field eval-region-tooltip))))
         (when-some [at (edit-adjacent-block-at view block-seq key)]
           (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [at]})
-                                     :selection {:anchor at}})))
+                                     :selection {:anchor at}
+                                     :scrollIntoView true})))
           true)
 
         'else false))))
