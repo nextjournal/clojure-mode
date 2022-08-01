@@ -252,25 +252,48 @@ have an editor with ~~mono~~ _mixed language support_.
                                                               (j/obj :dom tt-el)))
 
                                                  :render
-                                                 {:markdown (fn [text]
+                                                 {:markdown (fn [{:keys [text]}]
                                                               [:div.max-w-prose
                                                                [sv/inspect-paginated (v/with-viewer :markdown text)]])
 
-                                                  :code (fn [text]
-                                                          [:div.max-w-prose
-                                                           [sv/inspect-paginated (v/with-viewer :code text)]
-                                                           [:hr.border]
-                                                           [:div.mt-2.ml-3 [eval-code-view text]]])}})
+                                                  :code (fn [{:keys [text eval-signal]}]
+                                                          (r/with-let [res (r/atom nil)
+                                                                       sig-tracker (r/track #(let [s @eval-signal]
+                                                                                               (reset! res (demo.sci/eval-string text))
+                                                                                               s))]
+
+                                                            [:div.max-w-prose
+                                                             [sv/inspect-paginated (v/with-viewer :code text)]
+                                                             [:hr.border]
+                                                             [:div.viewer-result {:data-eval-ref @sig-tracker
+                                                                                  :style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
+                                                              (when-some [{:keys [error result]} @res]
+                                                                (cond
+                                                                  error [:div.red error]
+                                                                  (react/isValidElement result) result
+                                                                  result (sv/inspect-paginated result)))]]
+
+                                                            (finally
+                                                             (js/console.log :destroy text))))}})
                                    :doc "# Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
 have an editor with ~~mono~~ _mixed language support_.
 
 ```clojure
+
+(defonce state (atom 0))
+```
+
+```clojure
 (defn the-answer
   \"to all questions\"
   []
   (inc 41))
+```
+
+```
+(do (swap! state inc) nil)
 ```
 
 We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context:
@@ -283,7 +306,7 @@ We're also rendering _markdown_ cells in terms of Clerk's viewers. This allows e
 
 $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 ```clojure
-(v/html [:h2 (str \"The Answer is: \" (the-answer))])
+(v/html [:h2 (str \"The Answer is: \" @state)])
 ```
 
 ## Todo
@@ -331,7 +354,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                                (j/obj :dom tt-el)))
 
                                   :render
-                                  {:markdown (fn [text]
+                                  {:markdown (fn [{:keys [text]}]
                                                [:div.viewer-markdown
                                                 [sv/inspect-paginated (v/with-viewer :markdown text)]])
 
@@ -345,7 +368,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                            (demo.sci/eval-string ctx' (str "(def obj #js {:x 1 :y 2 :z 3})"
                                                                            "(def some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}])"
                                                                            "(def .-x :x)(def .-y :y)(def .-a :a)"))
-                                           (fn [text]
+                                           (fn [{:keys [text]}]
                                              [:<>
                                               [sv/inspect-paginated (v/with-viewer :code text)]
                                               [:hr.border]

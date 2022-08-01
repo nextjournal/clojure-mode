@@ -15,6 +15,7 @@
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.node :as n]
+            [reagent.core :as r]
             [reagent.dom :as rdom]))
 
 (declare state->blocks block-opts->decoration get-blocks)
@@ -118,6 +119,9 @@
       (assoc :edit-all? true
              :blocks (.-none Decoration))))
 
+(defn update-eval-signal [doc _tr id]
+  (update doc :eval-signal (fn [s] (swap! s update id (fnil inc 0)) s)))
+
 ;; Doc State Field
 (defonce ^{:doc "Maintains a document description at block level"}
   doc-state
@@ -126,7 +130,8 @@
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
                       {:selected nil
-                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
+                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))
+                       :eval-signal (r/atom {})})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
                         (cond
@@ -141,11 +146,12 @@
                           'else doc))))))
 
 (defn get-blocks [state] (-> state (.field doc-state) :blocks rangeset-seq))
+(defn get-eval-signal [state] (-> state (.field doc-state) :eval-signal))
 
 ;; Block Previews
 (defn render-block-preview [^js widget ^js view]
   (let [el (js/document.createElement "div")
-        {:keys [text type selected?]} (.-spec widget)
+        {:as spec :keys [text type selected?]} (.-spec widget)
         {:keys [render]} (.. view -state (field config-state))]
     (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
                   {:class [(when (= :code type) "bg-slate-100") (when selected? "ring-4")]
@@ -156,7 +162,7 @@
                                                             :selection {:anchor from}
                                                             :scrollIntoView true})))))}
                   [:div.mt-3
-                   [(type render) text]]] el)
+                   [(type render) (assoc spec :eval-signal (get-eval-signal (.-state view)))]]] el)
     el))
 
 (defclass BlockPreviewWidget
@@ -320,10 +326,20 @@
               (.. view -state -doc (lineAt new-pos) -from))))))))
 
 (defn handle-keydown [^js e ^js view]
-  (when-some [key (case (.-which e) 40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
-    (let [{:keys [doc-changed? edit-all? selected blocks]} (.. view -state (field doc-state))
+  (when-some [key (case (.-which e)
+                    13 (when (.-metaKey e) :eval)
+                    40 :down 38 :up 27 :esc 39 :right 37 :left nil)]
+    (let [{:keys [doc-changed? edit-all? edit-from selected blocks]} (.. view -state (field doc-state))
           block-seq (rangeset-seq blocks)]
       (cond
+        (= :eval key)
+        (when-not edit-from
+          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op update-eval-signal
+                                                                 :args [(when selected
+                                                                          (-> (nth block-seq selected)
+                                                                              :val .-widget .-id))]})})))
+          true)
+
         ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
         (= :esc key)
         (cond
