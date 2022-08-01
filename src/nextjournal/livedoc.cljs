@@ -17,6 +17,8 @@
             [nextjournal.clojure-mode.node :as n]
             [reagent.dom :as rdom]))
 
+(declare state->blocks block-opts->decoration get-blocks)
+
 ;; Helpers
 (defn doc? [^js node] (identical? (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn fenced-code? [^js node] (identical? (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
@@ -37,13 +39,15 @@
 
 (defn when-fn [p] (fn [x] (when (p x) x)))
 (defn block-at [blocks pos] (some (when-fn (partial within? pos)) (rangeset-seq blocks)))
-(declare get-blocks)
 (defn get-block-by-id [state id]
   (some (when-fn #(identical? id (-> % :val .-widget .-id))) (get-blocks state)))
 (defn pos->block-idx [blocks pos]
   ;; blocks partition the whole document, the only missing point is the end of the document
   (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
 (defn block-eq? [{:keys [^js val]} {^js other :val}] (.. val -widget (eq (.. other -widget))))
+(defn ->widget [{:keys [^js val]}] (.-widget val))
+(defn update-block [{:keys [from to val]} f]
+  (block-opts->decoration (assoc (f (.. val -widget -spec)) :from from :to to)))
 
 ;; Config
 (def default-config
@@ -71,23 +75,9 @@
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
 
-(declare state->blocks block-opts->decoration)
-
-;; debug
-(defn print-blocks
-  [blocks]
-  (str (map (juxt :from :to (comp :type (j/get :spec) (j/get :widget) :val))
-            (rangeset-seq blocks))))
-
-(defn unselected [{:keys [from to val]}]
-  (block-opts->decoration (assoc (.. val -widget -spec)
-                                 :from from :to to
-                                 :selected? false)))
-
 (defn edit-at [{:as doc :keys [selected blocks edit-from]} ^js tr pos]
   ;; we patch the existing decoration with blocks arising from last editable region
-  (let [b (block-at blocks pos)
-        w (some-> b :val .-widget)
+  (let [current-block (block-at blocks pos)
         edit-to (when edit-from
                   (or (:from (some (when-fn #(< edit-from (:from %)))
                                    (rangeset-seq blocks edit-from)))
@@ -95,24 +85,24 @@
         ^js gap-blocks (when edit-to
                          (state->blocks (.-state tr) {:from edit-from
                                                       :to edit-to}))
-        ^js sel-block (when selected (nth (rangeset-seq blocks) selected))]
-    (js/console.log :edit-at pos :b? b)
+        ^js selected-block (when selected (nth (rangeset-seq blocks) selected))]
     (cond-> doc
-      b
+      current-block
       (-> (dissoc :selected :edit-all?)
-          (assoc :edit-from (:from b))
+          (assoc :edit-from (:from current-block))
           (update :blocks
-                  #(.update ^js %
-                            (cond-> (j/obj :filter
-                                           (fn [_ _ ^js val]
-                                             (not (or (.. val -widget (eq w))
-                                                      (when sel-block (.. val -widget (eq (.-widget (:val sel-block)))))))))
-                              ;; either gap click after click
-                              gap-blocks
-                              (j/assoc! :add gap-blocks)
-                              ;; or click after selected
-                              (and sel-block (not (block-eq? sel-block b)))
-                              (j/assoc! :add (array (unselected sel-block))))))))))
+                  (fn [bs]
+                    (.update ^js bs
+                             (cond-> (j/obj :filter
+                                            (j/fn [_from _to ^:js {:keys [widget]}]
+                                              (not (or (.eq widget (->widget current-block))
+                                                       (when selected-block (.eq widget (->widget selected-block)))))))
+                               ;; either add gap (click after click)
+                               gap-blocks
+                               (j/assoc! :add gap-blocks)
+                               ;; or remove selection (click while some block is selected)
+                               (and selected-block (not (block-eq? selected-block current-block)))
+                               (j/assoc! :add (array (update-block selected-block #(assoc % :selected? false))))))))))))
 
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
@@ -181,6 +171,7 @@
 
 (defn block-opts->decoration
   [{:as opts :keys [from to]}]
+  (assert (< from to) (str "Bad range: " opts))
   (.. Decoration
       (replace (j/obj :block true
                       :widget (BlockPreviewWidget. (select-keys opts [:text :type :selected?]))))
@@ -227,7 +218,7 @@
                                      (and (not= from (n/start node))
                                           (< block-from (n/start node))
                                           (or (not last-to)
-                                              (not= (inc last-to) (n/start node))))
+                                              (not= (inc last-to) (n/start node)))) ;; contiguous fenced blocks
                                      (j/push! (node-info->decoration state
                                                                      {:from block-from
                                                                       :to (n/start node)
@@ -236,7 +227,8 @@
                                      (and (<= from (n/start node)) (<= (n/end node) to))
                                      (j/push! (node-info->decoration state
                                                                      {:from (n/start node)
-                                                                      :to (inc (n/end node)) ;; TODO: until end of line
+                                                                      :to (inc (n/end node))
+                                                                      ;; ⬆ note this assumes no trailing whitespace after closing ```
                                                                       :node (.-node node)
                                                                       :type :code
                                                                       :select? select?})))))
@@ -250,31 +242,18 @@
                                           :type :markdown
                                           :select? select?})))))))
 
-
 (comment
-
-  (js/console.log
-   (let [ft (juxt #(.-from %) #(.-to %))
-         state
-         (nextjournal.clojure-mode.test-utils/make-state
-          (into-array (cons markdown-language-support (extensions)))
-          "|```\ncode\n```\n```\nlast-code\n```\n```")
-         pos (.. state -selection -main -anchor)
-         iter-fn (fn [^js node]
-                   (if (doc? node)
-                     true
-                     (do (js/console.log :node (.-name node)
-                                         (.-from node)
-                                         (.-to node)) false)))]
-     #_(-> state
-           syntaxTree
-           (.iterate (j/obj :from 8 :enter iter-fn)))
-     #_ (.. state -doc (sliceString 8 20))
-     (-> state
-         (state->blocks {})
-         rangeset-seq
-         (->> (map (juxt :from :to (comp :type (j/get :spec) (j/get :widget) :val))) str)
-         ))))
+  (let [state
+        (nextjournal.clojure-mode.test-utils/make-state
+         (into-array (cons markdown-language-support (extensions)))
+         "start\n```\ncode-1\n```\n```\ncode-2\n```\n|end.")
+        pos (.. state -selection -main -anchor)]
+    (.. state -doc (sliceString 6 21))
+    (-> state
+        (state->blocks {:from 6 :to pos})
+        seq (->> (map (juxt (j/get :from) (j/get :to) (comp :type (j/get :spec) (j/get :widget) (j/get :value)))))
+        str
+        )))
 
 ;; Tooltips State Field
 ;; depends on `nextjournal.clojure-mode.extensions.eval-region`
