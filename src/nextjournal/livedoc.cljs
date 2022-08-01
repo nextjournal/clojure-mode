@@ -73,17 +73,11 @@
 
 (declare state->blocks block-opts->decoration)
 
+;; debug
 (defn print-blocks
   [blocks]
   (str (map (juxt :from :to (comp :type (j/get :spec) (j/get :widget) :val))
             (rangeset-seq blocks))))
-
-(defn rangeset->array [blocks]
-  ;; TODO: useless if state->blocks returns a js/Array
-  (reduce (fn [a {:keys [from to val]}]
-            (j/push! a (.range val from to)))
-          (array)
-          (rangeset-seq blocks)))
 
 (defn unselected [{:keys [from to val]}]
   (block-opts->decoration (assoc (.. val -widget -spec)
@@ -91,6 +85,7 @@
                                  :selected? false)))
 
 (defn edit-at [{:as doc :keys [selected blocks edit-from]} ^js tr pos]
+  ;; we patch the existing decoration with blocks arising from last editable region
   (let [b (block-at blocks pos)
         w (some-> b :val .-widget)
         edit-to (when edit-from
@@ -114,14 +109,14 @@
                                                       (when sel-block (.. val -widget (eq (.-widget (:val sel-block)))))))))
                               ;; either gap click after click
                               gap-blocks
-                              (j/assoc! :add (rangeset->array gap-blocks))
+                              (j/assoc! :add gap-blocks)
                               ;; or click after selected
                               (and sel-block (not (block-eq? sel-block b)))
                               (j/assoc! :add (array (unselected sel-block))))))))))
 
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
-  (let [blocks (state->blocks (.-state tr))]
+  (let [blocks (.set Decoration (state->blocks (.-state tr)))]
     (-> doc
         (assoc :blocks  blocks)
         (assoc :selected (pos->block-idx (rangeset-seq blocks) (->cursor-pos (.-state tr))))
@@ -141,7 +136,7 @@
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
                       {:selected nil
-                       :blocks (state->blocks cm-state {:select? false})})
+                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
                         (cond
@@ -241,21 +236,19 @@
                                      (and (<= from (n/start node)) (<= (n/end node) to))
                                      (j/push! (node-info->decoration state
                                                                      {:from (n/start node)
-                                                                      :to (inc (n/end node))
-                                                                      ;; include newline at the end of block
+                                                                      :to (inc (n/end node)) ;; TODO: until end of line
                                                                       :node (.-node node)
                                                                       :type :code
                                                                       :select? select?})))))
                                false))))))
      (let [last-to (some-> blocks (.at -1) .-to)]
-       (.set Decoration
-             (cond-> blocks
-               (not= to last-to)
-               (j/push! (node-info->decoration state
-                                               {:from (or last-to from)
-                                                :to to
-                                                :type :markdown
-                                                :select? select?}))))))))
+       (cond-> blocks
+         (not= to last-to)
+         (j/push! (node-info->decoration state
+                                         {:from (or last-to from)
+                                          :to to
+                                          :type :markdown
+                                          :select? select?})))))))
 
 
 (comment
