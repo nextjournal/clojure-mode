@@ -92,13 +92,14 @@
 
 (defn edit-at [{:as doc :keys [selected blocks edit-from]} ^js tr pos]
   ;; we patch the existing decoration with blocks arising from last editable region
-  (let [current-block (block-at blocks pos)
+  (let [{:as current-block :keys [from]} (block-at blocks pos)
         ^js gap-blocks (edit-gap-blocks doc (.-state tr))
         ^js selected-block (when selected (nth (rangeset-seq blocks) selected))]
     (cond-> doc
       current-block
       (-> (dissoc :selected :edit-all?)
-          (assoc :edit-from (:from current-block))
+          (assoc :edit-from from
+                 :doc-changed? (and edit-from (not= edit-from from)))
           (update :blocks
                   (fn [bs]
                     (.update ^js bs
