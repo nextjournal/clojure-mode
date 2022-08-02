@@ -276,8 +276,9 @@ have an editor with ~~mono~~ _mixed language support_.
                                                            [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
 
                                                           :code
-                                                          [:div.max-w-prose.p-2
-                                                           [sv/inspect-paginated (v/with-viewer :code text)]
+                                                          [:div.p-2
+                                                           [:div.max-w-prose
+                                                            [sv/inspect-paginated (v/with-viewer :code text)]]
                                                            [:hr.border]
                                                            [:div.viewer-result {:style {:font-family "var(--code-font)"}}
                                                             (when-some [{:keys [error result]} r]

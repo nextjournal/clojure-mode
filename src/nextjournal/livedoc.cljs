@@ -131,11 +131,10 @@
 
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
-  (let [blocks (.set Decoration (state->blocks (.-state tr)))]
-    (-> doc
-        (assoc :blocks  blocks)
-        (set-selected (->cursor-pos (.-state tr)))
-        (dissoc :edit-all? :doc-changed? :edit-from))))
+  (-> doc
+      (assoc :blocks (.set Decoration (state->blocks (.-state tr))))
+      (set-selected (->cursor-pos (.-state tr)))
+      (dissoc :edit-all? :doc-changed? :edit-from)))
 
 (defn edit-all [doc _tr]
   (-> doc
@@ -175,8 +174,10 @@
   (doseq [b (rangeset-seq blocks)] (eval-block! state b))
   blocks)
 
-(defn eval! [{:as doc-in :keys [selected edit-from]} tr all?]
-  (let [{:as doc-out :keys [blocks]} (cond-> doc-in edit-from (preview-and-select tr))]
+(defn eval! [{:as doc-in :keys [selected edit-from edit-all?]} tr all?]
+  (let [{:as doc-out :keys [blocks]} (if edit-all?
+                                       (preview-all-and-select doc-in tr)
+                                       (cond-> doc-in edit-from (preview-and-select tr)))]
     (if all?
       (eval-all! (.-state tr) blocks)
       (when-some [block (or (when selected (nth (rangeset-seq blocks) selected))
@@ -222,19 +223,18 @@
                                  (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
                                                             :selection {:anchor from}
                                                             :scrollIntoView true})))))}
-                  [:div [render (.-state widget)]]] el)
+                  [render (.-state widget)]] el)
     el))
 
 (defclass BlockPreviewWidget
   (extends WidgetType)
   (constructor [this spec]
-               (let [state (r/atom spec)]
-                 (j/assoc! this
-                           :id (random-uuid)
-                           :state state
-                           :ignoreEvent (constantly false)
-                           :toDOM (partial render-block-preview this)
-                           :eq (fn [^js other] (identical? (.-id this) (.-id other)))))))
+               (j/assoc! this
+                         :id (random-uuid)
+                         :state (r/atom spec)
+                         :ignoreEvent (constantly false)
+                         :toDOM (partial render-block-preview this)
+                         :eq (fn [^js other] (identical? (.-id this) (.-id other))))))
 
 (defn block-opts->decoration
   [{:as opts :keys [from to]}]
@@ -391,7 +391,7 @@
           block-seq (rangeset-seq blocks)]
       (cond
         (= :eval key)
-        (when-not edit-all?
+        (do
           (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op eval! :args [(.-shiftKey e)]})})))
           true)
 
