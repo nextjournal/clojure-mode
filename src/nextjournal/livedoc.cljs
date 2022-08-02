@@ -344,7 +344,7 @@
               true))
 
         ;; move up/down selection
-        selected #_ (not= :esc key)
+        (and (#{:up :down} key) selected)
         (let [next-idx (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
           (.. view (dispatch (j/lit {:selection {:anchor (:from (nth block-seq next-idx))}
                                      :effects (.of doc-apply-op {:op preview-all-and-select})
