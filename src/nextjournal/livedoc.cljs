@@ -60,10 +60,12 @@
 ;; Config
 (def default-config
   {:render (fn [state]
-             (let [{:keys [type text]} @state]
-               (case type
-                 :markdown [:pre.md text]
-                 :code [:pre.code text])))})
+             (let [{:keys [type text selected?]} @state]
+               [:div.m-2.border.rounded
+                {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
+                (case type
+                  :markdown [:div.p-2 text]
+                  :code [:code [:pre.p-2 text]])]))})
 
 (defonce ^{:doc "Configurable entrypoint see also `extensions/1` fn below."}
   config-state
@@ -433,7 +435,7 @@
    "
   ([] (extensions {}))
   ([opts]
-   (cons (cond-> config-state (seq opts) (.init (constantly opts)))
+   (cons (cond-> config-state (seq opts) (.init #(merge default-config opts)))
          default-extensions)))
 
 ;; Markdown Language Support
