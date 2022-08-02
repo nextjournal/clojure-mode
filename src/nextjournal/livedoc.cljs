@@ -197,7 +197,6 @@
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)
                             {:as me :strs [Meta Shift]} (get-effect-value tr eval-region/modifier-effect)]
-                        (js/console.log :ME (str me))
                         (cond
                           apply-op (apply op doc tr args)
                           (.-docChanged tr)

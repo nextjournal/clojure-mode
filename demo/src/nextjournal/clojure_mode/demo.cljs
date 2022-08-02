@@ -232,6 +232,10 @@ have an editor with ~~mono~~ _mixed language support_.
                 [:div.mb-5.bg-white.max-w-4xl.mx-auto.border
                  [key-bindings-table {:toggle-preview
                                       [{:key "Esc" :doc "Toggles Edit-Cell / Edit-all / Preview-and-select modes"}]
+                                      :eval
+                                      [{:key "Meta-Enter" :doc "Evaluate selected cell / preview when editing a cell"}]
+                                      :eval-all
+                                      [{:key "Shift-Meta-Enter" :doc "Evaluate all cells"}]
                                       :select-previous-block
                                       [{:key "ArrowUp" :doc "Selects block before the current selection"}]
                                       :select-next-block
