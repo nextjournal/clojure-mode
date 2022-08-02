@@ -20,8 +20,8 @@
 (declare state->blocks block-opts->decoration get-blocks)
 
 ;; Helpers
-(defn doc? [^js node] (identical? (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
-(defn fenced-code? [^js node] (identical? (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn doc? [^js node] (== (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
+(defn fenced-code? [^js node] (== (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 (defn ->cursor-pos [^js x] (.. x -selection -main -anchor))
 
