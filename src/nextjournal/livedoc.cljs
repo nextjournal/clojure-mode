@@ -25,6 +25,8 @@
 (defn fenced-code? [^js node] (== (.-FencedCode lezer-markdown/parser.nodeTypes) (.. node -type -id)))
 (defn within? [pos {:keys [from to]}] (and (<= from pos) (< pos to)))
 (defn ->cursor-pos [^js x] (.. x -selection -main -anchor))
+(defn bounded-inc [i b] (min (dec b) (inc i)))
+(defn bounded-dec [i] (max 0 (dec i)))
 
 (defn rangeset-seq
   "Returns a lazy-seq of ranges inside a RangeSet (like a Decoration set)"
@@ -42,13 +44,18 @@
 (defn block-at [blocks pos] (some (when-fn (partial within? pos)) (rangeset-seq blocks)))
 (defn get-block-by-id [state id]
   (some (when-fn #(identical? id (-> % :val .-widget .-id))) (get-blocks state)))
+(defn with-index [coll] (map-indexed #(vector %1 %2) coll))
 (defn pos->block-idx [blocks pos]
   ;; blocks partition the whole document, the only missing point is the end of the document
-  (some (fn [[i b]] (when (within? pos b) i)) (map-indexed #(vector %1 %2) blocks)))
+  (some (fn [[i b]] (when (within? pos b) i)) (with-index blocks)))
 (defn block-eq? [{:keys [^js val]} {^js other :val}] (.. val -widget (eq (.. other -widget))))
 (defn ->widget [{:keys [^js val]}] (.-widget val))
 (defn update-block [{:keys [from to val]} f]
-  (block-opts->decoration (assoc (f (.. val -widget -spec)) :from from :to to)))
+  "Returns a _new_ decoration instance with spec updated by applying `f`."
+  (block-opts->decoration (assoc (f @(.. val -widget -state)) :from from :to to)))
+(defn update-blocks [update-spec ^js blocks] (.update blocks update-spec))
+(defn set-selected [{:as doc :keys [blocks]} pos]
+  (assoc doc :selected (pos->block-idx (rangeset-seq blocks) pos)))
 
 ;; Config
 (def default-config
@@ -76,16 +83,17 @@
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
 
+(defn edit-gap-blocks [{:keys [edit-from blocks]} state]
+  (when edit-from
+    (state->blocks state
+                   {:from edit-from
+                    :to (or (:from (some (when-fn #(< edit-from (:from %))) (rangeset-seq blocks edit-from)))
+                            (.. state -doc -length))})))
+
 (defn edit-at [{:as doc :keys [selected blocks edit-from]} ^js tr pos]
   ;; we patch the existing decoration with blocks arising from last editable region
   (let [current-block (block-at blocks pos)
-        edit-to (when edit-from
-                  (or (:from (some (when-fn #(< edit-from (:from %)))
-                                   (rangeset-seq blocks edit-from)))
-                      (.. tr -state -doc -length)))
-        ^js gap-blocks (when edit-to
-                         (state->blocks (.-state tr) {:from edit-from
-                                                      :to edit-to}))
+        ^js gap-blocks (edit-gap-blocks doc (.-state tr))
         ^js selected-block (when selected (nth (rangeset-seq blocks) selected))]
     (cond-> doc
       current-block
@@ -105,12 +113,20 @@
                                (and selected-block (not (block-eq? selected-block current-block)))
                                (j/assoc! :add (array (update-block selected-block #(assoc % :selected? false))))))))))))
 
+(defn preview-and-select [doc tr]
+  (let [gap-blocks (edit-gap-blocks doc (.-state tr))]
+    (cond-> doc
+      gap-blocks
+      (-> (dissoc :edit-all? :edit-from :doc-changed?)
+          (update :blocks (partial update-blocks (j/obj :add gap-blocks)))
+          (set-selected (->cursor-pos (.-state tr)))))))
+
 (defn preview-all-and-select [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
   (let [blocks (.set Decoration (state->blocks (.-state tr)))]
     (-> doc
         (assoc :blocks  blocks)
-        (assoc :selected (pos->block-idx (rangeset-seq blocks) (->cursor-pos (.-state tr))))
+        (set-selected (->cursor-pos (.-state tr)))
         (dissoc :edit-all? :doc-changed? :edit-from))))
 
 (defn edit-all [doc _tr]
@@ -119,8 +135,22 @@
       (assoc :edit-all? true
              :blocks (.-none Decoration))))
 
-(defn update-eval-signal [doc _tr id]
-  (update doc :eval-signal (fn [s] (swap! s update id (fnil inc 0)) s)))
+(defn move-block-selection! [{:as doc :keys [selected blocks]} _tr dir]
+  (let [block-seq (rangeset-seq blocks)
+        next-idx (case dir
+                   :up (bounded-dec selected)
+                   :down (bounded-inc selected (count block-seq)))]
+    (when (not= selected next-idx)
+      (doseq [[idx {:keys [val]}] (with-index block-seq)]
+        (swap! (.. val -widget -state) assoc :selected? (= next-idx idx))))
+    (-> doc
+        (assoc :selected next-idx)
+        (dissoc :edit-all? :doc-changed? :edit-from))))
+
+(defn eval! [doc _tr id]
+  ;; TODO:
+  (js/console.log :eval! id )
+  doc)
 
 ;; Doc State Field
 (defonce ^{:doc "Maintains a document description at block level"}
@@ -130,8 +160,7 @@
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
                       {:selected nil
-                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))
-                       :eval-signal (r/atom {})})
+                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
                         (cond
@@ -146,34 +175,31 @@
                           'else doc))))))
 
 (defn get-blocks [state] (-> state (.field doc-state) :blocks rangeset-seq))
-(defn get-eval-signal [state] (-> state (.field doc-state) :eval-signal))
 
 ;; Block Previews
 (defn render-block-preview [^js widget ^js view]
   (let [el (js/document.createElement "div")
-        {:as spec :keys [text type selected?]} (.-spec widget)
         {:keys [render]} (.. view -state (field config-state))]
-    (rdom/render [:div.flex.flex-col.rounded.border.m-2.p-2.cursor-pointer
-                  {:class [(when (= :code type) "bg-slate-100") (when selected? "ring-4")]
-                   :on-click (fn [_e]
+    (rdom/render [:div.cursor-pointer
+                  {:on-click (fn [_e]
                                ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
                                (when-some [{:keys [from]} (get-block-by-id (.-state view) (.-id widget))]
                                  (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
                                                             :selection {:anchor from}
                                                             :scrollIntoView true})))))}
-                  [:div.mt-3
-                   [(type render) (assoc spec :eval-signal (get-eval-signal (.-state view)))]]] el)
+                  [:div [render (.-state widget)]]] el)
     el))
 
 (defclass BlockPreviewWidget
   (extends WidgetType)
   (constructor [this spec]
-               (j/assoc! this
-                         :id (random-uuid)
-                         :spec spec
-                         :ignoreEvent (constantly false)
-                         :toDOM (partial render-block-preview this)
-                         :eq (fn [^js other] (identical? (.-id this) (.-id other))))))
+               (let [state (r/atom spec)]
+                 (j/assoc! this
+                           :id (random-uuid)
+                           :state state
+                           :ignoreEvent (constantly false)
+                           :toDOM (partial render-block-preview this)
+                           :eq (fn [^js other] (identical? (.-id this) (.-id other)))))))
 
 (defn block-opts->decoration
   [{:as opts :keys [from to]}]
@@ -201,8 +227,8 @@
 
 (defn state->blocks
   "Partitions the document into ranges delimited by code blocks"
-  ([state] (state->blocks state {:select? true}))
-  ([state {:keys [from to select?] :or {from 0 to (.. state -doc -length)}}]
+  ([state] (state->blocks state {}))
+  ([state {:keys [from to select?] :or {select? true from 0 to (.. state -doc -length)}}]
    (let [^js blocks (array)]
      ;; TODO: parse only the visible part in viewport / call again when viewport changs
      ;; or delay the state-field until syntax parsing has reached the end
@@ -257,7 +283,7 @@
     (.. state -doc (sliceString 6 21))
     (-> state
         (state->blocks {:from 6 :to pos})
-        seq (->> (map (juxt (j/get :from) (j/get :to) (comp :type (j/get :spec) (j/get :widget) (j/get :value)))))
+        seq (->> (map (juxt (j/get :from) (j/get :to) (comp :type deref (j/get :state) (j/get :widget) (j/get :value)))))
         str
         )))
 
@@ -294,9 +320,6 @@
                                                  (eval-region-text->tooltip tooltip-create-fn (.field state f)))))))))
 
 ;; Keyborad Event handling
-(defn bounded-inc [i b] (min (dec b) (inc i)))
-(defn bounded-dec [i] (max 0 (dec i)))
-
 (defn edit-adjacent-block-at [^js view blocks key]
   (let [pos (->cursor-pos (.-state view))]
     ;; get the first adjacent block we meet wrt the current movement direction
@@ -334,7 +357,7 @@
       (cond
         (= :eval key)
         (when-not edit-from
-          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op update-eval-signal
+          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op eval!
                                                                  :args [(when selected
                                                                           (-> (nth block-seq selected)
                                                                               :val .-widget .-id))]})})))
@@ -350,9 +373,14 @@
                                        :scrollIntoView true})))
             true)
 
-          (or doc-changed? edit-all?)
+          edit-all?
           (do
             (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select})})))
+            true)
+
+          (and edit-from doc-changed?)
+          (do
+            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-and-select})})))
             true)
 
           'edit-one
@@ -361,9 +389,8 @@
 
         ;; move up/down selection
         (and (#{:up :down} key) selected)
-        (let [next-idx (case key :up (bounded-dec selected) :down (bounded-inc selected (count block-seq)))]
-          (.. view (dispatch (j/lit {:selection {:anchor (:from (nth block-seq next-idx))}
-                                     :effects (.of doc-apply-op {:op preview-all-and-select})
+        (do
+          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op move-block-selection! :args [key]})
                                      :scrollIntoView true})))
           true)
 

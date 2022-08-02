@@ -251,48 +251,52 @@ have an editor with ~~mono~~ _mixed language support_.
                                                               (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
                                                               (j/obj :dom tt-el)))
 
+                                                 :eval-fn!
+                                                 (fn [state]
+                                                   (js/console.log :eval-fn! state)
+                                                   (when state
+                                                     (swap! state (fn [s]
+                                                                    (let [{:keys [text]} @s]
+                                                                      (assoc s :result (demo.sci/eval-string text)))))))
+
                                                  :render
-                                                 {:markdown (fn [{:keys [text]}]
-                                                              [:div.max-w-prose
-                                                               [sv/inspect-paginated (v/with-viewer :markdown text)]])
+                                                 (fn [state]
+                                                   (fn []
+                                                     (let [{:as s :keys [text type selected?] r :result} @state]
+                                                       #_ (when (not-empty (str/trim text)))
+                                                       ;; skip empty markdown blocks
+                                                       [:div.flex.flex-col.rounded.border.m-2
+                                                        {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
+                                                        (case type
+                                                          :markdown
+                                                          [:div.max-w-prose.p-2
+                                                           [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
 
-                                                  :code (fn [{:keys [text eval-signal]}]
-                                                          (r/with-let [res (r/atom nil)
-                                                                       sig-tracker (r/track #(let [s @eval-signal]
-                                                                                               (reset! res (demo.sci/eval-string text))
-                                                                                               s))]
-
-                                                            [:div.max-w-prose
-                                                             [sv/inspect-paginated (v/with-viewer :code text)]
-                                                             [:hr.border]
-                                                             [:div.viewer-result {:data-eval-ref @sig-tracker
-                                                                                  :style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-                                                              (when-some [{:keys [error result]} @res]
-                                                                (cond
-                                                                  error [:div.red error]
-                                                                  (react/isValidElement result) result
-                                                                  result (sv/inspect-paginated result)))]]
-
-                                                            (finally
-                                                             (js/console.log :destroy text))))}})
+                                                          :code
+                                                          [:div.max-w-prose.p-2
+                                                           [sv/inspect-paginated (v/with-viewer :code text)]
+                                                           [:hr.border]
+                                                           [:div.viewer-result {:style {:font-family "var(--code-font)"}}
+                                                            (when-some [{:keys [error result]} r]
+                                                              (cond
+                                                                error [:div.red error]
+                                                                (react/isValidElement result) result
+                                                                result (sv/inspect-paginated result)))]])])))})
                                    :doc "# Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
 have an editor with ~~mono~~ _mixed language support_.
 
 ```clojure
-
 (defonce state (atom 0))
 ```
-
 ```clojure
 (defn the-answer
   \"to all questions\"
   []
   (inc 41))
 ```
-
-```
+```clojure
 (do (swap! state inc) nil)
 ```
 
@@ -354,25 +358,27 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                                (j/obj :dom tt-el)))
 
                                   :render
-                                  {:markdown (fn [{:keys [text]}]
-                                               [:div.viewer-markdown
-                                                [sv/inspect-paginated (v/with-viewer :markdown text)]])
+                                  (fn [state]
+                                    (fn []
+                                      (let [{:as s :keys [text type selected?] r :result} @state]
+                                        (js/console.log :selected? selected?)
+                                        [:div.flex.flex-col.rounded.border.m-2
+                                         {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
+                                         (case type
+                                           :markdown
+                                           [:div.max-w-prose.p-2
+                                            [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
 
-                                   :code (let [ctx' (sci.core/merge-opts
-                                                     (sci.core/fork @sv/!sci-ctx)
-                                                     ;; FIXME: a more sane approach to js-interop ctx fixes
-                                                     {:namespaces {'my.app {'.-x :x '.-y :y '.-a :a '.-b :b '.-c :c
-                                                                            'some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}]}
-                                                                   'cljs.core {'implements? (fn [c i] false)
-                                                                               'ISeq nil}}})]
-                                           (demo.sci/eval-string ctx' (str "(def obj #js {:x 1 :y 2 :z 3})"
-                                                                           "(def some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}])"
-                                                                           "(def .-x :x)(def .-y :y)(def .-a :a)"))
-                                           (fn [{:keys [text]}]
-                                             [:<>
-                                              [sv/inspect-paginated (v/with-viewer :code text)]
-                                              [:hr.border]
-                                              [:div.mt-2.ml-3 [eval-code-view ctx' text]]]))}}]]
+                                           :code
+                                           [:div.max-w-prose.p-2
+                                            [sv/inspect-paginated (v/with-viewer :code text)]
+                                            [:hr.border]
+                                            [:div.viewer-result {:style {:font-family "var(--code-font)"}}
+                                             (when-some [{:keys [error result]} r]
+                                               (cond
+                                                 error [:div.red error]
+                                                 (react/isValidElement result) result
+                                                 result (sv/inspect-paginated result)))]])])))}]]
                 (js/document.getElementById "markdown-preview-large")))))
 
   (when (linux?)
