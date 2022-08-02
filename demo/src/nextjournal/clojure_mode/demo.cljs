@@ -253,17 +253,15 @@ have an editor with ~~mono~~ _mixed language support_.
 
                                                  :eval-fn!
                                                  (fn [state]
-                                                   (js/console.log :eval-fn! state)
                                                    (when state
-                                                     (swap! state (fn [s]
-                                                                    (let [{:keys [text]} @s]
-                                                                      (assoc s :result (demo.sci/eval-string text)))))))
+                                                     (swap! state (fn [{:as s :keys [text]}]
+                                                                    (assoc s :result (demo.sci/eval-string text))))))
 
                                                  :render
                                                  (fn [state]
                                                    (fn []
                                                      (let [{:as s :keys [text type selected?] r :result} @state]
-                                                       #_ (when (not-empty (str/trim text)))
+                                                       #_(when (not-empty (str/trim text)))
                                                        ;; skip empty markdown blocks
                                                        [:div.flex.flex-col.rounded.border.m-2
                                                         {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
@@ -361,7 +359,6 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                   (fn [state]
                                     (fn []
                                       (let [{:as s :keys [text type selected?] r :result} @state]
-                                        (js/console.log :selected? selected?)
                                         [:div.flex.flex-col.rounded.border.m-2
                                          {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
                                          (case type

@@ -59,15 +59,20 @@
 
 ;; Config
 (def default-config
-  {:render
-   {:markdown (fn [text] [:pre.md text])
-    :code (fn [code] [:pre.code code])}})
+  {:render (fn [state]
+             (let [{:keys [type text]} @state]
+               (case type
+                 :markdown [:pre.md text]
+                 :code [:pre.code text])))})
 
 (defonce ^{:doc "Configurable entrypoint see also `extensions/1` fn below."}
   config-state
   (.define StateField
            (j/obj :create (constantly default-config)
                   :update (fn [cfg _] cfg))))
+(defn config-get
+  ([^js state] (.field state config-state))
+  ([state key] (get (config-get state) key)))
 
 ;; FXs
 (defonce doc-apply-op (.define StateEffect))
@@ -148,9 +153,10 @@
         (assoc :selected next-idx)
         (dissoc :edit-all? :doc-changed? :edit-from))))
 
-(defn eval! [doc _tr id]
-  ;; TODO:
-  (js/console.log :eval! id )
+(defn eval! [doc tr block]
+  (when-some [{:keys [val]} block]
+    (when-some [eval-fn! (config-get (.-state tr) :eval-fn!)]
+      (eval-fn! (.. val -widget -state))))
   doc)
 
 ;; Doc State Field
@@ -180,7 +186,7 @@
 ;; Block Previews
 (defn render-block-preview [^js widget ^js view]
   (let [el (js/document.createElement "div")
-        {:keys [render]} (.. view -state (field config-state))]
+        render (config-get (.-state view) :render)]
     (rdom/render [:div.cursor-pointer
                   {:on-click (fn [_e]
                                ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
@@ -360,8 +366,7 @@
         (when-not edit-from
           (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op eval!
                                                                  :args [(when selected
-                                                                          (-> (nth block-seq selected)
-                                                                              :val .-widget .-id))]})})))
+                                                                          (nth block-seq selected))]})})))
           true)
 
         ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
