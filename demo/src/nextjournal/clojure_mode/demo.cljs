@@ -251,6 +251,7 @@ have an editor with ~~mono~~ _mixed language support_.
                                                               (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
                                                               (j/obj :dom tt-el)))
 
+                                                 ;; each cell is assigned a `state` reagent atom
                                                  :eval-fn!
                                                  (fn [state]
                                                    (when state
@@ -260,7 +261,7 @@ have an editor with ~~mono~~ _mixed language support_.
                                                  :render
                                                  (fn [state]
                                                    (fn []
-                                                     (let [{:as s :keys [text type selected?] r :result} @state]
+                                                     (let [{:keys [text type selected?] r :result} @state]
                                                        #_(when (not-empty (str/trim text)))
                                                        ;; skip empty markdown blocks
                                                        [:div.flex.flex-col.rounded.border.m-2
@@ -355,10 +356,16 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                                (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
                                                (j/obj :dom tt-el)))
 
+                                  :eval-fn!
+                                  (fn [state]
+                                    (when state
+                                      (swap! state (fn [{:as s :keys [text]}]
+                                                     (assoc s :result (demo.sci/eval-string text))))))
+
                                   :render
                                   (fn [state]
                                     (fn []
-                                      (let [{:as s :keys [text type selected?] r :result} @state]
+                                      (let [{:keys [text type selected?] r :result} @state]
                                         [:div.flex.flex-col.rounded.border.m-2
                                          {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
                                          (case type

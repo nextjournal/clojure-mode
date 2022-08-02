@@ -155,11 +155,34 @@
         (assoc :selected next-idx)
         (dissoc :edit-all? :doc-changed? :edit-from))))
 
-(defn eval! [doc tr block]
-  (when-some [{:keys [val]} block]
-    (when-some [eval-fn! (config-get (.-state tr) :eval-fn!)]
-      (eval-fn! (.. val -widget -state))))
+(defn select-all! [{:as doc :keys [blocks]}]
+  (doseq [{:keys [^js val]} (rangeset-seq blocks)]
+    (swap! (.. val -widget -state) assoc :selected? true))
   doc)
+
+(defn restore-selection! [{:as doc :keys [blocks selected]}]
+  (doseq [[idx {:keys [^js val]}] (with-index (rangeset-seq blocks))]
+    (swap! (.. val -widget -state) assoc :selected? (= idx selected)))
+  doc)
+
+;; eval
+(defn eval-block! [state {:keys [val]}]
+  (when (= :code (:type @(.. val -widget -state)))
+    (when-some [eval-fn! (config-get state :eval-fn!)]
+      (eval-fn! (.. val -widget -state)))))
+
+(defn eval-all! [state blocks]
+  (doseq [b (rangeset-seq blocks)] (eval-block! state b))
+  blocks)
+
+(defn eval! [{:as doc-in :keys [selected edit-from]} tr all?]
+  (let [{:as doc-out :keys [blocks]} (cond-> doc-in edit-from (preview-and-select tr))]
+    (if all?
+      (eval-all! (.-state tr) blocks)
+      (when-some [block (or (when selected (nth (rangeset-seq blocks) selected))
+                            (block-at blocks (->cursor-pos (.-state tr))))]
+        (eval-block! (.-state tr) block)))
+    doc-out))
 
 ;; Doc State Field
 (defonce ^{:doc "Maintains a document description at block level"}
@@ -169,9 +192,12 @@
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
                       {:selected nil
-                       :blocks (.set Decoration (state->blocks cm-state {:select? false}))})
+                       :blocks (eval-all! cm-state
+                                          (.set Decoration (state->blocks cm-state {:select? false})))})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
-                      (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)]
+                      (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)
+                            {:as me :strs [Meta Shift]} (get-effect-value tr eval-region/modifier-effect)]
+                        (js/console.log :ME (str me))
                         (cond
                           apply-op (apply op doc tr args)
                           (.-docChanged tr)
@@ -180,7 +206,8 @@
                               (cond->
                                 (not edit-all?)
                                 (update :blocks #(.map ^js % (.-changes tr)))))
-
+                          (and me Meta Shift) (select-all! doc)
+                          (and me (or (not Meta) (not Shift))) (restore-selection! doc)
                           'else doc))))))
 
 (defn get-blocks [state] (-> state (.field doc-state) :blocks rangeset-seq))
@@ -365,10 +392,8 @@
           block-seq (rangeset-seq blocks)]
       (cond
         (= :eval key)
-        (when-not edit-from
-          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op eval!
-                                                                 :args [(when selected
-                                                                          (nth block-seq selected))]})})))
+        (when-not edit-all?
+          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op eval! :args [(.-shiftKey e)]})})))
           true)
 
         ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
