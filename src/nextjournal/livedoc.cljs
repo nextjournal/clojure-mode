@@ -259,7 +259,7 @@
                                      (and (<= from (n/start node)) (<= (n/end node) to))
                                      (j/push! (node-info->decoration state
                                                                      {:from (n/start node)
-                                                                      :to (inc (n/end node))
+                                                                      :to (min (inc (n/end node)) to)
                                                                       ;; ⬆ note this assumes no trailing whitespace after closing ```
                                                                       :node (.-node node)
                                                                       :type :code
