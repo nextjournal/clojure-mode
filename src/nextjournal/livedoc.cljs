@@ -122,7 +122,7 @@
                              (and selected-block (not (block-eq? selected-block current-block)))
                              (j/assoc! :add (array (update-block selected-block #(assoc % :selected? false)))))))))))
 
-(defn preview-and-select [doc tr]
+(defn preview+select+eval [doc tr]
   (let [gap-blocks (edit-gap-blocks doc (.-state tr))]
     (cond-> doc
       gap-blocks
@@ -178,7 +178,7 @@
 (defn preview+eval [{:as doc :keys [selected edit-from edit-all? blocks]} tr all?]
   (cond
     edit-all? (preview-all+select+eval doc tr)
-    edit-from (preview-and-select doc tr)
+    edit-from (preview+select+eval doc tr)
     'else (do
             (cond
               all?
@@ -416,7 +416,7 @@
 
           (and edit-from doc-changed?)
           (do
-            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-and-select})})))
+            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview+select+eval})})))
             true)
 
           'edit-one
