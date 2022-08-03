@@ -452,8 +452,13 @@
 
 (defn extensions
   "Accepts an `opts` map with optional keys:
-   * `:render` A map with keys `:markdown` and `:code` providing render functions (String -> HTMLElement)
-      for each block type.
+   * `:render` a component function taking a reagent atom as argument, such \"state\" derefs to a map with keys:
+      - `:text` a cell's text
+      - `:type` with values `:code` or `:markdown`
+      - `:selected?`
+      the component is used to render blocks in preview mode
+
+   * `:eval-fn!` a function which is called against each selected block's state when eval commands are invoked
 
    * `:tooltip` (String -> EditorView -> TooltipView) as per https://codemirror.net/docs/ref/#view.TooltipView
       when present, enables a Codemirror tooltips.
@@ -495,11 +500,16 @@
 
 ;; Editor
 (defn editor
-  "A convenience function/component bundling a basic setup with
+  "A convenience function/component bundling a basic editor setup with
 
-  * markdown + clojure-mode language support and their syntax highlighting
-  * clojure mode keybindings
-  * livedoc extensions configurable via `opts`"
+  * markdown + nested clojure-mode language support and their syntax highlighting
+  * clojure mode keybindings for paredit actions among others
+  * livedoc extensions configurable via `opts` (see `extensions`).
+
+  Takes extra keys:
+   - `:doc` a markdown string setting the editor's initial document
+   - `:extenstions` extra codemirror extensions to be stacked on top of the default
+   - `:focus?` when true let the codemirror instance acquire focus."
   [{:as opts extras :extensions :keys [doc focus?]}]
   [:div {:ref (fn [^js el]
                 (when el
