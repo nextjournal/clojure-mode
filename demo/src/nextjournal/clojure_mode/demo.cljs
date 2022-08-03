@@ -388,7 +388,7 @@ Test re-evaluation
 - [x] make livedoc extensions configurable
 - [x] fix moving to the right in backticks
 - [x] autoclose backticks
-- [x] fix eval for empty code cells"}]]] (js/document.getElementById "markdown-preview"))
+- [x] fix eval for empty code cells"}]]] (js/document.getElementById "livedoc"))
 
   (-> (js/fetch "https://raw.githubusercontent.com/applied-science/js-interop/master/README.md")
       (.then #(.text %))
@@ -414,44 +414,49 @@ Test re-evaluation
                                          'cljs.core {'implements? (fn [c i] false)
                                                      'ISeq nil}}})]
                  (rdom/render
-                  [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
-                   [livedoc/editor {:doc markdown-doc
-                                    :extensions [theme]
-                                    :tooltip (fn [text _editor-view]
-                                               (let [tt-el (js/document.createElement "div")]
-                                                 (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
-                                                 (j/obj :dom tt-el)))
+                  [:<>
+                   [:div.flex.flex-col.items-center.mb-3.viewer-markdown.text-lg
+                    [:span "Testing LiveDoc on somewhat larger texts like "
+                     [:a {:src "https://github.com/applied-science/js-interop) README."} "js-interop"]
+                     " REAME."]]
+                   [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
+                    [livedoc/editor {:doc markdown-doc
+                                     :extensions [theme]
+                                     :tooltip (fn [text _editor-view]
+                                                (let [tt-el (js/document.createElement "div")]
+                                                  (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
+                                                  (j/obj :dom tt-el)))
 
-                                    :eval-fn!
-                                    (fn [state]
-                                      (when state
-                                        (swap! state (fn [{:as s :keys [text]}]
-                                                       (assoc s :result (demo.sci/eval-string ctx' text))))))
+                                     :eval-fn!
+                                     (fn [state]
+                                       (when state
+                                         (swap! state (fn [{:as s :keys [text]}]
+                                                        (assoc s :result (demo.sci/eval-string ctx' text))))))
 
-                                    :render
-                                    (fn [state]
-                                      (fn []
-                                        (let [{:keys [text type selected?] r :result} @state]
-                                          [:div.flex.flex-col.rounded.m-2
-                                           {:class (when selected? "ring-4")}
-                                           (case type
-                                             :markdown
-                                             [:div.p-2.rounded.border
-                                              [:div.max-w-prose
-                                               [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
+                                     :render
+                                     (fn [state]
+                                       (fn []
+                                         (let [{:keys [text type selected?] r :result} @state]
+                                           [:div.flex.flex-col.rounded.m-2
+                                            {:class (when selected? "ring-4")}
+                                            (case type
+                                              :markdown
+                                              [:div.p-2.rounded.border
+                                               [:div.max-w-prose
+                                                [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
 
-                                             :code
-                                             [:<>
-                                              [:div.p-2.rounded.border.bg-slate-200
-                                               [sv/inspect-paginated (v/with-viewer :code text)]]
-                                              (when-some [{:keys [error result]} r]
-                                                [:div.viewer-result.m-2
-                                                 {:style {:font-family "var(--code-font)"}}
-                                                 (cond
-                                                   error [:div.red error]
-                                                   (react/isValidElement result) result
-                                                   result (sv/inspect-paginated result))])])])))}]]
-                  (js/document.getElementById "markdown-preview-large"))))))
+                                              :code
+                                              [:<>
+                                               [:div.p-2.rounded.border.bg-slate-200
+                                                [sv/inspect-paginated (v/with-viewer :code text)]]
+                                               (when-some [{:keys [error result]} r]
+                                                 [:div.viewer-result.m-2
+                                                  {:style {:font-family "var(--code-font)"}}
+                                                  (cond
+                                                    error [:div.red error]
+                                                    (react/isValidElement result) result
+                                                    result (sv/inspect-paginated result))])])])))}]]]
+                  (js/document.getElementById "livedoc-large"))))))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
