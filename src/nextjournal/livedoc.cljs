@@ -18,7 +18,7 @@
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
-(declare state->blocks block-opts->decoration get-blocks)
+(declare state->blocks block-opts->decoration get-blocks eval-all!)
 
 ;; Helpers
 (defn doc? [^js node] (== (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
@@ -90,6 +90,10 @@
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
 
+(defn decorate+eval!
+  ([state] (decorate+eval! state {}))
+  ([state opts] (eval-all! state (.set Decoration (state->blocks state opts)))))
+
 (defn edit-gap-blocks [{:keys [edit-from blocks]} state]
   (when edit-from
     (state->blocks state
@@ -108,18 +112,17 @@
           (assoc :edit-from from
                  :doc-changed? (and edit-from (not= edit-from from)))
           (update :blocks
-                  (fn [bs]
-                    (.update ^js bs
-                             (cond-> (j/obj :filter
-                                            (j/fn [_from _to ^:js {:keys [widget]}]
-                                              (not (or (.eq widget (->widget current-block))
-                                                       (when selected-block (.eq widget (->widget selected-block)))))))
-                               ;; either add gap (click after click)
-                               gap-blocks
-                               (j/assoc! :add gap-blocks)
-                               ;; or remove selection (click while some block is selected)
-                               (and selected-block (not (block-eq? selected-block current-block)))
-                               (j/assoc! :add (array (update-block selected-block #(assoc % :selected? false))))))))))))
+                  (partial update-blocks
+                           (cond-> (j/obj :filter
+                                          (j/fn [_from _to ^:js {:keys [widget]}]
+                                            (not (or (.eq widget (->widget current-block))
+                                                     (when selected-block (.eq widget (->widget selected-block)))))))
+                             ;; either add gap (click after click)
+                             gap-blocks
+                             (j/assoc! :add gap-blocks)
+                             ;; or remove selection (click while some block is selected)
+                             (and selected-block (not (block-eq? selected-block current-block)))
+                             (j/assoc! :add (array (update-block selected-block #(assoc % :selected? false)))))))))))
 
 (defn preview-and-select [doc tr]
   (let [gap-blocks (edit-gap-blocks doc (.-state tr))]
@@ -129,10 +132,10 @@
           (update :blocks (partial update-blocks (j/obj :add gap-blocks)))
           (set-selected (->cursor-pos (.-state tr)))))))
 
-(defn preview-all-and-select [doc tr]
+(defn preview-all+select+eval [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
   (-> doc
-      (assoc :blocks (.set Decoration (state->blocks (.-state tr))))
+      (assoc :blocks (decorate+eval! (.-state tr)))
       (set-selected (->cursor-pos (.-state tr)))
       (dissoc :edit-all? :doc-changed? :edit-from)))
 
@@ -174,15 +177,18 @@
   (doseq [b (rangeset-seq blocks)] (eval-block! state b))
   blocks)
 
-(defn eval! [{:as doc-in :keys [selected edit-from edit-all?]} tr all?]
-  (let [{:as doc-out :keys [blocks]} (if edit-all?
-                                       (preview-all-and-select doc-in tr)
-                                       (cond-> doc-in edit-from (preview-and-select tr)))]
-    (if all?
-      (eval-all! (.-state tr) blocks)
-      (when-some [block (or (when selected (nth (rangeset-seq blocks) selected))
-                            (block-at blocks (->cursor-pos (.-state tr))))]
-        (eval-block! (.-state tr) block)))
+(defn preview+eval [{:as doc-in :keys [edit-from edit-all?]} tr all?]
+  (let [{:as doc-out :keys [blocks selected]}
+        (if edit-all?
+          (preview-all+select+eval doc-in tr)
+          (cond-> doc-in edit-from (preview-and-select tr)))]
+    (when-not edit-all?
+      (cond
+        all?
+        (eval-all! (.-state tr) blocks)
+        (not all?)
+        (when-some [block (nth (rangeset-seq blocks) selected)]
+          (eval-block! (.-state tr) block))))
     doc-out))
 
 ;; Doc State Field
@@ -192,9 +198,8 @@
            (j/obj
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
             :create (fn [cm-state]
-                      {:selected nil
-                       :blocks (eval-all! cm-state
-                                          (.set Decoration (state->blocks cm-state {:select? false})))})
+                      {:selected 0
+                       :blocks (decorate+eval! cm-state)})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)
                             {:as me :strs [Meta Shift]} (get-effect-value tr eval-region/modifier-effect)]
@@ -392,7 +397,7 @@
       (cond
         (= :eval key)
         (do
-          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op eval! :args [(.-shiftKey e)]})})))
+          (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview+eval :args [(.-shiftKey e)]})})))
           true)
 
         ;; toggle edit mode (Selected <-> EditOne -> EditAll -> Selected)
@@ -407,7 +412,7 @@
 
           edit-all?
           (do
-            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all-and-select})})))
+            (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op preview-all+select+eval})})))
             true)
 
           (and edit-from doc-changed?)
@@ -495,19 +500,21 @@
   * markdown + clojure-mode language support and their syntax highlighting
   * clojure mode keybindings
   * livedoc extensions configurable via `opts`"
-  [{:as opts extras :extensions :keys [doc]}]
+  [{:as opts extras :extensions :keys [doc focus?]}]
   [:div {:ref (fn [^js el]
-                (if-not el
+                (when el
                   (some-> el .-editorView .destroy)
                   (j/assoc! el :editorView
-                            (EditorView. (j/obj :parent el
-                                                :state (.create EditorState
-                                                                (j/obj :doc (str/trim doc)
-                                                                       :extensions (into-array
-                                                                                    (-> (extensions (select-keys opts [:render :tooltip]))
-                                                                                        (concat [(syntaxHighlighting defaultHighlightStyle)
-                                                                                                 (.of keymap cm-clj/complete-keymap)
-                                                                                                 markdown-language-support])
-                                                                                        (cond->
-                                                                                          (seq extras)
-                                                                                          (concat extras)))))))))))}])
+                            (cond-> (EditorView. (j/obj :parent el
+                                                        :state (.create EditorState
+                                                                        (j/obj :doc (str/trim doc)
+                                                                               :extensions (into-array
+                                                                                            (-> (extensions (select-keys opts [:render :tooltip]))
+                                                                                                (concat [(syntaxHighlighting defaultHighlightStyle)
+                                                                                                         (.of keymap cm-clj/complete-keymap)
+                                                                                                         markdown-language-support])
+                                                                                                (cond->
+                                                                                                  (seq extras)
+                                                                                                  (concat extras))))))))
+                              focus?
+                              .focus))))}])
