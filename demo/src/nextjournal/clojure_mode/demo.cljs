@@ -281,7 +281,7 @@ have an editor with ~~mono~~ _mixed language support_.
                                             [:div.max-w-prose
                                              [sv/inspect-paginated (v/with-viewer :code text)]]
                                             [:hr.border]
-                                            [:div.viewer-result {:style {:font-family "var(--code-font)"}}
+                                            [:div.viewer-result.mt-2 {:style {:font-family "var(--code-font)"}}
                                              (when-some [{:keys [error result]} r]
                                                (cond
                                                  error [:div.red error]
@@ -302,7 +302,7 @@ have an editor with ~~mono~~ _mixed language support_.
   (inc 41))
 ```
 ```clojure
-(do (swap! state inc) nil)
+(swap! state inc)
 ```
 
 We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context:
@@ -349,47 +349,63 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                   (str/replace "…some javascript object…" ":x 123")
                   (str/replace "…" "'…")
                   (str/replace "..." "'…")
-                  (str/replace "default-value" "'default-value")
+                  #_ (str/replace "default-value" "'default-value")
                   (str/replace "default" "'default")
                   (str/replace "! a 10)" "! (into-array [1 2 3]) 10)")))
       (.then (fn [markdown-doc]
-               (rdom/render
-                [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
-                 [livedoc/editor {:doc markdown-doc
-                                  :extensions [theme]
-                                  :tooltip (fn [text _editor-view]
-                                             (let [tt-el (js/document.createElement "div")]
-                                               (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
-                                               (j/obj :dom tt-el)))
+               ;; hack into Clerk's sci-viewer context
+               (let [ctx' (sci.core/merge-opts
+                           (sci.core/fork @sv/!sci-ctx)
+                           ;; FIXME: a more sane approach to js-interop ctx fixes
+                           {:namespaces {'user {'obj (j/lit {:x {:y 1} :z 2 :a 1})
+                                                '.-someFunction :someFunction
+                                                'o (j/obj :someFunction (fn [x] (str "called with: " x)))
+                                                '.-x :x '.-y :y '.-z :z '.-a :a
+                                                'some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}]}
+                                         'my.app {'.-x :x '.-y :y '.-a :a '.-b :b '.-c :c
+                                                  'some-seq [#js {:x 1 :y 2} #js {:x 3 :y 4}]}
+                                         'cljs.core {'implements? (fn [c i] false)
+                                                     'ISeq nil}}})]
+                 (rdom/render
+                  [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
+                   [livedoc/editor {:doc markdown-doc
+                                    :extensions [theme]
+                                    :tooltip (fn [text _editor-view]
+                                               (let [tt-el (js/document.createElement "div")]
+                                                 (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
+                                                 (j/obj :dom tt-el)))
 
-                                  :eval-fn!
-                                  (fn [state]
-                                    (when state
-                                      (swap! state (fn [{:as s :keys [text]}]
-                                                     (assoc s :result (demo.sci/eval-string text))))))
+                                    :eval-fn!
+                                    (fn [state]
+                                      (when state
+                                        (swap! state (fn [{:as s :keys [text]}]
+                                                       (assoc s :result (demo.sci/eval-string ctx' text))))))
 
-                                  :render
-                                  (fn [state]
-                                    (fn []
-                                      (let [{:keys [text type selected?] r :result} @state]
-                                        [:div.flex.flex-col.rounded.border.m-2
-                                         {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
-                                         (case type
-                                           :markdown
-                                           [:div.max-w-prose.p-2
-                                            [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
+                                    :render
+                                    (fn [state]
+                                      (fn []
+                                        (let [{:keys [text type selected?] r :result} @state]
+                                          #_(when (not-empty (str/trim text)))
+                                          ;; skip empty markdown blocks
+                                          [:div.flex.flex-col.rounded.border.m-2
+                                           {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
+                                           (case type
+                                             :markdown
+                                             [:div.max-w-prose.p-2
+                                              [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
 
-                                           :code
-                                           [:div.max-w-prose.p-2
-                                            [sv/inspect-paginated (v/with-viewer :code text)]
-                                            [:hr.border]
-                                            [:div.viewer-result {:style {:font-family "var(--code-font)"}}
-                                             (when-some [{:keys [error result]} r]
-                                               (cond
-                                                 error [:div.red error]
-                                                 (react/isValidElement result) result
-                                                 result (sv/inspect-paginated result)))]])])))}]]
-                (js/document.getElementById "markdown-preview-large")))))
+                                             :code
+                                             [:div.p-2
+                                              [:div.max-w-prose
+                                               [sv/inspect-paginated (v/with-viewer :code text)]]
+                                              [:hr.border]
+                                              [:div.viewer-result.mt-2 {:style {:font-family "var(--code-font)"}}
+                                               (when-some [{:keys [error result]} r]
+                                                 (cond
+                                                   error [:div.red error]
+                                                   (react/isValidElement result) result
+                                                   result (sv/inspect-paginated result)))]])])))}]]
+                  (js/document.getElementById "markdown-preview-large"))))))
 
   (when (linux?)
     (js/twemoji.parse (.-body js/document))))
