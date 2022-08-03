@@ -509,7 +509,7 @@
                                                         :state (.create EditorState
                                                                         (j/obj :doc (str/trim doc)
                                                                                :extensions (into-array
-                                                                                            (-> (extensions (select-keys opts [:render :tooltip]))
+                                                                                            (-> (extensions (select-keys opts [:render :tooltip :eval-fn!]))
                                                                                                 (concat [(syntaxHighlighting defaultHighlightStyle)
                                                                                                          (.of keymap cm-clj/complete-keymap)
                                                                                                          markdown-language-support])
