@@ -86,19 +86,19 @@
                 (when el
                   (some-> el .-editorView .destroy)
                   (j/assoc! el :editorView
-                            (doto (EditorView. (j/obj :parent el
-                                                      :state (.create EditorState
-                                                                      (j/obj :doc (str/trim doc)
-                                                                             :extensions (into-array
-                                                                                          (cond-> [(syntaxHighlighting defaultHighlightStyle)
-                                                                                                   (foldGutter)
-                                                                                                   (.of view/keymap cm-clj/complete-keymap)
-                                                                                                   (history)
-                                                                                                   (.of view/keymap historyKeymap)
-                                                                                                   theme
-                                                                                                   livedoc/markdown-language-support]
-                                                                                            (seq extensions)
-                                                                                            (concat extensions))))))) .focus))))}])
+                            (EditorView. (j/obj :parent el
+                                                :state (.create EditorState
+                                                                (j/obj :doc (str/trim doc)
+                                                                       :extensions (into-array
+                                                                                    (cond-> [(syntaxHighlighting defaultHighlightStyle)
+                                                                                             (foldGutter)
+                                                                                             (.of view/keymap cm-clj/complete-keymap)
+                                                                                             (history)
+                                                                                             (.of view/keymap historyKeymap)
+                                                                                             theme
+                                                                                             livedoc/markdown-language-support]
+                                                                                      (seq extensions)
+                                                                                      (concat extensions))))))))))}])
 
 (defn samples []
   (into [:<>]

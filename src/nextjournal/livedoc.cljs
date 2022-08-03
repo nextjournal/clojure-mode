@@ -18,7 +18,7 @@
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
-(declare state->blocks block-opts->decoration get-blocks eval-all!)
+(declare state->blocks block-opts->decoration get-blocks)
 
 ;; Helpers
 (defn doc? [^js node] (== (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
@@ -90,9 +90,7 @@
 ;;       :edit-all? Boolean
 ;;       :doc-changed? Boolean }
 
-(defn decorate+eval!
-  ([state] (decorate+eval! state {}))
-  ([state opts] (eval-all! state (.set Decoration (state->blocks state opts)))))
+(defn decorate [state] (.set Decoration (state->blocks state)))
 
 (defn edit-gap-blocks [{:keys [edit-from blocks]} state]
   (when edit-from
@@ -135,7 +133,7 @@
 (defn preview-all+select+eval [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
   (-> doc
-      (assoc :blocks (decorate+eval! (.-state tr)))
+      (assoc :blocks (decorate (.-state tr)))
       (set-selected (->cursor-pos (.-state tr)))
       (dissoc :edit-all? :doc-changed? :edit-from)))
 
@@ -177,19 +175,18 @@
   (doseq [b (rangeset-seq blocks)] (eval-block! state b))
   blocks)
 
-(defn preview+eval [{:as doc-in :keys [edit-from edit-all?]} tr all?]
-  (let [{:as doc-out :keys [blocks selected]}
-        (if edit-all?
-          (preview-all+select+eval doc-in tr)
-          (cond-> doc-in edit-from (preview-and-select tr)))]
-    (when-not edit-all?
-      (cond
-        all?
-        (eval-all! (.-state tr) blocks)
-        (not all?)
-        (when-some [block (nth (rangeset-seq blocks) selected)]
-          (eval-block! (.-state tr) block))))
-    doc-out))
+(defn preview+eval [{:as doc :keys [selected edit-from edit-all? blocks]} tr all?]
+  (cond
+    edit-all? (preview-all+select+eval doc tr)
+    edit-from (preview-and-select doc tr)
+    'else (do
+            (cond
+              all?
+              (eval-all! (.-state tr) blocks)
+              (and selected (not all?))
+              (when-some [block (nth (rangeset-seq blocks) selected)]
+                (eval-block! (.-state tr) block)))
+            doc)))
 
 ;; Doc State Field
 (defonce ^{:doc "Maintains a document description at block level"}
@@ -197,9 +194,7 @@
   (.define StateField
            (j/obj
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
-            :create (fn [cm-state]
-                      {:selected 0
-                       :blocks (decorate+eval! cm-state)})
+            :create (fn [cm-state] {:selected 0 :blocks (decorate cm-state)})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)
                             {:as me :strs [Meta Shift]} (get-effect-value tr eval-region/modifier-effect)]
@@ -220,15 +215,19 @@
 ;; Block Previews
 (defn render-block-preview [^js widget ^js view]
   (let [el (js/document.createElement "div")
-        render (config-get (.-state view) :render)]
+        editor-state (.-state view)
+        widget-state (.-state widget)
+        render (config-get editor-state :render)]
+    ;; always eval once on decoration construction
+    (when-some [eval-fn! (config-get editor-state :eval-fn!)] (eval-fn! widget-state))
     (rdom/render [:div.cursor-pointer
                   {:on-click (fn [_e]
                                ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
-                               (when-some [{:keys [from]} (get-block-by-id (.-state view) (.-id widget))]
+                               (when-some [{:keys [from]} (get-block-by-id editor-state (.-id widget))]
                                  (.. view (dispatch (j/lit {:effects (.of doc-apply-op {:op edit-at :args [from]})
                                                             :selection {:anchor from}
                                                             :scrollIntoView true})))))}
-                  [render (.-state widget)]] el)
+                  [render widget-state]] el)
     el))
 
 (defclass BlockPreviewWidget
