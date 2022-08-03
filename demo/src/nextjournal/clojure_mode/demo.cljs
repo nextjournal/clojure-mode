@@ -267,26 +267,25 @@ have an editor with ~~mono~~ _mixed language support_.
                                   (fn [state]
                                     (fn []
                                       (let [{:keys [text type selected?] r :result} @state]
-                                        #_(when (not-empty (str/trim text)))
-                                        ;; skip empty markdown blocks
-                                        [:div.flex.flex-col.rounded.border.m-2
-                                         {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
+                                        [:div.flex.flex-col.rounded.m-2
+                                         {:class (when selected? "ring-4")}
                                          (case type
                                            :markdown
-                                           [:div.max-w-prose.p-2
-                                            [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
+                                           [:div.p-2.rounded.border
+                                            [:div.max-w-prose
+                                             [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
 
                                            :code
-                                           [:div.p-2
-                                            [:div.max-w-prose
+                                           [:<>
+                                            [:div.p-2.rounded.border.bg-slate-200
                                              [sv/inspect-paginated (v/with-viewer :code text)]]
-                                            [:hr.border]
-                                            [:div.viewer-result.mt-2 {:style {:font-family "var(--code-font)"}}
-                                             (when-some [{:keys [error result]} r]
+                                            (when-some [{:keys [error result]} r]
+                                              [:div.viewer-result.m-2
+                                               {:style {:font-family "var(--code-font)"}}
                                                (cond
                                                  error [:div.red error]
                                                  (react/isValidElement result) result
-                                                 result (sv/inspect-paginated result)))]])])))
+                                                 result (sv/inspect-paginated result))])])])))
                                   :doc "# Hello Markdown
 
 Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
@@ -308,7 +307,56 @@ have an editor with ~~mono~~ _mixed language support_.
 We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context:
 
 ```
-(v/plotly-viewer {:data [{:y [3 1 2]}]})
+(v/plotly {:data [{:y (shuffle (range -100 100))}]})
+```
+```
+(v/table
+  (zipmap
+    (map (comp keyword char) (range 97 113))
+    (map #(shuffle (range 10)) (range 16))))
+```
+```
+(v/vl {:width 650 :height 400 :mark \"geoshape\"
+       :data {:url \"https://vega.github.io/vega-datasets/data/us-10m.json\"
+              :format {:type \"topojson\"
+                       :feature \"counties\"}}
+       :transform
+       [{:lookup \"id\"
+         :from {:data {:url \"https://vega.github.io/vega-datasets/data/unemployment.tsv\"}
+                :key \"id\" :fields [\"rate\"]}}]
+       :projection {:type \"albersUsa\"}
+       :encoding {:color {:field \"rate\" :type \"quantitative\"}}})
+```
+```
+(def pie
+  (v/plotly
+    {:data [{:values [27 11 25 8 1 3 25]
+             :labels [\"US\" \"China\" \"European Union\" \"Russian Federation\"
+                      \"Brazil\" \"India\" \"Rest of World\"]
+             :text \"CO2\"
+             :textposition \"inside\"
+             :domain {:column 1}
+             :hoverinfo \"label+percent+name\"
+             :hole 0.4
+             :type \"pie\"}]
+     :layout {:showlegend false
+              :width 200
+              :height 200
+              :annotations [{:font {:size 20} :showarrow false :x 0.5 :y 0.5 :text \"CO2\"}]}
+     :config {:responsive true}}))
+
+(def contour
+  (v/plotly {:data [{:z [[10 10.625 12.5 15.625 20]
+                         [5.625 6.25 8.125 11.25 15.625]
+                         [2.5 3.125 5.0 8.125 12.5]
+                         [0.625 1.25 3.125 6.25 10.625]
+                         [0 0.625 2.5 5.625 10]]
+                     :type \"contour\"}]}))
+
+(v/col
+  ;; FIXME: can't use nested v/html
+  (v/with-viewer :html [:h1 \"Plots\"])
+  (v/row pie contour))
 ```
 
 We're also rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
@@ -330,7 +378,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [ ] fix selecting positions with click in editable sections between previews
 - [ ] fix scrollIntoView when moving selected block out of viewport
 - [ ] clicking on block close to viewport sides not always results in an edit
-- [ ] fix Clerk plotly/vega viewers
+- [x] fix Clerk plotly/vega viewers
 - [x] eval region in clojure blocks
 - [x] toggle previews editable on cursor enter/leave
 - [x] add code block SCI results
@@ -385,26 +433,25 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
                                     (fn [state]
                                       (fn []
                                         (let [{:keys [text type selected?] r :result} @state]
-                                          #_(when (not-empty (str/trim text)))
-                                          ;; skip empty markdown blocks
-                                          [:div.flex.flex-col.rounded.border.m-2
-                                           {:class [(when selected? "ring-4") (when (= :code type) "bg-slate-100")]}
+                                          [:div.flex.flex-col.rounded.m-2
+                                           {:class (when selected? "ring-4")}
                                            (case type
                                              :markdown
-                                             [:div.max-w-prose.p-2
-                                              [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
+                                             [:div.p-2.rounded.border
+                                              [:div.max-w-prose
+                                               [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
 
                                              :code
-                                             [:div.p-2
-                                              [:div.max-w-prose
+                                             [:<>
+                                              [:div.p-2.rounded.border.bg-slate-200
                                                [sv/inspect-paginated (v/with-viewer :code text)]]
-                                              [:hr.border]
-                                              [:div.viewer-result.mt-2 {:style {:font-family "var(--code-font)"}}
-                                               (when-some [{:keys [error result]} r]
+                                              (when-some [{:keys [error result]} r]
+                                                [:div.viewer-result.m-2
+                                                 {:style {:font-family "var(--code-font)"}}
                                                  (cond
                                                    error [:div.red error]
                                                    (react/isValidElement result) result
-                                                   result (sv/inspect-paginated result)))]])])))}]]
+                                                   result (sv/inspect-paginated result))])])])))}]]
                   (js/document.getElementById "markdown-preview-large"))))))
 
   (when (linux?)
