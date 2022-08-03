@@ -288,23 +288,14 @@ have an editor with ~~mono~~ _mixed language support_.
                                                  result (sv/inspect-paginated result))])])])))
                                   :doc "# Hello Markdown
 
-Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allows to
+Lezer [mounted trees](https://lezer.codemirror.net/docs/ref/#common.MountedTree) allow to
 have an editor with ~~mono~~ _mixed language support_.
 
-```clojure
-(defonce state (atom 0))
-```
-```clojure
-(defn the-answer
-  \"to all questions\"
-  []
-  (inc 41))
-```
-```clojure
-(swap! state inc)
-```
+We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context. In particular we're rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
 
-We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context:
+$$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
+
+All of Clerk's API is also available in cljs:
 
 ```
 (v/plotly {:data [{:y (shuffle (range -100 100))}]})
@@ -358,12 +349,21 @@ We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI con
   (v/with-viewer :html [:h1 \"Plots\"])
   (v/row pie contour))
 ```
-
-We're also rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
-
-$$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
+Test re-evaluation
 ```clojure
-(v/html [:h2 (str \"The Answer is: \" @state)])
+(defonce state (atom 0))
+```
+```clojure
+(defn the-answer
+  \"to all questions\"
+  [x]
+  (inc x))
+```
+```clojure
+(swap! state inc)
+```
+```clojure
+(v/html [:h2 (str \"The Answer is: \" (the-answer @state))])
 ```
 
 ## Todo
@@ -388,8 +388,7 @@ $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 - [x] make livedoc extensions configurable
 - [x] fix moving to the right in backticks
 - [x] autoclose backticks
-- [x] fix eval for empty code cells
-"}]]] (js/document.getElementById "markdown-preview"))
+- [x] fix eval for empty code cells"}]]] (js/document.getElementById "markdown-preview"))
 
   (-> (js/fetch "https://raw.githubusercontent.com/applied-science/js-interop/master/README.md")
       (.then #(.text %))
