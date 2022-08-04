@@ -173,25 +173,29 @@ The following example uses Observable plots to describe [Matt Riggott](https://f
    {:package [\"@observablehq/plot@0.5\" \"papaparse@5.3.2\"]}
    render-plot])
 ```
+
+## Loading Data
+
+- [ ] extract a pattern from the above
+
 ```
-(defn inner-do-stuff [mod handler data]
+(defn wrap-handler [mod handler data]
   (js/console.log :ids data)
   (when data
     [v/inspect-paginated (handler data mod)]))
 
-(defn do-stuff [url handler mod]
-  (reagent/with-let [data (reagent/atom nil)]
-    (.. (js/fetch url) (then #(.text %)) (then #(reset! data %)))
-    (fn []
-      [inner-do-stuff mod handler @data])))
-
 (defn with-fetch [url handler]
   (v/html
     [v/with-d3-require
-     {:package \"papaparse@5.3.2\"}
-     (fn [mod] (do-stuff url handler mod))]))
+     {:package [\"papaparse@5.3.2\" \"@observablehq/plot@0.5\"]}
+     (fn [mod]
+       (reagent/with-let [data (reagent/atom nil)]
+         (.. (js/fetch url) (then #(.text %)) (then #(reset! data %)))
+         #_ (fn [])
+         [wrap-handler mod handler @data]))]))
 
-(defn parse-csv [lib data] (.. lib (parse data (j/obj :header true :dynamicTyping true)) -data))
+(defn parse-csv [lib data]
+  (.. lib (parse data (j/obj :header true :dynamicTyping true)) -data))
 
 (with-fetch \"https://gist.githubusercontent.com/netj/8836201/raw/6f9306ad21398ea43cba4f7d537619d0e07d5ae3/iris.csv\"
   (fn [data lib]
