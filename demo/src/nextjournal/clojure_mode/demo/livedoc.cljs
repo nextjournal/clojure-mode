@@ -18,7 +18,7 @@
       (cond
         error [:div.red error]
         (react/isValidElement result) result
-        'else (sv/inspect-paginated result)))]))
+        'result (sv/inspect-paginated result)))]))
 
 (defn ^:dev/after-load render []
   ;; set viewer tailwind stylesheet
@@ -138,6 +138,48 @@ Here's some of Clerk's API in action
   (v/row pie contour))
 ```
 
+If Clerk's api is not enough, you can reach out to the js ecosystem on the fly without hacking your SCI context.
+
+The following example uses Observable plots to describe [Matt Riggott](https://flother.is/2017/olympic-games-data/) 2016 Olympics data.
+
+**FIXME** Observable plot only renders on a second eval
+
+
+```
+(defn load-data! [url store mod]
+  (.. (js/fetch url)
+    (then #(.text %))
+    (then #(.. mod (parse % (j/obj :header true :dynamicTyping true)) -data))
+    (then #(.slice % 0 3000))
+    (then #(reset! store %))))
+
+(defn dot-plot [mod data]
+  (reagent/with-let [dp (.. mod (dot data (j/obj
+                                            :x \"weight\"
+                                            :y \"height\"
+                                            :stroke \"sex\")) plot)
+
+                     refn (fn [el]
+                            (js/console.log :refn dp)
+                            (when (and el data )
+                              (.append el (.legend dp \"color\"))
+                              (.append el dp)))]
+
+    [:div {:ref refn}]))
+
+(defn render-plot [mod]
+  (reagent/with-let [data (reagent/atom (into-array []))]
+    (load-data! \"https://raw.githubusercontent.com/flother/rio2016/master/athletes.csv\"
+      data mod)
+    (fn []
+      [dot-plot mod @data])))
+
+(v/html
+  [v/with-d3-require
+   {:package [\"@observablehq/plot@0.5\" \"papaparse@5.3.2\"]}
+   render-plot])
+```
+
 ## Usage
 
 Use livedoc `editor` function as a reagent component in your cljs application
@@ -201,6 +243,10 @@ this puts together an instance of CodeMirror with markdown and clojure mixed lan
 - [x] autoclose backticks
 - [x] fix eval for empty code cells"}]]] (js/document.getElementById "livedoc-container"))
 
+
+
+  ;; longer example
+  #_
   (-> (js/fetch "https://raw.githubusercontent.com/applied-science/js-interop/master/README.md")
       (.then #(.text %))
       (.then #(-> %  ;; literal fixes
