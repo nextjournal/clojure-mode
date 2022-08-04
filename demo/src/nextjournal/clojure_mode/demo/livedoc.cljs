@@ -37,9 +37,9 @@
                                   ;; each cell is assigned a `state` reagent atom
                                   :eval-fn!
                                   (fn [state]
-                                    (when state
-                                      (swap! state (fn [{:as s :keys [text]}]
-                                                     (assoc s :result (demo.sci/eval-string text))))))
+                                    (swap! state (fn [{:as s :keys [text]}]
+                                                   (assoc s :result (demo.sci/eval-string text)))))
+
 
                                   :render
                                   (fn [state]
@@ -55,7 +55,7 @@
 
                                            :code
                                            [:<>
-                                            [:div.p-2.rounded.border.bg-slate-200
+                                            [:div.p-2.rounded.border.bg-slate-100
                                              [sv/inspect-paginated (v/with-viewer :code text)]]
                                             (when-some [{:keys [error result]} r]
                                               [:div.viewer-result.m-2
@@ -66,13 +66,15 @@
                                                  result (sv/inspect-paginated result))])])])))
                                   :doc "# 👋 Hello LiveDoc
 
-LiveDoc is a cljs notebook editor powered by CodeMirror Markdown language support and nextjournal clojure mode.
+LiveDoc is a cljs notebook editor powered by [CodeMirror Markdown language support](https://github.com/codemirror/lang-markdown) and [nextjournal clojure mode](https://nextjournal.github.io/clojure-mode).
 
-We're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context. In particular we're rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
+The rendering of blocks and their evaluation is fully customizable, this makes it easy to bring your own SCI context.
+
+In this demo we're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context. In particular we're rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\\LaTeX$ formulas as well as block ones
 
 $$\\hat{f}(x) = \\int_{-\\infty}^{+\\infty} f(t)\\exp^{-2\\pi i x t}dt$$
 
-All of Clerk's API is available
+Here's some of Clerk's API in action
 
 ```
 (v/plotly {:data [{:y (shuffle (range -100 100))}]})
@@ -138,11 +140,11 @@ All of Clerk's API is available
 
 ## Usage
 
-Use livedoc editor function as a reagent component in your cljs application
+Use livedoc `editor` function as a reagent component in your cljs application
 
     [nextjournal.clojure-mode.livedoc/editor opts]
 
-where `opts` is a map with keys:
+this puts together an instance of CodeMirror with markdown and clojure mixed language support with a set of extensions configurable via an `opts` map with keys:
 
 * `:doc` (required) a markdown string
 
@@ -154,6 +156,10 @@ where `opts` is a map with keys:
 * `:eval-fn!` will be called on selected block states when evaluation is triggered
 
 * `:tooltip` customises tooltip view
+
+* `:extensions` extra CodeMirror extensions to be added along livedoc ones
+
+* `:focus?` should editor acquire focus when loaded
 
 ```clojure
 (defonce state (atom 0))

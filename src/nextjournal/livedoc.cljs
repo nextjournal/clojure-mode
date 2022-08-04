@@ -497,6 +497,18 @@
      (array (.-support md)
             (.high Prec (.of keymap (j/lit [{:key \` :run handle-open-backticks}])))))))
 
+(defn editor-state [{:as opts extras :extensions :keys [doc]}]
+  (.create EditorState
+           (j/obj :doc (str/trim doc)
+                  :extensions (into-array
+                               (-> (extensions (select-keys opts [:render :tooltip :eval-fn!]))
+                                   (concat [(syntaxHighlighting defaultHighlightStyle)
+                                            (.of keymap cm-clj/complete-keymap)
+                                            markdown-language-support])
+                                   (cond->
+                                     (seq extras)
+                                     (concat extras)))))))
+
 ;; Editor
 (defn editor
   "A convenience function/component bundling a basic editor setup with
@@ -509,21 +521,14 @@
    - `:doc` a markdown string setting the editor's initial document
    - `:extenstions` extra codemirror extensions to be stacked on top of the default
    - `:focus?` when true let the codemirror instance acquire focus."
-  [{:as opts extras :extensions :keys [doc focus?]}]
-  [:div {:ref (fn [^js el]
-                (when el
-                  (some-> el .-editorView .destroy)
-                  (j/assoc! el :editorView
-                            (cond-> (EditorView. (j/obj :parent el
-                                                        :state (.create EditorState
-                                                                        (j/obj :doc (str/trim doc)
-                                                                               :extensions (into-array
-                                                                                            (-> (extensions (select-keys opts [:render :tooltip :eval-fn!]))
-                                                                                                (concat [(syntaxHighlighting defaultHighlightStyle)
-                                                                                                         (.of keymap cm-clj/complete-keymap)
-                                                                                                         markdown-language-support])
-                                                                                                (cond->
-                                                                                                  (seq extras)
-                                                                                                  (concat extras))))))))
-                              focus?
-                              .focus))))}])
+  [_opts]
+  (fn [{:as opts :keys [doc focus?]}]
+    (r/with-let [!v (atom nil)]
+      ^{:key doc}
+      [:div {:ref (fn [el]
+                    (if el
+                      (reset! !v
+                              (doto (EditorView. (j/obj :state (editor-state opts)
+                                                        :parent el))
+                                (cond-> focus? .focus)))
+                      (some-> @!v .destroy)))}])))
