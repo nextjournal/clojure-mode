@@ -142,9 +142,6 @@ If Clerk's api is not enough, you can reach out to the js ecosystem on the fly w
 
 The following example uses Observable plots to describe [Matt Riggott](https://flother.is/2017/olympic-games-data/) 2016 Olympics data.
 
-**FIXME** Observable plot only renders on a second eval
-
-
 ```
 (defn load-data! [url store mod]
   (.. (js/fetch url)
@@ -154,25 +151,22 @@ The following example uses Observable plots to describe [Matt Riggott](https://f
     (then #(reset! store %))))
 
 (defn dot-plot [mod data]
-  (reagent/with-let [dp (.. mod (dot data (j/obj
-                                            :x \"weight\"
-                                            :y \"height\"
-                                            :stroke \"sex\")) plot)
-
-                     refn (fn [el]
-                            (js/console.log :refn dp)
-                            (when (and el data )
-                              (.append el (.legend dp \"color\"))
-                              (.append el dp)))]
-
-    [:div {:ref refn}]))
+  (when data
+    (reagent/with-let [refn (fn [el]
+                              (let [dp (.. mod
+                                           (dot data (j/obj  :x \"weight\" :y \"height\"
+                                                             :stroke \"sex\"))
+                                           plot)]
+                                (when el
+                                  (.append el (.legend dp \"color\"))
+                                  (.append el dp))))]
+      [:div {:ref refn}])))
 
 (defn render-plot [mod]
-  (reagent/with-let [data (reagent/atom (into-array []))]
+  (reagent/with-let [data (reagent/atom nil)]
     (load-data! \"https://raw.githubusercontent.com/flother/rio2016/master/athletes.csv\"
       data mod)
-    (fn []
-      [dot-plot mod @data])))
+    (fn [] [dot-plot mod @data])))
 
 (v/html
   [v/with-d3-require
