@@ -1,70 +1,88 @@
 (ns nextjournal.clojure-mode.demo.livedoc
-  (:require [nextjournal.clojure-mode.demo :as demo]
-            [nextjournal.clerk.sci-viewer :as sv]
-            [nextjournal.clerk.viewer :as v]
-            [applied-science.js-interop :as j]
-            [shadow.resource :as rc]
-            [clojure.string :as str]
-            [nextjournal.livedoc :as livedoc]
-            [nextjournal.clojure-mode.demo.sci :as demo.sci]
-            ["react" :as react]
-            [reagent.dom :as rdom]))
+  (:require
+   ["react" :as react]
+   [applied-science.js-interop :as j]
+   [clojure.string :as str]
+   [nextjournal.clerk.sci-viewer :as sv]
+   [nextjournal.clerk.viewer :as v]
+   [nextjournal.clojure-mode.demo :as demo]
+   [nextjournal.clojure-mode.demo.sci :as demo.sci]
+   [nextjournal.livedoc :as livedoc]
+   [nextjournal.ui.components.d3-require :as d3-require]
+   [reagent.dom :as rdom]
+   [shadow.resource :as rc]
+   [reagent.core :as r]
+   [sci.core :as sci]))
 
-(defn eval-code-view
-  ([code] (eval-code-view @sv/!sci-ctx code))
-  ([ctx code]
-   [:div.viewer-result {:style {:white-space "pre-wrap" :font-family "var(--code-font)"}}
-    (when-some [{:keys [error result]} (when (seq (str/trim code)) (demo.sci/eval-string ctx code))]
-      (cond
-        error [:div.red error]
-        (react/isValidElement result) result
-        'result (sv/inspect-paginated result)))]))
+(defn result-view [r]
+  (when-some [{:keys [error result]} r]
+    [:div.viewer-result.m-2 {:style {:font-family "var(--code-font)"}}
+     (cond
+       error [:div.red error]
+       (react/isValidElement result) result
+       result (sv/inspect-paginated result))]))
+
+;; ctx libs
+(defn inspect-when [data]
+  (when data
+    [sv/inspect-paginated data]))
+
+(defn with-fetch [url handler]
+  (r/with-let [data (r/atom nil)]
+    ;; FIXME: promise chain trick to have handler called on response
+    (.. (js/fetch url) (then #(.text %)) (then #(reset! data (handler %))))
+    (fn []
+      [inspect-when @data])))
 
 (defn ^:dev/after-load render []
   ;; set viewer tailwind stylesheet
   (j/assoc! (js/document.getElementById "viewer-stylesheet")
             :innerHTML (rc/inline "stylesheets/viewer.css"))
 
-  (rdom/render [:div
-                [:div.rounded-md.mb-0.text-sm.monospace.border.shadow-lg.bg-white
-                 [livedoc/editor {:focus? true
-                                  :extensions [demo/theme]
-                                  :tooltip (fn [text _editor-view]
-                                             (let [tt-el (js/document.createElement "div")]
-                                               (rdom/render [:div.p-3 [eval-code-view text]] tt-el)
-                                               (j/obj :dom tt-el)))
+  (rdom/render
+   [d3-require/with {:package ["@observablehq/plot@0.5" "papaparse@5.3.2"]}
+    (fn [^js lib]
+      ;; d3-require merges modules into a single object
 
-                                  ;; each cell is assigned a `state` reagent atom
-                                  :eval-fn!
-                                  (fn [state]
-                                    (swap! state (fn [{:as s :keys [text]}]
-                                                   (assoc s :result (demo.sci/eval-string text)))))
+      (r/with-let [ctx (sci/merge-opts
+                        (sci/fork @sv/!sci-ctx)
+                        {:namespaces
+                         {'livedoc {'with-fetch with-fetch}
+                          'observable {'plot lib}
+                          'csv {'parse (fn [data] (.. lib (parse data (j/obj :header true :dynamicTyping true)) -data))}}})]
 
+        [:div.rounded-md.mb-0.text-sm.border.shadow-lg.bg-white
+         [livedoc/editor {:focus? true
+                          :extensions [demo/theme]
+                          :tooltip (fn [text _editor-view]
+                                     (let [tt-el (js/document.createElement "div")]
+                                       (rdom/render [:div.p-3 [result-view (demo.sci/eval-string ctx text)]] tt-el)
+                                       (j/obj :dom tt-el)))
 
-                                  :render
-                                  (fn [state]
-                                    (fn []
-                                      (let [{:keys [text type selected?] r :result} @state]
-                                        [:div.flex.flex-col.rounded.m-2
-                                         {:class (when selected? "ring-4")}
-                                         (case type
-                                           :markdown
-                                           [:div.p-3.rounded.border
-                                            [:div.max-w-prose
-                                             [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
+                          ;; each cell is assigned a `state` reagent atom
+                          :eval-fn!
+                          (fn [state]
+                            (swap! state (fn [{:as s :keys [text]}]
+                                           (assoc s :result (demo.sci/eval-string ctx text)))))
 
-                                           :code
-                                           [:<>
-                                            [:div.p-2.rounded.border.bg-slate-100
-                                             [sv/inspect-paginated (v/with-viewer :code text)]]
-                                            (when-some [{:keys [error result]} r]
-                                              [:div.viewer-result.m-2
-                                               {:style {:font-family "var(--code-font)"}}
-                                               (cond
-                                                 error [:div.red error]
-                                                 (react/isValidElement result) result
-                                                 result (sv/inspect-paginated result))])])])))
-                                  :doc (rc/inline "livedoc.md")}]]] (js/document.getElementById "livedoc-container"))
+                          :render
+                          (fn [state]
+                            (fn []
+                              (let [{:keys [text type selected?] r :result} @state]
+                                [:div.flex.flex-col.rounded.m-2
+                                 {:class (when selected? "ring-4")}
+                                 (case type
+                                   :markdown
+                                   [:div.p-3.rounded.border
+                                    [:div.max-w-prose
+                                     [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
+
+                                   :code
+                                   [:<>
+                                    [:div.p-2.rounded.border.bg-slate-100
+                                     [sv/inspect-paginated (v/with-viewer :code text)]]
+                                    [result-view r]])])))
+                          :doc (rc/inline "livedoc.md")}]]))] (js/document.getElementById "livedoc-container"))
 
 
 

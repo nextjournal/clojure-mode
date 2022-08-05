@@ -2,32 +2,12 @@
 
 LiveDoc is a cljs notebook editor powered by [CodeMirror Markdown language support](https://github.com/codemirror/lang-markdown) and [nextjournal clojure mode](https://nextjournal.github.io/clojure-mode).
 
-The rendering of blocks and their evaluation is fully customizable, this makes it easy to bring your own SCI context.
-
 In this demo we're evaluating code in [Clerk](https://github.com/nextjournal/clerk)'s SCI context. In particular we're rendering _markdown_ cells in terms of Clerk's viewers. This allows e.g. to get inline $\LaTeX$ formulas as well as block ones
 
 $$\hat{f}(x) = \int_{-\infty}^{+\infty} f(t)\exp^{-2\pi i x t}dt$$
 
 Here's some of Clerk's API in action
 
-```clojure
-(v/plotly {:data [{:y (shuffle (range -100 100))}]})
-```
-
-## Keybindings
-
-* `ESC`: toggles edit-one / edit-all / preview & select block
-* `ALT`: pressed while in edit mode toggles a tooltip with eval-at-cursor results
-* Arrow keys move selection up/down
-* `CMD + Enter` : Evaluate selected cell or leave edit mode
-* `CMD + Shift + Enter`: Evaluates all cells
-
-```clojure
-(v/table
-  (zipmap
-    (map (comp keyword char) (range 97 113))
-    (map #(shuffle (range 10)) (range 16))))
-```
 ```clojure
 (v/vl {:width 650 :height 400 :mark "geoshape"
        :data {:url "https://vega.github.io/vega-datasets/data/us-10m.json"
@@ -39,6 +19,21 @@ Here's some of Clerk's API in action
                 :key "id" :fields ["rate"]}}]
        :projection {:type "albersUsa"}
        :encoding {:color {:field "rate" :type "quantitative"}}})
+```
+
+## Extending the Evaluation Context
+
+The rendering of blocks and their evaluation is fully customizable, this makes it easy to bring your own SCI context. In this notebook Clerk's context is being augmented of some convenient helpers for loading and handling data in the notebook:
+
+* `livedoc/with-fetch`
+* `csv/parse`
+* `observable/plot` yes, those
+
+```clojure
+(v/html
+ [livedoc/with-fetch "https://gist.githubusercontent.com/netj/8836201/raw/6f9306ad21398ea43cba4f7d537619d0e07d5ae3/iris.csv"
+  (fn [text]
+    (v/table (take 10 (map js->clj (csv/parse text)))))])
 ```
 ```clojure
 (def pie
@@ -108,33 +103,12 @@ The following example uses Observable plots to describe [Matt Riggott](https://f
    render-plot])
 ```
 
-## Loading Data
+# Evaluation
 
-- [ ] extract a pattern from the above
+Command Enter to re-evaluate the selected cell
 
 ```clojure
-(defn wrap-handler [mod handler data]
-  (js/console.log :ids data)
-  (when data
-    [v/inspect-paginated (handler data mod)]))
-
-(defn with-fetch [url handler]
-  (v/html
-    [v/with-d3-require
-     {:package ["papaparse@5.3.2" "@observablehq/plot@0.5"]}
-     (fn [mod]
-       (reagent/with-let [data (reagent/atom nil)]
-         (.. (js/fetch url) (then #(.text %)) (then #(reset! data %)))
-         #_ (fn [])
-         [wrap-handler mod handler @data]))]))
-
-(defn parse-csv [lib data]
-  (.. lib (parse data (j/obj :header true :dynamicTyping true)) -data))
-
-(with-fetch "https://gist.githubusercontent.com/netj/8836201/raw/6f9306ad21398ea43cba4f7d537619d0e07d5ae3/iris.csv"
-  (fn [data lib]
-    (js/console.log "Ahoi")
-    (v/table (map js->clj (parse-csv lib data)))))
+(v/plotly {:data [{:y (shuffle (range -100 100))}]})
 ```
 
 ## Usage
@@ -159,6 +133,14 @@ this puts together an instance of CodeMirror with markdown and clojure mixed lan
 * `:extensions` extra CodeMirror extensions to be added along livedoc ones
 
 * `:focus?` should editor acquire focus when loaded
+
+## Keybindings
+
+* `ESC`: toggles edit-one / edit-all / preview & select block
+* `ALT`: pressed while in edit mode toggles a tooltip with eval-at-cursor results
+* Arrow keys move selection up/down
+* `CMD + Enter` : Evaluate selected cell or leave edit mode
+* `CMD + Shift + Enter`: Evaluates all cells
 
 ```clojure
 (defonce state (atom 0))
