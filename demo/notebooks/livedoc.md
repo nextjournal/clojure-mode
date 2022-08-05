@@ -61,7 +61,7 @@ The rendering of blocks and their evaluation is fully customizable, this makes i
 
 * `livedoc/with-fetch`
 * `csv/parse`
-* `observable/plot` yes, those
+* `observable/Plot`
 
 ```clojure
 (livedoc/with-fetch "https://gist.githubusercontent.com/netj/8836201/raw/6f9306ad21398ea43cba4f7d537619d0e07d5ae3/iris.csv"
