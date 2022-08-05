@@ -20,19 +20,34 @@
      (cond
        error [:div.red error]
        (react/isValidElement result) result
-       result (sv/inspect-paginated result))]))
+       result [sv/inspect-paginated result])]))
+
+(defn wrap-element [el]
+  (v/with-viewer :html
+    (r/with-let [refn (fn [parent] (when parent (.append parent el)))]
+      [:div {:ref refn}])))
 
 ;; ctx libs
-(defn inspect-when [data]
-  (when data
-    [sv/inspect-paginated data]))
+(defn inspect [data]
+  (when-some [wrapped-value
+              (when data
+                (cond
+                  (v/wrapped-value? data) data
+                  (or (instance? js/SVGElement data)
+                      (instance? js/HTMLElement data))
+                  (wrap-element data)
+                  'else data))]
+    [sv/inspect-paginated wrapped-value]))
 
-(defn with-fetch [url handler]
+(defn with-fetch* [url handler]
   (r/with-let [data (r/atom nil)]
     ;; FIXME: promise chain trick to have handler called on response
     (.. (js/fetch url) (then #(.text %)) (then #(reset! data (handler %))))
     (fn []
-      [inspect-when @data])))
+      [inspect @data])))
+
+(defn with-fetch [url handler]
+  (r/as-element [with-fetch* url handler]))
 
 (defn ^:dev/after-load render []
   ;; set viewer tailwind stylesheet
@@ -48,7 +63,7 @@
                         (sci/fork @sv/!sci-ctx)
                         {:namespaces
                          {'livedoc {'with-fetch with-fetch}
-                          'observable {'plot lib}
+                          'observable {'Plot lib}
                           'csv {'parse (fn [data] (.. lib (parse data (j/obj :header true :dynamicTyping true)) -data))}}})]
 
         [:div.rounded-md.mb-0.text-sm.border.shadow-lg.bg-white

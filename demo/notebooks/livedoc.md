@@ -21,20 +21,8 @@ Here's some of Clerk's API in action
        :encoding {:color {:field "rate" :type "quantitative"}}})
 ```
 
-## Extending the Evaluation Context
+Compose results layout with `v/row` and `v/col`
 
-The rendering of blocks and their evaluation is fully customizable, this makes it easy to bring your own SCI context. In this notebook Clerk's context is being augmented of some convenient helpers for loading and handling data in the notebook:
-
-* `livedoc/with-fetch`
-* `csv/parse`
-* `observable/plot` yes, those
-
-```clojure
-(v/html
- [livedoc/with-fetch "https://gist.githubusercontent.com/netj/8836201/raw/6f9306ad21398ea43cba4f7d537619d0e07d5ae3/iris.csv"
-  (fn [text]
-    (v/table (take 10 (map js->clj (csv/parse text)))))])
-```
 ```clojure
 (def pie
   (v/plotly
@@ -67,46 +55,30 @@ The rendering of blocks and their evaluation is fully customizable, this makes i
   (v/row pie contour))
 ```
 
-If Clerk's api is not enough, you can reach out to the js ecosystem on the fly without hacking your SCI context.
+## Extending the Evaluation Context
 
-The following example uses Observable plots to describe [Matt Riggott](https://flother.is/2017/olympic-games-data/) 2016 Olympics data.
+The rendering of blocks and their evaluation is fully customizable, this makes it easy to bring your own SCI context. In this notebook Clerk's context is being augmented of some convenient helpers for loading and handling data in the notebook:
+
+* `livedoc/with-fetch`
+* `csv/parse`
+* `observable/plot` yes, those
 
 ```clojure
-(defn load-data! [url store mod]
-  (.. (js/fetch url)
-    (then #(.text %))
-    (then #(.. mod (parse % (j/obj :header true :dynamicTyping true)) -data))
-    (then #(.slice % 0 3000))
-    (then #(reset! store %))))
-
-(defn dot-plot [mod data]
-  (when data
-    (reagent/with-let [refn (fn [el]
-                              (let [dp (.. mod
-                                           (dot data (j/obj  :x "weight" :y "height"
-                                                             :stroke "sex"))
-                                           plot)]
-                                (when el
-                                  (.append el (.legend dp "color"))
-                                  (.append el dp))))]
-      [:div {:ref refn}])))
-
-(defn render-plot [mod]
-  (reagent/with-let [data (reagent/atom nil)]
-    (load-data! "https://raw.githubusercontent.com/flother/rio2016/master/athletes.csv"
-      data mod)
-    (fn [] [dot-plot mod @data])))
-
-(v/html
-  [v/with-d3-require
-   {:package ["@observablehq/plot@0.5" "papaparse@5.3.2"]}
-   render-plot])
+(livedoc/with-fetch "https://gist.githubusercontent.com/netj/8836201/raw/6f9306ad21398ea43cba4f7d537619d0e07d5ae3/iris.csv"
+  (fn [text]
+    (v/table (take 10 (map js->clj (csv/parse text))))))
 ```
 
-# Evaluation
+The following example is taken from this [Observable notebook](https://observablehq.com/@observablehq/plot)
 
-Command Enter to re-evaluate the selected cell
-
+```clojure
+(livedoc/with-fetch "https://raw.githubusercontent.com/flother/rio2016/master/athletes.csv"
+  (fn [data]
+    (.. observable/Plot
+      (dot (csv/parse data)
+        (j/obj :x "weight" :y "height" :stroke "sex"))
+      plot)))
+```
 ```clojure
 (v/plotly {:data [{:y (shuffle (range -100 100))}]})
 ```
