@@ -5,7 +5,7 @@
  {:dev {:extra-paths ["test"]
         :extra-deps {thheller/shadow-cljs {:mvn/version "2.14.4"}}}
 
-  :demo {:extra-paths ["demo/src"]
+  :demo {:extra-paths ["demo/src" "demo/notebooks"]
          :jvm-opts ["-Dpolyglot.engine.WarnInterpreterOnly=false"]
          :extra-deps {org.babashka/sci {:mvn/version "0.3.5"}
                       reagent/reagent {:mvn/version "1.1.1"}
