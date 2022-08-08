@@ -4,9 +4,20 @@
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clojure/Script mode for CodeMirror 6</title>
-    <link href="https://cdn.nextjournal.com/data/QmW53nJSRrRao5FZ9sZ2pwQ4Gd4mK4nZcvhrATVdiabPkc?filename=tailwind-a4c8a6fe636b6d528505c30cb68526a024f446a7.css&content-type=text/css" rel="stylesheet">
+
+    <!-- inter fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css" rel="stylesheet">
+
     <link href="https://cdn.nextjournal.com/data/QmSaHZCU6U2DeNohfW2PuXDHkayw7w21uvUWL5oEqVWKwH?filename=viewer-1c61aac61ffa4da89b828d538c5e4eff188e7b56.css&content-type=text/css" rel="stylesheet">
     <link href="https://cdn.nextjournal.com/data/QmZZpjcdZDa8WT27QpcepDfqwuGik6Y3Ueyxaxs1Gqpk9w?filename=nextjournal-c81d440c5a7312046bbc5a2c3f2c5567d9ea9131.css&content-type=text/css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style type="text/tailwindcss" id="viewer-stylesheet"></style>
+    <!-- filled with tailwind styles from js -->
+
     <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
     <style>
       /* Use Fira Mono without having to clutter up the demo with a custom CM theme. */
@@ -49,7 +60,7 @@
     </style>
   </head>
   <body>
-    <div class="landing-page">
+    <div class="landing-page pt-10">
       <div class="hero pb-4">
         <div>
           <h1>Clojure/Script mode for <a href="https://codemirror.net/6/">CodeMirror 6</a></h1>
@@ -203,6 +214,14 @@
 {:deps {nextjournal/clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
                                   :sha "SHA"}}}
         </pre>
+      </div>
+    </div>
+    <div id="embed-it" class="bg-alt py-12 px-6">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
+          <a href="#embed-it" class="near-black">🛏 Embed it in Markdown</a>
+        </h2>
+        <div id="markdown-editor"></div>
       </div>
     </div>
     <div class="border-t-2 px-6">
