@@ -131,25 +131,9 @@ this puts together an instance of CodeMirror with markdown and clojure mixed lan
 ```
 
 ## Todo
-- [x] Use markdown grammar to split document à la Clerk
-- [x] implement block widgets with previews
-- [x] make previews editable on click
-- [x] make previews selectable with arrow keys
-- [x] make previews editable on click
-- [x] fix loosing cursor moving up/down to enter a preview block
-- [x] fix blocks when editing last one in edit-all mode
-- [ ] fix overflow-x in blocks
-- [ ] fix selecting positions with click in editable sections between previews
-- [ ] fix scrollIntoView when moving selected block out of viewport
-- [ ] clicking on block close to viewport sides not always results in an edit
-- [x] fix Clerk plotly/vega viewers
-- [x] eval region in clojure blocks
-- [x] toggle previews editable on cursor enter/leave
-- [x] add code block SCI results
-- [ ] fix (?) dispatching changes/annotations twice
-- [x] bring Clerk stylesheet in demo
-- [x] toggle edit all by a second hit of ESC
-- [x] make livedoc extensions configurable
-- [x] fix moving to the right in backticks
-- [x] autoclose backticks
-- [x] fix eval for empty code cells
+- [ ] cannot click to move cursor in each editable section bottom lines (probably we need calls to `requestMeasure`) 
+- [ ] scroll selected block into view when moving out of viewport
+- [ ] clicking on blocks not always results in an edit at the right place
+- [ ] avoid re-rendering _all_ previews when scrolling or clicking to edit one (probably connected to height computations)
+- [ ] use async SCI eval
+- [ ] don't eval code when rendering previews (but only when leaving edit mode)
