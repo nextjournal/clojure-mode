@@ -5,7 +5,8 @@
                                          EditorSelection
                                          Transaction
                                          CharCategory
-                                         Extension]]
+                                         Extension
+                                         Prec]]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.util :as u :refer [from-to]]
@@ -39,7 +40,7 @@
       #js{:annotations (u/user-event-annotation "delete")}
       (j/fn [^:js {:as range :keys [head empty anchor]}]
         (j/let [^:js {:as range from :from to :to} (from-to head anchor)
-                ^js node| (.resolve (n/tree state) from -1) ;; node immediately to the left of cursor
+                ^js node| (.resolveInner (n/tree state) from -1) ;; node immediately to the left of cursor
                 ^js parent (.-parent node|)]
           (cond
 
@@ -139,16 +140,28 @@
   (j/fn [^:js {:as view :keys [state]}]
     (u/dispatch-some view (handle-close state key-name))))
 
+(defn guard-scope
+  "Command -> Command
+
+  Guards command for it to be triggered from within the right scope, does nothing and propagates key otherwise"
+  [cmd]
+  (j/fn [^:js {:as view :keys [state]}]
+    (if (or (n/embedded? state) (n/within-program? state))
+      (cmd view)
+      false)))
+
 (defn extension []
-  (.of view/keymap
-       (j/lit
-        [{:key "Backspace"
-          :run (j/fn [^:js {:as view :keys [state]}]
-                 (u/dispatch-some view (handle-backspace state)))}
-         {:key "(" :run (handle-open-cmd "(")}
-         {:key "[" :run (handle-open-cmd "[")}
-         {:key "{" :run (handle-open-cmd "{")}
-         {:key \" :run (handle-open-cmd \")}
-         {:key \) :run (handle-close-cmd \))}
-         {:key \] :run (handle-close-cmd \])}
-         {:key \} :run (handle-close-cmd \})}])))
+  (.high Prec
+         (.of view/keymap
+              (j/lit
+               [{:key "Backspace"
+                 :run (guard-scope
+                       (j/fn [^:js {:as view :keys [state]}]
+                         (u/dispatch-some view (handle-backspace state))))}
+                {:key "(" :run (guard-scope (handle-open-cmd "("))}
+                {:key "[" :run (guard-scope (handle-open-cmd "["))}
+                {:key "{" :run (guard-scope (handle-open-cmd "{"))}
+                {:key \" :run  (guard-scope (handle-open-cmd \"))}
+                {:key \) :run  (guard-scope (handle-close-cmd \)))}
+                {:key \] :run  (guard-scope (handle-close-cmd \]))}
+                {:key \} :run  (guard-scope (handle-close-cmd \}))}]))))

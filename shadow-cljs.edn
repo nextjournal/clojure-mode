@@ -1,12 +1,20 @@
 {:deps {:aliases [:dev :demo]}
- :dev-http {8002 "public"
-            8001 "public/test"}
+ :dev-http {8001 "public"
+            8002 "public/test"
+            8003 "public/livedoc"}
  :nrepl {:port 9000}
  :builds {:demo {:compiler-options {:output-feature-set :es8}
                  :target :browser
                  :output-dir "public/js"
                  :asset-path "js"
                  :modules {:main {:init-fn nextjournal.clojure-mode.demo/render}}}
+
+          :livedoc {:compiler-options {:output-feature-set :es8}
+                    :target :browser
+                    :output-dir "public/livedoc/js"
+                    :asset-path "js"
+                    :modules {:main {:init-fn nextjournal.clojure-mode.demo.livedoc/render}}}
+
           :test {:compiler-options {:output-feature-set :es8}
                  :target :browser-test
                  :test-dir "public/test"

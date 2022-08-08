@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveDoc</title>
+
+    <!-- inter fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css" rel="stylesheet">
+
+    <link href="https://cdn.nextjournal.com/data/QmSaHZCU6U2DeNohfW2PuXDHkayw7w21uvUWL5oEqVWKwH?filename=viewer-1c61aac61ffa4da89b828d538c5e4eff188e7b56.css&content-type=text/css" rel="stylesheet">
+    <link href="https://cdn.nextjournal.com/data/QmZZpjcdZDa8WT27QpcepDfqwuGik6Y3Ueyxaxs1Gqpk9w?filename=nextjournal-c81d440c5a7312046bbc5a2c3f2c5567d9ea9131.css&content-type=text/css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style type="text/tailwindcss" id="viewer-stylesheet"></style>
+    <!-- filled with tailwind styles from js -->
+
+    <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+    <style>
+      /* Use Fira Mono without having to clutter up the demo with a custom CM theme. */
+      .cm-scroller { font-family: var(--code-font) !important; }
+      .kbd {
+        box-shadow: 0 2px 2px rgba(0,0,0,.1);
+        background: white;
+        border: 1px solid rgba(0,0,0,.15);
+        border-radius: 3px;
+        font-size: 0.75em;
+        padding: 2px 5px;
+        position: relative;
+        top: -2px;
+        font-family: var(--code-font);
+        text-transform: uppercase;
+      }
+      img.emoji {
+        height: 1em;
+        width: 1em;
+        margin: 0 .05em 0 .1em;
+        vertical-align: -0.1em;
+        display: inline-block;
+      }
+      .cta img.emoji {
+        margin-right: 0.3em;
+      }
+      @media (max-width: 800px) {
+        .ctas {
+          font-size: 1rem !important;
+        }
+      }
+      @media (max-width: 500px) {
+        .ctas {
+          flex-direction: column;
+        }
+        .ctas .cta {
+          margin-bottom: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+  <div class="bg-alt py-12 px-6">
+      <div class="mx-auto max-w-5xl">
+        <div id="livedoc-container"></div>
+      </div>
+    </div>
+
+<!--    <div id="livedoc-large" class="bg-alt py-12 px-6">-->
+<!--      <div class="mx-auto max-w-4xl">-->
+<!--        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">-->
+<!--          <a href="#livedoc-large" class="near-black">📑📑️ LiveDoc on Large Texts</a>-->
+<!--        </h2>-->
+<!--        <div id="livedoc-large-container"></div>-->
+<!--      </div>-->
+<!--    </div>-->
+
+    <div class="border-t-2 px-6">
+      <div class="pt-6 pb-12 sans-serif max-w-4xl mx-auto">
+        <div class="flex justify-center">
+          <div class="text-gray-500">© 2022 Nextjournal GmbH</div>
+          <div class="ml-4">
+            <a href="https://nextjournal.com" class="hover:underline">Nextjournal</a>
+            <a href="https://twitter.com/usenextjournal" class="ml-2 hover:underline">Twitter</a>
+            <a href="https://nextjournal.com/about" class="ml-2 hover:underline">About us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/main.js"></script>
+  </body>
+</html>

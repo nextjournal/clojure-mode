@@ -11,7 +11,7 @@ jobs:
           java-version: '11.0.7'
 
       - name: 🔧 Install clojure
-        uses: DeLaGuardo/setup-clojure@master
+        uses: DeLaGuardo/setup-clojure@9.0
         with:
           cli: '1.10.3.943'
 
@@ -64,12 +64,22 @@ jobs:
           branch: gh-pages     # The branch the action should deploy to.
           folder: public       # The folder the action should deploy.
 
-      - name: ✅ Add success status to report with link to snapshot
+      - name: ✅ Add link to Clojure Mode Demo
         uses: Sibz/github-status-action@v1
         with:
           authToken: ${{secrets.GITHUB_TOKEN}}
-          context: 'CI / Static App / URL'
+          context: 'CI / Static App / Clojure Mode'
           description: 'Ready'
           state: 'success'
           sha: ${{github.event.pull_request.head.sha || github.sha}}
           target_url: https://snapshots.nextjournal.com/clojure-mode/build/${{ github.sha }}
+
+      - name: ✅ Add link to LiveDoc Demo
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'CI / Static App / LiveDoc'
+          description: 'Ready'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://snapshots.nextjournal.com/clojure-mode/build/${{ github.sha }}/livedoc

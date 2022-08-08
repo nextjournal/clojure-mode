@@ -56,7 +56,8 @@
 (defn get-modifier-field [^js state] (.field state modifier-field))
 
 (j/defn set-modifier-field! [^:js {:as view :keys [dispatch state]} value]
-  (dispatch #js{:effects (.of modifier-effect value)}))
+  (dispatch #js{:effects (.of modifier-effect value)
+                :userEvent "evalregion"}))
 
 (j/defn mark [spec ^:js {:keys [from to]}]
   (-> (.mark Decoration spec)
@@ -76,16 +77,16 @@
 (defonce region-field
   (.define StateField
            (j/lit
-            {:create  (constantly (.-none Decoration))
-             :update  (j/fn [_value ^:js {:keys [state]}]
-                        (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
-                              spec (if Enter mark-spec-highlight mark-spec)]
-                          (if-let [range (cond (and Alt Shift) (top-level-node state)
-                                               Alt (or (u/guard (main-selection state)
-                                                                #(not (j/get % :empty)))
-                                                       (cursor-range state)))]
-                            (single-mark spec range)
-                            (.-none Decoration))))})))
+            {:create (constantly (.-none Decoration))
+             :update (j/fn [_value ^:js {:keys [state]}]
+                       (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
+                             spec (if Enter mark-spec-highlight mark-spec)]
+                         (if-some [range (when (or (n/embedded? state) (n/within-program? state))
+                                           (cond (and Alt Shift) (top-level-node state)
+                                                 Alt (or (u/guard (main-selection state) #(not (j/get % :empty)))
+                                                         (cursor-range state))))]
+                           (single-mark spec range)
+                           (.-none Decoration))))})))
 
 
 (defn get-region-field [^js state] (.field state region-field))
@@ -114,7 +115,8 @@
                                              (= "Enter" (keyName event)))
                                         (assoc "Enter" true))]
                              (when (not= prev next)
-                               (set-modifier-field! view next))))
+                               (set-modifier-field! view next))
+                             false))
         handle-backspace (j/fn [^:js {:as view :keys [state dispatch]}]
                            (j/let [^:js {:keys [from to]} (current-range state)]
                              (when (not= from to)

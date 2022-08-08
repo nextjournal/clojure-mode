@@ -1,8 +1,6 @@
 (ns nextjournal.clojure-mode.extensions.formatting
   (:require ["@codemirror/language" :as language :refer [IndentContext]]
             ["@codemirror/state" :refer [EditorState Transaction]]
-            ["@codemirror/view" :as view]
-            ["@codemirror/commands" :as commands]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.node :as n]))
@@ -74,7 +72,7 @@
     1))
 
 (defn space-changes [state from to]
-  (let [nodes (->> (n/terminal-nodes (n/tree state) from to)
+  (let [nodes (->> (n/terminal-nodes state from to)
                    (filter #(or (<= from (n/start %) to)
                                 (<= from (n/end %) to)))
                    (reverse))
@@ -126,7 +124,9 @@
                   :insert (spaces state (- indent current-indent))}
             -1 #js{:from (+ from indent)
                    :to (+ from current-indent)}))
-        space-changes (when format-spaces?
+        space-changes (when (and format-spaces?
+                                 (or (n/embedded? state from)
+                                     (n/within-program? state from)))
                         (space-changes state
                                        (+ from current-indent)
                                        (+ from (count text))))]
@@ -149,21 +149,23 @@
 
 (defn format-transaction [^js tr]
   (let [origin (u/get-user-event-annotation tr)]
-    (if-let [changes
-             (case origin
-               ("input" "input.type"
-                "delete"
-                "keyboardselection"
-                "pointerselection" "select.pointer"
-                "cut"
-                "noformat"
-                "evalregion") nil
-               "format-selections" (format-selection (.-state tr))
-               (let [state (.-state tr)
-                     context (make-indent-context state)]
-                 (u/iter-changed-lines tr
-                                       (fn [^js line ^js changes]
-                                         (format-line state context (.-from line) (.-text line) (.-number line) changes true)))))]
+    (if-some [changes
+              (when (n/within-program? (.-startState tr))
+                (case origin
+                  ("input" "input.type"
+                   "delete"
+                   "keyboardselection"
+                   "pointerselection" "select.pointer"
+                   "cut"
+                   "noformat"
+                   "evalregion") nil
+                  "format-selections" (format-selection (.-state tr))
+                  (when-not (.. tr -changes -empty)
+                    (let [state (.-state tr)
+                          context (make-indent-context state)]
+                      (u/iter-changed-lines tr
+                                            (fn [^js line ^js changes]
+                                              (format-line state context (.-from line) (.-text line) (.-number line) changes true)))))))]
       (.. tr -startState (update (j/assoc! changes :filter false)))
       tr)))
 

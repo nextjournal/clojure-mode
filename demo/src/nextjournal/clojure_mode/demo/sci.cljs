@@ -6,11 +6,13 @@
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [sci.core :as sci]))
 
-(defn eval-string [source]
-  (when-some [code (not-empty (str/trim source))]
-    (try {:result (sci/eval-string* @sv/!sci-ctx code)}
-         (catch js/Error e
-           {:error (str (.-message e))}))))
+(defn eval-string
+  ([source] (eval-string @sv/!sci-ctx source))
+  ([ctx source]
+   (when-some [code (not-empty (str/trim source))]
+     (try {:result (sci/eval-string* ctx code)}
+          (catch js/Error e
+            {:error (str (.-message e))})))))
 
 (j/defn eval-at-cursor [on-result ^:js {:keys [state]}]
   (some->> (eval-region/cursor-node-string state)

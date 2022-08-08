@@ -5,6 +5,7 @@
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.commands :as commands]
             [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.livedoc :as livedoc]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]))
 
 (def extensions
@@ -16,6 +17,9 @@
 
 (def apply-f (partial test-utils/apply-f extensions))
 (def apply-cmd (partial test-utils/apply-cmd extensions))
+
+(def apply-embedded-f (partial test-utils/apply-f #js [livedoc/markdown-language-support]))
+(def apply-embedded-cmd (partial test-utils/apply-cmd #js [livedoc/markdown-language-support]))
 
 (do
   (deftest nav
@@ -111,6 +115,15 @@
         "\"| \"" "\"| \""                                   ;; do not delete string with whitespace
         ":x  :a |" ":x  :a|"                                ;; do not format on backspace
         "\"[|]\"" "\"|]\""                                  ;; normal deletion inside strings
+        ))
+
+    (testing "handle backspace (embedded)"
+      (are [input expected]
+        (= (apply-embedded-f close-brackets/handle-backspace input)
+           expected)
+        "```\n()|\n```" "```\n(|)\n```"
+        "```\n[[]]|\n```" "```\n[[]|]\n```"
+        "```\n(| )\n```"  "```\n|\n```"
         )))
 
   (deftest indentSelection
@@ -248,6 +261,15 @@
       "('is-d|ata) :x" 1 "('is-d|ata :x)"
       "('xy|z 1) 2" 1 "('xy|z 1 2)"
       "'ab|c 1" 1 "'ab|c 1"
+      ))
+
+  (deftest slurp-embedded
+    (are [input dir expected]
+      (= (apply-embedded-f (commands/slurp dir) input) expected)
+      "```\n(|) a\n```" 1 "```\n(|a)\n```"
+      "```\n((|)) a\n```" 1 "```\n((|) a)\n```"
+      "```\n(|) ;;comment\na\n```" 1 "```\n(|;;comment\n a)\n```"
+      "```\n('xy|z 1) 2\n```" 1 "```\n('xy|z 1 2)\n```"
       ))
 
   (deftest barf

@@ -2,6 +2,7 @@
     "dependencies": {
         "@codemirror/autocomplete": "^6.0.2",
         "@codemirror/commands": "^6.0.0",
+        "@codemirror/lang-markdown": "6.0.0",
         "@codemirror/language": "^6.1.0",
         "@codemirror/lint": "^6.0.0",
         "@codemirror/search": "^6.0.0",
@@ -18,16 +19,17 @@
         "lezer-clojure": "1.0.0-rc.2",
         "markdown-it": "12.3.2",
         "markdown-it-block-image": "0.0.3",
-        "markdown-it-sidenote": "gerwitz/markdown-it-sidenote#0b4ffb98ae6d013072f79a832785225c05dd1f29",
+        "markdown-it-sidenote": "gerwitz/markdown-it-sidenote#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083",
         "markdown-it-texmath": "0.9.1",
         "markdown-it-toc-done-right": "4.2.0",
+        "punycode": "2.1.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "w3c-keyname": "^2.2.4"
     },
     "scripts": {
-        "watch": "shadow-cljs -A:demo watch demo test",
-        "build": "shadow-cljs -A:demo release demo",
+        "watch": "bb copy-viewer-css && shadow-cljs -A:demo watch demo livedoc test",
+        "build": "shadow-cljs -A:demo release demo livedoc",
         "test": "shadow-cljs -A:dev release ci-test && node out/node-tests.js",
         "watch2": "git ls-files | entr yarn test"
     },

@@ -7,11 +7,20 @@
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]))
 
+
 (defn view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
-    (some-> (f state)
-            (dispatch))
+    (some-> (f state) (dispatch))
     true))
+
+;; some commands won't make sense when clojure is embedded into other languages
+;; in which case we want default commands/envent-handling applied
+(defn scoped-view-command [f]
+  (j/fn [^:js {:keys [^js state dispatch]}]
+    (if (n/within-program? state)
+      (do (some-> (f state) (dispatch))
+          true)
+      false)))
 
 (defn unwrap* [state]
   (u/update-ranges state
@@ -79,11 +88,11 @@
   (let [ctx (format/make-indent-context state)]
     (u/update-ranges state
       (j/fn [^:js {:as range :keys [from to empty]}]
-        (let [indent-at (-> (n/closest (n/tree state from) (some-fn n/coll? n/top?))
-                            n/inner-span
-                            n/start)
-              indent (format/get-indentation ctx indent-at)
-              insertion (str \newline (format/spaces state indent))]
+        (let [indent-at (some-> (n/closest (n/tree state from) (some-fn n/coll? n/top?))
+                          n/inner-span
+                          n/start)
+              indent (when indent-at (format/get-indentation ctx indent-at))
+              insertion (str \newline (when indent (format/spaces state indent)))]
           {:cursor (+ from (count insertion))
            :changes [{:from from
                       :to to
@@ -237,7 +246,7 @@
 
 (def indent (view-command format/format))
 (def unwrap (view-command unwrap*))
-(def kill (view-command kill*))
+(def kill (scoped-view-command kill*))
 (def nav-right (view-command (nav 1)))
 (def nav-left (view-command (nav -1)))
 (def nav-select-right (view-command (nav-select 1)))
