@@ -7,7 +7,7 @@
 
   :demo {:extra-paths ["demo/src" "demo/notebooks"]
          :jvm-opts ["-Dpolyglot.engine.WarnInterpreterOnly=false"]
-         :extra-deps {org.babashka/sci {:mvn/version "0.3.5"}
+         :extra-deps {org.babashka/sci {:mvn/version "0.3.32"}
                       reagent/reagent {:mvn/version "1.1.1"}
                       io.github.nextjournal/clerk {#_#_ :local/root "../clerk"
                                                    :git/sha "2fbd6f08fea2f736faae2e0cc46c435dce8a23f0"}

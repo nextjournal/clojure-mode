@@ -12,7 +12,8 @@
    [reagent.dom :as rdom]
    [shadow.resource :as rc]
    [reagent.core :as r]
-   [sci.core :as sci]))
+   [sci.core :as sci]
+   [sci.async :as scia]))
 
 (defn result-view [r]
   (when-some [{:keys [error result]} r]
@@ -77,8 +78,14 @@
                           ;; each cell is assigned a `state` reagent atom
                           :eval-fn!
                           (fn [state]
-                            (swap! state (fn [{:as s :keys [text]}]
-                                           (assoc s :result (demo.sci/eval-string ctx text)))))
+                            (let [{:as s :keys [text]} @state]
+                              (when (seq (str/trim text))
+                                (.. (scia/eval-string* ctx text)
+                                    (then (fn [res]
+                                            (swap! state assoc :result {:result res})))
+                                    (catch (fn [e]
+                                             (js/console.log :e (.-message e))
+                                             ))))))
 
                           :render
                           (fn [state]
