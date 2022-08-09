@@ -89,8 +89,7 @@
                                  (case type
                                    :markdown
                                    [:div.p-3.rounded.border
-                                    [:div.max-w-prose
-                                     [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]]
+                                    [sv/inspect-paginated (v/with-viewer :markdown (:text @state))]]
 
                                    :code
                                    [:<>

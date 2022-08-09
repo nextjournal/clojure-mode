@@ -18,7 +18,7 @@
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
-(declare state->blocks block-opts->decoration get-blocks)
+(declare state->blocks block-opts->decoration get-blocks eval-all! eval-widget!)
 
 ;; Helpers
 (defn doc? [^js node] (== (.-Document lezer-markdown/parser.nodeTypes) (.. node -type -id)))
@@ -91,13 +91,17 @@
 ;;       :doc-changed? Boolean }
 
 (defn decorate [state] (.set Decoration (state->blocks state)))
+(defn decorate+eval! [state] (eval-all! state (.set Decoration (state->blocks state))))
 
 (defn edit-gap-blocks [{:keys [edit-from blocks]} state]
   (when edit-from
-    (state->blocks state
-                   {:from edit-from
-                    :to (or (:from (some (when-fn #(< edit-from (:from %))) (rangeset-seq blocks edit-from)))
-                            (.. state -doc -length))})))
+    (let [bs (state->blocks state
+                            {:from edit-from
+                             :to (or (:from (some (when-fn #(< edit-from (:from %))) (rangeset-seq blocks edit-from)))
+                                     (.. state -doc -length))})]
+
+      (doseq [^js b bs] (eval-widget! state (.. b -value -widget)))
+      bs)))
 
 (defn edit-at [{:as doc :keys [selected blocks edit-from]} ^js tr pos]
   ;; we patch the existing decoration with blocks arising from last editable region
@@ -133,7 +137,7 @@
 (defn preview-all+select+eval [doc tr]
   ;; rebuild all decorations to get new selection right (investigate filter/add)
   (-> doc
-      (assoc :blocks (decorate (.-state tr)))
+      (assoc :blocks (decorate+eval! (.-state tr)))
       (set-selected (->cursor-pos (.-state tr)))
       (dissoc :edit-all? :doc-changed? :edit-from)))
 
@@ -166,13 +170,13 @@
   doc)
 
 ;; eval
-(defn eval-block! [state {:keys [val]}]
-  (when (= :code (:type @(.. val -widget -state)))
+(defn eval-widget! [state ^js widget]
+  (when (= :code (:type @(.-state widget)))
     (when-some [eval-fn! (config-get state :eval-fn!)]
-      (eval-fn! (.. val -widget -state)))))
+      (eval-fn! (.-state widget)))))
 
 (defn eval-all! [state blocks]
-  (doseq [b (rangeset-seq blocks)] (eval-block! state b))
+  (doseq [{:keys [^js val]} (rangeset-seq blocks)] (eval-widget! state (.-widget val)))
   blocks)
 
 (defn preview+eval [{:as doc :keys [selected edit-from edit-all? blocks]} tr all?]
@@ -184,8 +188,8 @@
               all?
               (eval-all! (.-state tr) blocks)
               (and selected (not all?))
-              (when-some [block (nth (rangeset-seq blocks) selected)]
-                (eval-block! (.-state tr) block)))
+              (when-some [{:keys [^js val]} (nth (rangeset-seq blocks) selected)]
+                (eval-widget! (.-state tr) (.-widget val))))
             doc)))
 
 ;; Doc State Field
@@ -194,7 +198,7 @@
   (.define StateField
            (j/obj
             :provide (fn [field] (.. EditorView -decorations (from field #(get % :blocks))))
-            :create (fn [cm-state] {:selected 0 :blocks (decorate cm-state)})
+            :create (fn [cm-state] {:selected 0 :blocks (decorate+eval! cm-state)})
             :update (fn [{:as doc :keys [edit-all?]} ^js tr]
                       (let [{:as apply-op :keys [op args]} (get-effect-value tr doc-apply-op)
                             {:as me :strs [Meta Shift]} (get-effect-value tr eval-region/modifier-effect)]
@@ -218,8 +222,6 @@
         editor-state (.-state view)
         widget-state (.-state widget)
         render (config-get editor-state :render)]
-    ;; always eval once on decoration construction
-    (when-some [eval-fn! (config-get editor-state :eval-fn!)] (eval-fn! widget-state))
     (rdom/render [:div.cursor-pointer
                   {:on-click (fn [_e]
                                ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
