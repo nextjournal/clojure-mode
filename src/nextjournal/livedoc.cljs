@@ -222,7 +222,6 @@
         editor-state (.-state view)
         widget-state (.-state widget)
         render (config-get editor-state :render)]
-    ;; always eval once on decoration construction
     (rdom/render [:div.cursor-pointer
                   {:on-click (fn [_e]
                                ;; since decorations might have been mapped since widget creation we cannot argue by range from/to
