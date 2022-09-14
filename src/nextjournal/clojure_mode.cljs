@@ -12,6 +12,7 @@
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.test-utils :as test-utils]))
 
+(def format-props format/props)
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
                                      :to (dec (n/end tree))})]
@@ -52,7 +53,7 @@
   ([] (syntax parser))
   ([^js parser]
    (.define LRLanguage
-            #js {:parser (.configure parser #js {:props #js [format/props
+            #js {:parser (.configure parser #js {:props #js [format-props
                                                              (.add language/foldNodeProp fold-node-props)
                                                              (highlight/styleTags style-tags)]})})))
 
@@ -60,13 +61,19 @@
 (def ^js/Array builtin-keymap keymap/builtin)
 (def ^js/Array paredit-keymap keymap/paredit)
 
+(def match-brackets match-brackets/extension)
+(def close-brackets close-brackets/extension)
+(def selection-history sel-history/extension)
+(def format-changed-lines format/ext-format-changed-lines)
+(def eval-region eval-region/extension)
+
 (def default-extensions
   #js[(syntax lezer-clj/parser)
-      (close-brackets/extension)
-      (match-brackets/extension)
-      (sel-history/extension)
-      (format/ext-format-changed-lines)
-      (eval-region/extension {:modifier "Alt"})])
+      (match-brackets)
+      (close-brackets)
+      (selection-history)
+      (format-changed-lines)
+      (eval-region {:modifier "Alt"})])
 
 (def language-support
   "Eases embedding clojure mode into other languages (e.g. markdown).
