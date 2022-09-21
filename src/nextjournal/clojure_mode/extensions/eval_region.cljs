@@ -97,12 +97,18 @@
               (u/guard #(j/get % :value)))
       (.. state -selection -main)))
 
-(defn modifier-extension
+(defn extension
   "Maintains modifier-state-field, containing a map of {<modifier> true}, including Enter."
-  [modifier]
+  [{:keys [modifier
+           eval-string!]
+    :or {modifier "Alt"}}]
   (let [handle-enter (j/fn handle-enter [^:js {:as view :keys [state]}]
                        (set-modifier-field! view (assoc (get-modifier-field state) "Enter" true))
-                       nil)
+                       (when-let [source (and eval-string!
+                                              (-> (u/range-str state (current-range state))
+                                                  (u/guard (complement str/blank?))))]
+                         (eval-string! source)
+                         true))
         handle-key-event (j/fn [^:js {:as event :keys [altKey shiftKey metaKey controlKey type]}
                                 ^:js {:as view :keys [state]}]
                            (let [prev (get-modifier-field state)
@@ -123,7 +129,9 @@
                                (dispatch (j/lit {:changes {:from from :to to :insert ""}
                                                  :annotations (u/user-event-annotation "delete")})))
                              true))]
-    #js[modifier-field
+    #js[region-field
+        (.. EditorView -decorations (from region-field))
+        modifier-field
         (.of keymap
              (j/lit [{:key   (str modifier "-Enter")
                       :shift handle-enter
@@ -134,12 +142,6 @@
         (.domEventHandlers view/EditorView
                            #js{:keydown handle-key-event
                                :keyup   handle-key-event})]))
-
-(defn extension [{:keys [modifier]
-                  :or   {modifier "Alt"}}]
-  #js[(modifier-extension modifier)
-      region-field
-      (.. EditorView -decorations (from region-field))])
 
 (defn cursor-node-string [^js state]
   (u/guard (some->> (node-at-cursor state)
