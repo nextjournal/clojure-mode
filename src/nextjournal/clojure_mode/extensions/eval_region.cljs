@@ -66,8 +66,11 @@
 (defn single-mark [spec range]
   (.set Decoration #js[(mark spec range)]))
 
-(defonce mark-spec (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.14);"}}))
-(defonce mark-spec-highlight (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.35);"}}))
+
+;; TODO - parameterize mark colors
+(defonce mark:none (j/lit {:attributes {:style {}}}))
+(defonce mark:selected (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.14);"}}))
+(defonce mark:evaluating (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.35);"}}))
 
 (defn cursor-range [^js state]
   (if (.. state -selection -main -empty)
@@ -79,12 +82,14 @@
            (j/lit
             {:create (constantly (.-none Decoration))
              :update (j/fn [_value ^:js {:keys [state]}]
-                       (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
-                             spec (if Enter mark-spec-highlight mark-spec)]
-                         (if-some [range (when (or (n/embedded? state) (n/within-program? state))
-                                           (cond (and Alt Shift) (top-level-node state)
-                                                 Alt (or (u/guard (main-selection state) #(not (j/get % :empty)))
-                                                         (cursor-range state))))]
+                       (let [{:strs [Alt Shift Enter]} (get-modifier-field state)]
+                         (if-some [[spec range] (when (or (n/embedded? state) (n/within-program? state))
+                                                  (cond (and Alt Shift) [mark:selected (top-level-node state)]
+                                                        (and Enter Shift) [mark:selected (top-level-node state)]
+                                                        Shift [mark:none (j/lit {:from 0 :to (.. state -doc -length)})]
+                                                        Alt (when-let [range (or (u/guard (main-selection state) (complement (j/get :empty)))
+                                                                                 (cursor-range state))]
+                                                              [mark:selected range])))]
                            (single-mark spec range)
                            (.-none Decoration))))})))
 
@@ -100,14 +105,12 @@
 (defn extension
   "Maintains modifier-state-field, containing a map of {<modifier> true}, including Enter."
   [{:keys [modifier
-           eval-string!]
+           on-enter]
     :or {modifier "Alt"}}]
   (let [handle-enter (j/fn handle-enter [^:js {:as view :keys [state]}]
-                       (set-modifier-field! view (assoc (get-modifier-field state) "Enter" true))
-                       (when-let [source (and eval-string!
-                                              (-> (u/range-str state (current-range state))
-                                                  (u/guard (complement str/blank?))))]
-                         (eval-string! source)
+                       (when on-enter
+                         (set-modifier-field! view (assoc (get-modifier-field state) "Enter" true))
+                         (on-enter (u/range-str state (current-range state)))
                          true))
         handle-key-event (j/fn [^:js {:as event :keys [altKey shiftKey metaKey controlKey type]}
                                 ^:js {:as view :keys [state]}]
@@ -134,6 +137,9 @@
         modifier-field
         (.of keymap
              (j/lit [{:key   (str modifier "-Enter")
+                      :shift handle-enter
+                      :run   handle-enter}
+                     {:key   "Enter"
                       :shift handle-enter
                       :run   handle-enter}
                      {:key (str modifier "-Backspace")
