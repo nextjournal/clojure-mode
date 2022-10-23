@@ -68,7 +68,7 @@
 
 
 ;; TODO - parameterize mark colors
-(defonce mark:none (j/lit {:attributes {:style {}}}))
+(defonce mark:none (j/lit {:attributes {:style "background-color: transparent;"}}))
 (defonce mark:selected (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.14);"}}))
 (defonce mark:evaluating (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.35);"}}))
 
@@ -102,6 +102,9 @@
               (u/guard #(j/get % :value)))
       (.. state -selection -main)))
 
+(defn current-str [state]
+  (u/range-str state (current-range state)))
+
 (defn extension
   "Maintains modifier-state-field, containing a map of {<modifier> true}, including Enter."
   [{:keys [modifier
@@ -109,9 +112,11 @@
     :or {modifier "Alt"}}]
   (let [handle-enter (j/fn handle-enter [^:js {:as view :keys [state]}]
                        (when on-enter
-                         (set-modifier-field! view (assoc (get-modifier-field state) "Enter" true))
-                         (on-enter (u/range-str state (current-range state)))
-                         true))
+                         (let [mods (get-modifier-field state)]
+                           (set-modifier-field! view (assoc mods "Enter" true))
+                           (on-enter (u/range-str state (current-range state)))
+                           (when (seq mods)
+                             true))))
         handle-key-event (j/fn [^:js {:as event :keys [altKey shiftKey metaKey controlKey type]}
                                 ^:js {:as view :keys [state]}]
                            (let [prev (get-modifier-field state)
