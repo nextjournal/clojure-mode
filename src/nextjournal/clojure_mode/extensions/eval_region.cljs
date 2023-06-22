@@ -79,12 +79,13 @@
            (j/lit
             {:create (constantly (.-none Decoration))
              :update (j/fn [_value ^:js {:keys [state]}]
-                       (let [{:strs [Alt Shift Enter]} (get-modifier-field state)
+                       (let [{:as field :strs [Shift Enter modifier]} (get-modifier-field state)
+                             modifier-pressed? (get field modifier)
                              spec (if Enter mark-spec-highlight mark-spec)]
                          (if-some [range (when (or (n/embedded? state) (n/within-program? state))
-                                           (cond (and Alt Shift) (top-level-node state)
-                                                 Alt (or (u/guard (main-selection state) #(not (j/get % :empty)))
-                                                         (cursor-range state))))]
+                                           (cond (and modifier-pressed? Shift) (top-level-node state)
+                                                 modifier-pressed? (or (u/guard (main-selection state) #(not (j/get % :empty)))
+                                                                       (cursor-range state))))]
                            (single-mark spec range)
                            (.-none Decoration))))})))
 
@@ -106,7 +107,7 @@
         handle-key-event (j/fn [^:js {:as event :keys [altKey shiftKey metaKey controlKey type]}
                                 ^:js {:as view :keys [state]}]
                            (let [prev (get-modifier-field state)
-                                 next (cond-> {}
+                                 next (cond-> {"modifier" modifier}
                                         altKey (assoc "Alt" true)
                                         shiftKey (assoc "Shift" true)
                                         metaKey (assoc "Meta" true)
