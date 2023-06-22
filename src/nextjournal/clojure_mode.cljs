@@ -7,7 +7,6 @@
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
-            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.test-utils :as test-utils]))
@@ -65,8 +64,7 @@
       (close-brackets/extension)
       (match-brackets/extension)
       (sel-history/extension)
-      (format/ext-format-changed-lines)
-      (eval-region/extension {:modifier "Alt"})])
+      (format/ext-format-changed-lines)])
 
 (def language-support
   "Eases embedding clojure mode into other languages (e.g. markdown).
