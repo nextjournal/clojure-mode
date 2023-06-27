@@ -1,8 +1,11 @@
 (ns nextjournal.clojure-mode.demo
   (:require ["@codemirror/commands" :refer [history historyKeymap]]
-            ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
+            ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle LRLanguage]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
+            ["@lezer/common" :refer [parseMixed]]
+            ["@lezer/generator" :as lg]
+            ["@codemirror/lang-markdown" :as lezer-md]
             ["react" :as react]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
@@ -13,6 +16,7 @@
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
+            [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.test-utils :as test-utils]
             [nextjournal.livedoc :as livedoc]
             [reagent.core :as r]
@@ -38,6 +42,20 @@
                   ;; only show cursor when focused
                   ".cm-cursor" {:visibility "hidden"}
                   "&.cm-focused .cm-cursor" {:visibility "visible"}})))
+
+(def parser
+  (lg/buildParser
+   (rc/inline "./clojure.grammar")
+   #js{:externalProp n/node-prop}))
+
+(def mixed-clojure-parser
+  (.configure parser #js {:wrap (parseMixed (fn [node]
+                                              (when (= (.-name node) "LineComment") lezer-md/parser)))}))
+(def mixed-clojure
+  (.define LRLanguage #js {:parser mixed-clojure-parser}))
+
+(comment
+  (js/console.log (.toString (.parse mixed-clojure-parser sample-source))))
 
 (defonce extensions #js[theme
                         (history)
@@ -102,6 +120,7 @@
                                                                                       (seq extensions)
                                                                                       (concat extensions))))))))))}])
 
+
 (defn samples []
   (into [:<>]
         (for [source ["(comment
@@ -111,6 +130,12 @@
   (fizz-buzz 15)
   (fizz-buzz 17)
   (fizz-buzz 42))
+
+;; # Here is a Markdown comment
+;; with [links](https://clerk.vision) and *boldness** and *emphasis*;
+;; and with lists, of course:
+;; * Buy milk,
+;; * then throw it away.
 
 (defn fizz-buzz [n]
   (condp (fn [a b] (zero? (mod b a))) n

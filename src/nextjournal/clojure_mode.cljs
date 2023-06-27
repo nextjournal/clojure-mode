@@ -1,7 +1,9 @@
 (ns nextjournal.clojure-mode
   (:require ["@lezer/highlight" :as highlight :refer [tags]]
+            ["@lezer/common" :refer [parseMixed]]
             ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
+            ["@codemirror/lang-markdown" :as lezer-md]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
@@ -53,7 +55,9 @@
    (.define LRLanguage
             #js {:parser (.configure parser #js {:props #js [format/props
                                                              (.add language/foldNodeProp fold-node-props)
-                                                             (highlight/styleTags style-tags)]})})))
+                                                             (highlight/styleTags style-tags)]
+                                                 :wrap (parseMixed (fn [node]
+                                                                     (when (= (.-name node) "LineComment") lezer-md/parser)))})})))
 
 (def ^js/Array complete-keymap keymap/complete)
 (def ^js/Array builtin-keymap keymap/builtin)
