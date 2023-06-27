@@ -5,7 +5,7 @@
             ["@codemirror/view" :as view :refer [EditorView]]
             ["@lezer/common" :refer [parseMixed]]
             ["@lezer/generator" :as lg]
-            ["@codemirror/lang-markdown" :as lezer-md]
+            ["@codemirror/lang-markdown" :as lang-markdown]
             ["react" :as react]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
@@ -50,12 +50,17 @@
 
 (def mixed-clojure-parser
   (.configure parser #js {:wrap (parseMixed (fn [node]
-                                              (when (= (.-name node) "LineComment") lezer-md/parser)))}))
+                                              (if (= (.-name node) "LineComment")
+                                                (do (js/console.log :node node)
+                                                    (.-markdownLanguage lang-markdown))
+                                                nil)))}))
 (def mixed-clojure
   (.define LRLanguage #js {:parser mixed-clojure-parser}))
 
 (comment
-  (js/console.log (.toString (.parse mixed-clojure-parser sample-source))))
+  (js/console.log (.toString (.parse mixed-clojure-parser ";; # Hello
+(def x 1)
+;; some [nice](link)"))))
 
 (defonce extensions #js[theme
                         (history)
