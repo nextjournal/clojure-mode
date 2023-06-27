@@ -41,6 +41,8 @@ VarName { Symbol }
   ReaderMetadata[prefixColl] { "#^" expression }
   Metadata[prefixColl] { "^" expression }
   String { '"' StringContent? '"' }
+
+  LineComment { ';;' CommentText? }
 }
 
 Meta[prefixContainer]<t> { (Metadata | ReaderMetadata) !meta t }
@@ -90,7 +92,7 @@ Operator { !operator Symbol }
 
   whitespace { (std.whitespace | ",")+ }
 
-  LineComment { ";" ![\n]* }
+  CommentText { ![\n]+ }
 
   // https://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.8
   // class or constructor names
