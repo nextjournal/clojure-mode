@@ -42,7 +42,7 @@ VarName { Symbol }
   Metadata[prefixColl] { "^" expression }
   String { '"' StringContent? '"' }
 
-  LineComment { ';;' CommentText? }
+  LineComment { (';' | ';;') CommentText? }
 }
 
 Meta[prefixContainer]<t> { (Metadata | ReaderMetadata) !meta t }
