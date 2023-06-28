@@ -1,14 +1,15 @@
 (ns nextjournal.clojure-mode
   (:require ["@lezer/highlight" :as highlight :refer [tags]]
-            ["@lezer/common" :refer [parseMixed]]
             ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
+            ["@codemirror/lang-markdown" :as lang-markdown]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            ["@codemirror/lang-markdown" :as lezer-md]
+            ["@lezer/common" :refer [parseMixed]]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
+            [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.test-utils :as test-utils]))
@@ -55,9 +56,7 @@
    (.define LRLanguage
             #js {:parser (.configure parser #js {:props #js [format/props
                                                              (.add language/foldNodeProp fold-node-props)
-                                                             (highlight/styleTags style-tags)]
-                                                 :wrap (parseMixed (fn [node]
-                                                                     (when (= (.-name node) "LineComment") lezer-md/parser)))})})))
+                                                             (highlight/styleTags style-tags)]})})))
 
 (def ^js/Array complete-keymap keymap/complete)
 (def ^js/Array builtin-keymap keymap/builtin)
@@ -69,6 +68,23 @@
       (match-brackets/extension)
       (sel-history/extension)
       (format/ext-format-changed-lines)])
+
+(def mixed-parser
+  ;; TODO: fit changes in live grammar into lezer-clojure
+  (.configure live-grammar/parser
+              #js {:wrap (parseMixed (fn [node]
+                                       (when (= (.-name node) "CommentText")
+                                         (.-markdownLanguage lang-markdown))))}))
+
+(def mixed-parsing-default-extensions
+  #js[(syntax mixed-parser)
+      (.slice default-extensions 1)])
+
+(comment
+  (js/console.log :mixed-clojure (.toString (.parse mixed-parser ";; # Helo
+(def x \"x\")
+;; this [link](/foo/bar) **should** be markdown
+"))))
 
 (def language-support
   "Eases embedding clojure mode into other languages (e.g. markdown).

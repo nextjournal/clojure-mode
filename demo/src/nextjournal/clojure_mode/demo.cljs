@@ -5,7 +5,6 @@
             ["@codemirror/view" :as view :refer [EditorView]]
             ["@lezer/common" :refer [parseMixed]]
             ["@lezer/generator" :as lg]
-            ["@codemirror/lang-markdown" :as lang-markdown]
             ["react" :as react]
             [applied-science.js-interop :as j]
             [clojure.string :as str]
@@ -43,40 +42,6 @@
                   ".cm-cursor" {:visibility "hidden"}
                   "&.cm-focused .cm-cursor" {:visibility "visible"}})))
 
-(def parser
-  (lg/buildParser
-   (rc/inline "./clojure.grammar")
-   #js{:externalProp n/node-prop}))
-
-(def sample-code
-  ";; # Hello
-(def x 1)
-;; some [nice](link)")
-
-(def tree (.parse parser sample-code))
-
-(comment
-  (js/console.log :plain-clojure (.toString tree))
-
-  (.iterate (n/cursor tree)
-            (fn [node]
-              (js/console.log :node (n/name node) node)
-              true)))
-
-
-
-(def mixed-clojure-parser
-  (.configure parser #js {:wrap (parseMixed (fn [node]
-                                              (if (= (.-name node) "CommentText")
-                                                (do (js/console.log :node node)
-                                                    (.-markdownLanguage lang-markdown))
-                                                nil)))}))
-(def mixed-clojure
-  (.define LRLanguage #js {:parser mixed-clojure-parser}))
-
-(comment
-  (js/console.log :mixed-clojure (.toString (.parse mixed-clojure-parser sample-code))))
-
 (defonce extensions #js[theme
                         (history)
                         (syntaxHighlighting defaultHighlightStyle)
@@ -87,7 +52,8 @@
                           ;; use live-reloading grammar
                           #js[(cm-clj/syntax live-grammar/parser)
                               (.slice cm-clj/default-extensions 1)]
-                          cm-clj/default-extensions)
+                          cm-clj/mixed-parsing-default-extensions)
+
                         (.of view/keymap cm-clj/complete-keymap)
                         (.of view/keymap historyKeymap)])
 
