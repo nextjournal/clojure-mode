@@ -1,18 +1,16 @@
 (ns nextjournal.clojure-mode
   (:require ["@lezer/highlight" :as highlight :refer [tags]]
             ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
-            ["lezer-clojure" :as lezer-clj]
+            ["@nextjournal/lezer-clojure" :as lezer-clj]
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
-            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.test-utils :as test-utils]))
 
-(def format-props format/props)
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
                                      :to (dec (n/end tree))})]
@@ -53,7 +51,7 @@
   ([] (syntax parser))
   ([^js parser]
    (.define LRLanguage
-            #js {:parser (.configure parser #js {:props #js [format-props
+            #js {:parser (.configure parser #js {:props #js [format/props
                                                              (.add language/foldNodeProp fold-node-props)
                                                              (highlight/styleTags style-tags)]})})))
 
@@ -61,19 +59,12 @@
 (def ^js/Array builtin-keymap keymap/builtin)
 (def ^js/Array paredit-keymap keymap/paredit)
 
-(def match-brackets match-brackets/extension)
-(def close-brackets close-brackets/extension)
-(def selection-history sel-history/extension)
-(def format-changed-lines format/ext-format-changed-lines)
-(def eval-region eval-region/extension)
-
 (def default-extensions
   #js[(syntax lezer-clj/parser)
-      (match-brackets)
-      (close-brackets)
-      (selection-history)
-      (format-changed-lines)
-      (eval-region {:modifier "Alt"})])
+      (close-brackets/extension)
+      (match-brackets/extension)
+      (sel-history/extension)
+      (format/ext-format-changed-lines)])
 
 (def language-support
   "Eases embedding clojure mode into other languages (e.g. markdown).

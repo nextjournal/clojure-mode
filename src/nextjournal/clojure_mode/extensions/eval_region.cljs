@@ -70,7 +70,6 @@
 ;; TODO - parameterize mark colors
 (defonce mark:none (j/lit {:attributes {:style "background-color: transparent;"}}))
 (defonce mark:selected (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.14);"}}))
-(defonce mark:evaluating (j/lit {:attributes {:style "background-color: rgba(0, 243, 255, 0.35);"}}))
 
 (defn cursor-range [^js state]
   (if (.. state -selection -main -empty)
@@ -82,12 +81,12 @@
            (j/lit
             {:create (constantly (.-none Decoration))
              :update (j/fn [_value ^:js {:keys [state]}]
-                       (let [{:strs [Alt Shift Enter]} (get-modifier-field state)]
+                       (let [{:strs [RegionModifier Shift Enter]} (get-modifier-field state)]
                          (if-some [[spec range] (when (or (n/embedded? state) (n/within-program? state))
-                                                  (cond (and Alt Shift) [mark:selected (top-level-node state)]
+                                                  (cond (and RegionModifier Shift) [mark:selected (top-level-node state)]
                                                         (and Enter Shift) [mark:selected (top-level-node state)]
                                                         Shift [mark:none (j/lit {:from 0 :to (.. state -doc -length)})]
-                                                        Alt (when-let [range (or (u/guard (main-selection state) (complement (j/get :empty)))
+                                                        RegionModifier (when-let [range (or (u/guard (main-selection state) (complement (j/get :empty)))
                                                                                  (cursor-range state))]
                                                               [mark:selected range])))]
                            (single-mark spec range)
@@ -105,7 +104,7 @@
 (defn current-str [state]
   (u/range-str state (current-range state)))
 
-(defn extension
+(defn modifier-extension
   "Maintains modifier-state-field, containing a map of {<modifier> true}, including Enter."
   [{:keys [modifier
            on-enter]
@@ -127,7 +126,10 @@
                                         controlKey (assoc "Control" true)
                                         (and (= "keydown" type)
                                              (= "Enter" (keyName event)))
-                                        (assoc "Enter" true))]
+                                        (assoc "Enter" true))
+                                 next (if (get next modifier)
+                                        (assoc next "RegionModifier" true)
+                                        next)]
                              (when (not= prev next)
                                (set-modifier-field! view next))
                              false))
@@ -137,9 +139,7 @@
                                (dispatch (j/lit {:changes {:from from :to to :insert ""}
                                                  :annotations (u/user-event-annotation "delete")})))
                              true))]
-    #js[region-field
-        (.. EditorView -decorations (from region-field))
-        modifier-field
+    #js[modifier-field
         (.of keymap
              (j/lit [{:key   (str modifier "-Enter")
                       :shift handle-enter
@@ -153,6 +153,12 @@
         (.domEventHandlers view/EditorView
                            #js{:keydown handle-key-event
                                :keyup   handle-key-event})]))
+
+(defn extension [{:keys [modifier]
+                  :or   {modifier "Alt"}}]
+  #js[(modifier-extension modifier)
+      region-field
+      (.. EditorView -decorations (from region-field))])
 
 (defn cursor-node-string [^js state]
   (u/guard (some->> (node-at-cursor state)

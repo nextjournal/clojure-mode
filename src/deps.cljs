@@ -11,5 +11,5 @@
   "@lezer/generator" "^1.0.0"
   "@lezer/highlight" "^1.0.0"
   "@lezer/lr" "^1.0.0"
-  "lezer-clojure" "1.0.0-rc.2"
+  "@nextjournal/lezer-clojure" "1.0.0"
   "w3c-keyname" "^2.2.4"}}

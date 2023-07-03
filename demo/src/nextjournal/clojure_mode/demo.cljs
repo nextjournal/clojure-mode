@@ -1,22 +1,23 @@
 (ns nextjournal.clojure-mode.demo
-  (:require ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
-            ["@codemirror/commands" :refer [history historyKeymap]]
+  (:require ["@codemirror/commands" :refer [history historyKeymap]]
+            ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
+            ["react" :as react]
+            [applied-science.js-interop :as j]
+            [clojure.string :as str]
             [nextjournal.clerk.sci-viewer :as sv]
             [nextjournal.clerk.viewer :as v]
-            [applied-science.js-interop :as j]
-            [shadow.resource :as rc]
-            [clojure.string :as str]
             [nextjournal.clojure-mode :as cm-clj]
-            [nextjournal.livedoc :as livedoc]
             [nextjournal.clojure-mode.demo.sci :as demo.sci]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
             [nextjournal.clojure-mode.test-utils :as test-utils]
-            ["react" :as react]
+            [nextjournal.livedoc :as livedoc]
             [reagent.core :as r]
-            [reagent.dom :as rdom]))
+            [reagent.dom :as rdom]
+            [shadow.resource :as rc]))
 
 (def theme
   (.theme EditorView
@@ -62,7 +63,8 @@
                                              (j/obj :state
                                                     (test-utils/make-state
                                                      (cond-> #js [extensions]
-                                                       eval? (.concat #js [(demo.sci/extension {:modifier "Alt"
+                                                       eval? (.concat #js [(eval-region/extension {:modifier "Alt"})
+                                                                           (demo.sci/extension {:modifier "Alt"
                                                                                                 :on-result (partial reset! last-result)})]))
                                                      source)
                                                     :parent el)))))]
@@ -78,7 +80,7 @@
             (react/isValidElement result) result
             'else (sv/inspect-paginated result)))])]
     (finally
-     (j/call @!view :destroy))))
+      (j/call @!view :destroy))))
 
 ;;  Markdown editors
 (defn markdown-editor [{:keys [doc extensions]}]
