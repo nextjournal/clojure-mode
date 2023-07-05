@@ -32,8 +32,7 @@ Enabling a decent Clojure/Script editor experience in the browser. Built for and
 ### Include it in your `deps.edn`
 
 ```clojure
-{:deps {nextjournal.clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
-                                  :sha "SHA"}}}
+{:deps {io.github.nextjournal/clojure-mode {:git/sha "<SHA>"}}}
 ```
 
 ## 🛠 Development Setup
