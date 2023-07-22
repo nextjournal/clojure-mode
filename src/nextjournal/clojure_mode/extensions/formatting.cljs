@@ -1,7 +1,8 @@
 (ns nextjournal.clojure-mode.extensions.formatting
   (:require ["@codemirror/language" :as language :refer [IndentContext]]
-            ["@codemirror/state" :refer [EditorState Transaction]]
+            ["@codemirror/state" :as cm.state :refer [EditorState Transaction]]
             [applied-science.js-interop :as j]
+            [clojure.string :as str]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.node :as n]))
 
@@ -16,22 +17,77 @@
 (defn spaces [^js state n]
   (.indentString language state n))
 
+(defn node-line-number [^js state ^js node] (.. state -doc (lineAt (.-from node)) -number))
+
+(def indentation-config*
+  '{assoc 2
+    assoc-in 2
+    do :body
+    let :body
+    when :body
+    cond :body
+    as-> :body
+    cond-> :body
+    case :body
+    -> 1
+    ->> 1
+    })
+
+(defn indentation-config [sym]
+  (let [s (str sym)]
+    ;; TODO
+    ;; - populate with community standards
+
+    (or (indentation-config* sym)
+        (cond
+          (str/starts-with? s "with-") :body
+          (re-find #"\b(?:let|while|loop|binding)$" s) :body
+          (str/starts-with? s "def") :body
+          (re-find #"\-\-?>$" s) 1                          ;; threading
+          (re-find #"\-in!?$" s) 2
+          :else 1))))
+
+(j/defn indent-number [^js {:as context :keys [state]} operator indent-until]
+  (let [line (node-line-number state operator)
+        on-this-line (into []
+                           (comp (take-while (every-pred identity
+                                                         (complement n/end-edge?)
+                                                         #(= line (node-line-number state %))))
+                                 (take (inc indent-until)))
+                           (iterate (j/get :nextSibling) operator))]
+    (.column context (-> on-this-line last n/start))))
+
 (j/defn indent-node-props [^:js {type-name :name :as type}]
   (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
-    (cond (= "Program" type-name)
-          0
+    (let [operator (some-> node n/down n/right)
+          operator-type-name (when operator (n/name operator))
+          operator-sym (when (#{"Operator"
+                                "DefLike"
+                                "NS"} operator-type-name)
+                         (symbol (.. state -doc (sliceString (n/start operator) (n/end operator)))))
+          indent-config (some-> operator-sym indentation-config)]
+      (if (= "Program" type-name)
+        0
+        (if (= "List" type-name)
+          (cond (= "Keyword" operator-type-name) (indent-number context operator 1)
+                (= :body indent-config) (.column context (-> node n/down n/end inc))
+                (number? indent-config) (indent-number context operator indent-config)
+                (n/coll-type? type) (+ 1 (.column context (-> node n/down n/end))))
+          (if (n/coll-type? type)
+            (.column context (-> node n/down n/end))
+            -1))))))
 
-          (n/coll-type? type)
-          (cond-> (.column context
-                           (-> node n/down n/end))
-            ;; start at the inner-left edge of the coll.
-            ;; if it's a list beginning with a symbol, add 1 space.
-            (and (= "List" type-name)
-                 (#{"Operator"
-                    "DefLike"
-                    "NS"} (some-> node n/down n/right n/name)))
-            (+ 1))
-          :else -1)))
+(comment
+  ;; TODO
+  (defonce ^js indentation-config-facet
+           ;; use this facet to supply
+           ;; 1) overrides for particular symbols
+           ;; 2) a fn to fully qualify symbols for an editor?
+           (.define cm.state/Facet))
+
+  (defn get-indentation-config [^js state]
+    (.facet state indentation-config-facet))
+  )
 
 (def props (.add language/indentNodeProp
                  indent-node-props))
