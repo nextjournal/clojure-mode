@@ -20,6 +20,7 @@
 (defn node-line-number [^js state ^js node] (.. state -doc (lineAt (.-from node)) -number))
 
 (def indentation-config*
+  ;; TODO extension point
   '{assoc 2
     assoc-in 2
     do :body
@@ -33,55 +34,57 @@
     -> 1
     ->> 1
     })
+(defn indentation-rule [s]
+  (cond
+    (str/starts-with? s "with-") :body
+    (re-find #"\b(?:let|while|loop|binding)$" s) :body
+    (str/starts-with? s "def") :body
+    (re-find #"\-\-?>$" s) 1                                ;; threading
+    (re-find #"\-in!?$" s) 2))
+
+(def body-indent 1)
 
 (defn indentation-config [sym]
-  (let [s (str sym)]
-    ;; TODO
-    ;; - populate with community standards
-    (if sym
+  (when (symbol? sym)
+    (let [s (str sym)]
       (or (indentation-config* sym)
-          (cond
-            (str/starts-with? s "with-") :body
-            (re-find #"\b(?:let|while|loop|binding)$" s) :body
-            (str/starts-with? s "def") :body
-            (re-find #"\-\-?>$" s) 1                        ;; threading
-            (re-find #"\-in!?$" s) 2
-            :else 1))
-      :data)))
+          (indentation-rule s)))))
 
-(j/defn indent-number [^js {:as context :keys [state]} operator operator-sym indent-until]
+(j/defn indent-number [^js {:as context :keys [state]} col-start operator align-with-form body-indent]
   (let [line (node-line-number state operator)
         on-this-line (into []
                            (comp (take-while (every-pred identity
                                                          (complement n/end-edge?)
+                                                         (complement n/line-comment?)
                                                          #(= line (node-line-number state %))))
-                                 (take (inc indent-until)))
+                                 (take (inc align-with-form)))
                            (iterate (j/get :nextSibling) operator))]
-    (cond-> (.column context (-> on-this-line last n/start))
-            (and operator-sym (= 1 (count on-this-line)))
-            inc)))
+    (if (= 1 (count on-this-line))
+      (+ col-start body-indent)
+      (.column context (-> on-this-line last n/start)))))
 
 (j/defn indent-node-props [^:js {type-name :name :as type}]
   (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
-    (let [operator (some-> node n/down n/right)
-          operator-type-name (when operator (n/name operator))
-          operator-sym (when (#{"Operator"
-                                "DefLike"
-                                "NS"
-                                "Symbol"} operator-type-name)
-                         (symbol (.. state -doc (sliceString (n/start operator) (n/end operator)))))
-          indent-config (indentation-config operator-sym)]
-      (if (= "Program" type-name)
-        0
+    (if (= "Program" type-name)
+      0
+      (let [col-start (.column context (-> node n/down n/end))]
         (if (= "List" type-name)
-          (cond (= "Keyword" operator-type-name) (indent-number context operator operator-sym 1)
-                (= :body indent-config) (.column context (-> node n/down n/end inc))
-                (number? indent-config) (indent-number context operator operator-sym indent-config)
-                :else (cond-> (.column context (-> node n/down n/end))
-                              operator-sym
-                              inc))
+          (let [operator (some-> node n/down n/right)
+                operator-type-name (when operator (n/name operator))
+                operator-sym (when (#{"Operator"
+                                      "DefLike"
+                                      "NS"
+                                      "Symbol"} operator-type-name)
+                               (symbol (.. state -doc (sliceString (n/start operator) (n/end operator)))))
+                indent-config (or (indentation-config operator-sym)
+                                  (cond operator-sym 1
+                                        (= "Keyword" operator-type-name) 1
+                                        :else :data))]
+            (cond (number? indent-config) (indent-number context col-start operator indent-config body-indent)
+                  (= :body indent-config) (+ body-indent col-start)
+                  (= :data indent-config) col-start))
           (if (n/coll-type? type)
-            (.column context (-> node n/down n/end))
+            col-start
             -1))))))
 
 (comment
@@ -126,11 +129,11 @@
 (defn expected-space [n1 n2]
   ;;  (prn :expected (map n/name [n1 n2]))
   (if
-   (or
-    (n/start-edge-type? n1)
-    (n/prefix-edge-type? n1)
-    (n/end-edge-type? n2)
-    (n/same-edge-type? n2))
+    (or
+      (n/start-edge-type? n1)
+      (n/prefix-edge-type? n1)
+      (n/end-edge-type? n2)
+      (n/same-edge-type? n2))
     0
     1))
 
@@ -194,8 +197,8 @@
                                        (+ from current-indent)
                                        (+ from (count text))))]
     (cond-> changes
-      space-changes (into-arr space-changes)
-      indentation-change (j/push! indentation-change))))
+            space-changes (into-arr space-changes)
+            indentation-change (j/push! indentation-change))))
 
 (defn format-selection
   [^js state]
@@ -216,12 +219,12 @@
               (when (n/within-program? (.-startState tr))
                 (case origin
                   ("input" "input.type"
-                   "delete"
-                   "keyboardselection"
-                   "pointerselection" "select.pointer"
-                   "cut"
-                   "noformat"
-                   "evalregion") nil
+                    "delete"
+                    "keyboardselection"
+                    "pointerselection" "select.pointer"
+                    "cut"
+                    "noformat"
+                    "evalregion") nil
                   "format-selections" (format-selection (.-state tr))
                   (when-not (.. tr -changes -empty)
                     (let [state (.-state tr)
@@ -239,6 +242,6 @@
 
 (defn prefix-all [prefix state]
   (u/update-lines state
-    (fn [from _ _] #js{:from from :insert prefix})))
+                  (fn [from _ _] #js{:from from :insert prefix})))
 
 (defn ext-format-changed-lines [] (.. EditorState -transactionFilter (of format-transaction)))
