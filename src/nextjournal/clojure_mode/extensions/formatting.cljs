@@ -29,6 +29,7 @@
     as-> :body
     cond-> :body
     case :body
+    ns :body
     -> 1
     ->> 1
     })
@@ -37,17 +38,18 @@
   (let [s (str sym)]
     ;; TODO
     ;; - populate with community standards
+    (if sym
+      (or (indentation-config* sym)
+          (cond
+            (str/starts-with? s "with-") :body
+            (re-find #"\b(?:let|while|loop|binding)$" s) :body
+            (str/starts-with? s "def") :body
+            (re-find #"\-\-?>$" s) 1                        ;; threading
+            (re-find #"\-in!?$" s) 2
+            :else 1))
+      :data)))
 
-    (or (indentation-config* sym)
-        (cond
-          (str/starts-with? s "with-") :body
-          (re-find #"\b(?:let|while|loop|binding)$" s) :body
-          (str/starts-with? s "def") :body
-          (re-find #"\-\-?>$" s) 1                          ;; threading
-          (re-find #"\-in!?$" s) 2
-          :else 1))))
-
-(j/defn indent-number [^js {:as context :keys [state]} operator indent-until]
+(j/defn indent-number [^js {:as context :keys [state]} operator operator-sym indent-until]
   (let [line (node-line-number state operator)
         on-this-line (into []
                            (comp (take-while (every-pred identity
@@ -55,7 +57,9 @@
                                                          #(= line (node-line-number state %))))
                                  (take (inc indent-until)))
                            (iterate (j/get :nextSibling) operator))]
-    (.column context (-> on-this-line last n/start))))
+    (cond-> (.column context (-> on-this-line last n/start))
+            (and operator-sym (= 1 (count on-this-line)))
+            inc)))
 
 (j/defn indent-node-props [^:js {type-name :name :as type}]
   (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
@@ -63,16 +67,19 @@
           operator-type-name (when operator (n/name operator))
           operator-sym (when (#{"Operator"
                                 "DefLike"
-                                "NS"} operator-type-name)
+                                "NS"
+                                "Symbol"} operator-type-name)
                          (symbol (.. state -doc (sliceString (n/start operator) (n/end operator)))))
-          indent-config (some-> operator-sym indentation-config)]
+          indent-config (indentation-config operator-sym)]
       (if (= "Program" type-name)
         0
         (if (= "List" type-name)
-          (cond (= "Keyword" operator-type-name) (indent-number context operator 1)
+          (cond (= "Keyword" operator-type-name) (indent-number context operator operator-sym 1)
                 (= :body indent-config) (.column context (-> node n/down n/end inc))
-                (number? indent-config) (indent-number context operator indent-config)
-                (n/coll-type? type) (+ 1 (.column context (-> node n/down n/end))))
+                (number? indent-config) (indent-number context operator operator-sym indent-config)
+                :else (cond-> (.column context (-> node n/down n/end))
+                              operator-sym
+                              inc))
           (if (n/coll-type? type)
             (.column context (-> node n/down n/end))
             -1))))))
