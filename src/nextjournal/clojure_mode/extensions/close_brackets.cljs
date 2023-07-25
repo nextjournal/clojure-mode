@@ -22,9 +22,10 @@
   (if (not= from to)
     (u/deletion from to)
     (let [node| (n/node| state from)]
-      (if (and node| (or (n/end-edge? node|)
-                         (n/line-comment? node|)))
-        {:cursor (n/end node|)}
+      (cond
+        (some-> node| n/end-edge?) {:cursor (dec from)}
+        (some-> node| n/line-comment?) (u/deletion from to)
+        :else
         (let [node-before (j/let [^js tree (n/tree state from -1)] ;; 1st node left of cursor
                             (.childBefore tree from))
               whitespace-between (when node-before (.. state -doc (sliceString (n/end node-before) from)))
