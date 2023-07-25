@@ -135,7 +135,7 @@
       "(\n)" "(\n )"
       "(b\n)" "(b\n  )" ;; operator gets extra indent (symbol in 1st position)
       "(0\n)" "(0\n )" ;; a number is not operator
-      "(:a\n)" "(:a\n )" ;; a keyword is not operator
+      "(:a\n)" "(:a\n  )" ;; a keyword is an operator
       "(a\n\nb)" "(a\n  \n  b)" ;; empty lines get indent
       )
 
@@ -157,7 +157,7 @@
       "|(\n)" "|(\n )"
       "(<b>\n)" "(<b>\n  )"
       "|(0\nx<)>" "|(0\n x<)>"
-      "<(:a\n)>" "<(:a\n )>"
+      "<(:a\n)>" "<(:a\n  )>"
       "|(a\n\nb)" "|(a\n\n  b)"
 
       ))
@@ -176,7 +176,7 @@
       "() | a" "() |a"
       "|(\n )" "|(\n )"
       "(<b>\n)" "(<b>\n  )"
-      "<(:a\n)>" "<(:a\n )>"
+      "<(:a\n)>" "<(:a\n  )>"
       "|(a\n\nb)" "|(a\n\n  b)"
       "|\"a\"" "|\"a\""
       "#_a|" "#_a|"
@@ -311,6 +311,6 @@
       "(|)" "(\n |)"
       "((|))" "((\n  |))"
       "(()|)" "(()\n |)"
-      "(a |b)" "(a\n  |b)"
-      "(a b|c)" "(a b\n  |c)"
+      "(a |b)" "(a\n   |b)"
+      "(a b|c)" "(a b\n   |c)"
       )))

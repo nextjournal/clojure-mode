@@ -1,7 +1,8 @@
 (ns nextjournal.clojure-mode.extensions.formatting
   (:require ["@codemirror/language" :as language :refer [IndentContext]]
-            ["@codemirror/state" :refer [EditorState Transaction]]
+            ["@codemirror/state" :as cm.state :refer [EditorState Transaction]]
             [applied-science.js-interop :as j]
+            [clojure.string :as str]
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.node :as n]))
 
@@ -16,22 +17,87 @@
 (defn spaces [^js state n]
   (.indentString language state n))
 
+(defn node-line-number [^js state ^js node] (.. state -doc (lineAt (.-from node)) -number))
+
+(def indentation-config*
+  ;; TODO extension point
+  '{assoc 2
+    assoc-in 2
+    do :body
+    let :body
+    when :body
+    cond :body
+    as-> :body
+    cond-> :body
+    case :body
+    ns :body
+    -> 1
+    ->> 1
+    })
+(defn indentation-rule [s]
+  (cond
+    (str/starts-with? s "with-") :body
+    (re-find #"\b(?:let|while|loop|binding)$" s) :body
+    (str/starts-with? s "def") :body
+    (re-find #"\-\-?>$" s) 1                                ;; threading
+    (re-find #"\-in!?$" s) 2))
+
+(def body-indent 1)
+
+(defn indentation-config [sym]
+  (when (symbol? sym)
+    (let [s (str sym)]
+      (or (indentation-config* sym)
+          (indentation-rule s)))))
+
+(j/defn indent-number [^js {:as context :keys [state]} col-start operator align-with-form body-indent]
+  (let [line (node-line-number state operator)
+        on-this-line (into []
+                           (comp (take-while (every-pred identity
+                                                         (complement n/end-edge?)
+                                                         (complement n/line-comment?)
+                                                         #(= line (node-line-number state %))))
+                                 (take (inc align-with-form)))
+                           (iterate (j/get :nextSibling) operator))]
+    (if (= 1 (count on-this-line))
+      (+ col-start body-indent)
+      (.column context (-> on-this-line last n/start)))))
+
 (j/defn indent-node-props [^:js {type-name :name :as type}]
   (j/fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
-    (cond (= "Program" type-name)
-          0
+    (if (= "Program" type-name)
+      0
+      (let [col-start (.column context (-> node n/down n/end))]
+        (if (= "List" type-name)
+          (let [operator (some-> node n/down n/right)
+                operator-type-name (when operator (n/name operator))
+                operator-sym (when (#{"Operator"
+                                      "DefLike"
+                                      "NS"
+                                      "Symbol"} operator-type-name)
+                               (symbol (.. state -doc (sliceString (n/start operator) (n/end operator)))))
+                indent-config (or (indentation-config operator-sym)
+                                  (cond operator-sym 1
+                                        (= "Keyword" operator-type-name) 1
+                                        :else :data))]
+            (cond (number? indent-config) (indent-number context col-start operator indent-config body-indent)
+                  (= :body indent-config) (+ body-indent col-start)
+                  (= :data indent-config) col-start))
+          (if (n/coll-type? type)
+            col-start
+            -1))))))
 
-          (n/coll-type? type)
-          (cond-> (.column context
-                           (-> node n/down n/end))
-            ;; start at the inner-left edge of the coll.
-            ;; if it's a list beginning with a symbol, add 1 space.
-            (and (= "List" type-name)
-                 (#{"Operator"
-                    "DefLike"
-                    "NS"} (some-> node n/down n/right n/name)))
-            (+ 1))
-          :else -1)))
+(comment
+  ;; TODO
+  (defonce ^js indentation-config-facet
+           ;; use this facet to supply
+           ;; 1) overrides for particular symbols
+           ;; 2) a fn to fully qualify symbols for an editor?
+           (.define cm.state/Facet))
+
+  (defn get-indentation-config [^js state]
+    (.facet state indentation-config-facet))
+  )
 
 (def props (.add language/indentNodeProp
                  indent-node-props))
@@ -63,11 +129,11 @@
 (defn expected-space [n1 n2]
   ;;  (prn :expected (map n/name [n1 n2]))
   (if
-   (or
-    (n/start-edge-type? n1)
-    (n/prefix-edge-type? n1)
-    (n/end-edge-type? n2)
-    (n/same-edge-type? n2))
+    (or
+      (n/start-edge-type? n1)
+      (n/prefix-edge-type? n1)
+      (n/end-edge-type? n2)
+      (n/same-edge-type? n2))
     0
     1))
 
@@ -131,8 +197,8 @@
                                        (+ from current-indent)
                                        (+ from (count text))))]
     (cond-> changes
-      space-changes (into-arr space-changes)
-      indentation-change (j/push! indentation-change))))
+            space-changes (into-arr space-changes)
+            indentation-change (j/push! indentation-change))))
 
 (defn format-selection
   [^js state]
@@ -153,12 +219,12 @@
               (when (n/within-program? (.-startState tr))
                 (case origin
                   ("input" "input.type"
-                   "delete"
-                   "keyboardselection"
-                   "pointerselection" "select.pointer"
-                   "cut"
-                   "noformat"
-                   "evalregion") nil
+                    "delete"
+                    "keyboardselection"
+                    "pointerselection" "select.pointer"
+                    "cut"
+                    "noformat"
+                    "evalregion") nil
                   "format-selections" (format-selection (.-state tr))
                   (when-not (.. tr -changes -empty)
                     (let [state (.-state tr)
@@ -176,6 +242,6 @@
 
 (defn prefix-all [prefix state]
   (u/update-lines state
-    (fn [from _ _] #js{:from from :insert prefix})))
+                  (fn [from _ _] #js{:from from :insert prefix})))
 
 (defn ext-format-changed-lines [] (.. EditorState -transactionFilter (of format-transaction)))

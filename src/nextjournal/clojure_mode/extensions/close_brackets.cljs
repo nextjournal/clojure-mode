@@ -18,16 +18,29 @@
 (defn escaped? [state pos]
   (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
 
-(defn backspace-backoff [state from to]
-  (if
-   ;; handle line-comments (backspace should not drag forms up into line comments)
-   (and
-    ;; we are directly in front of a line-comment
-    (some-> (n/node| state (dec from)) (u/guard n/line-comment?))
-    ;; current line is blank
-    (not (str/blank? (u/line-content-at state from))))
-    {:cursor (dec from)}
-    (u/deletion from to)))
+(defn backspace-backoff [^js state from to]
+  (if (not= from to)
+    (u/deletion from to)
+    (let [node| (n/node| state from)]
+      (cond
+        (some-> node| n/end-edge?) {:cursor (dec from)}
+        (some-> node| n/line-comment?) (u/deletion from to)
+        :else
+        (let [node-before (j/let [^js tree (n/tree state from -1)] ;; 1st node left of cursor
+                            (.childBefore tree from))
+              whitespace-between (when node-before (.. state -doc (sliceString (n/end node-before) from)))
+              delete-n-chars (some->> whitespace-between (re-find #"\n? *$") count) ;; remove up to 1 newline
+              replacement (when (and whitespace-between (> delete-n-chars 1))
+                            (cond-> (subs whitespace-between 0 (- (count whitespace-between) delete-n-chars))
+                                    ;; if removing entire gap, add space if carrying another node
+                                    (and (= delete-n-chars (count whitespace-between))
+                                         (some-> (n/|node state from) (u/guard (complement n/end-edge?))))
+                                    (str " ")))]
+          (if replacement
+            (u/insertion (n/end node-before)
+                         from
+                         replacement)
+            (u/deletion from to)))))))
 
 (j/defn handle-backspace
   "- skips over closing brackets
@@ -37,33 +50,33 @@
                  (let [^js range (j/get-in state [:selection :ranges 0])]
                    (and (.-empty range) (= 0 (.-from range)))))
     (u/update-ranges state
-      #js{:annotations (u/user-event-annotation "delete")}
-      (j/fn [^:js {:as range :keys [head empty anchor]}]
-        (j/let [^:js {:as range from :from to :to} (from-to head anchor)
-                ^js node| (.resolveInner (n/tree state) from -1) ;; node immediately to the left of cursor
-                ^js parent (.-parent node|)]
-          (cond
+                     #js{:annotations (u/user-event-annotation "delete")}
+                     (j/fn [^:js {:as range :keys [head empty anchor]}]
+                       (j/let [^:js {:as range from :from to :to} (from-to head anchor)
+                               ^js node| (.resolveInner (n/tree state) from -1) ;; node immediately to the left of cursor
+                               ^js parent (.-parent node|)]
+                         (cond
 
-            (or (not empty)                                 ;; selection
-                (= "StringContent" (n/name (n/tree state from -1))) ;; inside a string
-                (and parent (not (n/balanced? parent)) (n/left-edge? node|))) ;; unbalanced left-paren
-            (u/deletion from to)
+                           (or (not empty)                  ;; selection
+                               (= "StringContent" (n/name (n/tree state from -1))) ;; inside a string
+                               (and parent (not (n/balanced? parent)) (n/left-edge? node|))) ;; unbalanced left-paren
+                           (u/deletion from to)
 
-            ;; entering right edge of collection - skip
-            (and (n/right-edge? node|) (== from (n/end parent)))
-            {:cursor (dec from)}
+                           ;; entering right edge of collection - skip
+                           (and (n/right-edge? node|) (== from (n/end parent)))
+                           {:cursor (dec from)}
 
-            ;; inside left edge of collection - remove or stop
-            (and (or (n/start-edge? node|)
-                     (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
-            (if (n/empty? (n/up node|))
-              ;; remove empty collection
-              {:cursor  (n/start parent)
-               :changes [(from-to (n/start parent) (n/end parent))]}
-              ;; stop cursor at inner-left of collection
-              {:cursor from})
+                           ;; inside left edge of collection - remove or stop
+                           (and (or (n/start-edge? node|)
+                                    (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
+                           (if (n/empty? (n/up node|))
+                             ;; remove empty collection
+                             {:cursor (n/start parent)
+                              :changes [(from-to (n/start parent) (n/end parent))]}
+                             ;; stop cursor at inner-left of collection
+                             {:cursor from})
 
-            :else (backspace-backoff state from to)))))))
+                           :else (backspace-backoff state from to)))))))
 
 (def coll-pairs {"(" ")"
                  "[" "]"
@@ -73,61 +86,61 @@
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (coll-pairs open)]
     (u/update-ranges state
-      #js{:annotations (u/user-event-annotation "input")}
-      (j/fn [^:js {:keys [from to head anchor empty]}]
-        (cond
-          (in-string? state from)
-          (if (= open \")
-            (u/insertion head "\\\"")
-            (u/insertion from to open))
-          ;; allow typing escaped bracket
-          (escaped? state from)
-          (u/insertion from to open)
-          :else
-          (if empty
-            {:changes {:insert (str open close)
-                       :from   head}
-             :cursor  (+ head (count open))}
-            ;; wrap selections with brackets
-            {:changes [{:insert open :from from}
-                       {:insert close :from to}]
-             :from-to [(+ anchor (count open)) (+ head (count open))]}))))))
+                     #js{:annotations (u/user-event-annotation "input")}
+                     (j/fn [^:js {:keys [from to head anchor empty]}]
+                       (cond
+                         (in-string? state from)
+                         (if (= open \")
+                           (u/insertion head "\\\"")
+                           (u/insertion from to open))
+                         ;; allow typing escaped bracket
+                         (escaped? state from)
+                         (u/insertion from to open)
+                         :else
+                         (if empty
+                           {:changes {:insert (str open close)
+                                      :from head}
+                            :cursor (+ head (count open))}
+                           ;; wrap selections with brackets
+                           {:changes [{:insert open :from from}
+                                      {:insert close :from to}]
+                            :from-to [(+ anchor (count open)) (+ head (count open))]}))))))
 
 (defn handle-close [state key-name]
   (u/update-ranges state
-    #js{:annotations (u/user-event-annotation "input")}
-    (j/fn [^:js {:as range :keys [empty head from to]}]
-      (if (or (in-string? state from)
-              (escaped? state from))
-        (u/insertion from to key-name)
-        (when empty
-          (or
-           ;; close unbalanced (open) collection
-           (let [unbalanced (some->
-                             (n/tree state head -1)
-                             (n/ancestors)
-                             (->> (filter (every-pred n/coll? (complement n/balanced?))))
-                             first)
-                 closing (some-> unbalanced n/down n/closed-by)
-                 pos (some-> unbalanced n/end)]
-             (when (and closing (= closing key-name))
-               {:changes {:from   pos
-                          :insert closing}
-                :cursor  (inc pos)}))
+                   #js{:annotations (u/user-event-annotation "input")}
+                   (j/fn [^:js {:as range :keys [empty head from to]}]
+                     (if (or (in-string? state from)
+                             (escaped? state from))
+                       (u/insertion from to key-name)
+                       (when empty
+                         (or
+                           ;; close unbalanced (open) collection
+                           (let [unbalanced (some->
+                                              (n/tree state head -1)
+                                              (n/ancestors)
+                                              (->> (filter (every-pred n/coll? (complement n/balanced?))))
+                                              first)
+                                 closing (some-> unbalanced n/down n/closed-by)
+                                 pos (some-> unbalanced n/end)]
+                             (when (and closing (= closing key-name))
+                               {:changes {:from pos
+                                          :insert closing}
+                                :cursor (inc pos)}))
 
-           ;; jump to next closing bracket
-           (when-let [close-node-end
-                      (when-let [^js cursor (-> state n/tree
-                                                (n/terminal-cursor head 1))]
-                        (loop []
-                          (if (n/right-edge-type? (.-type cursor))
-                            (n/end cursor)
-                            (when (.next cursor)
-                              (recur)))))]
-             {:cursor close-node-end})
-           ;; no-op
-           {:cursor head}
-           #_(u/insertion head key-name)))))))
+                           ;; jump to next closing bracket
+                           (when-let [close-node-end
+                                      (when-let [^js cursor (-> state n/tree
+                                                                (n/terminal-cursor head 1))]
+                                        (loop []
+                                          (if (n/right-edge-type? (.-type cursor))
+                                            (n/end cursor)
+                                            (when (.next cursor)
+                                              (recur)))))]
+                             {:cursor close-node-end})
+                           ;; no-op
+                           {:cursor head}
+                           #_(u/insertion head key-name)))))))
 
 (j/defn handle-backspace-cmd [^:js {:as view :keys [state]}]
   (u/dispatch-some view (handle-backspace state)))
@@ -154,14 +167,14 @@
   (.high Prec
          (.of view/keymap
               (j/lit
-               [{:key "Backspace"
-                 :run (guard-scope
-                       (j/fn [^:js {:as view :keys [state]}]
-                         (u/dispatch-some view (handle-backspace state))))}
-                {:key "(" :run (guard-scope (handle-open-cmd "("))}
-                {:key "[" :run (guard-scope (handle-open-cmd "["))}
-                {:key "{" :run (guard-scope (handle-open-cmd "{"))}
-                {:key \" :run  (guard-scope (handle-open-cmd \"))}
-                {:key \) :run  (guard-scope (handle-close-cmd \)))}
-                {:key \] :run  (guard-scope (handle-close-cmd \]))}
-                {:key \} :run  (guard-scope (handle-close-cmd \}))}]))))
+                [{:key "Backspace"
+                  :run (guard-scope
+                         (j/fn [^:js {:as view :keys [state]}]
+                           (u/dispatch-some view (handle-backspace state))))}
+                 {:key "(" :run (guard-scope (handle-open-cmd "("))}
+                 {:key "[" :run (guard-scope (handle-open-cmd "["))}
+                 {:key "{" :run (guard-scope (handle-open-cmd "{"))}
+                 {:key \" :run (guard-scope (handle-open-cmd \"))}
+                 {:key \) :run (guard-scope (handle-close-cmd \)))}
+                 {:key \] :run (guard-scope (handle-close-cmd \]))}
+                 {:key \} :run (guard-scope (handle-close-cmd \}))}]))))
