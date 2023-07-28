@@ -35,7 +35,7 @@
 
 (defn keymap* [modifier]
   {:eval-cell
-   [{:key "Mod-Enter"
+   [{:key "Alt-Enter"
      :doc "Evaluate cell"}]
    :eval-at-cursor
    [{:key (str modifier "-Enter")
@@ -48,7 +48,7 @@
                          on-result]}]
   (.of view/keymap
        (j/lit
-        [{:key "Mod-Enter"
+        [{:key "Alt-Enter"
           :run (partial eval-cell on-result)}
          {:key (str modifier "-Enter")
           :shift (partial eval-top-level on-result)

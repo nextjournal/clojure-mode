@@ -63,8 +63,8 @@
                                              (j/obj :state
                                                     (test-utils/make-state
                                                      (cond-> #js [extensions]
-                                                       eval? (.concat #js [(eval-region/extension {:modifier "Alt"})
-                                                                           (demo.sci/extension {:modifier "Alt"
+                                                       eval? (.concat #js [(eval-region/extension {:modifier "Meta"})
+                                                                           (demo.sci/extension {:modifier "Meta"
                                                                                                 :on-result (partial reset! last-result)})]))
                                                      source)
                                                     :parent el)))))]
