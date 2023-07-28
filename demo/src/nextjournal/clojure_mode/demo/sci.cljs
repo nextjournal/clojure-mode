@@ -14,19 +14,19 @@
           (catch js/Error e
             {:error (str (.-message e))})))))
 
-(j/defn eval-at-cursor [on-result ^:js {:keys [state]}]
+(j/defn eval-at-cursor* [on-result ^:js {:keys [state]}]
   (some->> (eval-region/cursor-node-string state)
            (eval-string)
            (on-result))
   true)
 
-(j/defn eval-top-level [on-result ^:js {:keys [state]}]
+(j/defn eval-top-level* [on-result ^:js {:keys [state]}]
   (some->> (eval-region/top-level-string state)
            (eval-string)
            (on-result))
   true)
 
-(j/defn eval-cell [on-result ^:js {:keys [state]}]
+(j/defn eval-cell* [on-result ^:js {:keys [state]}]
   (-> (.-doc state)
       (str)
       (eval-string)
@@ -49,7 +49,10 @@
   (.of view/keymap
        (j/lit
         [{:key "Alt-Enter"
-          :run (partial eval-cell on-result)}
+          :run (j/fn eval-cell [result]
+                 (partial eval-cell* on-result result))}
          {:key (str modifier "-Enter")
-          :shift (partial eval-top-level on-result)
-          :run (partial eval-at-cursor on-result)}])))
+          :shift (j/fn eval-top-level [result]
+                   (eval-top-level* on-result result))
+          :run (j/fn eval-at-cursor [result]
+                 (eval-at-cursor* on-result result))}])))
