@@ -1,15 +1,43 @@
 {:min-bb-version "0.7.6"
- :paths ["bb"]
+ :paths [".bb"]
+ :pods {org.babashka/fswatcher {:version "0.0.4"}}
  :tasks
  {:requires ([clojure.edn :as edn]
              [clojure.string :as str]
              [babashka.deps :as deps]
              [babashka.fs :as fs]
-             [babashka.process :as p])
+             [babashka.process :as p]
+             [tasks :as t])
   :init (do
           (defn viewer-css-path []
             (let [cp (str/trim (with-out-str (deps/clojure ["-A:dev:demo" "-Spath"])))]
-              (str/trim (:out (shell {:out :string} (str "bb -cp " cp " -e '(println (.getPath (clojure.java.io/resource \"css/viewer.css\")))'")))))))
+              (str/trim (:out (shell {:out :string} (str "bb -cp " cp " -e '(println (.getPath (clojure.java.io/resource \"css/viewer.css\")))'"))))))
+
+          (defn get-paths [ext]
+            (map str (fs/glob "." (str "{demo,src,collab}/**." (name ext))))))
 
   copy-viewer-css {:doc "Copies viewer stylesheet to resources."
-                   :task (fs/copy (viewer-css-path) "resources/stylesheets/viewer.css" #{:replace-existing})}}}
+                   :task (fs/copy (viewer-css-path) "resources/stylesheets/viewer.css" #{:replace-existing})}
+
+  yarn-install (shell "yarn install")
+
+  clean (let [paths (get-paths :mjs)]
+          (println (apply str (interpose "\n" (cons "removing:" paths))))
+          (doseq [path paths] (fs/delete path)))
+
+  compile {:doc "Use squintjs to compile all cljs files recursively"
+           :depends [yarn-install]
+           :task (shell {:std :inherit :err :inherit}
+                   (apply str (cons "yarn squint compile "
+                                (interpose " " (get-paths :cljs)))))}
+
+  build {:doc "Compiles cljs files with squint and builds from mjs sources with vite"
+         :depends [compile]
+         :task (shell {:std :inherit :err :inherit}
+                 "yarn build")}
+
+  watch-cljs (t/watch-cljs)
+
+  dev {:doc "Compiles all cljs to mjs, runs vite in dev and starts a cherry watcher to recompile changed cljs. When run as `bb dev collab` also starts a Y.js collaboration server."
+       :depends [compile]
+       :task (run '-dev)}}}
