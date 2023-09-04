@@ -38,6 +38,10 @@
 
   watch-cljs (t/watch-cljs)
 
+  vite-dev {:doc "Launches vite application"
+            :depends [yarn-install]
+            :task (shell "yarn dev")}
+
   dev {:doc "Compiles all cljs to mjs, runs vite in dev and starts a cherry watcher to recompile changed cljs. When run as `bb dev collab` also starts a Y.js collaboration server."
        :depends [compile]
        :task (run '-dev)}}}
