@@ -1,15 +1,11 @@
 (ns nextjournal.clojure-mode.util
   (:require ["@codemirror/state" :refer [EditorSelection
-                                         ChangeSet
-                                         ChangeDesc
-                                         TransactionSpec
-                                         StrictTransactionSpec
                                          StateEffect
                                          Transaction]]
             ["./selections" :as sel]
             #_[nextjournal.clojure-mode.selections :as sel]))
 
-(goog-define node-js? false)
+(def node-js? (some? js/globalThis.process))
 
 (defn user-event-annotation [event-name]
   (.. Transaction -userEvent (of event-name)))
@@ -49,9 +45,7 @@
       :changes {:from from :to to}})))
 
 (defn line-content-at [state from]
-  (-> state
-      (j/call-in [:doc :lineAt] from)
-      (j/call :slice)))
+  (.. state -doc (lineAt from) slice))
 
 (defn map-cursor [^js original-range ^js state update-map]
   {:pre [(map? update-map)]}
@@ -66,7 +60,7 @@
                                  cursor (sel/cursor cursor)
                                  from-to (sel/range (from-to 0) (from-to 1)))
                            original-range)}
-      change-desc (j/!set :changes change-desc))))
+      change-desc (set! :changes change-desc))))
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
@@ -78,7 +72,7 @@
                 (map-cursor range state result))
               #js{:range range}))
         (.changeByRange state)
-        (#(j/extend! % tr-specs))
+        (#(js/Object.assign % tr-specs))
         (.update state))))
 
 (defn dispatch-changes [^js state dispatch ^js changes]
@@ -93,13 +87,13 @@
            changes #js[]
            from-pos from
            line-num 1]
-      (j/let [^:js {:keys [done lineBreak ^string value]} result]
+      (let [^:js {:keys [done lineBreak ^string value]} result]
         (if (or done
                 (> from to))
-          (.update state (j/extend! #js{:changes (.changes state changes)} spec))
+          (.update state (js/Object.assign #js{:changes (.changes state changes)} spec))
           (recur (.next iterator)
                  (if-let [change (and (not lineBreak) (f from-pos value line-num))]
-                   (j/push! changes change)
+                   (doto changes (.push change))
                    changes)
                  (+ from-pos (count value))
                  (cond-> line-num lineBreak inc)))))))
@@ -110,10 +104,10 @@
   [^js state f]
   (let [at-line (atom -1)
         doc (.-doc state)]
-    (->> (j/fn [^:js {:as range :keys [from to anchor head]}]
-           (j/let [changes #js[]]
+    (->> (fn [^:js {:as range :keys [from to anchor head]}]
+           (let [changes #js[]]
              (loop [^js line (.lineAt doc from)]
-               (j/let [^:js {line-number :number line-to :to} line]
+               (let [^:js {line-number :number line-to :to} line]
                  (when (> (.-number line) @at-line)
                    (reset! at-line line-number)
                    (f line changes range))
@@ -139,8 +133,8 @@
         next-changes #js[]
         _ (.iterChanges
            changes
-           (fn [from-a to-a from-b to-b inserted]
-             (j/let [^:js {:as line line-number :number line-to :to} (.lineAt doc from-b)]
+           (fn [_from-a _to-a from-b to-b _inserted]
+             (let [^:js {:as line line-number :number line-to :to} (.lineAt doc from-b)]
                (loop [line line]
                  (when (> line-number @at-line)
                    (reset! at-line line-number)
@@ -151,15 +145,15 @@
                        (recur next-line))))))))
         next-changeset (.changes state next-changes)]
     (if (seq next-changes)
-      (-> (j/select-keys tr [:annotations
+      (-> (select-keys tr [:annotations
                              :scrollIntoView
                              :reconfigure])
-          (j/assoc! :changes (.compose changes next-changeset))
+          (assoc! :changes (.compose changes next-changeset))
           (cond->
             selection
-            (j/assoc! :selection (.. state -selection (map next-changeset)))
+            (assoc! :selection (.. state -selection (map next-changeset)))
             effects
-            (j/assoc! :effects (.mapEffects StateEffect effects next-changeset))))
+            (assoc! :effects (.mapEffects StateEffect effects next-changeset))))
       tr)))
 
 ;; (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]

@@ -25,13 +25,13 @@
           (println (apply str (interpose "\n" (cons "removing:" paths))))
           (doseq [path paths] (fs/delete path)))
 
-  compile {:doc "Use squintjs to compile all cljs files recursively"
+  #_#_compile {:doc "Use squintjs to compile all cljs files recursively"
            :depends [yarn-install]
            :task (shell {:std :inherit :err :inherit}
                    (apply str (cons "yarn squint compile "
                                 (interpose " " (get-paths :cljs)))))}
 
-  build {:doc "Compiles cljs files with squint and builds from mjs sources with vite"
+  #_#_build {:doc "Compiles cljs files with squint and builds from mjs sources with vite"
          :depends [compile]
          :task (shell {:std :inherit :err :inherit}
                  "yarn build")}
@@ -42,6 +42,8 @@
             :depends [yarn-install]
             :task (shell "yarn dev")}
 
+  -dev {:depends [vite-dev watch-cljs]}
+
   dev {:doc "Compiles all cljs to mjs, runs vite in dev and starts a cherry watcher to recompile changed cljs. When run as `bb dev collab` also starts a Y.js collaboration server."
-       :depends [compile]
-       :task (run '-dev)}}}
+       ;; :depends [compile]
+       :task (run '-dev {:parallel true})}}}
