@@ -161,3 +161,5 @@
 
 ;; (j/defn range-str [state ^:js {:as selection :keys [from to]}]
 ;;   (str (j/call-in state [:doc :slice] from to)))
+
+(prn :util-loaded)

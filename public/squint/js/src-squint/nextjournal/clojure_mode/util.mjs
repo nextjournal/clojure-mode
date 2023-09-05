@@ -282,5 +282,6 @@ return G__121123;}} else {
 return tr102;}
 })
 ;
+squint_core.prn("util-loaded");
 
 export { dispatch_some, guard, node_js_QMARK_, dispatch_changes, insertion, deletion, line_content_at, update_selected_lines, map_cursor, get_user_event_annotation, user_event_annotation, update_ranges, from_to, iter_changed_lines, update_lines }
