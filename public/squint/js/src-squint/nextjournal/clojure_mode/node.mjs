@@ -252,20 +252,25 @@ return true;} else {
 return null;}}}}}}}
 })
 ;
-j.defn(balanced_QMARK_, [({ "as": node, "keys": [firstChild, lastChild] })], (function () {
- let temp__24970__auto__15 = closed_by(firstChild);
-if (temp__24970__auto__15) {
-let closing16 = temp__24970__auto__15;
-return ((closing16 === name(lastChild)) && (end(firstChild) !== end(lastChild)));} else {
+var balanced_QMARK_ = (function (p__15) {
+let map__1617 = p__15;
+let node18 = map__1617;
+let firstChild19 = squint_core.get(map__1617, "firstChild");
+let lastChild20 = squint_core.get(map__1617, "lastChild");
+let temp__24970__auto__21 = closed_by(firstChild19);
+if (temp__24970__auto__21) {
+let closing22 = temp__24970__auto__21;
+return ((closing22 === name(lastChild20)) && (end(firstChild19) !== end(lastChild20)));} else {
 return true;}
-})());
+})
+;
 var ancestors = (function (node) {
-let temp__25231__auto__17 = up(node);
-if (squint_core.nil_QMARK_(temp__25231__auto__17)) {
+let temp__25231__auto__23 = up(node);
+if (squint_core.nil_QMARK_(temp__25231__auto__23)) {
 return null;} else {
-let parent18 = temp__25231__auto__17;
-return squint_core.cons(parent18, new squint_core.LazySeq((function () {
-return ancestors(parent18);
+let parent24 = temp__25231__auto__23;
+return squint_core.cons(parent24, new squint_core.LazySeq((function () {
+return ancestors(parent24);
 })));}
 })
 ;
@@ -287,51 +292,51 @@ return squint_core.reduced(found);}
 })
 ;
 var children = (function () {
- let f19 = (function (var_args) {
-let G__2223 = arguments["length"];
-switch (G__2223) {case 3:
-return f19.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+ let f25 = (function (var_args) {
+let G__2829 = arguments["length"];
+switch (G__2829) {case 3:
+return f25.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 case 1:
-return f19.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f25.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f19["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
-let temp__25231__auto__25 = (function () {
- let G__2627 = dir;
-switch (G__2627) {case 1:
+f25["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
+let temp__25231__auto__31 = (function () {
+ let G__3233 = dir;
+switch (G__3233) {case 1:
 return parent.childAfter(from);
 break;
 case -1:
 return parent.childBefore(from);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__2627))}
+throw new Error(squint_core.str("No matching clause: ", G__3233))}
 })();
-if (squint_core.nil_QMARK_(temp__25231__auto__25)) {
+if (squint_core.nil_QMARK_(temp__25231__auto__31)) {
 return null;} else {
-let child29 = temp__25231__auto__25;
-return squint_core.cons(child29, new squint_core.LazySeq((function () {
+let child35 = temp__25231__auto__31;
+return squint_core.cons(child35, new squint_core.LazySeq((function () {
 return children(parent, (function () {
- let G__3031 = dir;
-switch (G__3031) {case 1:
-return end(child29);
+ let G__3637 = dir;
+switch (G__3637) {case 1:
+return end(child35);
 break;
 case -1:
-return start(child29);
+return start(child35);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__3031))}
+throw new Error(squint_core.str("No matching clause: ", G__3637))}
 })(), dir);
 })));}
 });
-f19["cljs$core$IFn$_invoke$arity$1"] = (function (subtree) {
+f25["cljs$core$IFn$_invoke$arity$1"] = (function (subtree) {
 return children(subtree, start(subtree), 1);
 });
-f19["cljs$lang$maxFixedArity"] = 3;
-return f19;
+f25["cljs$lang$maxFixedArity"] = 3;
+return f25;
 })()
 ;
 var eq_QMARK_ = (function (x, y) {
@@ -339,10 +344,10 @@ return ((start(x) == start(y)) && (end(x) == end(y)) && (depth(x) == depth(y)));
 })
 ;
 var empty_QMARK_ = (function (node) {
-let type_name33 = name(node);
+let type_name39 = name(node);
 if (coll_QMARK_(node)) {
 return eq_QMARK_(right(down(node)), down_last(node));} else {
-if (("String" === type_name33)) {
+if (("String" === type_name39)) {
 return (end(down(node)) == start(down_last(node)));} else {
 if ("else") {
 return false;} else {
@@ -350,25 +355,25 @@ return null;}}}
 })
 ;
 var from_to = (function () {
- let f34 = (function (var_args) {
-let G__3738 = arguments["length"];
-switch (G__3738) {case 2:
-return f34.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f40 = (function (var_args) {
+let G__4344 = arguments["length"];
+switch (G__4344) {case 2:
+return f40.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 1:
-return f34.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f40.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f34["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
+f40["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
 return ({ "from": from, "to": to });
 });
-f34["cljs$core$IFn$_invoke$arity$1"] = (function (node) {
+f40["cljs$core$IFn$_invoke$arity$1"] = (function (node) {
 return from_to(start(node), end(node));
 });
-f34["cljs$lang$maxFixedArity"] = 2;
-return f34;
+f40["cljs$lang$maxFixedArity"] = 2;
+return f40;
 })()
 ;
 var range = (function (node) {
@@ -376,25 +381,25 @@ return sel.range(start(node), end(node));
 })
 ;
 var string = (function () {
- let f40 = (function (var_args) {
-let G__4344 = arguments["length"];
-switch (G__4344) {case 2:
-return f40.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f46 = (function (var_args) {
+let G__4950 = arguments["length"];
+switch (G__4950) {case 2:
+return f46.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f40.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f46.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f40["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
+f46["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
 return string(state, start(node), end(node));
 });
-f40["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
+f46["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
 return state["doc"].sliceString(from, to, "\n");
 });
-f40["cljs$lang$maxFixedArity"] = 3;
-return f40;
+f46["cljs$lang$maxFixedArity"] = 3;
+return f46;
 })()
 ;
 var ancestor_QMARK_ = (function (parent, child) {
@@ -404,8 +409,8 @@ return squint_core.boolean$(((start(parent) <= start(child)) && (end(parent) >= 
 var move_toward = (function (node, to_node) {
 if (eq_QMARK_(node, to_node)) {
 return null;} else {
-let G__4647 = compare(start(to_node), start(node));
-switch (G__4647) {case 0:
+let G__5253 = compare(start(to_node), start(node));
+switch (G__5253) {case 0:
 if (ancestor_QMARK_(to_node, node)) {
 return up(node);} else {
 if (ancestor_QMARK_(node, to_node)) {
@@ -423,7 +428,7 @@ return down(node);} else {
 return (right(node) || up(node));}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__4647))}}
+throw new Error(squint_core.str("No matching clause: ", G__5253))}}
 })
 ;
 var nodes_between = (function (node, to_node) {
@@ -437,34 +442,6 @@ return (coll_QMARK_(node) || string_QMARK_(node) || regexp_QMARK_(node));
 })
 ;
 var tree = (function () {
- let f49 = (function (var_args) {
-let G__5253 = arguments["length"];
-switch (G__5253) {case 1:
-return f49.cljs$core$IFn$_invoke$arity$1((arguments[0]));
-break;
-case 2:
-return f49.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
-break;
-case 3:
-return f49.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
-break;
-default:
-throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
-});
-f49["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
-return language.syntaxTree(state);
-});
-f49["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
-return language.syntaxTree(state).resolveInner(pos);
-});
-f49["cljs$core$IFn$_invoke$arity$3"] = (function (state, pos, dir) {
-return language.syntaxTree(state).resolveInner(pos, dir);
-});
-f49["cljs$lang$maxFixedArity"] = 3;
-return f49;
-})()
-;
-var cursor = (function () {
  let f55 = (function (var_args) {
 let G__5859 = arguments["length"];
 switch (G__5859) {case 1:
@@ -479,31 +456,59 @@ break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f55["cljs$core$IFn$_invoke$arity$1"] = (function (tree) {
-return tree.cursor();
+f55["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+return language.syntaxTree(state);
 });
-f55["cljs$core$IFn$_invoke$arity$2"] = (function (tree, pos) {
-return tree.cursorAt(pos);
+f55["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+return language.syntaxTree(state).resolveInner(pos);
 });
-f55["cljs$core$IFn$_invoke$arity$3"] = (function (tree, pos, dir) {
-return tree.cursorAt(pos, dir);
+f55["cljs$core$IFn$_invoke$arity$3"] = (function (state, pos, dir) {
+return language.syntaxTree(state).resolveInner(pos, dir);
 });
 f55["cljs$lang$maxFixedArity"] = 3;
 return f55;
 })()
 ;
+var cursor = (function () {
+ let f61 = (function (var_args) {
+let G__6465 = arguments["length"];
+switch (G__6465) {case 1:
+return f61.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+break;
+case 2:
+return f61.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+break;
+case 3:
+return f61.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+break;
+default:
+throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
+});
+f61["cljs$core$IFn$_invoke$arity$1"] = (function (tree) {
+return tree.cursor();
+});
+f61["cljs$core$IFn$_invoke$arity$2"] = (function (tree, pos) {
+return tree.cursorAt(pos);
+});
+f61["cljs$core$IFn$_invoke$arity$3"] = (function (tree, pos, dir) {
+return tree.cursorAt(pos, dir);
+});
+f61["cljs$lang$maxFixedArity"] = 3;
+return f61;
+})()
+;
 var terminal_cursor = (function (tree, pos, dir) {
-let i61 = pos;
+let i67 = pos;
 while(true){
-let c62 = cursor(tree, i61, dir);
-let type63 = c62["type"];
-if (top_type_QMARK_(type63)) {
+let c68 = cursor(tree, i67, dir);
+let type69 = c68["type"];
+if (top_type_QMARK_(type69)) {
 return null;} else {
-if (terminal_type_QMARK_(c62["type"])) {
-return c62;} else {
+if (terminal_type_QMARK_(c68["type"])) {
+return c68;} else {
 if ("else") {
-let G__64 = (dir + i61);
-i61 = G__64;
+let G__70 = (dir + i67);
+i67 = G__70;
 continue;
 } else {
 return null;}}};break;
@@ -512,9 +517,9 @@ return null;}}};break;
 })
 ;
 var up_here = (function (node) {
-let from65 = start(node);
+let from71 = start(node);
 return (highest(node, (function (_PERCENT_1) {
-return (from65 === start(_PERCENT_1));
+return (from71 === start(_PERCENT_1));
 })) || node);
 })
 ;
@@ -523,61 +528,87 @@ return up_here(tree(state, from, 1)["node"]).cursor();
 })
 ;
 var terminal_nodes = (function (state, from, to) {
-let cursor66 = topmost_cursor(state, from);
-let found67 = [];
+let cursor72 = topmost_cursor(state, from);
+let found73 = [];
 while(true){
-let node_type68 = type(cursor66);
-if ((start(cursor66) > to)) {
-return found67;} else {
-if ((terminal_type_QMARK_(node_type68) || error_QMARK_(node_type68))) {
-let found69 = squint_core.conj(found67, ({ "type": node_type68, "from": start(cursor66), "to": end(cursor66) }));
-cursor66.lastChild();
-if (cursor66.next()) {
-let G__70 = found69;
-found67 = G__70;
+let node_type74 = type(cursor72);
+if ((start(cursor72) > to)) {
+return found73;} else {
+if ((terminal_type_QMARK_(node_type74) || error_QMARK_(node_type74))) {
+let found75 = squint_core.conj(found73, ({ "type": node_type74, "from": start(cursor72), "to": end(cursor72) }));
+cursor72.lastChild();
+if (cursor72.next()) {
+let G__76 = found75;
+found73 = G__76;
 continue;
 } else {
-return found69;}} else {
+return found75;}} else {
 if ("else") {
-if (cursor66.next()) {
-let G__71 = found67;
-found67 = G__71;
+if (cursor72.next()) {
+let G__77 = found73;
+found73 = G__77;
 continue;
 } else {
-return found67;}} else {
+return found73;}} else {
 return null;}}};break;
 }
 
 })
 ;
-j.defn(balanced_range, [state, node](balanced_range(state, start(node), end(node))), [state, from, to]((function () {
- let vec__7278 = squint_core.sort([from, to]);
-let from79 = squint_core.nth(vec__7278, 0, null);
-let to80 = squint_core.nth(vec__7278, 1, null);
-let from_node81 = tree(state, from79, 1);
-let to_node82 = tree(state, to80, -1);
-let from83 = (require_balance_QMARK_(from_node81)) ? (start(from_node81)) : (from79);
-let to84 = (require_balance_QMARK_(to_node82)) ? (end(to_node82)) : (to80);
-let vec__7585 = squint_core.reduce((function (p__86, node_between) {
-let vec__8790 = p__86;
-let left91 = squint_core.nth(vec__8790, 0, null);
-let right92 = squint_core.nth(vec__8790, 1, null);
-return [(ancestor_QMARK_(node_between, from_node81)) ? (start(node_between)) : (left91), (ancestor_QMARK_(node_between, to_node82)) ? (end(node_between)) : (right92)];
-}), [from83, to84], squint_core.map((function (_PERCENT_1) {
-let G__9394 = _PERCENT_1;
+var balanced_range = (function () {
+ let f78 = (function (var_args) {
+let G__8182 = arguments["length"];
+switch (G__8182) {case 2:
+return f78.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+break;
+case 3:
+return f78.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+break;
+default:
+throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
+});
+f78["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
+return balanced_range(state, start(node), end(node));
+});
+f78["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
+let vec__8490 = squint_core.sort([from, to]);
+let from91 = squint_core.nth(vec__8490, 0, null);
+let to92 = squint_core.nth(vec__8490, 1, null);
+let from_node93 = tree(state, from91, 1);
+let to_node94 = tree(state, to92, -1);
+let from95 = (require_balance_QMARK_(from_node93)) ? (start(from_node93)) : (from91);
+let to96 = (require_balance_QMARK_(to_node94)) ? (end(to_node94)) : (to92);
+let vec__8797 = squint_core.reduce((function (p__98, node_between) {
+let vec__99102 = p__98;
+let left103 = squint_core.nth(vec__99102, 0, null);
+let right104 = squint_core.nth(vec__99102, 1, null);
+return [(ancestor_QMARK_(node_between, from_node93)) ? (start(node_between)) : (left103), (ancestor_QMARK_(node_between, to_node94)) ? (end(node_between)) : (right104)];
+}), [from95, to96], squint_core.map((function (_PERCENT_1) {
+let G__105106 = _PERCENT_1;
 if (edge_QMARK_(_PERCENT_1)) {
-return up(G__9394);} else {
-return G__9394;}
-}), nodes_between(from_node81, to_node82)));
-let left95 = squint_core.nth(vec__7585, 0, null);
-let right96 = squint_core.nth(vec__7585, 1, null);
-return sel.range(left95, right96);
-})()));
-j.defn(inner_span, "Span of collection not including edges", [({ "as": node, "keys": [firstChild, lastChild] })], ({ "from": (left_edge_QMARK_(firstChild)) ? (end(firstChild)) : (start(node)), "to": (right_edge_QMARK_(lastChild)) ? (start(lastChild)) : (end(node)) }));
+return up(G__105106);} else {
+return G__105106;}
+}), nodes_between(from_node93, to_node94)));
+let left107 = squint_core.nth(vec__8797, 0, null);
+let right108 = squint_core.nth(vec__8797, 1, null);
+return sel.range(left107, right108);
+});
+f78["cljs$lang$maxFixedArity"] = 3;
+return f78;
+})()
+;
+var inner_span = (function (p__109) {
+let map__110111 = p__109;
+let node112 = map__110111;
+let firstChild113 = squint_core.get(map__110111, "firstChild");
+let lastChild114 = squint_core.get(map__110111, "lastChild");
+return ({ "from": (left_edge_QMARK_(firstChild113)) ? (end(firstChild113)) : (start(node112)), "to": (right_edge_QMARK_(lastChild114)) ? (start(lastChild114)) : (end(node112)) });
+})
+;
 var within_QMARK__LT_ = (function (parent, child) {
-let c197 = compare(start(parent), start(child));
-let c298 = compare(end(parent), end(child));
-return ((squint_core.pos_QMARK_(c197) || squint_core.neg_QMARK_(c298)) && !squint_core.neg_QMARK_(c197) && !squint_core.pos_QMARK_(c298));
+let c1115 = compare(start(parent), start(child));
+let c2116 = compare(end(parent), end(child));
+return ((squint_core.pos_QMARK_(c1115) || squint_core.neg_QMARK_(c2116)) && !squint_core.neg_QMARK_(c1115) && !squint_core.pos_QMARK_(c2116));
 })
 ;
 var within_QMARK_ = (function (parent, child) {
@@ -591,121 +622,130 @@ return node;}
 })
 ;
 var prefix = (function (node) {
-let temp__25231__auto__99 = up(node);
-if (squint_core.nil_QMARK_(temp__25231__auto__99)) {
+let temp__25231__auto__117 = up(node);
+if (squint_core.nil_QMARK_(temp__25231__auto__117)) {
 return null;} else {
-let parent100 = temp__25231__auto__99;
-return (u.guard(parent100, prefix_container_QMARK_) || u.guard(down(parent100), prefix_edge_QMARK_));}
+let parent118 = temp__25231__auto__117;
+return (u.guard(parent118, prefix_container_QMARK_) || u.guard(down(parent118), prefix_edge_QMARK_));}
 })
 ;
 var left_edge_with_prefix = (function (state, node) {
 return squint_core.str((function () {
- let G__101102 = prefix(node);
-if (squint_core.nil_QMARK_(G__101102)) {
+ let G__119120 = prefix(node);
+if (squint_core.nil_QMARK_(G__119120)) {
 return null;} else {
-return string(state, G__101102);}
+return string(state, G__119120);}
 })(), name(down(node)));
 })
 ;
 var with_prefix = (function (node) {
-let G__103104 = node;
+let G__121122 = node;
 if (prefix(node)) {
-return up(G__103104);} else {
-return G__103104;}
+return up(G__121122);} else {
+return G__121122;}
 })
 ;
 var node_BAR_ = (function (state, pos) {
-let G__105106 = tree(state, pos, -1);
-if (squint_core.nil_QMARK_(G__105106)) {
+let G__123124 = tree(state, pos, -1);
+if (squint_core.nil_QMARK_(G__123124)) {
 return null;} else {
-return u.guard(G__105106, (function (_PERCENT_1) {
+return u.guard(G__123124, (function (_PERCENT_1) {
 return (pos === end(_PERCENT_1));
 }));}
 })
 ;
 var _BAR_node = (function (state, pos) {
-let G__107108 = tree(state, pos, 1);
-if (squint_core.nil_QMARK_(G__107108)) {
+let G__125126 = tree(state, pos, 1);
+if (squint_core.nil_QMARK_(G__125126)) {
 return null;} else {
-return u.guard(G__107108, (function (_PERCENT_1) {
+return u.guard(G__125126, (function (_PERCENT_1) {
 return (pos === start(_PERCENT_1));
 }));}
 })
 ;
 var nearest_touching = (function (state, pos, dir) {
-let L109 = (function () {
- let G__110111 = tree(state, pos, -1);
-if (squint_core.nil_QMARK_(G__110111)) {
+let L127 = (function () {
+ let G__128129 = tree(state, pos, -1);
+if (squint_core.nil_QMARK_(G__128129)) {
 return null;} else {
-return u.guard(G__110111, j.fn([({ "keys": [to] })], (pos === to)));}
+return u.guard(G__128129, (function (p__130) {
+let map__131132 = p__130;
+let to133 = squint_core.get(map__131132, "to");
+return (pos === to133);
+}));}
 })();
-let R112 = (function () {
- let G__113114 = tree(state, pos, 1);
-if (squint_core.nil_QMARK_(G__113114)) {
+let R134 = (function () {
+ let G__135136 = tree(state, pos, 1);
+if (squint_core.nil_QMARK_(G__135136)) {
 return null;} else {
-return u.guard(G__113114, j.fn([({ "keys": [from] })], (pos === from)));}
+return u.guard(G__135136, (function (p__137) {
+let map__138139 = p__137;
+let from140 = squint_core.get(map__138139, "from");
+return (pos === from140);
+}));}
 })();
-let mid115 = tree(state, pos);
-let G__116117 = dir;
-switch (G__116117) {case 1:
-return (u.guard(R112, every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
+let mid141 = tree(state, pos);
+let G__142143 = dir;
+switch (G__142143) {case 1:
+return (u.guard(R134, every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
 return (same_edge_QMARK_(_PERCENT_1) || !right_edge_QMARK_(_PERCENT_1));
-}))) || L109 || R112 || mid115);
+}))) || L127 || R134 || mid141);
 break;
 case -1:
-return (u.guard(L109, every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
+return (u.guard(L127, every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
 return (same_edge_QMARK_(_PERCENT_1) || !left_edge_QMARK_(_PERCENT_1));
-}))) || R112 || L109 || mid115);
+}))) || R134 || L127 || mid141);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__116117))}
+throw new Error(squint_core.str("No matching clause: ", G__142143))}
 })
 ;
 var embedded_QMARK_ = (function () {
- let f119 = (function (var_args) {
-let G__122123 = arguments["length"];
-switch (G__122123) {case 1:
-return f119.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+ let f145 = (function (var_args) {
+let G__148149 = arguments["length"];
+switch (G__148149) {case 1:
+return f145.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 case 2:
-return f119.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+return f145.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f119["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+f145["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
 return embedded_QMARK_(state, state["selection"]["main"]["head"]);
 });
-f119["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+f145["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
 return squint_core.identical_QMARK_(lezer_markdown.parser.nodeTypes["FencedCode"], state["tree"].resolve(pos)["type"]["id"]);
 });
-f119["cljs$lang$maxFixedArity"] = 2;
-return f119;
+f145["cljs$lang$maxFixedArity"] = 2;
+return f145;
 })()
 ;
 var within_program_QMARK_ = (function () {
- let f125 = (function (var_args) {
-let G__128129 = arguments["length"];
-switch (G__128129) {case 1:
-return f125.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+ let f151 = (function (var_args) {
+let G__154155 = arguments["length"];
+switch (G__154155) {case 1:
+return f151.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 case 2:
-return f125.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+return f151.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f125["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+f151["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
 return within_program_QMARK_(state, state["selection"]["main"]["head"]);
 });
-f125["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
-let n131 = tree(state, pos);
-return (program_QMARK_(n131) || squint_core.some(program_QMARK_, ancestors(n131)));
+f151["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+let n157 = tree(state, pos);
+return (program_QMARK_(n157) || squint_core.some(program_QMARK_, ancestors(n157)));
 });
-f125["cljs$lang$maxFixedArity"] = 2;
-return f125;
+f151["cljs$lang$maxFixedArity"] = 2;
+return f151;
 })()
 ;
+squint_core.prn("node-loaded");
 null;
 
-export { end_edge_prop, ancestors, range, string_QMARK_, within_QMARK__LT_, edge_QMARK_, right, terminal_nodes, string, same_edge_type_QMARK_, up, line_comment_QMARK_, prefix_coll_prop, prefix, left_edge_with_prefix, top_QMARK_, empty_QMARK_, terminal_type_QMARK_, left_edge_type_QMARK_, children, nodes_between, prefix_edge_QMARK_, discard_QMARK_, right_edge_type_QMARK_, prefix_container_QMARK_, topmost_cursor, coll_prop, closed_by, error_QMARK_, _BAR_node, start_edge_type_QMARK_, prefix_container_prop, down_last, prefix_QMARK_, name, same_edge_QMARK_, prefix_container_type_QMARK_, rights, with_prefix, start, tree, closest, cursor, node_prop, from_to, follow_edges, start_edge_QMARK_, highest, embedded_QMARK_, opened_by, coll_QMARK_, down, type, terminal_cursor, within_QMARK_, depth, prefix_type_QMARK_, same_edge_prop, nearest_touching, regexp_QMARK_, top_type_QMARK_, error_type_QMARK_, up_here, ancestor_QMARK_, end_edge_type_QMARK_, right_edge_QMARK_, start_edge_prop, prefix_edge_prop, node_BAR_, left_edge_QMARK_, coll_type_QMARK_, lefts, require_balance_QMARK_, end, prefix_edge_type_QMARK_, within_program_QMARK_, left, end_edge_QMARK_, program_QMARK_, move_toward, eq_QMARK_ }
+export { end_edge_prop, ancestors, range, string_QMARK_, within_QMARK__LT_, edge_QMARK_, right, terminal_nodes, string, same_edge_type_QMARK_, up, line_comment_QMARK_, prefix_coll_prop, prefix, left_edge_with_prefix, top_QMARK_, empty_QMARK_, terminal_type_QMARK_, left_edge_type_QMARK_, children, nodes_between, prefix_edge_QMARK_, discard_QMARK_, right_edge_type_QMARK_, balanced_range, prefix_container_QMARK_, topmost_cursor, coll_prop, closed_by, error_QMARK_, _BAR_node, balanced_QMARK_, start_edge_type_QMARK_, prefix_container_prop, down_last, prefix_QMARK_, name, same_edge_QMARK_, prefix_container_type_QMARK_, rights, with_prefix, start, tree, closest, cursor, node_prop, from_to, follow_edges, start_edge_QMARK_, highest, embedded_QMARK_, opened_by, coll_QMARK_, down, type, terminal_cursor, within_QMARK_, inner_span, depth, prefix_type_QMARK_, same_edge_prop, nearest_touching, regexp_QMARK_, top_type_QMARK_, error_type_QMARK_, up_here, ancestor_QMARK_, end_edge_type_QMARK_, right_edge_QMARK_, start_edge_prop, prefix_edge_prop, node_BAR_, left_edge_QMARK_, coll_type_QMARK_, lefts, require_balance_QMARK_, end, prefix_edge_type_QMARK_, within_program_QMARK_, left, end_edge_QMARK_, program_QMARK_, move_toward, eq_QMARK_ }

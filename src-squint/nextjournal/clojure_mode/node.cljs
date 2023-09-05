@@ -161,7 +161,7 @@
         (identical? "ConstructorCall" (name node-type)) false
         :else true))
 
-(j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
+(defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
   (if-let [closing (closed-by firstChild)]
     (and (= closing (name lastChild))
          (not= (end firstChild) (end lastChild)))
@@ -304,7 +304,7 @@
                       (recur found)
                       found))))))
 
-(j/defn balanced-range
+(defn balanced-range
   ([state ^js node] (balanced-range state (start node) (end node)))
   ([state from to]
    (let [[from to] (sort [from to])
@@ -324,7 +324,7 @@
                                    [from to]))]
      (sel/range left right))))
 
-(j/defn inner-span
+(defn inner-span
   "Span of collection not including edges"
   [^:js {:as node :keys [firstChild lastChild]}]
   #js{:from (if (left-edge? firstChild)
@@ -379,9 +379,9 @@
 
 (defn nearest-touching [^js state pos dir]
   (let [L (some-> (tree state pos -1)
-                  (u/guard (j/fn [^:js {:keys [to]}] (= pos to))))
+                  (u/guard (fn [^:js {:keys [to]}] (= pos to))))
         R (some-> (tree state pos 1)
-                  (u/guard (j/fn [^:js {:keys [from]}]
+                  (u/guard (fn [^:js {:keys [from]}]
                              (= pos from))))
         mid (tree state pos)]
     (case dir 1 (or (u/guard R (every-pred some? #(or (same-edge? %) (not (right-edge? %)))))
@@ -409,6 +409,8 @@
    (let [n (tree state pos)]
      (or (program? n)
          (some program? (ancestors n))))))
+
+(prn :node-loaded)
 
 (comment
   ;; test state overlaid nodes

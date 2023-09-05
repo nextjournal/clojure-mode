@@ -1,14 +1,11 @@
 (ns nextjournal.clojure-mode.extensions.close-brackets
-  (:require ["w3c-keyname" :refer [keyName]]
-            ["@codemirror/view" :as view]
+  (:require ["@codemirror/view" :as view]
             ["@codemirror/state" :refer [EditorState
-                                         EditorSelection
-                                         Transaction
-                                         CharCategory
-                                         Extension
                                          Prec]]
-            [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.util :as u :refer [from-to]]
+            ["../node.mjs" :as n]
+            #_[nextjournal.clojure-mode.node :as n]
+            ["../util.mjs" :as u :refer [from-to]]
+            #_[nextjournal.clojure-mode.util :as u :refer [from-to]]
             [clojure.string :as str]))
 
 (defn in-string? [state pos]
@@ -28,17 +25,17 @@
     {:cursor (dec from)}
     (u/deletion from to)))
 
-(j/defn handle-backspace
+(defn handle-backspace
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
   [^:js {:as ^EditorState state :keys [doc]}]
   (when-not (and (= 1 (.. state -selection -ranges -length))
-                 (let [^js range (j/get-in state [:selection :ranges 0])]
+                 (let [^js range (get-in state [:selection :ranges 0])]
                    (and (.-empty range) (= 0 (.-from range)))))
     (u/update-ranges state
       #js{:annotations (u/user-event-annotation "delete")}
-      (j/fn [^:js {:as range :keys [head empty anchor]}]
-        (j/let [^:js {:as range from :from to :to} (from-to head anchor)
+      (fn [^:js {:as range :keys [head empty anchor]}]
+        (let [^:js {:as range from :from to :to} (from-to head anchor)
                 ^js node| (.resolveInner (n/tree state) from -1) ;; node immediately to the left of cursor
                 ^js parent (.-parent node|)]
           (cond
@@ -73,7 +70,7 @@
   (let [^string close (coll-pairs open)]
     (u/update-ranges state
       #js{:annotations (u/user-event-annotation "input")}
-      (j/fn [^:js {:keys [from to head anchor empty]}]
+      (fn [^:js {:keys [from to head anchor empty]}]
         (cond
           (in-string? state from)
           (if (= open \")
@@ -95,7 +92,7 @@
 (defn handle-close [state key-name]
   (u/update-ranges state
     #js{:annotations (u/user-event-annotation "input")}
-    (j/fn [^:js {:as range :keys [empty head from to]}]
+    (fn [^:js {:as range :keys [empty head from to]}]
       (if (or (in-string? state from)
               (escaped? state from))
         (u/insertion from to key-name)
@@ -128,15 +125,15 @@
            {:cursor head}
            #_(u/insertion head key-name)))))))
 
-(j/defn handle-backspace-cmd [^:js {:as view :keys [state]}]
+(defn handle-backspace-cmd [^:js {:as view :keys [state]}]
   (u/dispatch-some view (handle-backspace state)))
 
 (defn handle-open-cmd [key-name]
-  (j/fn [^:js {:as view :keys [state]}]
+  (fn [^:js {:as view :keys [state]}]
     (u/dispatch-some view (handle-open state key-name))))
 
 (defn handle-close-cmd [key-name]
-  (j/fn [^:js {:as view :keys [state]}]
+  (fn [^:js {:as view :keys [state]}]
     (u/dispatch-some view (handle-close state key-name))))
 
 (defn guard-scope
@@ -144,7 +141,7 @@
 
   Guards command for it to be triggered from within the right scope, does nothing and propagates key otherwise"
   [cmd]
-  (j/fn [^:js {:as view :keys [state]}]
+  (fn [^:js {:as view :keys [state]}]
     (if (or (n/embedded? state) (n/within-program? state))
       (cmd view)
       false)))
@@ -152,15 +149,16 @@
 (defn extension []
   (.high Prec
          (.of view/keymap
-              (j/lit
-               [{:key "Backspace"
-                 :run (guard-scope
-                       (j/fn [^:js {:as view :keys [state]}]
-                         (u/dispatch-some view (handle-backspace state))))}
-                {:key "(" :run (guard-scope (handle-open-cmd "("))}
-                {:key "[" :run (guard-scope (handle-open-cmd "["))}
-                {:key "{" :run (guard-scope (handle-open-cmd "{"))}
-                {:key \" :run  (guard-scope (handle-open-cmd \"))}
-                {:key \) :run  (guard-scope (handle-close-cmd \)))}
-                {:key \] :run  (guard-scope (handle-close-cmd \]))}
-                {:key \} :run  (guard-scope (handle-close-cmd \}))}]))))
+              [{:key "Backspace"
+                :run (guard-scope
+                      (fn [^:js {:as view :keys [state]}]
+                        (u/dispatch-some view (handle-backspace state))))}
+               {:key "(" :run (guard-scope (handle-open-cmd "("))}
+               {:key "[" :run (guard-scope (handle-open-cmd "["))}
+               {:key "{" :run (guard-scope (handle-open-cmd "{"))}
+               {:key \" :run  (guard-scope (handle-open-cmd \"))}
+               {:key \) :run  (guard-scope (handle-close-cmd \)))}
+               {:key \] :run  (guard-scope (handle-close-cmd \]))}
+               {:key \} :run  (guard-scope (handle-close-cmd \}))}])))
+
+(prn :close-brackets-loaded)
