@@ -5,6 +5,7 @@
             [applied-science.js-interop :as j]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
+            ;; TODO:
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
             [nextjournal.clojure-mode.keymap :as keymap]
