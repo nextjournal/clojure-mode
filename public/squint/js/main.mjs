@@ -6,5 +6,6 @@ import './src-squint/nextjournal/clojure_mode/extensions/formatting.mjs';
 import './src-squint/nextjournal/clojure_mode/extensions/selection_history.mjs';
 import './src-squint/nextjournal/clojure_mode/commands.mjs';
 import './src-squint/nextjournal/clojure_mode/keymap.mjs';
+import './src-squint/nextjournal/clojure_mode.mjs';
 
 console.log('hello');

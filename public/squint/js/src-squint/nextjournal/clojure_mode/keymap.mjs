@@ -7,7 +7,7 @@ let temp__25216__auto__1 = squint_core.get(m, k);
 if (squint_core.nil_QMARK_(temp__25216__auto__1)) {
 return squint_core.dissoc(m, k);} else {
 let existing2 = temp__25216__auto__1;
-return squint_core.assoc(m, k, f(existing2));}
+return squint_core.assoc(m, k, ((f instanceof Function)) ? (f(existing2)) : (squint_core.get(f, existing2)));}
 }), m, updates);
 })
 ;
@@ -43,6 +43,11 @@ var paredit_keymap_STAR_ = ({ "indent": [({ "key": "Tab", "doc": "Indent documen
 ;
 var builtin = ungroup(builtin_keymap_STAR_)
 ;
+var paredit = ungroup(paredit_keymap_STAR_)
+;
+var complete = paredit.concat(builtin)
+;
 null;
+squint_core.prn("keymap-loaded");
 
-export { update_some, serialize, deserialize, group, ungroup, builtin_keymap_STAR_, paredit_keymap_STAR_, builtin }
+export { serialize, ungroup, group, complete, paredit_keymap_STAR_, update_some, paredit, builtin, builtin_keymap_STAR_, deserialize }

@@ -2,41 +2,39 @@
   (:require ["@lezer/highlight" :as highlight :refer [tags]]
             ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            [applied-science.js-interop :as j]
-            [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
-            [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
-            [nextjournal.clojure-mode.extensions.formatting :as format]
-            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
-            [nextjournal.clojure-mode.keymap :as keymap]
-            [nextjournal.clojure-mode.node :as n]
+            ["./clojure_mode/extensions/close_brackets.mjs" :as close-brackets]
+            ["./clojure_mode/extensions/match_brackets.mjs" :as match-brackets]
+            ["./clojure_mode/extensions/formatting.mjs" :as format]
+            ["./clojure_mode/extensions/selection_history.mjs" :as sel-history]
+            ["./clojure_mode/keymap.mjs" :as keymap]
+            ["./clojure_mode/node.mjs" :as n]
             ;; TODO:
             #_[nextjournal.clojure-mode.test-utils :as test-utils]))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
                                      :to (dec (n/end tree))})]
-    (j/lit
-     {:Vector coll-span
-      :Map coll-span
-      :List coll-span})))
+    {:Vector coll-span
+     :Map coll-span
+     :List coll-span}))
 
 (def style-tags
-  (clj->js {:NS (.-keyword tags)
-            :DefLike (.-keyword tags)
-            "Operator/Symbol" (.-keyword tags)
-            "VarName/Symbol" (.definition tags (.-variableName tags))
-            :Boolean (.-atom tags)
-            "DocString/..." (.-emphasis tags)
-            :Discard! (.-comment tags)
-            :Number (.-number tags)
-            :StringContent (.-string tags)
-            ;; need to pass something, that returns " when being parsed as JSON
-            ;; also #js doesn't treat this correctly, hence clj->js above
-            "\"\\\"\"" (.-string tags)
-            :Keyword (.-atom tags)
-            :Nil (.-null tags)
-            :LineComment (.-lineComment tags)
-            :RegExp (.-regexp tags)}))
+  {:NS (.-keyword tags)
+   :DefLike (.-keyword tags)
+   "Operator/Symbol" (.-keyword tags)
+   "VarName/Symbol" (.definition tags (.-variableName tags))
+   :Boolean (.-atom tags)
+   "DocString/..." (.-emphasis tags)
+   :Discard! (.-comment tags)
+   :Number (.-number tags)
+   :StringContent (.-string tags)
+   ;; need to pass something, that returns " when being parsed as JSON
+   ;; also #js doesn't treat this correctly, hence clj->js above
+   "\"\\\"\"" (.-string tags)
+   :Keyword (.-atom tags)
+   :Nil (.-null tags)
+   :LineComment (.-lineComment tags)
+   :RegExp (.-regexp tags)})
 
 (def parser lezer-clj/parser)
 
@@ -101,3 +99,5 @@
     (-> state
         (close-brackets/handle-close ")")
         (->> (n/string state)))))
+
+(prn :clojure-mode-loaded)

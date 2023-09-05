@@ -104,7 +104,7 @@
                               (n/top? %)))
               (n/children from dir)
               first
-              (j/get (case dir -1 :from 1 :to)))
+              (get (case dir -1 :from 1 :to)))
       (sel/constrain state (+ from dir))))
 
 (defn nav [dir]
@@ -155,7 +155,7 @@
                               :insert (n/name edge)}
                              (-> edge
                                  n/from-to
-                                 (j/assoc! :insert " "))])
+                                 (assoc! :insert " "))])
                           -1
                           (let [^string edge (n/left-edge-with-prefix state parent)
                                 start (n/start (n/with-prefix parent))]
@@ -184,7 +184,7 @@
                                :insert (n/name (n/down-last parent))}
                               (-> (n/down-last parent)
                                   n/from-to
-                                  (j/assoc! :insert " "))]})
+                                  (assoc! :insert " "))]})
                  -1
                  (when-let [next-first-child (some->> (n/down parent)
                                                       n/rights
@@ -205,7 +205,8 @@
          (u/update-ranges state))))
 
 (def builtin-index
-  "Subset of builtin commands that compliment paredit"
+  ;; TODO, squint, def docstring
+  #_"Subset of builtin commands that compliment paredit"
   {:cursorLineStart commands/cursorLineStart
    :selectLineStart commands/selectLineStart
    :cursorLineDown commands/cursorLineDown
@@ -275,12 +276,14 @@
    :enter-and-indent enter-and-indent})
 
 (def index
-  "Mapping of keyword-id to command functions"
+  ;; TODO: squint, support def with docstring
+  #_"Mapping of keyword-id to command functions"
   (merge builtin-index
          paredit-index))
 
 (def reverse-index
-  "Lookup keyword-id by function"
+  ;; TODO: squint, support def with docstring
+  #_"Lookup keyword-id by function"
   (reduce-kv #(assoc %1 %3 %2) {} index))
 
 (prn :commands-loaded)

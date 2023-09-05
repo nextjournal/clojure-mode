@@ -7,7 +7,9 @@
   [m updates]
   (reduce-kv (fn [m k f]
                (if-some [existing (get m k)]
-                 (assoc m k (f existing))
+                 (assoc m k (if (instance? js/Function f)
+                              (f existing)
+                              (get f existing)))
                  (dissoc m k))) m updates))
 
 ;; (de)serializing commands from keyword-id to function
@@ -145,8 +147,10 @@
     {:key "Mod-2"}]})
 
 (def builtin (ungroup builtin-keymap*))
-#_#_(def paredit (ungroup paredit-keymap*))
+(def paredit (ungroup paredit-keymap*))
 (def complete (.concat paredit builtin))
 
 (comment
  (ungroup default-keymap))
+
+(prn :keymap-loaded)

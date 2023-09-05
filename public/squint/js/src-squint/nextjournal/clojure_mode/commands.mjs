@@ -41,15 +41,15 @@ let from19 = squint_core.get(map__1617, "from");
 let to20 = squint_core.get(map__1617, "to");
 let empty21 = squint_core.get(map__1617, "empty");
 if (empty21) {
-let temp__25187__auto__22 = (function () {
+let temp__25269__auto__22 = (function () {
  let G__2324 = n.tree(state, from19, -1);
 let G__2325 = (squint_core.nil_QMARK_(G__2324)) ? (null) : (n.closest(G__2324, n.coll_QMARK_));
 if (squint_core.nil_QMARK_(G__2325)) {
 return null;} else {
 return u.guard(G__2325, n.balanced_QMARK_);}
 })();
-if (temp__25187__auto__22) {
-let nearest_balanced_coll26 = temp__25187__auto__22;
+if (temp__25269__auto__22) {
+let nearest_balanced_coll26 = temp__25269__auto__22;
 return ({ "cursor": (from19 - 1), "changes": [n.from_to(n.down(nearest_balanced_coll26)), n.from_to(n.down_last(nearest_balanced_coll26))] });}}
 }));
 })
@@ -144,7 +144,7 @@ let G__6567 = (squint_core.nil_QMARK_(G__6566)) ? (null) : (n.children(G__6566, 
 let G__6568 = (squint_core.nil_QMARK_(G__6567)) ? (null) : (squint_core.first(G__6567));
 if (squint_core.nil_QMARK_(G__6568)) {
 return null;} else {
-return j.get(G__6568, (function () {
+return squint_core.get(G__6568, (function () {
  let G__6970 = dir;
 switch (G__6970) {case -1:
 return "from";
@@ -234,7 +234,7 @@ let from106 = squint_core.get(map__103104, "from");
 let to107 = squint_core.get(map__103104, "to");
 let empty108 = squint_core.get(map__103104, "empty");
 if (empty108) {
-let temp__25187__auto__109 = n.closest(n.tree(state, from106), every_pred(n.coll_QMARK_, (function (_PERCENT_1) {
+let temp__25269__auto__109 = n.closest(n.tree(state, from106), every_pred(n.coll_QMARK_, (function (_PERCENT_1) {
 return !(function () {
  let G__110111 = direction;
 switch (G__110111) {case 1:
@@ -257,9 +257,9 @@ default:
 throw new Error(squint_core.str("No matching clause: ", G__110111))}
 })();
 })));
-if (temp__25187__auto__109) {
-let parent121 = temp__25187__auto__109;
-let temp__25187__auto__122 = (function () {
+if (temp__25269__auto__109) {
+let parent121 = temp__25269__auto__109;
+let temp__25269__auto__122 = (function () {
  let G__123124 = direction;
 switch (G__123124) {case 1:
 return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.rights(n.with_prefix(parent121))));
@@ -270,13 +270,13 @@ break;
 default:
 throw new Error(squint_core.str("No matching clause: ", G__123124))}
 })();
-if (temp__25187__auto__122) {
-let target126 = temp__25187__auto__122;
+if (temp__25269__auto__122) {
+let target126 = temp__25269__auto__122;
 return ({ "cursor/mapped": from106, "changes": (function () {
  let G__127128 = direction;
 switch (G__127128) {case 1:
 let edge130 = n.down_last(parent121);
-return [({ "from": n.end(target126), "insert": n.name(edge130) }), j.assoc_BANG_(n.from_to(edge130), "insert", " ")];
+return [({ "from": n.end(target126), "insert": n.name(edge130) }), squint_core.assoc_BANG_(n.from_to(edge130), "insert", " ")];
 break;
 case -1:
 let edge131 = n.left_edge_with_prefix(state, parent121);
@@ -299,12 +299,12 @@ let from137 = squint_core.get(map__134135, "from");
 let to138 = squint_core.get(map__134135, "to");
 let empty139 = squint_core.get(map__134135, "empty");
 if (empty139) {
-let temp__25187__auto__140 = n.closest(n.tree(state, from137), n.coll_QMARK_);
-if (temp__25187__auto__140) {
-let parent141 = temp__25187__auto__140;
+let temp__25269__auto__140 = n.closest(n.tree(state, from137), n.coll_QMARK_);
+if (temp__25269__auto__140) {
+let parent141 = temp__25269__auto__140;
 let G__142143 = direction;
 switch (G__142143) {case 1:
-let temp__25187__auto__145 = (function () {
+let temp__25269__auto__145 = (function () {
  let G__146147 = n.down_last(parent141);
 let G__146148 = (squint_core.nil_QMARK_(G__146147)) ? (null) : (n.lefts(G__146147));
 let G__146149 = (squint_core.nil_QMARK_(G__146148)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__146148));
@@ -313,12 +313,12 @@ if (squint_core.nil_QMARK_(G__146150)) {
 return null;} else {
 return squint_core.first(G__146150);}
 })();
-if (temp__25187__auto__145) {
-let target151 = temp__25187__auto__145;
-return ({ "cursor": min(n.end(target151), from137), "changes": [({ "from": n.end(target151), "insert": n.name(n.down_last(parent141)) }), j.assoc_BANG_(n.from_to(n.down_last(parent141)), "insert", " ")] });}
+if (temp__25269__auto__145) {
+let target151 = temp__25269__auto__145;
+return ({ "cursor": min(n.end(target151), from137), "changes": [({ "from": n.end(target151), "insert": n.name(n.down_last(parent141)) }), squint_core.assoc_BANG_(n.from_to(n.down_last(parent141)), "insert", " ")] });}
 break;
 case -1:
-let temp__25187__auto__152 = (function () {
+let temp__25269__auto__152 = (function () {
  let G__153154 = n.down(parent141);
 let G__153155 = (squint_core.nil_QMARK_(G__153154)) ? (null) : (n.rights(G__153154));
 let G__153156 = (squint_core.nil_QMARK_(G__153155)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__153155));
@@ -327,8 +327,8 @@ if (squint_core.nil_QMARK_(G__153157)) {
 return null;} else {
 return squint_core.first(G__153157);}
 })();
-if (temp__25187__auto__152) {
-let next_first_child158 = temp__25187__auto__152;
+if (temp__25269__auto__152) {
+let next_first_child158 = temp__25269__auto__152;
 let left_edge159 = n.left_edge_with_prefix(state, parent141);
 let left_start160 = n.start(n.with_prefix(parent141));
 return ({ "cursor": max(from137, (n.start(next_first_child158) + (squint_core.count(left_edge159) + 1))), "changes": [({ "from": n.start(next_first_child158), "insert": squint_core.str(" ", left_edge159) }), ({ "from": left_start160, "to": (left_start160 + squint_core.count(left_edge159)), "insert": format.spaces(state, squint_core.count(left_edge159)) })] });}
@@ -339,7 +339,7 @@ throw new Error(squint_core.str("No matching clause: ", G__142143))}}}
 };
 })
 ;
-var builtin_index = "Subset of builtin commands that compliment paredit"
+var builtin_index = ({ "cursorLineStart": commands.cursorLineStart, "cursorLineDown": commands.cursorLineDown, "selectAll": commands.selectAll, "selectLineUp": commands.selectLineUp, "cursorLineBoundaryForward": commands.cursorLineBoundaryForward, "selectLineBoundaryBackward": commands.selectLineBoundaryBackward, "deleteCharBackward": commands.deleteCharBackward, "insertNewlineAndIndent": commands.insertNewlineAndIndent, "cursorLineBoundaryBackward": commands.cursorLineBoundaryBackward, "selectCharRight": commands.selectCharRight, "selectPageUp": commands.selectPageUp, "deleteCharForward": commands.deleteCharForward, "cursorCharLeft": commands.cursorCharLeft, "cursorGroupBackward": commands.cursorGroupBackward, "selectDocStart": commands.selectDocStart, "selectGroupBackward": commands.selectGroupBackward, "cursorDocEnd": commands.cursorDocEnd, "deleteGroupBackward": commands.deleteGroupBackward, "selectLineStart": commands.selectLineStart, "deleteGroupForward": commands.deleteGroupForward, "selectDocEnd": commands.selectDocEnd, "selectPageDown": commands.selectPageDown, "cursorPageDown": commands.cursorPageDown, "cursorPageUp": commands.cursorPageUp, "selectLineBoundaryForward": commands.selectLineBoundaryForward, "cursorLineEnd": commands.cursorLineEnd, "cursorGroupForward": commands.cursorGroupForward, "cursorCharRight": commands.cursorCharRight, "selectGroupForward": commands.selectGroupForward, "selectLineEnd": commands.selectLineEnd, "selectCharLeft": commands.selectCharLeft, "splitLine": commands.splitLine, "selectLineDown": commands.selectLineDown, "transposeChars": commands.transposeChars, "cursorLineUp": commands.cursorLineUp, "cursorDocStart": commands.cursorDocStart })
 ;
 var indent = view_command(format.format)
 ;
@@ -371,9 +371,11 @@ var enter_and_indent = view_command(enter_and_indent_STAR_)
 ;
 var paredit_index = ({ "indent": indent, "nav-left": nav_left, "enter-and-indent": enter_and_indent, "selection-grow": selection_grow, "kill": kill, "slurp-forward": slurp_forward, "nav-select-right": nav_select_right, "nav-select-left": nav_select_left, "barf-forward": barf_forward, "barf-backward": barf_backward, "nav-right": nav_right, "slurp-backward": slurp_backward, "unwrap": unwrap, "selection-return": selection_return })
 ;
-var index = "Mapping of keyword-id to command functions"
+var index = squint_core.merge(builtin_index, paredit_index)
 ;
-var reverse_index = "Lookup keyword-id by function"
+var reverse_index = squint_core.reduce_kv((function (_PERCENT_1, _PERCENT_2, _PERCENT_3) {
+return squint_core.assoc(_PERCENT_1, _PERCENT_3, _PERCENT_2);
+}), ({  }), index)
 ;
 squint_core.prn("commands-loaded");
 
