@@ -13,13 +13,17 @@ import { EditorView } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 
+console.log(default_extensions);
+
 let extensions = [ theme, foldGutter(),
                    (syntaxHighlighting(defaultHighlightStyle)),
-                   ...default_extensions ];
+                    ...default_extensions
+                 ];
 
 let state = EditorState.create( {doc: "(+ 1 2 3)",
                                  extensions: extensions });
 let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
-                             parent: editorElt });
+                             parent: editorElt,
+                             extensions: extensions });
 
