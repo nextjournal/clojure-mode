@@ -28,7 +28,7 @@ let tr5 = map__24;
 let map__36 = squint_core.get(map__24, "state");
 let selection7 = squint_core.get(map__36, "selection");
 let docChanged8 = squint_core.get(map__24, "docChanged");
-let previous_position9 = squint_core.first(keep_indexed((function (i, x) {
+let previous_position9 = squint_core.first(squint_core.keep_indexed((function (i, x) {
 if (sel.eq_QMARK_(squint_core.get(x, "selection"), selection7)) {
 return i;}
 }), stack));
@@ -91,9 +91,9 @@ return n.range(G__3435);}
 })
 ;
 var selection_return_STAR_ = (function (state) {
-let temp__32037__auto__36 = squint_core.get(squint_core.second(stack(state)), "selection");
-if (temp__32037__auto__36) {
-let selection37 = temp__32037__auto__36;
+let temp__27662__auto__36 = squint_core.get(squint_core.second(stack(state)), "selection");
+if (temp__27662__auto__36) {
+let selection37 = temp__27662__auto__36;
 return state.update(({ "selection": selection37, "annotations": event_annotation }));} else {
 return u.update_ranges(state, ({ "annotations": event_annotation }), (function (range) {
 return ({ "cursor": range["from"] });
