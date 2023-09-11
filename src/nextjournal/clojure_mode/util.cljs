@@ -60,6 +60,8 @@
                 from-to
                 range
                 changes]} (guard update-map map?)
+        _ (js/console.log "changes" changes)
+        _ (js/console.log "range" range)
         change-desc (when changes (.changes state (clj->js changes)))]
     (cond-> #js{:range (or range
                            (cond mapped (sel/cursor (.mapPos change-desc mapped))

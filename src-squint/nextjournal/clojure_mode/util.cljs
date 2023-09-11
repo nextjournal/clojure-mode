@@ -1,8 +1,8 @@
 (ns nextjournal.clojure-mode.util
-  (:require ["@codemirror/state" :refer [EditorSelection
+  (:require ["./selections" :as sel]
+            ["@codemirror/state" :refer [EditorSelection
                                          StateEffect
                                          Transaction]]
-            ["./selections" :as sel]
             #_[nextjournal.clojure-mode.selections :as sel]))
 
 (def node-js? (some? js/globalThis.process))
@@ -31,9 +31,9 @@
   ([from s] (insertion from from s))
   ([from to ^string s]
    {:changes {:insert s
-              :from   from
-              :to     to}
-    :cursor  (+ from (count s))}))
+              :from from
+              :to to}
+    :cursor (+ from (count s))}))
 
 (defn deletion
   ([from] (deletion (max 0 (dec from)) from))
@@ -41,7 +41,7 @@
    (let [from (if (= from to)
                 (max 0 (dec from))
                 from)]
-     {:cursor  from
+     {:cursor from
       :changes {:from from :to to}})))
 
 (defn line-content-at [state from]
@@ -56,18 +56,20 @@
                 range
                 changes]} (guard update-map map?)
         change-desc (when changes (.changes state changes))]
-    (cond-> #js{:range (or range
-                           (cond mapped (sel/cursor (.mapPos change-desc mapped))
-                                 (some? cursor) (sel/cursor cursor)
-                                 from-to (sel/range (get from-to 0) (get from-to 1)))
-                           original-range)}
+    (cond-> #js {:range (or range
+                            (cond mapped (do
+                                           (prn :yolo (some? range))
+                                           (sel/cursor (.mapPos change-desc mapped)))
+                                  (some? cursor) (sel/cursor cursor)
+                                  from-to (sel/range (get from-to 0) (get from-to 1)))
+                            original-range)}
       change-desc (doto (aset :changes change-desc)))))
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
   ([state f]
    (update-ranges state nil f))
-  ([^js state tr-specs f ]
+  ([^js state tr-specs f]
    (->> (fn [range]
           (or (when-some [result (f range)]
                 (map-cursor range state result))
@@ -117,10 +119,11 @@
                                                 #(> (.-number ^js %) line-number)))]
                    (recur next-line)
                    (let [^js change-set (.changes state changes)]
-                     #js{:changes changes
-                         :range (.range EditorSelection
-                                        (.mapPos change-set anchor 1)
-                                        (.mapPos change-set head 1))}))))))
+                     (js/console.log :change-set change-set)
+                     #js {:changes changes
+                          :range (.range EditorSelection
+                                         (.mapPos change-set anchor 1)
+                                         (.mapPos change-set head 1))}))))))
          (.changeByRange state))))
 
 
@@ -147,11 +150,11 @@
         next-changeset (.changes state next-changes)]
     (if (seq next-changes)
       (-> (select-keys tr [:annotations
-                             :scrollIntoView
-                             :reconfigure])
+                           :scrollIntoView
+                           :reconfigure])
           (assoc! :changes (.compose changes next-changeset))
           (cond->
-            selection
+           selection
             (assoc! :selection (.. state -selection (map next-changeset)))
             effects
             (assoc! :effects (.mapEffects StateEffect effects next-changeset))))

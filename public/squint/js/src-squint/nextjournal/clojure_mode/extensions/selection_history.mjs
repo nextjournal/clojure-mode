@@ -11,7 +11,7 @@ return arr[(arr["length"] - 1)];}
 })
 ;
 var ser = (function (selection) {
-return squint_core.map(juxt("anchor", "head"), squint_core.get(js__GT_clj(selection.toJSON(), "keywordize-keys", true), "ranges"));
+return squint_core.map(squint_core.juxt("anchor", "head"), squint_core.get(js__GT_clj(selection.toJSON(), "keywordize-keys", true), "ranges"));
 })
 ;
 var something_selected_QMARK_ = (function (selection) {
@@ -64,7 +64,7 @@ let map__2122 = p__20;
 let a_start23 = squint_core.get(map__2122, "from");
 let a_end24 = squint_core.get(map__2122, "to");
 return ((a_start23 <= start) && (a_end24 >= end) && !((a_start23 == start) && (a_end24 == end)));
-}), squint_core.cons(node19, squint_core.mapcat(juxt(n.inner_span, squint_core.identity), n.ancestors(node19)))));
+}), squint_core.cons(node19, squint_core.mapcat(squint_core.juxt(n.inner_span, squint_core.identity), n.ancestors(node19)))));
 })
 ;
 var selection_grow_STAR_ = (function (state) {
@@ -91,9 +91,9 @@ return n.range(G__3435);}
 })
 ;
 var selection_return_STAR_ = (function (state) {
-let temp__27662__auto__36 = squint_core.get(squint_core.second(stack(state)), "selection");
-if (temp__27662__auto__36) {
-let selection37 = temp__27662__auto__36;
+let temp__27675__auto__36 = squint_core.get(squint_core.second(stack(state)), "selection");
+if (temp__27675__auto__36) {
+let selection37 = temp__27675__auto__36;
 return state.update(({ "selection": selection37, "annotations": event_annotation }));} else {
 return u.update_ranges(state, ({ "annotations": event_annotation }), (function (range) {
 return ({ "cursor": range["from"] });

@@ -6,10 +6,10 @@ import './src-squint/nextjournal/clojure_mode/extensions/formatting.mjs';
 import './src-squint/nextjournal/clojure_mode/extensions/selection_history.mjs';
 import './src-squint/nextjournal/clojure_mode/commands.mjs';
 import './src-squint/nextjournal/clojure_mode/keymap.mjs';
-import { default_extensions } from './src-squint/nextjournal/clojure_mode.mjs';
+import { default_extensions, complete_keymap } from './src-squint/nextjournal/clojure_mode.mjs';
 import { theme } from './src-squint/nextjournal/clojure_mode/demo.mjs';
 
-import { EditorView, drawSelection } from  '@codemirror/view';
+import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 
@@ -18,6 +18,7 @@ console.log(default_extensions);
 let extensions = [ theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
                    drawSelection(),
+                   keymap.of(complete_keymap),
                     ...default_extensions
                  ];
 
