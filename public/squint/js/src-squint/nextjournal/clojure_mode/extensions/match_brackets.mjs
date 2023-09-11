@@ -25,22 +25,22 @@ let map__1011 = p__9;
 let head12 = squint_core.get(map__1011, "head");
 let empty13 = squint_core.get(map__1011, "empty");
 return ((function () {
- let temp__32100__auto__14 = (empty13 && squint_core.first(squint_core.filter(squint_core.some_fn(n.start_edge_QMARK_, n.end_edge_QMARK_), [n.tree(state5, head12, -1), n.tree(state5, head12, 1)])));
-if (temp__32100__auto__14) {
-let bracket15 = temp__32100__auto__14;
-let temp__32037__auto__16 = ((n.start_edge_QMARK_(bracket15) && (n.start(bracket15) === n.start(n.up(bracket15))))) ? (u.guard(n.down_last(n.up(bracket15)), (function (_PERCENT_1) {
+ let temp__25128__auto__14 = (empty13 && squint_core.first(squint_core.filter(squint_core.some_fn(n.start_edge_QMARK_, n.end_edge_QMARK_), [n.tree(state5, head12, -1), n.tree(state5, head12, 1)])));
+if (temp__25128__auto__14) {
+let bracket15 = temp__25128__auto__14;
+let temp__25074__auto__16 = ((n.start_edge_QMARK_(bracket15) && (n.start(bracket15) === n.start(n.up(bracket15))))) ? (u.guard(n.down_last(n.up(bracket15)), (function (_PERCENT_1) {
 return (n.name(_PERCENT_1) === n.closed_by(bracket15));
 }))) : (((n.end_edge_QMARK_(bracket15) && (n.end(bracket15) === n.end(n.up(bracket15))))) ? (u.guard(n.down(n.up(bracket15)), (function (_PERCENT_1) {
 return (n.name(_PERCENT_1) === n.opened_by(bracket15));
 }))) : (null));
-if (temp__32037__auto__16) {
-let other_bracket17 = temp__32037__auto__16;
+if (temp__25074__auto__16) {
+let other_bracket17 = temp__25074__auto__16;
 return squint_core.conj(out, mark_node(bracket15, matching_mark), mark_node(other_bracket17, matching_mark));} else {
 return squint_core.conj(out, mark_node(bracket15, nonmatching_mark));}}
 })() || (function () {
- let temp__32100__auto__18 = (!n.closest(n.tree(state5, head12), n.string_QMARK_) && squint_core.contains_QMARK_(new Set(["]", ")", "}"]), tr4["state"]["doc"].slice(head12, (head12 + 1)).toString()));
-if (temp__32100__auto__18) {
-let _unparsed_bracket19 = temp__32100__auto__18;
+ let temp__25128__auto__18 = (!n.closest(n.tree(state5, head12), n.string_QMARK_) && squint_core.contains_QMARK_(new Set(["]", ")", "}"]), tr4["state"]["doc"].slice(head12, (head12 + 1)).toString()));
+if (temp__25128__auto__18) {
+let _unparsed_bracket19 = temp__25128__auto__18;
 return squint_core.conj(out, mark_node(n.from_to(head12, (head12 + 1)), nonmatching_mark));}
 })() || out);
 }), [], tr4["state"]["selection"]["ranges"]);

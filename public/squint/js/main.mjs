@@ -9,14 +9,15 @@ import './src-squint/nextjournal/clojure_mode/keymap.mjs';
 import { default_extensions } from './src-squint/nextjournal/clojure_mode.mjs';
 import { theme } from './src-squint/nextjournal/clojure_mode/demo.mjs';
 
-import { EditorView } from  '@codemirror/view';
+import { EditorView, drawSelection } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 
 console.log(default_extensions);
 
 let extensions = [ theme, foldGutter(),
-                   (syntaxHighlighting(defaultHighlightStyle)),
+                   syntaxHighlighting(defaultHighlightStyle),
+                   drawSelection(),
                     ...default_extensions
                  ];
 
