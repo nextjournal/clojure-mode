@@ -56,9 +56,6 @@
                 range
                 changes]} (guard update-map map?)
         change-desc (when changes (.changes state changes))]
-    (js/console.log "map-cursor range" range)
-    (js/console.log "mapped?" mapped)
-    (js/console.log "curos?" cursor)
     (cond-> #js{:range (or range
                            (cond mapped (sel/cursor (.mapPos change-desc mapped))
                                  (some? cursor) (sel/cursor cursor)
@@ -72,10 +69,8 @@
    (update-ranges state nil f))
   ([^js state tr-specs f ]
    (->> (fn [range]
-          (js/console.log "range" range)
           (or (when-some [result (f range)]
-                (doto (map-cursor range state result)
-                  (->> (println "mapped"))))
+                (map-cursor range state result))
               #js{:range range}))
         (.changeByRange state)
         (#(js/Object.assign % tr-specs))
