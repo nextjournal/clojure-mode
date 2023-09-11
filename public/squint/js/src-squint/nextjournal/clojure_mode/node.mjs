@@ -57,12 +57,10 @@ return node["parent"];
 })
 ;
 var down = (function (node) {
-assert(!fn_QMARK_(node["lastChild"]));
 return node["firstChild"];
 })
 ;
 var down_last = (function (node) {
-assert(!fn_QMARK_(node["lastChild"]));
 return node["lastChild"];
 })
 ;

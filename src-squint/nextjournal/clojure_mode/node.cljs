@@ -53,11 +53,12 @@
 (defn ^js up [node] (.-parent ^js node))
 
 (defn ^js down [node]
-  {:pre [(not (fn? (.-lastChild ^js node)))]}
+  ;; TODO: fix in squint
+  #_{:pre [(not (fn? (.-lastChild ^js node)))]}
   (.-firstChild ^js node))
 
 (defn ^js down-last [node]
-  {:pre [(not (fn? (.-lastChild ^js node)))]}
+  #_{:pre [(not (fn? (.-lastChild ^js node)))]}
   (.-lastChild ^js node))
 
 (defn ^number depth [^js node]

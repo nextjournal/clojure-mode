@@ -58,8 +58,9 @@
                      (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
             (if (n/empty? (n/up node|))
               ;; remove empty collection
-              {:cursor  (n/start parent)
-               :changes [(from-to (n/start parent) (n/end parent))]}
+              (doto {:cursor  (n/start parent)
+                     :changes [(from-to (n/start parent) (n/end parent))]}
+                (-> clj->js js/console.log))
               ;; stop cursor at inner-left of collection
               {:cursor from})
 
