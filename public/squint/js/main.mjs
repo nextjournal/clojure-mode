@@ -8,4 +8,14 @@ import './src-squint/nextjournal/clojure_mode/commands.mjs';
 import './src-squint/nextjournal/clojure_mode/keymap.mjs';
 import './src-squint/nextjournal/clojure_mode.mjs';
 
+import { EditorView } from  '@codemirror/view';
+import { EditorState } from  '@codemirror/state';
+
+
+let state = EditorState.create({doc: "(+ 1 2 3)"});
+let editorElt = document.querySelector('#editor');
+let editor = new EditorView({state: state,
+                             parent: editorElt });
+
+console.log();
 console.log('hello');
