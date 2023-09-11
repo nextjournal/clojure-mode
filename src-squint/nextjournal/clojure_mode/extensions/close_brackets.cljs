@@ -53,10 +53,9 @@
                                     (n/same-edge? node|)) (== (n/start node|) (n/start parent)))
                            (if (n/empty? (n/up node|))
                              ;; remove empty collection
-                             (doto {:cursor (n/start parent)
-                                    :changes [(from-to (n/start parent) (n/end parent))]}
-                               println)
-                              ;; stop cursor at inner-left of collection
+                             {:cursor (n/start parent)
+                              :changes [(from-to (n/start parent) (n/end parent))]}
+                             ;; stop cursor at inner-left of collection
                              {:cursor from})
                            :else (backspace-backoff state from to)))))))
 
