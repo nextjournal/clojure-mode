@@ -15,7 +15,7 @@ import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 
 console.log(default_extensions);
 
-let extensions = [ (syntaxHighlighting(defaultHighlightStyle)), ...default_extensions.slice(0,1) ]
+let extensions = [ (syntaxHighlighting(defaultHighlightStyle)), ...default_extensions.slice(0,2) ]
 let state = EditorState.create( {doc: "(+ 1 2 3)",
                                  extensions: extensions });
 let editorElt = document.querySelector('#editor');

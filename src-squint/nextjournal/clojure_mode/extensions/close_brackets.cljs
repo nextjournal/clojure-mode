@@ -9,7 +9,7 @@
             [clojure.string :as str]))
 
 (defn in-string? [state pos]
-  (#{"StringContent" "String"} (n/name (n/tree state pos))))
+  (contains? #{"StringContent" "String"} (n/name (n/tree state pos))))
 
 (defn escaped? [state pos]
   (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
@@ -67,7 +67,7 @@
                  \" \"})
 
 (defn handle-open [^EditorState state ^string open]
-  (let [^string close (coll-pairs open)]
+  (let [^string close (get coll-pairs open)]
     (u/update-ranges state
       #js{:annotations (u/user-event-annotation "input")}
       (fn [^:js {:keys [from to head anchor empty]}]

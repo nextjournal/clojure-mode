@@ -40,7 +40,8 @@
 (defn ^lz-tree/NodeType type [^js node] (.-type node))
 
 (defn ^number start [^js node]
-  {:pre [(.-from node)]}
+  ;; TODO: fix in squint
+  #_{:pre [(.-from node)]}
   (.-from node))
 
 (defn ^number end [^js node]

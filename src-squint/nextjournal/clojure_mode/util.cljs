@@ -48,19 +48,20 @@
   (.. state -doc (lineAt from) slice))
 
 (defn map-cursor [^js original-range ^js state update-map]
-  {:pre [(map? update-map)]}
+  ;; TODO: fix in squint
+  #_{:pre [(map? update-map)]}
   (let [{:keys [cursor/mapped
                 cursor
                 from-to
                 range
                 changes]} (guard update-map map?)
-        change-desc (when changes (.changes state (clj->js changes)))]
+        change-desc (when changes (.changes state changes))]
     (cond-> #js{:range (or range
                            (cond mapped (sel/cursor (.mapPos change-desc mapped))
                                  cursor (sel/cursor cursor)
                                  from-to (sel/range (from-to 0) (from-to 1)))
                            original-range)}
-      change-desc (set! :changes change-desc))))
+      change-desc (aset :changes change-desc))))
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"

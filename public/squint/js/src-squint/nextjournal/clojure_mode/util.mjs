@@ -64,10 +64,10 @@ default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
 f7["cljs$core$IFn$_invoke$arity$1"] = (function (from) {
-return deletion(max(0, (from - 1)), from);
+return deletion(squint_core.max(0, (from - 1)), from);
 });
 f7["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
-let from13 = ((from === to)) ? (max(0, (from - 1))) : (from);
+let from13 = ((from === to)) ? (squint_core.max(0, (from - 1))) : (from);
 return ({ "cursor": from13, "changes": ({ "from": from13, "to": to }) });
 });
 f7["cljs$lang$maxFixedArity"] = 2;
@@ -79,18 +79,16 @@ return state["doc"].lineAt(from).slice();
 })
 ;
 var map_cursor = (function (original_range, state, update_map) {
-assert(map_QMARK_(update_map));
-let map__1415 = guard(update_map, map_QMARK_);
+let map__1415 = guard(update_map, squint_core.map_QMARK_);
 let mapped16 = squint_core.get(map__1415, "cursor/mapped");
 let cursor17 = squint_core.get(map__1415, "cursor");
 let from_to18 = squint_core.get(map__1415, "from-to");
 let range19 = squint_core.get(map__1415, "range");
 let changes20 = squint_core.get(map__1415, "changes");
-let change_desc21 = (changes20) ? (state.changes(clj__GT_js(changes20))) : (null);
+let change_desc21 = (changes20) ? (state.changes(changes20)) : (null);
 let G__2223 = ({ "range": (range19 || (mapped16) ? (sel.cursor(change_desc21.mapPos(mapped16))) : ((cursor17) ? (sel.cursor(cursor17)) : ((from_to18) ? (sel.range(from_to18(0), from_to18(1))) : (null))) || original_range) });
 if (change_desc21) {
-return G__2223 = "changes";
-;} else {
+return squint_core.aset(G__2223, "changes", change_desc21);} else {
 return G__2223;}
 })
 ;
@@ -114,10 +112,10 @@ return state.update((function (_PERCENT_1) {
 return Object.assign(_PERCENT_1, tr_specs);
 })(state.changeByRange((function (range) {
 return ((function () {
- let temp__25231__auto__30 = f(range);
-if (squint_core.nil_QMARK_(temp__25231__auto__30)) {
+ let temp__27794__auto__30 = f(range);
+if (squint_core.nil_QMARK_(temp__27794__auto__30)) {
 return null;} else {
-let result31 = temp__25231__auto__30;
+let result31 = temp__27794__auto__30;
 return map_cursor(range, state, result31);}
 })() || ({ "range": range }));
 }))));
@@ -135,10 +133,10 @@ return dispatch(state.update(({ "changes": changes })));}
 var update_lines = (function () {
  let f32 = (function (var_args) {
 let args3338 = [];
-let len__24329__auto__39 = arguments["length"];
+let len__26551__auto__39 = arguments["length"];
 let i3440 = 0;
 while(true){
-if ((i3440 < len__24329__auto__39)) {
+if ((i3440 < len__26551__auto__39)) {
 args3338.push((arguments[i3440]));
 let G__41 = (i3440 + 1);
 i3440 = G__41;
@@ -146,8 +144,8 @@ continue;
 };break;
 }
 ;
-let argseq__24575__auto__42 = ((2 < args3338["length"])) ? (args3338.slice(2)) : (null);
-return f32.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), argseq__24575__auto__42);
+let argseq__26872__auto__42 = ((2 < args3338["length"])) ? (args3338.slice(2)) : (null);
+return f32.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), argseq__26872__auto__42);
 });
 f32["cljs$core$IFn$_invoke$arity$variadic"] = (function (state, f, p__43) {
 let vec__4448 = p__43;
@@ -169,9 +167,9 @@ if ((done60 || (from50 > to51))) {
 return state.update(Object.assign(({ "changes": state.changes(changes55) }), spec52));} else {
 let G__63 = iterator53.next();
 let G__64 = (function () {
- let temp__24970__auto__65 = (!lineBreak61 && f(from_pos56, value62, line_num57));
-if (temp__24970__auto__65) {
-let change66 = temp__24970__auto__65;
+ let temp__27646__auto__65 = (!lineBreak61 && f(from_pos56, value62, line_num57));
+if (temp__27646__auto__65) {
+let change66 = temp__27646__auto__65;
 let G__6768 = changes55;
 G__6768.push(change66);
 return G__6768;} else {
@@ -199,8 +197,8 @@ let G__3673 = squint_core.first(seq35);
 let seq3574 = next(seq35);
 let G__3775 = squint_core.first(seq3574);
 let seq3576 = next(seq3574);
-let self__24359__auto__77 = this;
-return self__24359__auto__77.cljs$core$IFn$_invoke$arity$variadic(G__3673, G__3775, seq3576);
+let self__26573__auto__77 = this;
+return self__26573__auto__77.cljs$core$IFn$_invoke$arity$variadic(G__3673, G__3775, seq3576);
 });
 return f32;
 })()
@@ -224,11 +222,11 @@ let line_to93 = squint_core.get(map__9091, "to");
 if ((line89["number"] > squint_core.deref(at_line78))) {
 squint_core.reset_BANG_(at_line78, line_number92);
 f(line89, changes88, range83)};
-let temp__24970__auto__94 = ((to85 > line_to93) && guard(doc79.lineAt((line_to93 + 1)), (function (_PERCENT_1) {
+let temp__27646__auto__94 = ((to85 > line_to93) && guard(doc79.lineAt((line_to93 + 1)), (function (_PERCENT_1) {
 return (_PERCENT_1["number"] > line_number92);
 })));
-if (temp__24970__auto__94) {
-let next_line95 = temp__24970__auto__94;
+if (temp__27646__auto__94) {
+let next_line95 = temp__27646__auto__94;
 let G__96 = next_line95;
 line89 = G__96;
 continue;

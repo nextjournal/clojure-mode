@@ -45,7 +45,6 @@ return node["type"];
 })
 ;
 var start = (function (node) {
-assert(node["from"]);
 return node["from"];
 })
 ;
@@ -72,10 +71,10 @@ var depth = (function (node) {
 let node4 = node;
 let i5 = 0;
 while(true){
-let temp__25059__auto__6 = up(node4);
-if (squint_core.nil_QMARK_(temp__25059__auto__6)) {
+let temp__25216__auto__6 = up(node4);
+if (squint_core.nil_QMARK_(temp__25216__auto__6)) {
 return i5;} else {
-let parent7 = temp__25059__auto__6;
+let parent7 = temp__25216__auto__6;
 let G__8 = parent7;
 let G__9 = (i5 + 1);
 node4 = G__8;
@@ -257,18 +256,18 @@ let map__1617 = p__15;
 let node18 = map__1617;
 let firstChild19 = squint_core.get(map__1617, "firstChild");
 let lastChild20 = squint_core.get(map__1617, "lastChild");
-let temp__24970__auto__21 = closed_by(firstChild19);
-if (temp__24970__auto__21) {
-let closing22 = temp__24970__auto__21;
+let temp__25170__auto__21 = closed_by(firstChild19);
+if (temp__25170__auto__21) {
+let closing22 = temp__25170__auto__21;
 return ((closing22 === name(lastChild20)) && (end(firstChild19) !== end(lastChild20)));} else {
 return true;}
 })
 ;
 var ancestors = (function (node) {
-let temp__25231__auto__23 = up(node);
-if (squint_core.nil_QMARK_(temp__25231__auto__23)) {
+let temp__25350__auto__23 = up(node);
+if (squint_core.nil_QMARK_(temp__25350__auto__23)) {
 return null;} else {
-let parent24 = temp__25231__auto__23;
+let parent24 = temp__25350__auto__23;
 return squint_core.cons(parent24, new squint_core.LazySeq((function () {
 return ancestors(parent24);
 })));}
@@ -304,7 +303,7 @@ default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
 f25["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
-let temp__25231__auto__31 = (function () {
+let temp__25350__auto__31 = (function () {
  let G__3233 = dir;
 switch (G__3233) {case 1:
 return parent.childAfter(from);
@@ -315,9 +314,9 @@ break;
 default:
 throw new Error(squint_core.str("No matching clause: ", G__3233))}
 })();
-if (squint_core.nil_QMARK_(temp__25231__auto__31)) {
+if (squint_core.nil_QMARK_(temp__25350__auto__31)) {
 return null;} else {
-let child35 = temp__25231__auto__31;
+let child35 = temp__25350__auto__31;
 return squint_core.cons(child35, new squint_core.LazySeq((function () {
 return children(parent, (function () {
  let G__3637 = dir;
@@ -622,10 +621,10 @@ return node;}
 })
 ;
 var prefix = (function (node) {
-let temp__25231__auto__117 = up(node);
-if (squint_core.nil_QMARK_(temp__25231__auto__117)) {
+let temp__25350__auto__117 = up(node);
+if (squint_core.nil_QMARK_(temp__25350__auto__117)) {
 return null;} else {
-let parent118 = temp__25231__auto__117;
+let parent118 = temp__25350__auto__117;
 return (u.guard(parent118, prefix_container_QMARK_) || u.guard(down(parent118), prefix_edge_QMARK_));}
 })
 ;

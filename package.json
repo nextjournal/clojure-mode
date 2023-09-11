@@ -37,6 +37,6 @@
   "devDependencies": {
     "shadow-cljs": "2.19.5",
     "vite": "^4.4.9",
-    "squint-cljs": "^0.1.18"
+    "squint-cljs": "../squint"
   }
 }

@@ -6,11 +6,11 @@ import * as u from '../util.mjs';
 import { from_to } from '../util.mjs';
 import * as str from 'squint-cljs/string.js';
 var in_string_QMARK_ = (function (state, pos) {
-return new Set(["StringContent", "String"])(n.name(n.tree(state, pos)));
+return squint_core.contains_QMARK_(new Set(["StringContent", "String"]), n.name(n.tree(state, pos)));
 })
 ;
 var escaped_QMARK_ = (function (state, pos) {
-return ("\\" === state["doc"].slice(max(0, (pos - 1)), pos).toString());
+return ("\\" === state["doc"].slice(squint_core.max(0, (pos - 1)), pos).toString());
 })
 ;
 var backspace_backoff = (function (state, from, to) {
@@ -62,7 +62,7 @@ return null;}}}}
 var coll_pairs = ({ "(": ")", "[": "]", "{": "}", "\"": "\"" })
 ;
 var handle_open = (function (state, open) {
-let close23 = coll_pairs(open);
+let close23 = squint_core.get(coll_pairs, open);
 return u.update_ranges(state, ({ "annotations": u.user_event_annotation("input") }), (function (p__24) {
 let map__2526 = p__24;
 let from27 = squint_core.get(map__2526, "from");
@@ -120,10 +120,10 @@ return n.end(G__5051);}
 if ((closing45 && (closing45 === key_name))) {
 return ({ "changes": ({ "from": pos49, "insert": closing45 }), "cursor": (pos49 + 1) });}
 })() || (function () {
- let temp__25187__auto__52 = (function () {
- let temp__25187__auto__53 = n.terminal_cursor(n.tree(state), head37, 1);
-if (temp__25187__auto__53) {
-let cursor54 = temp__25187__auto__53;
+ let temp__31544__auto__52 = (function () {
+ let temp__31544__auto__53 = n.terminal_cursor(n.tree(state), head37, 1);
+if (temp__31544__auto__53) {
+let cursor54 = temp__31544__auto__53;
 while(true){
 if (n.right_edge_type_QMARK_(cursor54["type"])) {
 return n.end(cursor54);} else {
@@ -133,8 +133,8 @@ continue;
 }
 }
 })();
-if (temp__25187__auto__52) {
-let close_node_end55 = temp__25187__auto__52;
+if (temp__31544__auto__52) {
+let close_node_end55 = temp__31544__auto__52;
 return ({ "cursor": close_node_end55 });}
 })() || ({ "cursor": head37 }));}}
 }));
