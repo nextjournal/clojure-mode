@@ -59,9 +59,9 @@
     (cond-> #js{:range (or range
                            (cond mapped (sel/cursor (.mapPos change-desc mapped))
                                  cursor (sel/cursor cursor)
-                                 from-to (sel/range (from-to 0) (from-to 1)))
+                                 from-to (sel/range (get from-to 0) (get from-to 1)))
                            original-range)}
-      change-desc (aset :changes change-desc))))
+      change-desc (doto (aset :changes change-desc)))))
 
 (defn update-ranges
   "Applies `f` to each range in `state` (see `changeByRange`)"
@@ -69,6 +69,7 @@
    (update-ranges state nil f))
   ([^js state tr-specs f ]
    (->> (fn [range]
+          (js/console.log "range" range)
           (or (when-some [result (f range)]
                 (map-cursor range state result))
               #js{:range range}))

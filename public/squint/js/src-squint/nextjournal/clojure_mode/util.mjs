@@ -86,42 +86,45 @@ let from_to18 = squint_core.get(map__1415, "from-to");
 let range19 = squint_core.get(map__1415, "range");
 let changes20 = squint_core.get(map__1415, "changes");
 let change_desc21 = (changes20) ? (state.changes(changes20)) : (null);
-let G__2223 = ({ "range": (range19 || (mapped16) ? (sel.cursor(change_desc21.mapPos(mapped16))) : ((cursor17) ? (sel.cursor(cursor17)) : ((from_to18) ? (sel.range(from_to18(0), from_to18(1))) : (null))) || original_range) });
+let G__2223 = ({ "range": (range19 || (mapped16) ? (sel.cursor(change_desc21.mapPos(mapped16))) : ((cursor17) ? (sel.cursor(cursor17)) : ((from_to18) ? (sel.range(squint_core.get(from_to18, 0), squint_core.get(from_to18, 1))) : (null))) || original_range) });
 if (change_desc21) {
-return squint_core.aset(G__2223, "changes", change_desc21);} else {
+let G__2425 = G__2223;
+squint_core.aset(G__2425, "changes", change_desc21);
+return G__2425;} else {
 return G__2223;}
 })
 ;
 var update_ranges = (function () {
- let f24 = (function (var_args) {
-let G__2728 = arguments["length"];
-switch (G__2728) {case 2:
-return f24.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f26 = (function (var_args) {
+let G__2930 = arguments["length"];
+switch (G__2930) {case 2:
+return f26.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f24.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f26.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f24["cljs$core$IFn$_invoke$arity$2"] = (function (state, f) {
+f26["cljs$core$IFn$_invoke$arity$2"] = (function (state, f) {
 return update_ranges(state, null, f);
 });
-f24["cljs$core$IFn$_invoke$arity$3"] = (function (state, tr_specs, f) {
+f26["cljs$core$IFn$_invoke$arity$3"] = (function (state, tr_specs, f) {
 return state.update((function (_PERCENT_1) {
 return Object.assign(_PERCENT_1, tr_specs);
 })(state.changeByRange((function (range) {
+console.log("range", range);
 return ((function () {
- let temp__27794__auto__30 = f(range);
-if (squint_core.nil_QMARK_(temp__27794__auto__30)) {
+ let temp__27794__auto__32 = f(range);
+if (squint_core.nil_QMARK_(temp__27794__auto__32)) {
 return null;} else {
-let result31 = temp__27794__auto__30;
-return map_cursor(range, state, result31);}
+let result33 = temp__27794__auto__32;
+return map_cursor(range, state, result33);}
 })() || ({ "range": range }));
 }))));
 });
-f24["cljs$lang$maxFixedArity"] = 3;
-return f24;
+f26["cljs$lang$maxFixedArity"] = 3;
+return f26;
 })()
 ;
 var dispatch_changes = (function (state, dispatch, changes) {
@@ -131,159 +134,159 @@ return dispatch(state.update(({ "changes": changes })));}
 })
 ;
 var update_lines = (function () {
- let f32 = (function (var_args) {
-let args3338 = [];
-let len__26551__auto__39 = arguments["length"];
-let i3440 = 0;
+ let f34 = (function (var_args) {
+let args3540 = [];
+let len__26551__auto__41 = arguments["length"];
+let i3642 = 0;
 while(true){
-if ((i3440 < len__26551__auto__39)) {
-args3338.push((arguments[i3440]));
-let G__41 = (i3440 + 1);
-i3440 = G__41;
+if ((i3642 < len__26551__auto__41)) {
+args3540.push((arguments[i3642]));
+let G__43 = (i3642 + 1);
+i3642 = G__43;
 continue;
 };break;
 }
 ;
-let argseq__26872__auto__42 = ((2 < args3338["length"])) ? (args3338.slice(2)) : (null);
-return f32.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), argseq__26872__auto__42);
+let argseq__26872__auto__44 = ((2 < args3540["length"])) ? (args3540.slice(2)) : (null);
+return f34.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), argseq__26872__auto__44);
 });
-f32["cljs$core$IFn$_invoke$arity$variadic"] = (function (state, f, p__43) {
-let vec__4448 = p__43;
-let map__4749 = squint_core.nth(vec__4448, 0, null);
-let from50 = squint_core.get(map__4749, "from", 0);
-let to51 = squint_core.get(map__4749, "to");
-let spec52 = squint_core.get(map__4749, "spec");
-let iterator53 = state["doc"].iter();
-let result54 = iterator53.next();
-let changes55 = [];
-let from_pos56 = from50;
-let line_num57 = 1;
+f34["cljs$core$IFn$_invoke$arity$variadic"] = (function (state, f, p__45) {
+let vec__4650 = p__45;
+let map__4951 = squint_core.nth(vec__4650, 0, null);
+let from52 = squint_core.get(map__4951, "from", 0);
+let to53 = squint_core.get(map__4951, "to");
+let spec54 = squint_core.get(map__4951, "spec");
+let iterator55 = state["doc"].iter();
+let result56 = iterator55.next();
+let changes57 = [];
+let from_pos58 = from52;
+let line_num59 = 1;
 while(true){
-let map__5859 = result54;
-let done60 = squint_core.get(map__5859, "done");
-let lineBreak61 = squint_core.get(map__5859, "lineBreak");
-let value62 = squint_core.get(map__5859, "value");
-if ((done60 || (from50 > to51))) {
-return state.update(Object.assign(({ "changes": state.changes(changes55) }), spec52));} else {
-let G__63 = iterator53.next();
-let G__64 = (function () {
- let temp__27646__auto__65 = (!lineBreak61 && f(from_pos56, value62, line_num57));
-if (temp__27646__auto__65) {
-let change66 = temp__27646__auto__65;
-let G__6768 = changes55;
-G__6768.push(change66);
-return G__6768;} else {
-return changes55;}
+let map__6061 = result56;
+let done62 = squint_core.get(map__6061, "done");
+let lineBreak63 = squint_core.get(map__6061, "lineBreak");
+let value64 = squint_core.get(map__6061, "value");
+if ((done62 || (from52 > to53))) {
+return state.update(Object.assign(({ "changes": state.changes(changes57) }), spec54));} else {
+let G__65 = iterator55.next();
+let G__66 = (function () {
+ let temp__27646__auto__67 = (!lineBreak63 && f(from_pos58, value64, line_num59));
+if (temp__27646__auto__67) {
+let change68 = temp__27646__auto__67;
+let G__6970 = changes57;
+G__6970.push(change68);
+return G__6970;} else {
+return changes57;}
 })();
-let G__69 = (from_pos56 + squint_core.count(value62));
-let G__70 = (function () {
- let G__7172 = line_num57;
-if (lineBreak61) {
-return (G__7172 + 1);} else {
-return G__7172;}
+let G__71 = (from_pos58 + squint_core.count(value64));
+let G__72 = (function () {
+ let G__7374 = line_num59;
+if (lineBreak63) {
+return (G__7374 + 1);} else {
+return G__7374;}
 })();
-result54 = G__63;
-changes55 = G__64;
-from_pos56 = G__69;
-line_num57 = G__70;
+result56 = G__65;
+changes57 = G__66;
+from_pos58 = G__71;
+line_num59 = G__72;
 continue;
 };break;
 }
 
 });
-f32["cljs$lang$maxFixedArity"] = 2;
-f32["cljs$lang$applyTo"] = (function (seq35) {
-let G__3673 = squint_core.first(seq35);
-let seq3574 = next(seq35);
-let G__3775 = squint_core.first(seq3574);
-let seq3576 = next(seq3574);
-let self__26573__auto__77 = this;
-return self__26573__auto__77.cljs$core$IFn$_invoke$arity$variadic(G__3673, G__3775, seq3576);
+f34["cljs$lang$maxFixedArity"] = 2;
+f34["cljs$lang$applyTo"] = (function (seq37) {
+let G__3875 = squint_core.first(seq37);
+let seq3776 = next(seq37);
+let G__3977 = squint_core.first(seq3776);
+let seq3778 = next(seq3776);
+let self__26573__auto__79 = this;
+return self__26573__auto__79.cljs$core$IFn$_invoke$arity$variadic(G__3875, G__3977, seq3778);
 });
-return f32;
+return f34;
 })()
 ;
 var update_selected_lines = (function (state, f) {
-let at_line78 = squint_core.atom(-1);
-let doc79 = state["doc"];
-return state.changeByRange((function (p__80) {
-let map__8182 = p__80;
-let range83 = map__8182;
-let from84 = squint_core.get(map__8182, "from");
-let to85 = squint_core.get(map__8182, "to");
-let anchor86 = squint_core.get(map__8182, "anchor");
-let head87 = squint_core.get(map__8182, "head");
-let changes88 = [];
-let line89 = doc79.lineAt(from84);
+let at_line80 = squint_core.atom(-1);
+let doc81 = state["doc"];
+return state.changeByRange((function (p__82) {
+let map__8384 = p__82;
+let range85 = map__8384;
+let from86 = squint_core.get(map__8384, "from");
+let to87 = squint_core.get(map__8384, "to");
+let anchor88 = squint_core.get(map__8384, "anchor");
+let head89 = squint_core.get(map__8384, "head");
+let changes90 = [];
+let line91 = doc81.lineAt(from86);
 while(true){
-let map__9091 = line89;
-let line_number92 = squint_core.get(map__9091, "number");
-let line_to93 = squint_core.get(map__9091, "to");
-if ((line89["number"] > squint_core.deref(at_line78))) {
-squint_core.reset_BANG_(at_line78, line_number92);
-f(line89, changes88, range83)};
-let temp__27646__auto__94 = ((to85 > line_to93) && guard(doc79.lineAt((line_to93 + 1)), (function (_PERCENT_1) {
-return (_PERCENT_1["number"] > line_number92);
+let map__9293 = line91;
+let line_number94 = squint_core.get(map__9293, "number");
+let line_to95 = squint_core.get(map__9293, "to");
+if ((line91["number"] > squint_core.deref(at_line80))) {
+squint_core.reset_BANG_(at_line80, line_number94);
+f(line91, changes90, range85)};
+let temp__27646__auto__96 = ((to87 > line_to95) && guard(doc81.lineAt((line_to95 + 1)), (function (_PERCENT_1) {
+return (_PERCENT_1["number"] > line_number94);
 })));
-if (temp__27646__auto__94) {
-let next_line95 = temp__27646__auto__94;
-let G__96 = next_line95;
-line89 = G__96;
+if (temp__27646__auto__96) {
+let next_line97 = temp__27646__auto__96;
+let G__98 = next_line97;
+line91 = G__98;
 continue;
 } else {
-let change_set97 = state.changes(changes88);
-return ({ "changes": changes88, "range": EditorSelection.range(change_set97.mapPos(anchor86, 1), change_set97.mapPos(head87, 1)) });};break;
+let change_set99 = state.changes(changes90);
+return ({ "changes": changes90, "range": EditorSelection.range(change_set99.mapPos(anchor88, 1), change_set99.mapPos(head89, 1)) });};break;
 }
 
 }));
 })
 ;
-var iter_changed_lines = (function (p__98, f) {
-let map__99101 = p__98;
-let tr102 = map__99101;
-let map__100103 = squint_core.get(map__99101, "state");
-let state104 = map__100103;
-let doc105 = squint_core.get(map__100103, "doc");
-let changes106 = squint_core.get(map__99101, "changes");
-let effects107 = squint_core.get(map__99101, "effects");
-let selection108 = squint_core.get(map__99101, "selection");
-let at_line109 = squint_core.atom(-1);
-let next_changes110 = [];
-let _111 = changes106.iterChanges((function (_from_a, _to_a, from_b, to_b, _inserted) {
-let map__112113 = doc105.lineAt(from_b);
-let line114 = map__112113;
-let line_number115 = squint_core.get(map__112113, "number");
-let line_to116 = squint_core.get(map__112113, "to");
-let line117 = line114;
+var iter_changed_lines = (function (p__100, f) {
+let map__101103 = p__100;
+let tr104 = map__101103;
+let map__102105 = squint_core.get(map__101103, "state");
+let state106 = map__102105;
+let doc107 = squint_core.get(map__102105, "doc");
+let changes108 = squint_core.get(map__101103, "changes");
+let effects109 = squint_core.get(map__101103, "effects");
+let selection110 = squint_core.get(map__101103, "selection");
+let at_line111 = squint_core.atom(-1);
+let next_changes112 = [];
+let _113 = changes108.iterChanges((function (_from_a, _to_a, from_b, to_b, _inserted) {
+let map__114115 = doc107.lineAt(from_b);
+let line116 = map__114115;
+let line_number117 = squint_core.get(map__114115, "number");
+let line_to118 = squint_core.get(map__114115, "to");
+let line119 = line116;
 while(true){
-if ((line_number115 > squint_core.deref(at_line109))) {
-squint_core.reset_BANG_(at_line109, line_number115);
-f(line117, next_changes110)};
-if ((to_b <= line_to116)) {
+if ((line_number117 > squint_core.deref(at_line111))) {
+squint_core.reset_BANG_(at_line111, line_number117);
+f(line119, next_changes112)};
+if ((to_b <= line_to118)) {
 return null;} else {
-let next_line118 = doc105.lineAt((line_to116 + 1));
-if ((next_line118 && (next_line118["number"] > line117["number"]))) {
-let G__119 = next_line118;
-line117 = G__119;
+let next_line120 = doc107.lineAt((line_to118 + 1));
+if ((next_line120 && (next_line120["number"] > line119["number"]))) {
+let G__121 = next_line120;
+line119 = G__121;
 continue;
 }};break;
 }
 
 }));
-let next_changeset120 = state104.changes(next_changes110);
-if (squint_core.seq(next_changes110)) {
-let G__121122 = squint_core.assoc_BANG_(squint_core.select_keys(tr102, ["annotations", "scrollIntoView", "reconfigure"]), "changes", changes106.compose(next_changeset120));
-let G__121123 = (selection108) ? (squint_core.assoc_BANG_(G__121122, "selection", state104["selection"].map(next_changeset120))) : (G__121122);
-if (effects107) {
-return squint_core.assoc_BANG_(G__121123, "effects", StateEffect.mapEffects(effects107, next_changeset120));} else {
-return G__121123;}} else {
-return tr102;}
+let next_changeset122 = state106.changes(next_changes112);
+if (squint_core.seq(next_changes112)) {
+let G__123124 = squint_core.assoc_BANG_(squint_core.select_keys(tr104, ["annotations", "scrollIntoView", "reconfigure"]), "changes", changes108.compose(next_changeset122));
+let G__123125 = (selection110) ? (squint_core.assoc_BANG_(G__123124, "selection", state106["selection"].map(next_changeset122))) : (G__123124);
+if (effects109) {
+return squint_core.assoc_BANG_(G__123125, "effects", StateEffect.mapEffects(effects109, next_changeset122));} else {
+return G__123125;}} else {
+return tr104;}
 })
 ;
 var push_BANG_ = (function (arr, x) {
-let G__124125 = arr;
-G__124125.push(x);
-return G__124125;
+let G__126127 = arr;
+G__126127.push(x);
+return G__126127;
 })
 ;
 squint_core.prn("util-loaded");

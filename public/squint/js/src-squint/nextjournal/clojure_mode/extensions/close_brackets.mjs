@@ -120,10 +120,10 @@ return n.end(G__5051);}
 if ((closing45 && (closing45 === key_name))) {
 return ({ "changes": ({ "from": pos49, "insert": closing45 }), "cursor": (pos49 + 1) });}
 })() || (function () {
- let temp__31544__auto__52 = (function () {
- let temp__31544__auto__53 = n.terminal_cursor(n.tree(state), head37, 1);
-if (temp__31544__auto__53) {
-let cursor54 = temp__31544__auto__53;
+ let temp__27701__auto__52 = (function () {
+ let temp__27701__auto__53 = n.terminal_cursor(n.tree(state), head37, 1);
+if (temp__27701__auto__53) {
+let cursor54 = temp__27701__auto__53;
 while(true){
 if (n.right_edge_type_QMARK_(cursor54["type"])) {
 return n.end(cursor54);} else {
@@ -133,8 +133,8 @@ continue;
 }
 }
 })();
-if (temp__31544__auto__52) {
-let close_node_end55 = temp__31544__auto__52;
+if (temp__27701__auto__52) {
+let close_node_end55 = temp__27701__auto__52;
 return ({ "cursor": close_node_end55 });}
 })() || ({ "cursor": head37 }));}}
 }));

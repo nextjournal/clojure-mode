@@ -45,7 +45,8 @@
   (.-from node))
 
 (defn ^number end [^js node]
-  {:pre [(.-to node)]}
+  ;; TODO: fix in squint
+  #_{:pre [(.-to node)]}
   (.-to node))
 
 ;; a more zipper-like interface
