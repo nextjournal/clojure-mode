@@ -1,18 +1,18 @@
 (ns nextjournal.clojure-mode.extensions.match-brackets
   (:require
+   ["../node.mjs" :as n]
+   ["../util.mjs" :as u]
    ["@codemirror/state" :refer [StateField]]
    ["@codemirror/view" :refer [EditorView
                                Decoration]]
-   ["../node.mjs" :as n]
    #_[nextjournal.clojure-mode.node :as n]
-   ["../util.mjs" :as u]
    #_[nextjournal.clojure-mode.util :as u :refer [from-to]]))
 
 (def base-theme
   (->>
    {:$matchingBracket {:color "#0b0"}
     :$nonmatchingBracket {:color "#a22"}}
-    (.baseTheme EditorView)))
+   (.baseTheme EditorView)))
 
 (def ^js matching-mark (.mark Decoration {:class "cm-matchingBracket"}))
 (def ^js nonmatching-mark (.mark Decoration {:class "cm-nonmatchingBracket"}))
@@ -64,9 +64,9 @@
                                      ;; unmatched bracket is sitting in front of the cursor.
                                      (when-let [_unparsed-bracket (and
                                                                   ;; skip this check if we're inside a string
-                                                                  (not (-> (n/tree state head) (n/closest n/string?)))
-                                                                  (-> (.. tr -state -doc (slice head (inc head)) toString)
-                                                                      (#{\] \) \}})))]
+                                                                   (not (-> (n/tree state head) (n/closest n/string?)))
+                                                                   (->> (.. tr -state -doc (slice head (inc head)) toString)
+                                                                        (contains? #{\] \) \}})))]
                                        (conj out (mark-node (n/from-to head (inc head)) nonmatching-mark)))
                                      out)) []))]
                   (.set Decoration (into-array decos) true))

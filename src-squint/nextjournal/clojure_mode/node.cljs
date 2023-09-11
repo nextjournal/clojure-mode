@@ -164,7 +164,7 @@
         (identical? "ConstructorCall" (name node-type)) false
         :else true))
 
-(defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
+(defn balanced? [^:js {:as _node :keys [^js firstChild ^js lastChild]}]
   (if-let [closing (closed-by firstChild)]
     (and (= closing (name lastChild))
          (not= (end firstChild) (end lastChild)))

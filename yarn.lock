@@ -1072,10 +1072,8 @@ source-map@^0.5.6:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
-squint-cljs@0.1.19:
+squint-cljs@../squint:
   version "0.1.19"
-  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.1.19.tgz#646aa78190d6c34619ad402fd646cf323c35524a"
-  integrity sha512-dB+RbCArxRZrOaAK7PMdbEjlXmUxBt7irPg5SMeyOIy81xRwBJn6ya9pHJZ9TrV4LPxwSxlJRNQsQK5Rpm8Dpg==
 
 stream-browserify@^2.0.1:
   version "2.0.2"

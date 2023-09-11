@@ -24,7 +24,8 @@
   (-> selection .-ranges (->> (some #(not (.-empty ^js %))))))
 
 (def selection-history-field
-  "Stores selection history"
+  ;; TODO: fix squint, docstring
+  #_"Stores selection history"
   (.define StateField
            #js{:create (fn [^js state] (list {:selection (.-selection state)}))
                :update
