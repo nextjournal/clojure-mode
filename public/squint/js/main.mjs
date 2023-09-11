@@ -7,15 +7,16 @@ import './src-squint/nextjournal/clojure_mode/extensions/selection_history.mjs';
 import './src-squint/nextjournal/clojure_mode/commands.mjs';
 import './src-squint/nextjournal/clojure_mode/keymap.mjs';
 import { default_extensions } from './src-squint/nextjournal/clojure_mode.mjs';
+import { theme } from './src-squint/nextjournal/clojure_mode/demo.mjs';
 
 import { EditorView } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
-import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
+import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 
+let extensions = [ theme, foldGutter(),
+                   (syntaxHighlighting(defaultHighlightStyle)),
+                   ...default_extensions ];
 
-console.log(default_extensions);
-
-let extensions = [ (syntaxHighlighting(defaultHighlightStyle)), ...default_extensions ]
 let state = EditorState.create( {doc: "(+ 1 2 3)",
                                  extensions: extensions });
 let editorElt = document.querySelector('#editor');
