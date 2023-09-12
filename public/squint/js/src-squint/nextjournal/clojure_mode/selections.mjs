@@ -31,7 +31,7 @@ return EditorSelection.create(ranges, index);
 })
 ;
 var constrain = (function (state, from) {
-return min(max(from, 0), state["doc"]["length"]);
+return squint_core.min(squint_core.max(from, 0), state["doc"]["length"]);
 })
 ;
 var eq_QMARK_ = (function (sel1, sel2) {

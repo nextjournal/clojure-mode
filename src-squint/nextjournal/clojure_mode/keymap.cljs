@@ -1,6 +1,6 @@
 (ns nextjournal.clojure-mode.keymap
   (:require ["@codemirror/commands" :as commands]
-            ["./commands" :as cmd]))
+            ["./commands.mjs" :as cmd]))
 
 (defn update-some
   "Updates keys of map when key has value"

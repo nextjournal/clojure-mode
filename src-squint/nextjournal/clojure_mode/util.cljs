@@ -1,5 +1,5 @@
 (ns nextjournal.clojure-mode.util
-  (:require ["./selections" :as sel]
+  (:require ["./selections.mjs" :as sel]
             ["@codemirror/state" :refer [EditorSelection
                                          StateEffect
                                          Transaction]]
@@ -73,7 +73,7 @@
    (->> (fn [range]
           (or (when-some [result (f range)]
                 (map-cursor range state result))
-              #js{:range range}))
+              #js {:range range}))
         (.changeByRange state)
         (#(js/Object.assign % tr-specs))
         (.update state))))
@@ -160,11 +160,11 @@
             (assoc! :effects (.mapEffects StateEffect effects next-changeset))))
       tr)))
 
-;; (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
-;;   (not (every? #(.-empty ^js %) ranges)))
+(defn something-selected? [^:js {{:keys [ranges]} :selection}]
+  (not (every? #(.-empty ^js %) ranges)))
 
-;; (j/defn range-str [state ^:js {:as selection :keys [from to]}]
-;;   (str (j/call-in state [:doc :slice] from to)))
+(defn range-str [state ^:js {:as _selection :keys [from to]}]
+  (str (.. state -doc (slice from to))))
 
 (defn push! [arr x]
   (doto arr (.push x)))

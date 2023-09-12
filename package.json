@@ -36,6 +36,7 @@
     "dev": "vite --open -l info --config vite.config.js public/squint"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "shadow-cljs": "2.19.5",
     "vite": "^4.4.9"
   }

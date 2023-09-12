@@ -1,13 +1,13 @@
 import * as squint_core from 'squint-cljs/core.js';
 import * as commands from '@codemirror/commands';
-import * as cmd from './commands';
+import * as cmd from './commands.mjs';
 var update_some = (function (m, updates) {
 return squint_core.reduce_kv((function (m, k, f) {
-let temp__25216__auto__1 = squint_core.get(m, k);
-if (squint_core.nil_QMARK_(temp__25216__auto__1)) {
+let temp__24930__auto__1 = squint_core.get(m, k);
+if (squint_core.nil_QMARK_(temp__24930__auto__1)) {
 return squint_core.dissoc(m, k);} else {
-let existing2 = temp__25216__auto__1;
-return squint_core.assoc(m, k, ((f instanceof Function)) ? (f(existing2)) : (squint_core.get(f, existing2)));}
+let existing2 = temp__24930__auto__1;
+return squint_core.assoc(m, k, (((f instanceof Function)) ? (f(existing2)) : (squint_core.get(f, existing2))));}
 }), m, updates);
 })
 ;

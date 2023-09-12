@@ -1,11 +1,10 @@
-import './src-squint/nextjournal/clojure_mode/util.mjs';
-import './src-squint/nextjournal/clojure_mode/node.mjs';
-import './src-squint/nextjournal/clojure_mode/extensions/close_brackets.mjs';
-import './src-squint/nextjournal/clojure_mode/extensions/match_brackets.mjs';
-import './src-squint/nextjournal/clojure_mode/extensions/formatting.mjs';
-import './src-squint/nextjournal/clojure_mode/extensions/selection_history.mjs';
-import './src-squint/nextjournal/clojure_mode/commands.mjs';
-import './src-squint/nextjournal/clojure_mode/keymap.mjs';
+// import './src-squint/nextjournal/clojure_mode/node.mjs';
+// import './src-squint/nextjournal/clojure_mode/extensions/close_brackets.mjs';
+// import './src-squint/nextjournal/clojure_mode/extensions/match_brackets.mjs';
+// import './src-squint/nextjournal/clojure_mode/extensions/formatting.mjs';
+// import './src-squint/nextjournal/clojure_mode/extensions/selection_history.mjs';
+// import './src-squint/nextjournal/clojure_mode/commands.mjs';
+// import './src-squint/nextjournal/clojure_mode/keymap.mjs';
 import { default_extensions, complete_keymap } from './src-squint/nextjournal/clojure_mode.mjs';
 import { theme } from './src-squint/nextjournal/clojure_mode/demo.mjs';
 
@@ -27,3 +26,9 @@ let editor = new EditorView({state: state,
                              parent: editorElt,
                              extensions: extensions });
 
+
+// TODO:
+// - [ ] resolve symbolic namespaces to local JS files
+// and transitively compile them?
+// - [ ] tests
+// - [ ] bun loader experiment

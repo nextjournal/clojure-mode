@@ -68,10 +68,10 @@ var depth = (function (node) {
 let node4 = node;
 let i5 = 0;
 while(true){
-let temp__31969__auto__6 = up(node4);
-if (squint_core.nil_QMARK_(temp__31969__auto__6)) {
+let temp__47601__auto__6 = up(node4);
+if (squint_core.nil_QMARK_(temp__47601__auto__6)) {
 return i5;} else {
-let parent7 = temp__31969__auto__6;
+let parent7 = temp__47601__auto__6;
 let G__8 = parent7;
 let G__9 = (i5 + 1);
 node4 = G__8;
@@ -253,18 +253,18 @@ let map__1617 = p__15;
 let _node18 = map__1617;
 let firstChild19 = squint_core.get(map__1617, "firstChild");
 let lastChild20 = squint_core.get(map__1617, "lastChild");
-let temp__31958__auto__21 = closed_by(firstChild19);
-if (temp__31958__auto__21) {
-let closing22 = temp__31958__auto__21;
+let temp__47592__auto__21 = closed_by(firstChild19);
+if (temp__47592__auto__21) {
+let closing22 = temp__47592__auto__21;
 return ((closing22 === name(lastChild20)) && (end(firstChild19) !== end(lastChild20)));} else {
 return true;}
 })
 ;
 var ancestors = (function (node) {
-let temp__32032__auto__23 = up(node);
-if (squint_core.nil_QMARK_(temp__32032__auto__23)) {
+let temp__47623__auto__23 = up(node);
+if (squint_core.nil_QMARK_(temp__47623__auto__23)) {
 return null;} else {
-let parent24 = temp__32032__auto__23;
+let parent24 = temp__47623__auto__23;
 return squint_core.cons(parent24, new squint_core.LazySeq((function () {
 return ancestors(parent24);
 })));}
@@ -300,7 +300,7 @@ default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
 f25["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
-let temp__32032__auto__31 = (function () {
+let temp__47623__auto__31 = (function () {
  let G__3233 = dir;
 switch (G__3233) {case 1:
 return parent.childAfter(from);
@@ -311,9 +311,9 @@ break;
 default:
 throw new Error(squint_core.str("No matching clause: ", G__3233))}
 })();
-if (squint_core.nil_QMARK_(temp__32032__auto__31)) {
+if (squint_core.nil_QMARK_(temp__47623__auto__31)) {
 return null;} else {
-let child35 = temp__32032__auto__31;
+let child35 = temp__47623__auto__31;
 return squint_core.cons(child35, new squint_core.LazySeq((function () {
 return children(parent, (function () {
  let G__3637 = dir;
@@ -405,7 +405,7 @@ return squint_core.boolean$(((start(parent) <= start(child)) && (end(parent) >= 
 var move_toward = (function (node, to_node) {
 if (eq_QMARK_(node, to_node)) {
 return null;} else {
-let G__5253 = compare(start(to_node), start(node));
+let G__5253 = squint_core.compare(start(to_node), start(node));
 switch (G__5253) {case 0:
 if (ancestor_QMARK_(to_node, node)) {
 return up(node);} else {
@@ -572,13 +572,13 @@ let from91 = squint_core.nth(vec__8490, 0, null);
 let to92 = squint_core.nth(vec__8490, 1, null);
 let from_node93 = tree(state, from91, 1);
 let to_node94 = tree(state, to92, -1);
-let from95 = (require_balance_QMARK_(from_node93)) ? (start(from_node93)) : (from91);
-let to96 = (require_balance_QMARK_(to_node94)) ? (end(to_node94)) : (to92);
+let from95 = ((require_balance_QMARK_(from_node93)) ? (start(from_node93)) : (from91));
+let to96 = ((require_balance_QMARK_(to_node94)) ? (end(to_node94)) : (to92));
 let vec__8797 = squint_core.reduce((function (p__98, node_between) {
 let vec__99102 = p__98;
 let left103 = squint_core.nth(vec__99102, 0, null);
 let right104 = squint_core.nth(vec__99102, 1, null);
-return [(ancestor_QMARK_(node_between, from_node93)) ? (start(node_between)) : (left103), (ancestor_QMARK_(node_between, to_node94)) ? (end(node_between)) : (right104)];
+return [((ancestor_QMARK_(node_between, from_node93)) ? (start(node_between)) : (left103)), ((ancestor_QMARK_(node_between, to_node94)) ? (end(node_between)) : (right104))];
 }), [from95, to96], squint_core.map((function (_PERCENT_1) {
 let G__105106 = _PERCENT_1;
 if (edge_QMARK_(_PERCENT_1)) {
@@ -598,17 +598,17 @@ let map__110111 = p__109;
 let node112 = map__110111;
 let firstChild113 = squint_core.get(map__110111, "firstChild");
 let lastChild114 = squint_core.get(map__110111, "lastChild");
-return ({ "from": (left_edge_QMARK_(firstChild113)) ? (end(firstChild113)) : (start(node112)), "to": (right_edge_QMARK_(lastChild114)) ? (start(lastChild114)) : (end(node112)) });
+return ({ "from": ((left_edge_QMARK_(firstChild113)) ? (end(firstChild113)) : (start(node112))), "to": ((right_edge_QMARK_(lastChild114)) ? (start(lastChild114)) : (end(node112))) });
 })
 ;
 var within_QMARK__LT_ = (function (parent, child) {
-let c1115 = compare(start(parent), start(child));
-let c2116 = compare(end(parent), end(child));
+let c1115 = squint_core.compare(start(parent), start(child));
+let c2116 = squint_core.compare(end(parent), end(child));
 return ((squint_core.pos_QMARK_(c1115) || squint_core.neg_QMARK_(c2116)) && !squint_core.neg_QMARK_(c1115) && !squint_core.pos_QMARK_(c2116));
 })
 ;
 var within_QMARK_ = (function (parent, child) {
-return (!squint_core.neg_QMARK_(compare(start(parent), start(child))) && !squint_core.pos_QMARK_(compare(end(parent), end(child))));
+return (!squint_core.neg_QMARK_(squint_core.compare(start(parent), start(child))) && !squint_core.pos_QMARK_(squint_core.compare(end(parent), end(child))));
 })
 ;
 var follow_edges = (function (node) {
@@ -618,10 +618,10 @@ return node;}
 })
 ;
 var prefix = (function (node) {
-let temp__32032__auto__117 = up(node);
-if (squint_core.nil_QMARK_(temp__32032__auto__117)) {
+let temp__47623__auto__117 = up(node);
+if (squint_core.nil_QMARK_(temp__47623__auto__117)) {
 return null;} else {
-let parent118 = temp__32032__auto__117;
+let parent118 = temp__47623__auto__117;
 return (u.guard(parent118, prefix_container_QMARK_) || u.guard(down(parent118), prefix_edge_QMARK_));}
 })
 ;
