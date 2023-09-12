@@ -3,9 +3,9 @@ import * as cm_clojure from './clojure_mode.mjs';
 import * as commands from './clojure_mode/commands.mjs';
 import * as close_brackets from './clojure_mode/extensions/close_brackets.mjs';
 import * as format from './clojure_mode/extensions/formatting.mjs';
-import * as assert from 'assert';
 import * as cm_state from '@codemirror/state';
 import { EditorState, EditorSelection } from '@codemirror/state';
+import * as assert from 'assert';
 import * as str from 'squint-cljs/string.js';
 var string_QMARK_ = (function (x) {
 return ("string" === typeof x);
@@ -106,6 +106,12 @@ null;
 for (let [input, insert, expected] of squint_core.partition(3, ["|", "(", "(|)", "(|", "(", "((|)", "|(", "(", "(|)(", "|)", "(", "(|))", "#|", "(", "#(|)", "\"|\"", "(", "\"(|\""])) {
 [true, assert.equal(apply_f((function (_PERCENT_1) {
 return close_brackets.handle_open(_PERCENT_1, insert);
+}), input), expected)]
+};
+null;
+for (let [input, bracket, expected] of squint_core.partition(3, ["|", ")", "|", "|(", ")", "|(", "|)", ")", ")|", "(|)", ")", "()|", "() |()", ")", "() ()|", "[(|)]", ")", "[()|]", "[()|]", ")", "[()]|", "([]| s)", ")", "([] s)|", "(|", ")", "()|", "[(|]", "}", "[(]|", "((|)", "]", "(()|", "((|)", ")", "(())|", "\"|\"", ")", "\")|\""])) {
+[true, assert.equal(apply_f((function (_PERCENT_1) {
+return close_brackets.handle_close(_PERCENT_1, bracket);
 }), input), expected)]
 };
 null;

@@ -3,11 +3,11 @@
             ["./clojure_mode/commands.mjs" :as commands]
             ["./clojure_mode/extensions/close_brackets.mjs" :as close-brackets]
             ["./clojure_mode/extensions/formatting.mjs" :as format]
-            ["assert" :as assert]
             ["@codemirror/state" :as cm-state
              :refer [EditorState EditorSelection]]
-            [clojure.string :as str]
-            #_[nextjournal.clojure-mode.test-utils :as test-utils]))
+            ["assert" :as assert]
+            #_[nextjournal.clojure-mode.test-utils :as test-utils]
+            [clojure.string :as str]))
 
 #_(assert/equal 1 2)
 
@@ -71,8 +71,8 @@
 (defn apply-f* [extensions cmd doc]
   ;; TODO: fix in squint
   #_{:pre [(array? extensions)
-         (fn? cmd)
-         (string? doc)]}
+           (fn? cmd)
+           (string? doc)]}
   (let [state (make-state extensions doc)
         tr (cmd state)]
     (state-str (if tr (.-state tr) state))))
@@ -126,13 +126,32 @@
 ;; close brackets > handle open
 (doseq [[input insert expected]
         (partition 3 ["|" \( "(|)" ;; auto-close brackets
-                     "(|" \( "((|)"
-                     "|(" \( "(|)("
-                     "|)" \( "(|))"
-                     "#|" \( "#(|)"
-                     "\"|\"" \( "\"(|\"" ;; no auto-close inside strings
+                      "(|" \( "((|)"
+                      "|(" \( "(|)("
+                      "|)" \( "(|))"
+                      "#|" \( "#(|)"
+                      "\"|\"" \( "\"(|\"" ;; no auto-close inside strings
                       ])]
   (assert.equal (apply-f #(close-brackets/handle-open % insert) input)
+                expected))
+
+;; close brackets > handle close
+(doseq [[input bracket expected]
+        (partition 3 ["|" \) "|"
+                      "|(" \) "|("
+                      "|)" \) ")|"
+                      "(|)" \) "()|"
+                      "() |()" \) "() ()|"
+                      "[(|)]" \) "[()|]"
+                      "[()|]" \) "[()]|"
+                      "([]| s)" \) "([] s)|"
+                      "(|" \) "()|" ;; close unclosed parent
+                      "[(|]" \} "[(]|" ;; non-matching bracket doesn't close ancestor
+                      "((|)" \] "(()|" ;; non-matching bracket doesn't close ancestor
+                      "((|)" \) "(())|" ;; a bit weird - it finds an unclosed ancestor, and closes that.
+                      "\"|\"" \) "\")|\"" ;; normal behaviour inside strings
+                      ])]
+  (assert.equal (apply-f #(close-brackets/handle-close % bracket) input)
                 expected))
 
 #_(do

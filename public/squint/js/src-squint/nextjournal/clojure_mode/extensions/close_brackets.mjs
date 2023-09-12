@@ -98,15 +98,15 @@ if (empty36) {
 return ((function () {
  let unbalanced40 = (function () {
  let G__4142 = n.tree(state, head37, -1);
-let G__4143 = (squint_core.nil_QMARK_(G__4142)) ? (null) : (n.ancestors(G__4142));
-let G__4144 = (squint_core.nil_QMARK_(G__4143)) ? (null) : (squint_core.filter(every_pred(n.coll_QMARK_, squint_core.complement(n.balanced_QMARK_)), G__4143));
+let G__4143 = ((squint_core.nil_QMARK_(G__4142)) ? (null) : (n.ancestors(G__4142)));
+let G__4144 = ((squint_core.nil_QMARK_(G__4143)) ? (null) : (squint_core.filter(squint_core.every_pred(n.coll_QMARK_, squint_core.complement(n.balanced_QMARK_)), G__4143)));
 if (squint_core.nil_QMARK_(G__4144)) {
 return null;} else {
 return squint_core.first(G__4144);}
 })();
 let closing45 = (function () {
  let G__4647 = unbalanced40;
-let G__4648 = (squint_core.nil_QMARK_(G__4647)) ? (null) : (n.down(G__4647));
+let G__4648 = ((squint_core.nil_QMARK_(G__4647)) ? (null) : (n.down(G__4647)));
 if (squint_core.nil_QMARK_(G__4648)) {
 return null;} else {
 return n.closed_by(G__4648);}
@@ -120,10 +120,10 @@ return n.end(G__5051);}
 if ((closing45 && (closing45 === key_name))) {
 return ({ "changes": ({ "from": pos49, "insert": closing45 }), "cursor": (pos49 + 1) });}
 })() || (function () {
- let temp__27701__auto__52 = (function () {
- let temp__27701__auto__53 = n.terminal_cursor(n.tree(state), head37, 1);
-if (temp__27701__auto__53) {
-let cursor54 = temp__27701__auto__53;
+ let temp__47610__auto__52 = (function () {
+ let temp__47610__auto__53 = n.terminal_cursor(n.tree(state), head37, 1);
+if (temp__47610__auto__53) {
+let cursor54 = temp__47610__auto__53;
 while(true){
 if (n.right_edge_type_QMARK_(cursor54["type"])) {
 return n.end(cursor54);} else {
@@ -133,8 +133,8 @@ continue;
 }
 }
 })();
-if (temp__27701__auto__52) {
-let close_node_end55 = temp__27701__auto__52;
+if (temp__47610__auto__52) {
+let close_node_end55 = temp__47610__auto__52;
 return ({ "cursor": close_node_end55 });}
 })() || ({ "cursor": head37 }));}}
 }));
