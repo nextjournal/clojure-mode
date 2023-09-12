@@ -160,7 +160,27 @@
                       "\"|\"" "\"\\\"|\"" ;; insert quoted " inside strings
                       ]
                     )]
-    (assert.equal (apply-f #(close-brackets/handle-open % \") input) expected))
+  (assert.equal (apply-f #(close-brackets/handle-open % \") input) expected))
+
+;; handle backspace
+(doseq [[input expected]
+        (partition 2 ["|" "|"
+                     "(|" "|" ;; delete an unbalanced paren
+                     "()|" "(|)" ;; enter a form from the right (do not "unbalance")
+                     "#|()" "|()" ;; delete prefix form
+                     "[[]]|" "[[]|]"
+                     "(| )" "|" ;; delete empty form
+                     "(| a)" "(| a)" ;; don't delete non-empty forms
+                     "@|" "|" ;; delete @
+                     "@|x" "|x"
+                     "\"|\"" "|" ;; delete empty string
+                     "\"\"|" "\"|\""
+                     "\"| \"" "\"| \"" ;; do not delete string with whitespace
+                     ":x  :a |" ":x  :a|" ;; do not format on backspace
+                     "\"[|]\"" "\"|]\"" ;; normal deletion inside strings
+                    ])]
+    (assert.equal (apply-f close-brackets/handle-backspace input)
+       expected))
 
 #_(do
     (deftest nav

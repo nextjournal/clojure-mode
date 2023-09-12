@@ -121,5 +121,9 @@ return close_brackets.handle_open(_PERCENT_1, "\"");
 }), input), expected)]
 };
 null;
+for (let [input, expected] of squint_core.partition(2, ["|", "|", "(|", "|", "()|", "(|)", "#|()", "|()", "[[]]|", "[[]|]", "(| )", "|", "(| a)", "(| a)", "@|", "|", "@|x", "|x", "\"|\"", "|", "\"\"|", "\"|\"", "\"| \"", "\"| \"", ":x  :a |", ":x  :a|", "\"[|]\"", "\"|]\""])) {
+[true, assert.equal(apply_f(close_brackets.handle_backspace, input), expected)]
+};
+null;
 
 export { extensions, subs, string_QMARK_, apply_cmd, state_str, apply_f_STAR_, re_seq_STAR_, apply_f, re_seq, apply_cmd_STAR_, make_state }
