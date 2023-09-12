@@ -135,11 +135,6 @@ return ({ "cursor": (from56 + squint_core.count(insertion64)), "changes": [({ "f
 }));
 })
 ;
-var spy = (function (x) {
-squint_core.prn("spy", x);
-return x;
-})
-;
 var nav_position = (function (state, from, dir) {
 let pos65 = (function () {
  let G__6667 = n.closest(n.tree(state, from), (function (_PERCENT_1) {
@@ -175,21 +170,17 @@ let from77 = squint_core.get(map__7475, "from");
 let to78 = squint_core.get(map__7475, "to");
 let empty79 = squint_core.get(map__7475, "empty");
 if (empty79) {
-return ({ "cursor": (function () {
- let G__8081 = nav_position(state, from77, dir);
-squint_core.prn(G__8081, "nav");
-return G__8081;
-})() });} else {
+return ({ "cursor": nav_position(state, from77, dir) });} else {
 return ({ "cursor": squint_core.get(u.from_to(from77, to78), (function () {
- let G__8283 = dir;
-switch (G__8283) {case -1:
+ let G__8081 = dir;
+switch (G__8081) {case -1:
 return "from";
 break;
 case 1:
 return "to";
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__8283))}
+throw new Error(squint_core.str("No matching clause: ", G__8081))}
 })()) });}
 }));
 };
@@ -197,41 +188,41 @@ throw new Error(squint_core.str("No matching clause: ", G__8283))}
 ;
 var nav_select = (function (dir) {
 return function (state) {
-return u.update_ranges(state, (function (p__85) {
-let map__8687 = p__85;
-let range88 = map__8687;
-let from89 = squint_core.get(map__8687, "from");
-let to90 = squint_core.get(map__8687, "to");
-let empty91 = squint_core.get(map__8687, "empty");
-if (empty91) {
-return ({ "range": n.balanced_range(state, from89, nav_position(state, from89, dir)) });} else {
+return u.update_ranges(state, (function (p__83) {
+let map__8485 = p__83;
+let range86 = map__8485;
+let from87 = squint_core.get(map__8485, "from");
+let to88 = squint_core.get(map__8485, "to");
+let empty89 = squint_core.get(map__8485, "empty");
+if (empty89) {
+return ({ "range": n.balanced_range(state, from87, nav_position(state, from87, dir)) });} else {
 return ({ "range": (function () {
- let map__9293 = u.from_to(from89, to90);
-let from94 = squint_core.get(map__9293, "from");
-let to95 = squint_core.get(map__9293, "to");
-let G__9697 = dir;
-switch (G__9697) {case 1:
-return n.balanced_range(state, from94, nav_position(state, to95, dir));
+ let map__9091 = u.from_to(from87, to88);
+let from92 = squint_core.get(map__9091, "from");
+let to93 = squint_core.get(map__9091, "to");
+let G__9495 = dir;
+switch (G__9495) {case 1:
+return n.balanced_range(state, from92, nav_position(state, to93, dir));
 break;
 case -1:
-return n.balanced_range(state, nav_position(state, from94, dir), to95);
+return n.balanced_range(state, nav_position(state, from92, dir), to93);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__9697))}
+throw new Error(squint_core.str("No matching clause: ", G__9495))}
 })() });}
 }));
 };
 })
 ;
 var balance_ranges = (function (state) {
-return u.update_ranges(state, (function (p__99) {
-let map__100101 = p__99;
-let from102 = squint_core.get(map__100101, "from");
-let to103 = squint_core.get(map__100101, "to");
-let empty104 = squint_core.get(map__100101, "empty");
-if (empty104) {
+return u.update_ranges(state, (function (p__97) {
+let map__9899 = p__97;
+let from100 = squint_core.get(map__9899, "from");
+let to101 = squint_core.get(map__9899, "to");
+let empty102 = squint_core.get(map__9899, "empty");
+if (empty102) {
 return null;} else {
-return ({ "range": n.balanced_range(state, from102, to103) });}
+return ({ "range": n.balanced_range(state, from100, to101) });}
 }));
 })
 ;
@@ -239,64 +230,64 @@ var log = console.log
 ;
 var slurp = (function (direction) {
 return function (state) {
-return u.update_ranges(state, (function (p__105) {
-let map__106107 = p__105;
-let range108 = map__106107;
-let from109 = squint_core.get(map__106107, "from");
-let to110 = squint_core.get(map__106107, "to");
-let empty111 = squint_core.get(map__106107, "empty");
-if (empty111) {
-let temp__47610__auto__112 = n.closest(n.tree(state, from109), squint_core.every_pred(n.coll_QMARK_, (function (_PERCENT_1) {
+return u.update_ranges(state, (function (p__103) {
+let map__104105 = p__103;
+let range106 = map__104105;
+let from107 = squint_core.get(map__104105, "from");
+let to108 = squint_core.get(map__104105, "to");
+let empty109 = squint_core.get(map__104105, "empty");
+if (empty109) {
+let temp__47610__auto__110 = n.closest(n.tree(state, from107), squint_core.every_pred(n.coll_QMARK_, (function (_PERCENT_1) {
 return !(function () {
- let G__113114 = direction;
-switch (G__113114) {case 1:
-let G__116117 = _PERCENT_1;
-let G__116118 = ((squint_core.nil_QMARK_(G__116117)) ? (null) : (n.with_prefix(G__116117)));
-let G__116119 = ((squint_core.nil_QMARK_(G__116118)) ? (null) : (n.right(G__116118)));
-if (squint_core.nil_QMARK_(G__116119)) {
+ let G__111112 = direction;
+switch (G__111112) {case 1:
+let G__114115 = _PERCENT_1;
+let G__114116 = ((squint_core.nil_QMARK_(G__114115)) ? (null) : (n.with_prefix(G__114115)));
+let G__114117 = ((squint_core.nil_QMARK_(G__114116)) ? (null) : (n.right(G__114116)));
+if (squint_core.nil_QMARK_(G__114117)) {
 return null;} else {
-return n.end_edge_QMARK_(G__116119);}
+return n.end_edge_QMARK_(G__114117);}
 break;
 case -1:
-let G__120121 = _PERCENT_1;
-let G__120122 = ((squint_core.nil_QMARK_(G__120121)) ? (null) : (n.with_prefix(G__120121)));
-let G__120123 = ((squint_core.nil_QMARK_(G__120122)) ? (null) : (n.left(G__120122)));
-if (squint_core.nil_QMARK_(G__120123)) {
+let G__118119 = _PERCENT_1;
+let G__118120 = ((squint_core.nil_QMARK_(G__118119)) ? (null) : (n.with_prefix(G__118119)));
+let G__118121 = ((squint_core.nil_QMARK_(G__118120)) ? (null) : (n.left(G__118120)));
+if (squint_core.nil_QMARK_(G__118121)) {
 return null;} else {
-return n.start_edge_QMARK_(G__120123);}
+return n.start_edge_QMARK_(G__118121);}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__113114))}
+throw new Error(squint_core.str("No matching clause: ", G__111112))}
 })();
 })));
-if (temp__47610__auto__112) {
-let parent124 = temp__47610__auto__112;
-let temp__47610__auto__125 = (function () {
- let G__126127 = direction;
-switch (G__126127) {case 1:
-return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.rights(n.with_prefix(parent124))));
+if (temp__47610__auto__110) {
+let parent122 = temp__47610__auto__110;
+let temp__47610__auto__123 = (function () {
+ let G__124125 = direction;
+switch (G__124125) {case 1:
+return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.rights(n.with_prefix(parent122))));
 break;
 case -1:
-return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.lefts(n.with_prefix(parent124))));
+return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.lefts(n.with_prefix(parent122))));
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__126127))}
+throw new Error(squint_core.str("No matching clause: ", G__124125))}
 })();
-if (temp__47610__auto__125) {
-let target129 = temp__47610__auto__125;
-return ({ "cursor/mapped": from109, "changes": (function () {
- let G__130131 = direction;
-switch (G__130131) {case 1:
-let edge133 = n.down_last(parent124);
-return [({ "from": n.end(target129), "insert": n.name(edge133) }), squint_core.assoc_BANG_(n.from_to(edge133), "insert", " ")];
+if (temp__47610__auto__123) {
+let target127 = temp__47610__auto__123;
+return ({ "cursor/mapped": from107, "changes": (function () {
+ let G__128129 = direction;
+switch (G__128129) {case 1:
+let edge131 = n.down_last(parent122);
+return [({ "from": n.end(target127), "insert": n.name(edge131) }), squint_core.assoc_BANG_(n.from_to(edge131), "insert", " ")];
 break;
 case -1:
-let edge134 = n.left_edge_with_prefix(state, parent124);
-let start135 = n.start(n.with_prefix(parent124));
-return [({ "from": start135, "to": (start135 + squint_core.count(edge134)), "insert": " " }), ({ "from": n.start(target129), "insert": edge134 })];
+let edge132 = n.left_edge_with_prefix(state, parent122);
+let start133 = n.start(n.with_prefix(parent122));
+return [({ "from": start133, "to": (start133 + squint_core.count(edge132)), "insert": " " }), ({ "from": n.start(target127), "insert": edge132 })];
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__130131))}
+throw new Error(squint_core.str("No matching clause: ", G__128129))}
 })() });}}}
 }));
 };
@@ -304,49 +295,49 @@ throw new Error(squint_core.str("No matching clause: ", G__130131))}
 ;
 var barf = (function (direction) {
 return function (state) {
-return u.update_ranges(state, (function (p__136) {
-let map__137138 = p__136;
-let range139 = map__137138;
-let from140 = squint_core.get(map__137138, "from");
-let to141 = squint_core.get(map__137138, "to");
-let empty142 = squint_core.get(map__137138, "empty");
-if (empty142) {
-let temp__47610__auto__143 = n.closest(n.tree(state, from140), n.coll_QMARK_);
-if (temp__47610__auto__143) {
-let parent144 = temp__47610__auto__143;
-let G__145146 = direction;
-switch (G__145146) {case 1:
-let temp__47610__auto__148 = (function () {
- let G__149150 = n.down_last(parent144);
-let G__149151 = ((squint_core.nil_QMARK_(G__149150)) ? (null) : (n.lefts(G__149150)));
-let G__149152 = ((squint_core.nil_QMARK_(G__149151)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__149151)));
-let G__149153 = ((squint_core.nil_QMARK_(G__149152)) ? (null) : (squint_core.drop(1, G__149152)));
-if (squint_core.nil_QMARK_(G__149153)) {
+return u.update_ranges(state, (function (p__134) {
+let map__135136 = p__134;
+let range137 = map__135136;
+let from138 = squint_core.get(map__135136, "from");
+let to139 = squint_core.get(map__135136, "to");
+let empty140 = squint_core.get(map__135136, "empty");
+if (empty140) {
+let temp__47610__auto__141 = n.closest(n.tree(state, from138), n.coll_QMARK_);
+if (temp__47610__auto__141) {
+let parent142 = temp__47610__auto__141;
+let G__143144 = direction;
+switch (G__143144) {case 1:
+let temp__47610__auto__146 = (function () {
+ let G__147148 = n.down_last(parent142);
+let G__147149 = ((squint_core.nil_QMARK_(G__147148)) ? (null) : (n.lefts(G__147148)));
+let G__147150 = ((squint_core.nil_QMARK_(G__147149)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__147149)));
+let G__147151 = ((squint_core.nil_QMARK_(G__147150)) ? (null) : (squint_core.drop(1, G__147150)));
+if (squint_core.nil_QMARK_(G__147151)) {
 return null;} else {
-return squint_core.first(G__149153);}
+return squint_core.first(G__147151);}
 })();
-if (temp__47610__auto__148) {
-let target154 = temp__47610__auto__148;
-return ({ "cursor": squint_core.min(n.end(target154), from140), "changes": [({ "from": n.end(target154), "insert": n.name(n.down_last(parent144)) }), squint_core.assoc_BANG_(n.from_to(n.down_last(parent144)), "insert", " ")] });}
+if (temp__47610__auto__146) {
+let target152 = temp__47610__auto__146;
+return ({ "cursor": squint_core.min(n.end(target152), from138), "changes": [({ "from": n.end(target152), "insert": n.name(n.down_last(parent142)) }), squint_core.assoc_BANG_(n.from_to(n.down_last(parent142)), "insert", " ")] });}
 break;
 case -1:
-let temp__47610__auto__155 = (function () {
- let G__156157 = n.down(parent144);
-let G__156158 = ((squint_core.nil_QMARK_(G__156157)) ? (null) : (n.rights(G__156157)));
-let G__156159 = ((squint_core.nil_QMARK_(G__156158)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__156158)));
-let G__156160 = ((squint_core.nil_QMARK_(G__156159)) ? (null) : (squint_core.drop(1, G__156159)));
-if (squint_core.nil_QMARK_(G__156160)) {
+let temp__47610__auto__153 = (function () {
+ let G__154155 = n.down(parent142);
+let G__154156 = ((squint_core.nil_QMARK_(G__154155)) ? (null) : (n.rights(G__154155)));
+let G__154157 = ((squint_core.nil_QMARK_(G__154156)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__154156)));
+let G__154158 = ((squint_core.nil_QMARK_(G__154157)) ? (null) : (squint_core.drop(1, G__154157)));
+if (squint_core.nil_QMARK_(G__154158)) {
 return null;} else {
-return squint_core.first(G__156160);}
+return squint_core.first(G__154158);}
 })();
-if (temp__47610__auto__155) {
-let next_first_child161 = temp__47610__auto__155;
-let left_edge162 = n.left_edge_with_prefix(state, parent144);
-let left_start163 = n.start(n.with_prefix(parent144));
-return ({ "cursor": squint_core.max(from140, (n.start(next_first_child161) + (squint_core.count(left_edge162) + 1))), "changes": [({ "from": n.start(next_first_child161), "insert": squint_core.str(" ", left_edge162) }), ({ "from": left_start163, "to": (left_start163 + squint_core.count(left_edge162)), "insert": format.spaces(state, squint_core.count(left_edge162)) })] });}
+if (temp__47610__auto__153) {
+let next_first_child159 = temp__47610__auto__153;
+let left_edge160 = n.left_edge_with_prefix(state, parent142);
+let left_start161 = n.start(n.with_prefix(parent142));
+return ({ "cursor": squint_core.max(from138, (n.start(next_first_child159) + (squint_core.count(left_edge160) + 1))), "changes": [({ "from": n.start(next_first_child159), "insert": squint_core.str(" ", left_edge160) }), ({ "from": left_start161, "to": (left_start161 + squint_core.count(left_edge160)), "insert": format.spaces(state, squint_core.count(left_edge160)) })] });}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__145146))}}}
+throw new Error(squint_core.str("No matching clause: ", G__143144))}}}
 }));
 };
 })
@@ -391,4 +382,4 @@ return squint_core.assoc(_PERCENT_1, _PERCENT_3, _PERCENT_2);
 ;
 squint_core.prn("commands-loaded");
 
-export { nav_select_left, index, view_command, barf_backward, scoped_view_command, kill_STAR_, enter_and_indent_STAR_, unwrap, enter_and_indent, log, nav_select, slurp, nav_position, indent, nav_select_right, slurp_forward, selection_grow, nav, balance_ranges, nav_left, copy_to_clipboard_BANG_, barf, builtin_index, barf_forward, paredit_index, kill, reverse_index, unwrap_STAR_, spy, nav_right, slurp_backward, selection_return }
+export { nav_select_left, index, view_command, barf_backward, scoped_view_command, kill_STAR_, enter_and_indent_STAR_, unwrap, enter_and_indent, log, nav_select, slurp, nav_position, indent, nav_select_right, slurp_forward, selection_grow, nav, balance_ranges, nav_left, copy_to_clipboard_BANG_, barf, builtin_index, barf_forward, paredit_index, kill, reverse_index, unwrap_STAR_, nav_right, slurp_backward, selection_return }

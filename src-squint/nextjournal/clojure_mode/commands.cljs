@@ -97,10 +97,6 @@
                                      :to to
                                      :insert insertion}]})))))
 
-(defn spy [x]
-  (prn :spy x)
-  x)
-
 (defn nav-position [state from dir]
   (let [pos (some-> (n/closest (n/tree state from)
                                #(or (n/coll? %)
@@ -118,8 +114,7 @@
     (u/update-ranges state
                      (fn [^:js {:as range :keys [from to empty]}]
                        (if empty
-                         {:cursor (doto (nav-position state from dir)
-                                    (prn :nav))}
+                         {:cursor (nav-position state from dir)}
                          {:cursor (get (u/from-to from to) (case dir -1 :from 1 :to))})))))
 
 (defn nav-select [dir]
