@@ -154,6 +154,14 @@
   (assert.equal (apply-f #(close-brackets/handle-close % bracket) input)
                 expected))
 
+;; close brackets > handle open string
+(doseq [[input expected]
+        (partition 2 ["|" "\"|\"" ;; auto-close strings
+                      "\"|\"" "\"\\\"|\"" ;; insert quoted " inside strings
+                      ]
+                    )]
+    (assert.equal (apply-f #(close-brackets/handle-open % \") input) expected))
+
 #_(do
     (deftest nav
       (are [input dir expected]
