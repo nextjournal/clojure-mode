@@ -103,5 +103,11 @@ for (let [input, dir, expected] of [["|()", 1, "<()>"], ["()|", -1, "<()>"], ["a
 [true, assert.equal(apply_f(commands.nav_select(dir), input), expected)]
 };
 null;
+for (let [input, insert, expected] of squint_core.partition(3, ["|", "(", "(|)", "(|", "(", "((|)", "|(", "(", "(|)(", "|)", "(", "(|))", "#|", "(", "#(|)", "\"|\"", "(", "\"(|\""])) {
+[true, assert.equal(apply_f((function (_PERCENT_1) {
+return close_brackets.handle_open(_PERCENT_1, insert);
+}), input), expected)]
+};
+null;
 
 export { extensions, subs, string_QMARK_, apply_cmd, state_str, apply_f_STAR_, re_seq_STAR_, apply_f, re_seq, apply_cmd_STAR_, make_state }

@@ -107,6 +107,7 @@
   (assert.equal (apply-f (commands/nav dir) input)
                 expected))
 
+;; nav-select
 (doseq [[input dir expected] [["|()" 1 "<()>"]
                               ["()|" -1 "<()>"]
                               ["a|b" 1 "a<b>"]
@@ -121,6 +122,19 @@
                               ["a|\nb" 1 "a<\nb>"]]]
   (assert.equal (apply-f (commands/nav-select dir) input)
                 expected))
+
+;; close brackets > handle open
+(doseq [[input insert expected]
+        (partition 3 ["|" \( "(|)" ;; auto-close brackets
+                     "(|" \( "((|)"
+                     "|(" \( "(|)("
+                     "|)" \( "(|))"
+                     "#|" \( "#(|)"
+                     "\"|\"" \( "\"(|\"" ;; no auto-close inside strings
+                      ])]
+  (assert.equal (apply-f #(close-brackets/handle-open % insert) input)
+                expected))
+
 #_(do
     (deftest nav
       (are [input dir expected]
