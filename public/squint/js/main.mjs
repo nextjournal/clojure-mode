@@ -13,8 +13,6 @@ import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 
-console.log(default_extensions);
-
 let extensions = [ theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
                    drawSelection(),

@@ -40,7 +40,7 @@ if (previous_position9) {
 let vec__1013 = squint_core.drop(previous_position9, stack);
 let seq__1114 = squint_core.seq(vec__1013);
 let first__1215 = squint_core.first(seq__1114);
-let seq__1116 = next(seq__1114);
+let seq__1116 = squint_core.next(seq__1114);
 let f17 = first__1215;
 let more18 = seq__1116;
 return squint_core.cons(squint_core.assoc(f17, "prev-event", squint_core.get(squint_core.first(stack), "event")), more18);} else {
@@ -91,9 +91,9 @@ return n.range(G__3435);}
 })
 ;
 var selection_return_STAR_ = (function (state) {
-let temp__27675__auto__36 = squint_core.get(squint_core.second(stack(state)), "selection");
-if (temp__27675__auto__36) {
-let selection37 = temp__27675__auto__36;
+let temp__24766__auto__36 = squint_core.get(squint_core.second(stack(state)), "selection");
+if (temp__24766__auto__36) {
+let selection37 = temp__24766__auto__36;
 return state.update(({ "selection": selection37, "annotations": event_annotation }));} else {
 return u.update_ranges(state, ({ "annotations": event_annotation }), (function (range) {
 return ({ "cursor": range["from"] });

@@ -113,7 +113,8 @@
    line-num
    changes
    format-spaces?]
-  {:pre [(some? text)]}
+  ;; TODO: fix in squint
+  #_{:pre [(some? text)]}
   (let [current-indent (-> ^js (aget (.exec #"^\s*" text) 0)
                            .-length)
         ^number indent (-> (get-indentation indent-context from)

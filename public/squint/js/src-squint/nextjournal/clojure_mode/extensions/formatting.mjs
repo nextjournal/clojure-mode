@@ -25,8 +25,8 @@ if (n.coll_type_QMARK_(type4)) {
 let G__1415 = context9.column(n.end(n.down(node12)));
 if ((("List" === type_name5) && new Set(["Operator", "DefLike", "NS"])((function () {
  let G__1617 = node12;
-let G__1618 = (squint_core.nil_QMARK_(G__1617)) ? (null) : (n.down(G__1617));
-let G__1619 = (squint_core.nil_QMARK_(G__1618)) ? (null) : (n.right(G__1618));
+let G__1618 = ((squint_core.nil_QMARK_(G__1617)) ? (null) : (n.down(G__1617)));
+let G__1619 = ((squint_core.nil_QMARK_(G__1618)) ? (null) : (n.right(G__1618)));
 if (squint_core.nil_QMARK_(G__1619)) {
 return null;} else {
 return n.name(G__1619);}
@@ -55,7 +55,7 @@ return u.update_lines(state, (function (from, content, line_num) {
 let current_indent21 = /^\s*/.exec(content)[0]["length"];
 let indent22 = u.guard(get_indentation(context20, from), squint_core.complement(squint_core.neg_QMARK_));
 if (indent22) {
-let G__2324 = compare(indent22, current_indent21);
+let G__2324 = squint_core.compare(indent22, current_indent21);
 switch (G__2324) {case 0:
 return null;
 break;
@@ -82,7 +82,7 @@ return (((from <= n.start(_PERCENT_1)) && (n.start(_PERCENT_1) <= to)) || ((from
 }), n.terminal_nodes(state, from, to)));
 let trim_QMARK_27 = (function () {
  let G__2829 = squint_core.first(nodes26);
-let G__2830 = (squint_core.nil_QMARK_(G__2829)) ? (null) : (n.end(G__2829));
+let G__2830 = ((squint_core.nil_QMARK_(G__2829)) ? (null) : (n.end(G__2829)));
 if (squint_core.nil_QMARK_(G__2830)) {
 return null;} else {
 return (G__2830 < to);}
@@ -99,19 +99,19 @@ let start144 = squint_core.get(map__3642, "from");
 let end145 = squint_core.get(map__3642, "to");
 let expected46 = expected_space(n143, n239);
 let actual47 = (start240 - end145);
-let G__4849 = compare(actual47, expected46);
+let G__4849 = squint_core.compare(actual47, expected46);
 switch (G__4849) {case 0:
 return out;
 break;
 case 1:
-return u.push_BANG_(out, ({ "from": ((expected46 == 0)) ? (end145) : ((end145 + 1)), "to": start240 }));
+return u.push_BANG_(out, ({ "from": (((expected46 == 0)) ? (end145) : ((end145 + 1))), "to": start240 }));
 break;
 case -1:
 return u.push_BANG_(out, ({ "from": end145, "insert": " " }));
 break;
 default:
 return out;}
-}), (trim_QMARK_27) ? ([({ "from": n.end(squint_core.first(nodes26)), "to": to })]) : ([]), squint_core.partition(2, 1, nodes26));
+}), ((trim_QMARK_27) ? ([({ "from": n.end(squint_core.first(nodes26)), "to": to })]) : ([])), squint_core.partition(2, 1, nodes26));
 })
 ;
 var into_arr = (function (arr, items) {
@@ -123,11 +123,10 @@ return arr;
 })
 ;
 var format_line = (function (state, indent_context, from, text, line_num, changes, format_spaces_QMARK_) {
-assert(squint_core.some_QMARK_(text));
 let current_indent51 = /^\s*/.exec(text)[0]["length"];
 let indent52 = u.guard(get_indentation(indent_context, from), squint_core.complement(squint_core.neg_QMARK_));
-let indentation_change53 = (indent52) ? ((function () {
- let G__5455 = compare(indent52, current_indent51);
+let indentation_change53 = ((indent52) ? ((function () {
+ let G__5455 = squint_core.compare(indent52, current_indent51);
 switch (G__5455) {case 0:
 return null;
 break;
@@ -139,10 +138,10 @@ return ({ "from": (from + indent52), "to": (from + current_indent51) });
 break;
 default:
 throw new Error(squint_core.str("No matching clause: ", G__5455))}
-})()) : (null);
-let space_changes57 = ((format_spaces_QMARK_ && (n.embedded_QMARK_(state, from) || n.within_program_QMARK_(state, from)))) ? (space_changes(state, (from + current_indent51), (from + squint_core.count(text)))) : (null);
+})()) : (null));
+let space_changes57 = (((format_spaces_QMARK_ && (n.embedded_QMARK_(state, from) || n.within_program_QMARK_(state, from)))) ? (space_changes(state, (from + current_indent51), (from + squint_core.count(text)))) : (null));
 let G__5859 = changes;
-let G__5860 = (space_changes57) ? (into_arr(G__5859, space_changes57)) : (G__5859);
+let G__5860 = ((space_changes57) ? (into_arr(G__5859, space_changes57)) : (G__5859));
 if (indentation_change53) {
 return u.push_BANG_(G__5860, indentation_change53);} else {
 return G__5860;}
@@ -169,7 +168,7 @@ return format_line(state, context69, from, text, line_num, [], true);
 ;
 var format_transaction = (function (tr) {
 let origin70 = u.get_user_event_annotation(tr);
-let temp__25059__auto__71 = (n.within_program_QMARK_(tr["startState"])) ? ((function () {
+let temp__32122__auto__71 = ((n.within_program_QMARK_(tr["startState"])) ? ((function () {
  let G__7273 = origin70;
 switch (G__7273) {case "input":
 return null;
@@ -209,10 +208,10 @@ let context76 = make_indent_context(state75);
 return u.iter_changed_lines(tr, (function (line, changes) {
 return format_line(state75, context76, line["from"], line["text"], line["number"], changes, true);
 }));}}
-})()) : (null);
-if (squint_core.nil_QMARK_(temp__25059__auto__71)) {
+})()) : (null));
+if (squint_core.nil_QMARK_(temp__32122__auto__71)) {
 return tr;} else {
-let changes77 = temp__25059__auto__71;
+let changes77 = temp__32122__auto__71;
 return tr["startState"].update(squint_core.assoc_BANG_(changes77, "filter", false));}
 })
 ;
