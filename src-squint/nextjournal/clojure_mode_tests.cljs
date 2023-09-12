@@ -162,7 +162,7 @@
                     )]
   (assert.equal (apply-f #(close-brackets/handle-open % \") input) expected))
 
-;; handle backspace
+;; close brackets > handle backspace
 (doseq [[input expected]
         (partition 2 ["|" "|"
                      "(|" "|" ;; delete an unbalanced paren
@@ -180,7 +180,19 @@
                      "\"[|]\"" "\"|]\"" ;; normal deletion inside strings
                     ])]
     (assert.equal (apply-f close-brackets/handle-backspace input)
-       expected))
+                  expected))
+
+;; indent selection
+(doseq [[input expected]
+        (partition 2 [" ()" "()" ;; top-level => 0 indent
+                      "(\n)" "(\n )"
+                      "(b\n)" "(b\n  )" ;; operator gets extra indent (symbol in 1st position)
+                      "(0\n)" "(0\n )" ;; a number is not operator
+                      "(:a\n)" "(:a\n )" ;; a keyword is not operator
+                      "(a\n\nb)" "(a\n  \n  b)" ;; empty lines get indent
+                      ])]
+  (assert.equal (apply-f format/format (str "<" input ">"))
+                (str "<" expected ">")))
 
 #_(do
     (deftest nav

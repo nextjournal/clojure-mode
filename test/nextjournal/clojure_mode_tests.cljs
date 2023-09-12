@@ -21,21 +21,7 @@
 (def apply-embedded-f (partial test-utils/apply-f #js [livedoc/markdown-language-support]))
 (def apply-embedded-cmd (partial test-utils/apply-cmd #js [livedoc/markdown-language-support]))
 
-(doseq [[input dir expected] [#_["|()" 1 "()|"]
-                              ["()|" -1 "|()"]
-                              #_["a|b" 1 "ab|"]
-                              #_["a|b" -1 "|ab"]
-                              #_["| ab" 1 " ab|"]
-                              #_["ab |" -1 "|ab "]
-                              #_["(|)" 1 "()|"]
-                              #_["(|)" -1 "|()"]
-                              #_["a|\nb" 1 "a\nb|"]
-                              ]
-        ]
-  (prn (= (apply-f (commands/nav dir) input)
-          expected)))
-
-#_(do
+(do
   (deftest nav
     (are [input dir expected]
         (= (apply-f (commands/nav dir) input)

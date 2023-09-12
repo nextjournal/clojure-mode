@@ -125,5 +125,9 @@ for (let [input, expected] of squint_core.partition(2, ["|", "|", "(|", "|", "()
 [true, assert.equal(apply_f(close_brackets.handle_backspace, input), expected)]
 };
 null;
+for (let [input, expected] of squint_core.partition(2, [" ()", "()", "(\n)", "(\n )", "(b\n)", "(b\n  )", "(0\n)", "(0\n )", "(:a\n)", "(:a\n )", "(a\n\nb)", "(a\n  \n  b)"])) {
+[true, assert.equal(apply_f(format.format, squint_core.str("<", input, ">")), squint_core.str("<", expected, ">"))]
+};
+null;
 
 export { extensions, subs, string_QMARK_, apply_cmd, state_str, apply_f_STAR_, re_seq_STAR_, apply_f, re_seq, apply_cmd_STAR_, make_state }
