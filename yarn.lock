@@ -1073,6 +1073,11 @@ source-map@^0.5.6:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
+squint-cljs@^0.2.29:
+  version "0.2.29"
+  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.2.29.tgz#3187a4bb1cbaf1056bb752ad293a07ec2ab502f0"
+  integrity sha512-1RXbGDRjvbkqqaTEAckcqyiUMhEim5/WAwJYNJNNKEYqNai9aUrBVlstAExlvwQVjo0X1S+YXTdBg3tRoo8ptg==
+
 stream-browserify@^2.0.1:
   version "2.0.2"
   resolved "https://registry.npmjs.org/stream-browserify/-/stream-browserify-2.0.2.tgz"
