@@ -144,5 +144,19 @@ for (let [input, expected] of squint_core.partition(2, [" ()", "()", "(\n)", "(\
 [true, assert.equal(apply_f(format.format, squint_core.str("<", input, ">")), squint_core.str("<", expected, ">"))]
 };
 null;
+for (let [input, dir, expected] of squint_core.partition(3, ["|()", 1, "()|", "()|", -1, "|()", "a|b", 1, "ab|", "a|b", -1, "|ab", "| ab", 1, " ab|", "ab |", -1, "|ab ", "(|)", 1, "()|", "(|)", -1, "|()", "a|\nb", 1, "a\nb|"])) {
+[true, assert.equal(apply_f(commands.nav(dir), input), expected)]
+};
+null;
+for (let [input, dir, expected] of squint_core.partition(3, ["|()", 1, "<()>", "()|", -1, "<()>", "a|b", 1, "a<b>", "(|)", 1, "<()>", "\"a|b\"", 1, "\"a<b>\"", "\"a<b>\"", 1, "<\"ab\">", "a|b", -1, "<a>b", "| ab", 1, "< ab>", "ab |", -1, "<ab >", "(|)", 1, "<()>", "(|)", -1, "<()>", "a|\nb", 1, "a<\nb>"])) {
+[true, assert.equal(apply_f(commands.nav_select(dir), input), expected)]
+};
+null;
+for (let [input, insert, expected] of squint_core.partition(3, ["|", "(", "(|)", "(|", "(", "((|)", "|(", "(", "(|)(", "|)", "(", "(|))", "#|", "(", "#(|)", "\"|\"", "(", "\"(|\""])) {
+[true, assert.equal(apply_f((function (_PERCENT_1) {
+return close_brackets.handle_open(_PERCENT_1, insert);
+}), input), expected)]
+};
+null;
 
 export { extensions, subs, string_QMARK_, apply_cmd, state_str, apply_f_STAR_, re_seq_STAR_, apply_f, re_seq, apply_cmd_STAR_, make_state }
