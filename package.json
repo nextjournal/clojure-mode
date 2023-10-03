@@ -25,7 +25,7 @@
     "punycode": "2.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "squint-cljs": "0.1.23",
+    "squint-cljs": "0.2.28",
     "w3c-keyname": "^2.2.4"
   },
   "scripts": {
@@ -36,7 +36,6 @@
     "dev": "vite --open -l info --config vite.config.js public/squint"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
     "shadow-cljs": "2.19.5",
     "vite": "^4.4.9"
   }

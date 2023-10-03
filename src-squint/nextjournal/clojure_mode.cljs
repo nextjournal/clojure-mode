@@ -4,7 +4,7 @@
             ["@nextjournal/lezer-clojure" :as lezer-clj]
             ["./clojure_mode/extensions/close_brackets.mjs" :as close-brackets]
             ["./clojure_mode/extensions/match_brackets.mjs" :as match-brackets]
-            ["./clojure_mode/extensions/formatting.mjs" :as format]
+            ["./Clojure_mode/extensions/formatting.mjs" :as format]
             ["./clojure_mode/extensions/selection_history.mjs" :as sel-history]
             ["./clojure_mode/keymap.mjs" :as keymap]
             ["./clojure_mode/node.mjs" :as n]

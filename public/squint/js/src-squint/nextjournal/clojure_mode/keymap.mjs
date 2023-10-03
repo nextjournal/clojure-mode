@@ -3,11 +3,22 @@ import * as commands from '@codemirror/commands';
 import * as cmd from './commands.mjs';
 var update_some = (function (m, updates) {
 return squint_core.reduce_kv((function (m, k, f) {
-let temp__24930__auto__1 = squint_core.get(m, k);
-if (squint_core.nil_QMARK_(temp__24930__auto__1)) {
+let temp__24849__auto__248 = squint_core.get(m, k);
+let test__26256__auto__249 = squint_core.nil_QMARK_(temp__24849__auto__248);
+if (test__26256__auto__249 != null && test__26256__auto__249 !== false) {
 return squint_core.dissoc(m, k);} else {
-let existing2 = temp__24930__auto__1;
-return squint_core.assoc(m, k, (((f instanceof Function)) ? (f(existing2)) : (squint_core.get(f, existing2))));}
+let existing250 = temp__24849__auto__248;
+return squint_core.assoc(m, k, (function () {
+ let test__26256__auto__251 = (function () {
+ let c__25419__auto__252 = Function;
+let x__25420__auto__253 = f;
+let ret__25421__auto__254 = (x__25420__auto__253 instanceof c__25419__auto__252);
+return ret__25421__auto__254;
+})();
+if (test__26256__auto__251 != null && test__26256__auto__251 !== false) {
+return f(existing250);} else {
+return squint_core.get(f, existing250);}
+})());}
 }), m, updates);
 })
 ;
@@ -20,11 +31,11 @@ return update_some(command, ({ "run": cmd.index, "shift": cmd.index }));
 })
 ;
 var group = (function (commands) {
-return squint_core.reduce((function (out, p__3) {
-let map__45 = p__3;
-let cmd6 = map__45;
-let run7 = squint_core.get(map__45, "run");
-return squint_core.update(out, run7, squint_core.fnil(squint_core.conj, []), squint_core.dissoc(cmd6, "run"));
+return squint_core.reduce((function (out, p__255) {
+let map__256257 = p__255;
+let cmd258 = map__256257;
+let run259 = squint_core.get(map__256257, "run");
+return squint_core.update(out, run259, squint_core.fnil(squint_core.conj, []), squint_core.dissoc(cmd258, "run"));
 }), ({  }), squint_core.map(serialize, commands));
 })
 ;

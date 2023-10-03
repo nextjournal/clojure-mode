@@ -119,7 +119,6 @@
                                                 #(> (.-number ^js %) line-number)))]
                    (recur next-line)
                    (let [^js change-set (.changes state changes)]
-                     (js/console.log :change-set change-set)
                      #js {:changes changes
                           :range (.range EditorSelection
                                          (.mapPos change-set anchor 1)

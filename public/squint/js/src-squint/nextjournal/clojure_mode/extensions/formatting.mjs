@@ -19,21 +19,40 @@ let pos10 = squint_core.get(map__78, "pos");
 let unit11 = squint_core.get(map__78, "unit");
 let node12 = squint_core.get(map__78, "node");
 let state13 = squint_core.get(map__78, "state");
-if (("Program" === type_name5)) {
+let test__26256__auto__14 = ("Program" === type_name5);
+if (test__26256__auto__14 != null && test__26256__auto__14 !== false) {
 return 0;} else {
-if (n.coll_type_QMARK_(type4)) {
-let G__1415 = context9.column(n.end(n.down(node12)));
-if ((("List" === type_name5) && new Set(["Operator", "DefLike", "NS"])((function () {
- let G__1617 = node12;
-let G__1618 = ((squint_core.nil_QMARK_(G__1617)) ? (null) : (n.down(G__1617)));
-let G__1619 = ((squint_core.nil_QMARK_(G__1618)) ? (null) : (n.right(G__1618)));
-if (squint_core.nil_QMARK_(G__1619)) {
+let test__26256__auto__15 = n.coll_type_QMARK_(type4);
+if (test__26256__auto__15 != null && test__26256__auto__15 !== false) {
+let G__1617 = context9.column(n.end(n.down(node12)));
+let test__26256__auto__18 = (function () {
+ let and__25509__auto__19 = ("List" === type_name5);
+if (and__25509__auto__19 != null && and__25509__auto__19 !== false) {
+return squint_core.contains_QMARK_(new Set(["Operator", "DefLike", "NS"]), (function () {
+ let G__2021 = node12;
+let G__2022 = (function () {
+ let test__26256__auto__23 = squint_core.nil_QMARK_(G__2021);
+if (test__26256__auto__23 != null && test__26256__auto__23 !== false) {
 return null;} else {
-return n.name(G__1619);}
-})()))) {
-return (G__1415 + 1);} else {
-return G__1415;}} else {
-if ("else") {
+return n.down(G__2021);}
+})();
+let G__2024 = (function () {
+ let test__26256__auto__25 = squint_core.nil_QMARK_(G__2022);
+if (test__26256__auto__25 != null && test__26256__auto__25 !== false) {
+return null;} else {
+return n.right(G__2022);}
+})();
+let test__26256__auto__26 = squint_core.nil_QMARK_(G__2024);
+if (test__26256__auto__26 != null && test__26256__auto__26 !== false) {
+return null;} else {
+return n.name(G__2024);}
+})());} else {
+return and__25509__auto__19;}
+})();
+if (test__26256__auto__18 != null && test__26256__auto__18 !== false) {
+return (G__1617 + 1);} else {
+return G__1617;}} else {
+if ("else" != null && "else" !== false) {
 return -1;} else {
 return null;}}}
 };
@@ -50,68 +69,94 @@ return new IndentContext(state);
 })
 ;
 var indent_all = (function (state) {
-let context20 = make_indent_context(state);
+let context27 = make_indent_context(state);
 return u.update_lines(state, (function (from, content, line_num) {
-let current_indent21 = /^\s*/.exec(content)[0]["length"];
-let indent22 = u.guard(get_indentation(context20, from), squint_core.complement(squint_core.neg_QMARK_));
-if (indent22) {
-let G__2324 = squint_core.compare(indent22, current_indent21);
-switch (G__2324) {case 0:
+let current_indent28 = /^\s*/.exec(content)[0]["length"];
+let indent29 = u.guard(get_indentation(context27, from), squint_core.complement(squint_core.neg_QMARK_));
+if (indent29 != null && indent29 !== false) {
+let G__3031 = squint_core.compare(indent29, current_indent28);
+switch (G__3031) {case 0:
 return null;
 break;
 case 1:
-return ({ "from": (from + current_indent21), "insert": spaces(state, (indent22 - current_indent21)) });
+return ({ "from": (from + current_indent28), "insert": spaces(state, (indent29 - current_indent28)) });
 break;
 case -1:
-return ({ "from": (from + indent22), "to": (from + current_indent21) });
+return ({ "from": (from + indent29), "to": (from + current_indent28) });
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__2324))}}
+throw new Error(squint_core.str("No matching clause: ", G__3031))}}
 }));
 })
 ;
 var expected_space = (function (n1, n2) {
-if ((n.start_edge_type_QMARK_(n1) || n.prefix_edge_type_QMARK_(n1) || n.end_edge_type_QMARK_(n2) || n.same_edge_type_QMARK_(n2))) {
+let test__26256__auto__33 = (function () {
+ let or__25460__auto__34 = n.start_edge_type_QMARK_(n1);
+if (or__25460__auto__34 != null && or__25460__auto__34 !== false) {
+return or__25460__auto__34;} else {
+let or__25460__auto__35 = n.prefix_edge_type_QMARK_(n1);
+if (or__25460__auto__35 != null && or__25460__auto__35 !== false) {
+return or__25460__auto__35;} else {
+let or__25460__auto__36 = n.end_edge_type_QMARK_(n2);
+if (or__25460__auto__36 != null && or__25460__auto__36 !== false) {
+return or__25460__auto__36;} else {
+return n.same_edge_type_QMARK_(n2);}}}
+})();
+if (test__26256__auto__33 != null && test__26256__auto__33 !== false) {
 return 0;} else {
 return 1;}
 })
 ;
 var space_changes = (function (state, from, to) {
-let nodes26 = squint_core.reverse(squint_core.filter((function (_PERCENT_1) {
-return (((from <= n.start(_PERCENT_1)) && (n.start(_PERCENT_1) <= to)) || ((from <= n.end(_PERCENT_1)) && (n.end(_PERCENT_1) <= to)));
+let nodes37 = squint_core.reverse(squint_core.filter((function (_PERCENT_1) {
+let or__25460__auto__38 = ((from <= n.start(_PERCENT_1)) && (n.start(_PERCENT_1) <= to));
+if (or__25460__auto__38 != null && or__25460__auto__38 !== false) {
+return or__25460__auto__38;} else {
+((from <= n.end(_PERCENT_1)) && (n.end(_PERCENT_1) <= to))}
 }), n.terminal_nodes(state, from, to)));
-let trim_QMARK_27 = (function () {
- let G__2829 = squint_core.first(nodes26);
-let G__2830 = ((squint_core.nil_QMARK_(G__2829)) ? (null) : (n.end(G__2829)));
-if (squint_core.nil_QMARK_(G__2830)) {
+let trim_QMARK_39 = (function () {
+ let G__4041 = squint_core.first(nodes37);
+let G__4042 = (function () {
+ let test__26256__auto__43 = squint_core.nil_QMARK_(G__4041);
+if (test__26256__auto__43 != null && test__26256__auto__43 !== false) {
 return null;} else {
-return (G__2830 < to);}
+return n.end(G__4041);}
 })();
-return squint_core.reduce((function (out, p__31) {
-let vec__3237 = p__31;
-let map__3538 = squint_core.nth(vec__3237, 0, null);
-let n239 = squint_core.get(map__3538, "type");
-let start240 = squint_core.get(map__3538, "from");
-let end241 = squint_core.get(map__3538, "to");
-let map__3642 = squint_core.nth(vec__3237, 1, null);
-let n143 = squint_core.get(map__3642, "type");
-let start144 = squint_core.get(map__3642, "from");
-let end145 = squint_core.get(map__3642, "to");
-let expected46 = expected_space(n143, n239);
-let actual47 = (start240 - end145);
-let G__4849 = squint_core.compare(actual47, expected46);
-switch (G__4849) {case 0:
+let test__26256__auto__44 = squint_core.nil_QMARK_(G__4042);
+if (test__26256__auto__44 != null && test__26256__auto__44 !== false) {
+return null;} else {
+return (G__4042 < to);}
+})();
+return squint_core.reduce((function (out, p__45) {
+let vec__4651 = p__45;
+let map__4952 = squint_core.nth(vec__4651, 0, null);
+let n253 = squint_core.get(map__4952, "type");
+let start254 = squint_core.get(map__4952, "from");
+let end255 = squint_core.get(map__4952, "to");
+let map__5056 = squint_core.nth(vec__4651, 1, null);
+let n157 = squint_core.get(map__5056, "type");
+let start158 = squint_core.get(map__5056, "from");
+let end159 = squint_core.get(map__5056, "to");
+let expected60 = expected_space(n157, n253);
+let actual61 = (start254 - end159);
+let G__6263 = squint_core.compare(actual61, expected60);
+switch (G__6263) {case 0:
 return out;
 break;
 case 1:
-return u.push_BANG_(out, ({ "from": (((expected46 == 0)) ? (end145) : ((end145 + 1))), "to": start240 }));
+return u.push_BANG_(out, ({ "from": (function () {
+ let test__26256__auto__65 = (expected60 == 0);
+if (test__26256__auto__65 != null && test__26256__auto__65 !== false) {
+return end159;} else {
+return (end159 + 1);}
+})(), "to": start254 }));
 break;
 case -1:
-return u.push_BANG_(out, ({ "from": end145, "insert": " " }));
+return u.push_BANG_(out, ({ "from": end159, "insert": " " }));
 break;
 default:
 return out;}
-}), ((trim_QMARK_27) ? ([({ "from": n.end(squint_core.first(nodes26)), "to": to })]) : ([])), squint_core.partition(2, 1, nodes26));
+}), ((trim_QMARK_39 != null && trim_QMARK_39 !== false) ? ([({ "from": n.end(squint_core.first(nodes37)), "to": to })]) : ([])), squint_core.partition(2, 1, nodes37));
 })
 ;
 var into_arr = (function (arr, items) {
@@ -123,54 +168,68 @@ return arr;
 })
 ;
 var format_line = (function (state, indent_context, from, text, line_num, changes, format_spaces_QMARK_) {
-let current_indent51 = /^\s*/.exec(text)[0]["length"];
-let indent52 = u.guard(get_indentation(indent_context, from), squint_core.complement(squint_core.neg_QMARK_));
-let indentation_change53 = ((indent52) ? ((function () {
- let G__5455 = squint_core.compare(indent52, current_indent51);
-switch (G__5455) {case 0:
+let current_indent66 = /^\s*/.exec(text)[0]["length"];
+let indent67 = u.guard(get_indentation(indent_context, from), squint_core.complement(squint_core.neg_QMARK_));
+let indentation_change68 = ((indent67 != null && indent67 !== false) ? ((function () {
+ let G__6970 = squint_core.compare(indent67, current_indent66);
+switch (G__6970) {case 0:
 return null;
 break;
 case 1:
-return ({ "from": (from + current_indent51), "insert": spaces(state, (indent52 - current_indent51)) });
+return ({ "from": (from + current_indent66), "insert": spaces(state, (indent67 - current_indent66)) });
 break;
 case -1:
-return ({ "from": (from + indent52), "to": (from + current_indent51) });
+return ({ "from": (from + indent67), "to": (from + current_indent66) });
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__5455))}
+throw new Error(squint_core.str("No matching clause: ", G__6970))}
 })()) : (null));
-let space_changes57 = (((format_spaces_QMARK_ && (n.embedded_QMARK_(state, from) || n.within_program_QMARK_(state, from)))) ? (space_changes(state, (from + current_indent51), (from + squint_core.count(text)))) : (null));
-let G__5859 = changes;
-let G__5860 = ((space_changes57) ? (into_arr(G__5859, space_changes57)) : (G__5859));
-if (indentation_change53) {
-return u.push_BANG_(G__5860, indentation_change53);} else {
-return G__5860;}
+let space_changes72 = (function () {
+ let test__26256__auto__73 = (function () {
+ let and__25509__auto__74 = format_spaces_QMARK_;
+if (and__25509__auto__74 != null && and__25509__auto__74 !== false) {
+let or__25460__auto__75 = n.embedded_QMARK_(state, from);
+if (or__25460__auto__75 != null && or__25460__auto__75 !== false) {
+return or__25460__auto__75;} else {
+return n.within_program_QMARK_(state, from);}} else {
+return and__25509__auto__74;}
+})();
+if (test__26256__auto__73 != null && test__26256__auto__73 !== false) {
+return space_changes(state, (from + current_indent66), (from + squint_core.count(text)));}
+})();
+let G__7677 = changes;
+let G__7678 = ((space_changes72 != null && space_changes72 !== false) ? (into_arr(G__7677, space_changes72)) : (G__7677));
+if (indentation_change68 != null && indentation_change68 !== false) {
+return u.push_BANG_(G__7678, indentation_change68);} else {
+return G__7678;}
 })
 ;
 var format_selection = (function (state) {
-let context61 = make_indent_context(state);
-return u.update_selected_lines(state, (function (p__62, changes, range) {
-let map__6364 = p__62;
-let line65 = map__6364;
-let from66 = squint_core.get(map__6364, "from");
-let text67 = squint_core.get(map__6364, "text");
-let number68 = squint_core.get(map__6364, "number");
-return format_line(state, context61, from66, text67, number68, changes, true);
+let context79 = make_indent_context(state);
+return u.update_selected_lines(state, (function (p__80, changes, range) {
+let map__8182 = p__80;
+let line83 = map__8182;
+let from84 = squint_core.get(map__8182, "from");
+let text85 = squint_core.get(map__8182, "text");
+let number86 = squint_core.get(map__8182, "number");
+return format_line(state, context79, from84, text85, number86, changes, true);
 }));
 })
 ;
 var format_all = (function (state) {
-let context69 = make_indent_context(state);
+let context87 = make_indent_context(state);
 return u.update_lines(state, (function (from, text, line_num) {
-return format_line(state, context69, from, text, line_num, [], true);
+return format_line(state, context87, from, text, line_num, [], true);
 }));
 })
 ;
 var format_transaction = (function (tr) {
-let origin70 = u.get_user_event_annotation(tr);
-let temp__32122__auto__71 = ((n.within_program_QMARK_(tr["startState"])) ? ((function () {
- let G__7273 = origin70;
-switch (G__7273) {case "input":
+let origin88 = u.get_user_event_annotation(tr);
+let temp__24849__auto__89 = (function () {
+ let test__26256__auto__90 = n.within_program_QMARK_(tr["startState"]);
+if (test__26256__auto__90 != null && test__26256__auto__90 !== false) {
+let G__9192 = origin88;
+switch (G__9192) {case "input":
 return null;
 break;
 case "input.type":
@@ -201,28 +260,31 @@ case "format-selections":
 return format_selection(tr["state"]);
 break;
 default:
-if (tr["changes"]["empty"]) {
+let test__26256__auto__94 = tr["changes"]["empty"];
+if (test__26256__auto__94 != null && test__26256__auto__94 !== false) {
 return null;} else {
-let state75 = tr["state"];
-let context76 = make_indent_context(state75);
+let state95 = tr["state"];
+let context96 = make_indent_context(state95);
 return u.iter_changed_lines(tr, (function (line, changes) {
-return format_line(state75, context76, line["from"], line["text"], line["number"], changes, true);
-}));}}
-})()) : (null));
-if (squint_core.nil_QMARK_(temp__32122__auto__71)) {
+return format_line(state95, context96, line["from"], line["text"], line["number"], changes, true);
+}));}}}
+})();
+let test__26256__auto__97 = squint_core.nil_QMARK_(temp__24849__auto__89);
+if (test__26256__auto__97 != null && test__26256__auto__97 !== false) {
 return tr;} else {
-let changes77 = temp__32122__auto__71;
-return tr["startState"].update(squint_core.assoc_BANG_(changes77, "filter", false));}
+let changes98 = temp__24849__auto__89;
+return tr["startState"].update(squint_core.assoc_BANG_(changes98, "filter", false));}
 })
 ;
 var format = (function (state) {
-if (u.something_selected_QMARK_(state)) {
+let test__26256__auto__99 = u.something_selected_QMARK_(state);
+if (test__26256__auto__99 != null && test__26256__auto__99 !== false) {
 return state.update(format_selection(state));} else {
 return format_all(state);}
 })
 ;
 var prefix_all = (function (prefix, state) {
-return u.update_lines(state, (function (from, _, _78) {
+return u.update_lines(state, (function (from, _, _100) {
 return ({ "from": from, "insert": prefix });
 }));
 })

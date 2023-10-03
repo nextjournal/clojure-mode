@@ -6,181 +6,244 @@ import * as sel from './selections.mjs';
 import * as u from './util.mjs';
 import * as commands from '@codemirror/commands';
 var view_command = (function (f) {
-return function (p__1) {
-let map__23 = p__1;
-let state4 = squint_core.get(map__23, "state");
-let dispatch5 = squint_core.get(map__23, "dispatch");
-let G__67 = f(state4);
-if (squint_core.nil_QMARK_(G__67)) {
+return function (p__50) {
+let map__5152 = p__50;
+let state53 = squint_core.get(map__5152, "state");
+let dispatch54 = squint_core.get(map__5152, "dispatch");
+let G__5556 = f(state53);
+let test__26256__auto__57 = squint_core.nil_QMARK_(G__5556);
+if (test__26256__auto__57 != null && test__26256__auto__57 !== false) {
 null} else {
-dispatch5(G__67)};
+dispatch54(G__5556)};
 return true;
 };
 })
 ;
 var scoped_view_command = (function (f) {
-return function (p__8) {
-let map__910 = p__8;
-let state11 = squint_core.get(map__910, "state");
-let dispatch12 = squint_core.get(map__910, "dispatch");
-if (n.within_program_QMARK_(state11)) {
-let G__1314 = f(state11);
-if (squint_core.nil_QMARK_(G__1314)) {
+return function (p__58) {
+let map__5960 = p__58;
+let state61 = squint_core.get(map__5960, "state");
+let dispatch62 = squint_core.get(map__5960, "dispatch");
+let test__26256__auto__63 = n.within_program_QMARK_(state61);
+if (test__26256__auto__63 != null && test__26256__auto__63 !== false) {
+let G__6465 = f(state61);
+let test__26256__auto__66 = squint_core.nil_QMARK_(G__6465);
+if (test__26256__auto__66 != null && test__26256__auto__66 !== false) {
 null} else {
-dispatch12(G__1314)};
+dispatch62(G__6465)};
 return true;} else {
 return false;}
 };
 })
 ;
 var unwrap_STAR_ = (function (state) {
-return u.update_ranges(state, (function (p__15) {
-let map__1617 = p__15;
-let range18 = map__1617;
-let from19 = squint_core.get(map__1617, "from");
-let to20 = squint_core.get(map__1617, "to");
-let empty21 = squint_core.get(map__1617, "empty");
-if (empty21) {
-let temp__47610__auto__22 = (function () {
- let G__2324 = n.tree(state, from19, -1);
-let G__2325 = ((squint_core.nil_QMARK_(G__2324)) ? (null) : (n.closest(G__2324, n.coll_QMARK_)));
-if (squint_core.nil_QMARK_(G__2325)) {
+return u.update_ranges(state, (function (p__67) {
+let map__6869 = p__67;
+let range70 = map__6869;
+let from71 = squint_core.get(map__6869, "from");
+let to72 = squint_core.get(map__6869, "to");
+let empty73 = squint_core.get(map__6869, "empty");
+if (empty73 != null && empty73 !== false) {
+let temp__24938__auto__74 = (function () {
+ let G__7576 = n.tree(state, from71, -1);
+let G__7577 = (function () {
+ let test__26256__auto__78 = squint_core.nil_QMARK_(G__7576);
+if (test__26256__auto__78 != null && test__26256__auto__78 !== false) {
 return null;} else {
-return u.guard(G__2325, n.balanced_QMARK_);}
+return n.closest(G__7576, n.coll_QMARK_);}
 })();
-if (temp__47610__auto__22) {
-let nearest_balanced_coll26 = temp__47610__auto__22;
-return ({ "cursor": (from19 - 1), "changes": [n.from_to(n.down(nearest_balanced_coll26)), n.from_to(n.down_last(nearest_balanced_coll26))] });}}
+let test__26256__auto__79 = squint_core.nil_QMARK_(G__7577);
+if (test__26256__auto__79 != null && test__26256__auto__79 !== false) {
+return null;} else {
+return u.guard(G__7577, n.balanced_QMARK_);}
+})();
+if (temp__24938__auto__74 != null && temp__24938__auto__74 !== false) {
+let nearest_balanced_coll80 = temp__24938__auto__74;
+return ({ "cursor": (from71 - 1), "changes": [n.from_to(n.down(nearest_balanced_coll80)), n.from_to(n.down_last(nearest_balanced_coll80))] });}}
 }));
 })
 ;
 var copy_to_clipboard_BANG_ = (function (text) {
-let focus_el27 = squint_core.get(document, "activeElement");
-let input_el28 = document.createElement("textarea");
-input_el28.setAttribute("class", "clipboard-input");
-squint_core.assoc_BANG_(input_el28, "innerHTML", text);
-document["body"].appendChild(input_el28);
-input_el28.focus(({ "preventScroll": true }));
-input_el28.select();
+let focus_el81 = squint_core.get(document, "activeElement");
+let input_el82 = document.createElement("textarea");
+input_el82.setAttribute("class", "clipboard-input");
+squint_core.assoc_BANG_(input_el82, "innerHTML", text);
+document["body"].appendChild(input_el82);
+input_el82.focus(({ "preventScroll": true }));
+input_el82.select();
 document.execCommand("copy");
-focus_el27.focus(({ "preventScroll": true }));
-return document["body"].removeChild(input_el28);
+focus_el81.focus(({ "preventScroll": true }));
+return document["body"].removeChild(input_el82);
 })
 ;
 var kill_STAR_ = (function (state) {
-return u.update_ranges(state, (function (p__29) {
-let map__3031 = p__29;
-let range32 = map__3031;
-let from33 = squint_core.get(map__3031, "from");
-let to34 = squint_core.get(map__3031, "to");
-let empty35 = squint_core.get(map__3031, "empty");
-if (empty35) {
-let node36 = n.tree(state, from33);
-let parent37 = n.closest(node36, (function (_PERCENT_1) {
-return (n.coll_QMARK_(_PERCENT_1) || n.string_QMARK_(_PERCENT_1) || n.top_QMARK_(_PERCENT_1));
+return u.update_ranges(state, (function (p__83) {
+let map__8485 = p__83;
+let range86 = map__8485;
+let from87 = squint_core.get(map__8485, "from");
+let to88 = squint_core.get(map__8485, "to");
+let empty89 = squint_core.get(map__8485, "empty");
+if (empty89 != null && empty89 !== false) {
+let node90 = n.tree(state, from87);
+let parent91 = n.closest(node90, (function (_PERCENT_1) {
+let or__25460__auto__92 = n.coll_QMARK_(_PERCENT_1);
+if (or__25460__auto__92 != null && or__25460__auto__92 !== false) {
+return or__25460__auto__92;} else {
+let or__25460__auto__93 = n.string_QMARK_(_PERCENT_1);
+if (or__25460__auto__93 != null && or__25460__auto__93 !== false) {
+return or__25460__auto__93;} else {
+return n.top_QMARK_(_PERCENT_1);}}
 }));
-let line_end38 = state["doc"].lineAt(from33)["to"];
-let next_children39 = ((parent37) ? (n.children(parent37, from33, 1)) : (null));
-let last_child_on_line40 = ((parent37) ? ((function () {
- let G__4142 = next_children39;
-let G__4143 = ((squint_core.nil_QMARK_(G__4142)) ? (null) : (squint_core.take_while(squint_core.every_pred((function (_PERCENT_1) {
-return (n.start(_PERCENT_1) <= line_end38);
-})), G__4142)));
-if (squint_core.nil_QMARK_(G__4143)) {
+let line_end94 = state["doc"].lineAt(from87)["to"];
+let next_children95 = ((parent91 != null && parent91 !== false) ? (n.children(parent91, from87, 1)) : (null));
+let last_child_on_line96 = ((parent91 != null && parent91 !== false) ? ((function () {
+ let G__9798 = next_children95;
+let G__9799 = (function () {
+ let test__26256__auto__100 = squint_core.nil_QMARK_(G__9798);
+if (test__26256__auto__100 != null && test__26256__auto__100 !== false) {
 return null;} else {
-return squint_core.last(G__4143);}
+return squint_core.take_while(squint_core.every_pred((function (_PERCENT_1) {
+return (n.start(_PERCENT_1) <= line_end94);
+})), G__9798);}
+})();
+let test__26256__auto__101 = squint_core.nil_QMARK_(G__9799);
+if (test__26256__auto__101 != null && test__26256__auto__101 !== false) {
+return null;} else {
+return squint_core.last(G__9799);}
 })()) : (null));
-let to44 = ((n.string_QMARK_(parent37)) ? ((function () {
- let content45 = squint_core.str(n.string(state, parent37));
-let content_from46 = subs(content45, (from33 - n.start(parent37)));
-let next_newline47 = content_from46.indexOf("\n");
-if (squint_core.neg_QMARK_(next_newline47)) {
-return (n.end(parent37) - 1);} else {
-return (from33 + next_newline47 + 1);}
-})()) : (((last_child_on_line40) ? (((n.end_edge_QMARK_(last_child_on_line40)) ? (n.start(last_child_on_line40)) : (n.end(last_child_on_line40)))) : ((((function () {
- let G__4849 = squint_core.first(next_children39);
-let G__4850 = ((squint_core.nil_QMARK_(G__4849)) ? (null) : (n.start(G__4849)));
-if (squint_core.nil_QMARK_(G__4850)) {
+let to102 = (function () {
+ let test__26256__auto__103 = n.string_QMARK_(parent91);
+if (test__26256__auto__103 != null && test__26256__auto__103 !== false) {
+let content104 = squint_core.str(n.string(state, parent91));
+let content_from105 = subs(content104, (from87 - n.start(parent91)));
+let next_newline106 = content_from105.indexOf("\n");
+let test__26256__auto__107 = squint_core.neg_QMARK_(next_newline106);
+if (test__26256__auto__107 != null && test__26256__auto__107 !== false) {
+return (n.end(parent91) - 1);} else {
+return (from87 + next_newline106 + 1);}} else {
+if (last_child_on_line96 != null && last_child_on_line96 !== false) {
+let test__26256__auto__108 = n.end_edge_QMARK_(last_child_on_line96);
+if (test__26256__auto__108 != null && test__26256__auto__108 !== false) {
+return n.start(last_child_on_line96);} else {
+return n.end(last_child_on_line96);}} else {
+let test__26256__auto__109 = (function () {
+ let G__110111 = squint_core.first(next_children95);
+let G__110112 = (function () {
+ let test__26256__auto__113 = squint_core.nil_QMARK_(G__110111);
+if (test__26256__auto__113 != null && test__26256__auto__113 !== false) {
 return null;} else {
-return (G__4850 > line_end38);}
-})()) ? (n.start(squint_core.first(next_children39))) : (null))))));
-if (u.node_js_QMARK_) {
+return n.start(G__110111);}
+})();
+let test__26256__auto__114 = squint_core.nil_QMARK_(G__110112);
+if (test__26256__auto__114 != null && test__26256__auto__114 !== false) {
+return null;} else {
+return (G__110112 > line_end94);}
+})();
+if (test__26256__auto__109 != null && test__26256__auto__109 !== false) {
+return n.start(squint_core.first(next_children95));} else {
+return null;}}}
+})();
+if (u.node_js_QMARK_ != null && u.node_js_QMARK_ !== false) {
 null} else {
-copy_to_clipboard_BANG_(n.string(state, from33, to44))};
-if (to44) {
-return ({ "cursor": from33, "changes": ({ "from": from33, "to": to44 }) });}} else {
-copy_to_clipboard_BANG_(n.string(state, from33, to34));
-return ({ "cursor": from33, "changes": u.from_to(from33, to34) });}
+copy_to_clipboard_BANG_(n.string(state, from87, to102))};
+if (to102 != null && to102 !== false) {
+return ({ "cursor": from87, "changes": ({ "from": from87, "to": to102 }) });}} else {
+copy_to_clipboard_BANG_(n.string(state, from87, to88));
+return ({ "cursor": from87, "changes": u.from_to(from87, to88) });}
 }));
 })
 ;
 var enter_and_indent_STAR_ = (function (state) {
-let ctx51 = format.make_indent_context(state);
-return u.update_ranges(state, (function (p__52) {
-let map__5354 = p__52;
-let range55 = map__5354;
-let from56 = squint_core.get(map__5354, "from");
-let to57 = squint_core.get(map__5354, "to");
-let empty58 = squint_core.get(map__5354, "empty");
-let indent_at59 = (function () {
- let G__6061 = n.closest(n.tree(state, from56), squint_core.some_fn(n.coll_QMARK_, n.top_QMARK_));
-let G__6062 = ((squint_core.nil_QMARK_(G__6061)) ? (null) : (n.inner_span(G__6061)));
-if (squint_core.nil_QMARK_(G__6062)) {
+let ctx115 = format.make_indent_context(state);
+return u.update_ranges(state, (function (p__116) {
+let map__117118 = p__116;
+let range119 = map__117118;
+let from120 = squint_core.get(map__117118, "from");
+let to121 = squint_core.get(map__117118, "to");
+let empty122 = squint_core.get(map__117118, "empty");
+let indent_at123 = (function () {
+ let G__124125 = n.closest(n.tree(state, from120), squint_core.some_fn(n.coll_QMARK_, n.top_QMARK_));
+let G__124126 = (function () {
+ let test__26256__auto__127 = squint_core.nil_QMARK_(G__124125);
+if (test__26256__auto__127 != null && test__26256__auto__127 !== false) {
 return null;} else {
-return n.start(G__6062);}
+return n.inner_span(G__124125);}
 })();
-let indent63 = ((indent_at59) ? (format.get_indentation(ctx51, indent_at59)) : (null));
-let insertion64 = squint_core.str("\n", ((indent63) ? (format.spaces(state, indent63)) : (null)));
-return ({ "cursor": (from56 + squint_core.count(insertion64)), "changes": [({ "from": from56, "to": to57, "insert": insertion64 })] });
+let test__26256__auto__128 = squint_core.nil_QMARK_(G__124126);
+if (test__26256__auto__128 != null && test__26256__auto__128 !== false) {
+return null;} else {
+return n.start(G__124126);}
+})();
+let indent129 = ((indent_at123 != null && indent_at123 !== false) ? (format.get_indentation(ctx115, indent_at123)) : (null));
+let insertion130 = squint_core.str("\n", ((indent129 != null && indent129 !== false) ? (format.spaces(state, indent129)) : (null)));
+return ({ "cursor": (from120 + squint_core.count(insertion130)), "changes": [({ "from": from120, "to": to121, "insert": insertion130 })] });
 }));
 })
 ;
 var nav_position = (function (state, from, dir) {
-let pos65 = (function () {
- let G__6667 = n.closest(n.tree(state, from), (function (_PERCENT_1) {
-return (n.coll_QMARK_(_PERCENT_1) || n.string_QMARK_(_PERCENT_1) || n.top_QMARK_(_PERCENT_1));
+let pos131 = (function () {
+ let G__132133 = n.closest(n.tree(state, from), (function (_PERCENT_1) {
+let or__25460__auto__134 = n.coll_QMARK_(_PERCENT_1);
+if (or__25460__auto__134 != null && or__25460__auto__134 !== false) {
+return or__25460__auto__134;} else {
+let or__25460__auto__135 = n.string_QMARK_(_PERCENT_1);
+if (or__25460__auto__135 != null && or__25460__auto__135 !== false) {
+return or__25460__auto__135;} else {
+return n.top_QMARK_(_PERCENT_1);}}
 }));
-let G__6668 = ((squint_core.nil_QMARK_(G__6667)) ? (null) : (n.children(G__6667, from, dir)));
-let G__6669 = ((squint_core.nil_QMARK_(G__6668)) ? (null) : (squint_core.first(G__6668)));
-if (squint_core.nil_QMARK_(G__6669)) {
+let G__132136 = (function () {
+ let test__26256__auto__137 = squint_core.nil_QMARK_(G__132133);
+if (test__26256__auto__137 != null && test__26256__auto__137 !== false) {
 return null;} else {
-return squint_core.get(G__6669, (function () {
- let G__7071 = dir;
-switch (G__7071) {case -1:
+return n.children(G__132133, from, dir);}
+})();
+let G__132138 = (function () {
+ let test__26256__auto__139 = squint_core.nil_QMARK_(G__132136);
+if (test__26256__auto__139 != null && test__26256__auto__139 !== false) {
+return null;} else {
+return squint_core.first(G__132136);}
+})();
+let test__26256__auto__140 = squint_core.nil_QMARK_(G__132138);
+if (test__26256__auto__140 != null && test__26256__auto__140 !== false) {
+return null;} else {
+return squint_core.get(G__132138, (function () {
+ let G__141142 = dir;
+switch (G__141142) {case -1:
 return "from";
 break;
 case 1:
 return "to";
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__7071))}
+throw new Error(squint_core.str("No matching clause: ", G__141142))}
 })());}
 })();
-if (squint_core.some_QMARK_(pos65)) {
-return pos65;} else {
+let test__26256__auto__144 = squint_core.some_QMARK_(pos131);
+if (test__26256__auto__144 != null && test__26256__auto__144 !== false) {
+return pos131;} else {
 return sel.constrain(state, (from + dir));}
 })
 ;
 var nav = (function (dir) {
 return function (state) {
-return u.update_ranges(state, (function (p__73) {
-let map__7475 = p__73;
-let range76 = map__7475;
-let from77 = squint_core.get(map__7475, "from");
-let to78 = squint_core.get(map__7475, "to");
-let empty79 = squint_core.get(map__7475, "empty");
-if (empty79) {
-return ({ "cursor": nav_position(state, from77, dir) });} else {
-return ({ "cursor": squint_core.get(u.from_to(from77, to78), (function () {
- let G__8081 = dir;
-switch (G__8081) {case -1:
+return u.update_ranges(state, (function (p__145) {
+let map__146147 = p__145;
+let range148 = map__146147;
+let from149 = squint_core.get(map__146147, "from");
+let to150 = squint_core.get(map__146147, "to");
+let empty151 = squint_core.get(map__146147, "empty");
+if (empty151 != null && empty151 !== false) {
+return ({ "cursor": nav_position(state, from149, dir) });} else {
+return ({ "cursor": squint_core.get(u.from_to(from149, to150), (function () {
+ let G__152153 = dir;
+switch (G__152153) {case -1:
 return "from";
 break;
 case 1:
 return "to";
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__8081))}
+throw new Error(squint_core.str("No matching clause: ", G__152153))}
 })()) });}
 }));
 };
@@ -188,41 +251,41 @@ throw new Error(squint_core.str("No matching clause: ", G__8081))}
 ;
 var nav_select = (function (dir) {
 return function (state) {
-return u.update_ranges(state, (function (p__83) {
-let map__8485 = p__83;
-let range86 = map__8485;
-let from87 = squint_core.get(map__8485, "from");
-let to88 = squint_core.get(map__8485, "to");
-let empty89 = squint_core.get(map__8485, "empty");
-if (empty89) {
-return ({ "range": n.balanced_range(state, from87, nav_position(state, from87, dir)) });} else {
+return u.update_ranges(state, (function (p__155) {
+let map__156157 = p__155;
+let range158 = map__156157;
+let from159 = squint_core.get(map__156157, "from");
+let to160 = squint_core.get(map__156157, "to");
+let empty161 = squint_core.get(map__156157, "empty");
+if (empty161 != null && empty161 !== false) {
+return ({ "range": n.balanced_range(state, from159, nav_position(state, from159, dir)) });} else {
 return ({ "range": (function () {
- let map__9091 = u.from_to(from87, to88);
-let from92 = squint_core.get(map__9091, "from");
-let to93 = squint_core.get(map__9091, "to");
-let G__9495 = dir;
-switch (G__9495) {case 1:
-return n.balanced_range(state, from92, nav_position(state, to93, dir));
+ let map__162163 = u.from_to(from159, to160);
+let from164 = squint_core.get(map__162163, "from");
+let to165 = squint_core.get(map__162163, "to");
+let G__166167 = dir;
+switch (G__166167) {case 1:
+return n.balanced_range(state, from164, nav_position(state, to165, dir));
 break;
 case -1:
-return n.balanced_range(state, nav_position(state, from92, dir), to93);
+return n.balanced_range(state, nav_position(state, from164, dir), to165);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__9495))}
+throw new Error(squint_core.str("No matching clause: ", G__166167))}
 })() });}
 }));
 };
 })
 ;
 var balance_ranges = (function (state) {
-return u.update_ranges(state, (function (p__97) {
-let map__9899 = p__97;
-let from100 = squint_core.get(map__9899, "from");
-let to101 = squint_core.get(map__9899, "to");
-let empty102 = squint_core.get(map__9899, "empty");
-if (empty102) {
+return u.update_ranges(state, (function (p__169) {
+let map__170171 = p__169;
+let from172 = squint_core.get(map__170171, "from");
+let to173 = squint_core.get(map__170171, "to");
+let empty174 = squint_core.get(map__170171, "empty");
+if (empty174 != null && empty174 !== false) {
 return null;} else {
-return ({ "range": n.balanced_range(state, from100, to101) });}
+return ({ "range": n.balanced_range(state, from172, to173) });}
 }));
 })
 ;
@@ -230,64 +293,86 @@ var log = console.log
 ;
 var slurp = (function (direction) {
 return function (state) {
-return u.update_ranges(state, (function (p__103) {
-let map__104105 = p__103;
-let range106 = map__104105;
-let from107 = squint_core.get(map__104105, "from");
-let to108 = squint_core.get(map__104105, "to");
-let empty109 = squint_core.get(map__104105, "empty");
-if (empty109) {
-let temp__47610__auto__110 = n.closest(n.tree(state, from107), squint_core.every_pred(n.coll_QMARK_, (function (_PERCENT_1) {
+return u.update_ranges(state, (function (p__175) {
+let map__176177 = p__175;
+let range178 = map__176177;
+let from179 = squint_core.get(map__176177, "from");
+let to180 = squint_core.get(map__176177, "to");
+let empty181 = squint_core.get(map__176177, "empty");
+if (empty181 != null && empty181 !== false) {
+let temp__24938__auto__182 = n.closest(n.tree(state, from179), squint_core.every_pred(n.coll_QMARK_, (function (_PERCENT_1) {
 return !(function () {
- let G__111112 = direction;
-switch (G__111112) {case 1:
-let G__114115 = _PERCENT_1;
-let G__114116 = ((squint_core.nil_QMARK_(G__114115)) ? (null) : (n.with_prefix(G__114115)));
-let G__114117 = ((squint_core.nil_QMARK_(G__114116)) ? (null) : (n.right(G__114116)));
-if (squint_core.nil_QMARK_(G__114117)) {
+ let G__183184 = direction;
+switch (G__183184) {case 1:
+let G__186187 = _PERCENT_1;
+let G__186188 = (function () {
+ let test__26256__auto__189 = squint_core.nil_QMARK_(G__186187);
+if (test__26256__auto__189 != null && test__26256__auto__189 !== false) {
 return null;} else {
-return n.end_edge_QMARK_(G__114117);}
+return n.with_prefix(G__186187);}
+})();
+let G__186190 = (function () {
+ let test__26256__auto__191 = squint_core.nil_QMARK_(G__186188);
+if (test__26256__auto__191 != null && test__26256__auto__191 !== false) {
+return null;} else {
+return n.right(G__186188);}
+})();
+let test__26256__auto__192 = squint_core.nil_QMARK_(G__186190);
+if (test__26256__auto__192 != null && test__26256__auto__192 !== false) {
+return null;} else {
+return n.end_edge_QMARK_(G__186190);}
 break;
 case -1:
-let G__118119 = _PERCENT_1;
-let G__118120 = ((squint_core.nil_QMARK_(G__118119)) ? (null) : (n.with_prefix(G__118119)));
-let G__118121 = ((squint_core.nil_QMARK_(G__118120)) ? (null) : (n.left(G__118120)));
-if (squint_core.nil_QMARK_(G__118121)) {
+let G__193194 = _PERCENT_1;
+let G__193195 = (function () {
+ let test__26256__auto__196 = squint_core.nil_QMARK_(G__193194);
+if (test__26256__auto__196 != null && test__26256__auto__196 !== false) {
 return null;} else {
-return n.start_edge_QMARK_(G__118121);}
+return n.with_prefix(G__193194);}
+})();
+let G__193197 = (function () {
+ let test__26256__auto__198 = squint_core.nil_QMARK_(G__193195);
+if (test__26256__auto__198 != null && test__26256__auto__198 !== false) {
+return null;} else {
+return n.left(G__193195);}
+})();
+let test__26256__auto__199 = squint_core.nil_QMARK_(G__193197);
+if (test__26256__auto__199 != null && test__26256__auto__199 !== false) {
+return null;} else {
+return n.start_edge_QMARK_(G__193197);}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__111112))}
+throw new Error(squint_core.str("No matching clause: ", G__183184))}
 })();
 })));
-if (temp__47610__auto__110) {
-let parent122 = temp__47610__auto__110;
-let temp__47610__auto__123 = (function () {
- let G__124125 = direction;
-switch (G__124125) {case 1:
-return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.rights(n.with_prefix(parent122))));
+if (temp__24938__auto__182 != null && temp__24938__auto__182 !== false) {
+let parent200 = temp__24938__auto__182;
+let temp__24938__auto__201 = (function () {
+ let G__202203 = direction;
+switch (G__202203) {case 1:
+return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.rights(n.with_prefix(parent200))));
 break;
 case -1:
-return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.lefts(n.with_prefix(parent122))));
+return squint_core.first(squint_core.remove(n.line_comment_QMARK_, n.lefts(n.with_prefix(parent200))));
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__124125))}
+throw new Error(squint_core.str("No matching clause: ", G__202203))}
 })();
-if (temp__47610__auto__123) {
-let target127 = temp__47610__auto__123;
-return ({ "cursor/mapped": from107, "changes": (function () {
- let G__128129 = direction;
-switch (G__128129) {case 1:
-let edge131 = n.down_last(parent122);
-return [({ "from": n.end(target127), "insert": n.name(edge131) }), squint_core.assoc_BANG_(n.from_to(edge131), "insert", " ")];
+if (temp__24938__auto__201 != null && temp__24938__auto__201 !== false) {
+let target205 = temp__24938__auto__201;
+return ({ "cursor/mapped": from179, "changes": (function () {
+ let G__206207 = direction;
+switch (G__206207) {case 1:
+let edge209 = n.down_last(parent200);
+return [({ "from": n.end(target205), "insert": n.name(edge209) }), squint_core.assoc_BANG_(n.from_to(edge209), "insert", " ")];
 break;
 case -1:
-let edge132 = n.left_edge_with_prefix(state, parent122);
-let start133 = n.start(n.with_prefix(parent122));
-return [({ "from": start133, "to": (start133 + squint_core.count(edge132)), "insert": " " }), ({ "from": n.start(target127), "insert": edge132 })];
+let edge210 = n.left_edge_with_prefix(state, parent200);
+let start211 = n.start(n.with_prefix(parent200));
+return [({ "from": start211, "to": (start211 + squint_core.count(edge210)), "insert": " " }), ({ "from": n.start(target205), "insert": edge210 })];
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__128129))}
+throw new Error(squint_core.str("No matching clause: ", G__206207))}
 })() });}}}
 }));
 };
@@ -295,49 +380,81 @@ throw new Error(squint_core.str("No matching clause: ", G__128129))}
 ;
 var barf = (function (direction) {
 return function (state) {
-return u.update_ranges(state, (function (p__134) {
-let map__135136 = p__134;
-let range137 = map__135136;
-let from138 = squint_core.get(map__135136, "from");
-let to139 = squint_core.get(map__135136, "to");
-let empty140 = squint_core.get(map__135136, "empty");
-if (empty140) {
-let temp__47610__auto__141 = n.closest(n.tree(state, from138), n.coll_QMARK_);
-if (temp__47610__auto__141) {
-let parent142 = temp__47610__auto__141;
-let G__143144 = direction;
-switch (G__143144) {case 1:
-let temp__47610__auto__146 = (function () {
- let G__147148 = n.down_last(parent142);
-let G__147149 = ((squint_core.nil_QMARK_(G__147148)) ? (null) : (n.lefts(G__147148)));
-let G__147150 = ((squint_core.nil_QMARK_(G__147149)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__147149)));
-let G__147151 = ((squint_core.nil_QMARK_(G__147150)) ? (null) : (squint_core.drop(1, G__147150)));
-if (squint_core.nil_QMARK_(G__147151)) {
+return u.update_ranges(state, (function (p__212) {
+let map__213214 = p__212;
+let range215 = map__213214;
+let from216 = squint_core.get(map__213214, "from");
+let to217 = squint_core.get(map__213214, "to");
+let empty218 = squint_core.get(map__213214, "empty");
+if (empty218 != null && empty218 !== false) {
+let temp__24938__auto__219 = n.closest(n.tree(state, from216), n.coll_QMARK_);
+if (temp__24938__auto__219 != null && temp__24938__auto__219 !== false) {
+let parent220 = temp__24938__auto__219;
+let G__221222 = direction;
+switch (G__221222) {case 1:
+let temp__24938__auto__224 = (function () {
+ let G__225226 = n.down_last(parent220);
+let G__225227 = (function () {
+ let test__26256__auto__228 = squint_core.nil_QMARK_(G__225226);
+if (test__26256__auto__228 != null && test__26256__auto__228 !== false) {
 return null;} else {
-return squint_core.first(G__147151);}
+return n.lefts(G__225226);}
 })();
-if (temp__47610__auto__146) {
-let target152 = temp__47610__auto__146;
-return ({ "cursor": squint_core.min(n.end(target152), from138), "changes": [({ "from": n.end(target152), "insert": n.name(n.down_last(parent142)) }), squint_core.assoc_BANG_(n.from_to(n.down_last(parent142)), "insert", " ")] });}
+let G__225229 = (function () {
+ let test__26256__auto__230 = squint_core.nil_QMARK_(G__225227);
+if (test__26256__auto__230 != null && test__26256__auto__230 !== false) {
+return null;} else {
+return squint_core.remove(n.line_comment_QMARK_, G__225227);}
+})();
+let G__225231 = (function () {
+ let test__26256__auto__232 = squint_core.nil_QMARK_(G__225229);
+if (test__26256__auto__232 != null && test__26256__auto__232 !== false) {
+return null;} else {
+return squint_core.drop(1, G__225229);}
+})();
+let test__26256__auto__233 = squint_core.nil_QMARK_(G__225231);
+if (test__26256__auto__233 != null && test__26256__auto__233 !== false) {
+return null;} else {
+return squint_core.first(G__225231);}
+})();
+if (temp__24938__auto__224 != null && temp__24938__auto__224 !== false) {
+let target234 = temp__24938__auto__224;
+return ({ "cursor": squint_core.min(n.end(target234), from216), "changes": [({ "from": n.end(target234), "insert": n.name(n.down_last(parent220)) }), squint_core.assoc_BANG_(n.from_to(n.down_last(parent220)), "insert", " ")] });}
 break;
 case -1:
-let temp__47610__auto__153 = (function () {
- let G__154155 = n.down(parent142);
-let G__154156 = ((squint_core.nil_QMARK_(G__154155)) ? (null) : (n.rights(G__154155)));
-let G__154157 = ((squint_core.nil_QMARK_(G__154156)) ? (null) : (squint_core.remove(n.line_comment_QMARK_, G__154156)));
-let G__154158 = ((squint_core.nil_QMARK_(G__154157)) ? (null) : (squint_core.drop(1, G__154157)));
-if (squint_core.nil_QMARK_(G__154158)) {
+let temp__24938__auto__235 = (function () {
+ let G__236237 = n.down(parent220);
+let G__236238 = (function () {
+ let test__26256__auto__239 = squint_core.nil_QMARK_(G__236237);
+if (test__26256__auto__239 != null && test__26256__auto__239 !== false) {
 return null;} else {
-return squint_core.first(G__154158);}
+return n.rights(G__236237);}
 })();
-if (temp__47610__auto__153) {
-let next_first_child159 = temp__47610__auto__153;
-let left_edge160 = n.left_edge_with_prefix(state, parent142);
-let left_start161 = n.start(n.with_prefix(parent142));
-return ({ "cursor": squint_core.max(from138, (n.start(next_first_child159) + (squint_core.count(left_edge160) + 1))), "changes": [({ "from": n.start(next_first_child159), "insert": squint_core.str(" ", left_edge160) }), ({ "from": left_start161, "to": (left_start161 + squint_core.count(left_edge160)), "insert": format.spaces(state, squint_core.count(left_edge160)) })] });}
+let G__236240 = (function () {
+ let test__26256__auto__241 = squint_core.nil_QMARK_(G__236238);
+if (test__26256__auto__241 != null && test__26256__auto__241 !== false) {
+return null;} else {
+return squint_core.remove(n.line_comment_QMARK_, G__236238);}
+})();
+let G__236242 = (function () {
+ let test__26256__auto__243 = squint_core.nil_QMARK_(G__236240);
+if (test__26256__auto__243 != null && test__26256__auto__243 !== false) {
+return null;} else {
+return squint_core.drop(1, G__236240);}
+})();
+let test__26256__auto__244 = squint_core.nil_QMARK_(G__236242);
+if (test__26256__auto__244 != null && test__26256__auto__244 !== false) {
+return null;} else {
+return squint_core.first(G__236242);}
+})();
+if (temp__24938__auto__235 != null && temp__24938__auto__235 !== false) {
+let next_first_child245 = temp__24938__auto__235;
+let left_edge246 = n.left_edge_with_prefix(state, parent220);
+let left_start247 = n.start(n.with_prefix(parent220));
+return ({ "cursor": squint_core.max(from216, (n.start(next_first_child245) + (squint_core.count(left_edge246) + 1))), "changes": [({ "from": n.start(next_first_child245), "insert": squint_core.str(" ", left_edge246) }), ({ "from": left_start247, "to": (left_start247 + squint_core.count(left_edge246)), "insert": format.spaces(state, squint_core.count(left_edge246)) })] });}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__143144))}}}
+throw new Error(squint_core.str("No matching clause: ", G__221222))}}}
 }));
 };
 })

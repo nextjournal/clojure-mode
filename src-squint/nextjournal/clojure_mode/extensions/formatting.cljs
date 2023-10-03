@@ -29,9 +29,9 @@
             ;; start at the inner-left edge of the coll.
             ;; if it's a list beginning with a symbol, add 1 space.
             (and (= "List" type-name)
-                 (#{"Operator"
-                    "DefLike"
-                    "NS"} (some-> node n/down n/right n/name)))
+                 (contains? #{"Operator"
+                              "DefLike"
+                              "NS"} (some-> node n/down n/right n/name)))
             (+ 1))
           :else -1)))
 
