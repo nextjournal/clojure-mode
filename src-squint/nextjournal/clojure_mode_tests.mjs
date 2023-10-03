@@ -128,13 +128,23 @@ return close_brackets.handle_close(_PERCENT_1, bracket);
 }), input), expected)]
 };
 null;
-squint_core.prn("lhs", 1, "rhs", 2);
-assert.equal(1, 2);
 null;
 null;
 assert.equal(apply_f((function (_PERCENT_1) {
 return close_brackets.handle_open(_PERCENT_1, "\"");
 }), "|"), "\"|\"");
 assert.equal(apply_f(close_brackets.handle_backspace, "|"), "|");
+assert.equal(apply_f(format.format, squint_core.str("<", " ()", ">")), squint_core.str("<", "()", ">"));
+assert.equal(apply_f(squint_core.partial(format.prefix_all, "a"), "z|z\nzz|\n|zz"), "az|z\nazz|\n|azz");
+assert.equal(apply_f(format.indent_all, "| ()"), "|()");
+assert.equal(apply_f(format.format_all, "a  :b  3 |"), "a :b 3|");
+assert.equal(apply_f(format.format, "<a  b>\nc  d"), "<a b>\nc  d");
+assert.equal(apply_cmd(commands.kill, "| ()\nx"), "|\nx");
+assert.equal(apply_cmd(commands.unwrap, "(|)"), "|");
+assert.equal(apply_f(commands.balance_ranges, "<a>"), "<a>");
+assert.equal(apply_f(commands.slurp(1), "(|) a"), "(|a)");
+assert.equal(apply_f(commands.barf(1), "(|a)"), "(|) a");
+assert.equal(apply_cmd(commands.selection_grow, "(|)"), "<()>");
+assert.equal(apply_cmd(commands.enter_and_indent, "(|)"), "(\n |)");
 
 export { make_state, state_str, apply_f_STAR_, apply_cmd_STAR_, extensions, apply_f, apply_cmd }
