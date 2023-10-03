@@ -6,36 +6,10 @@
             ["@codemirror/state" :as cm-state
              :refer [EditorState EditorSelection]]
             ["assert" :as assert]
-            #_[nextjournal.clojure-mode.test-utils :as test-utils]
-            [clojure.string :as str]))
+            #_[nextjournal.clojure-mode.test-utils :as test-utils])
+  (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing]]))
 
 #_(assert/equal 1 2)
-
-(defn string? [x]
-  (= "string" (js/typeof x)))
-
-(defn subs [s start end]
-  (.substring s start end))
-
-(defn- re-seq* [re s]
-  (when-some [matches (.exec re s)]
-    (let [match-str (aget matches 0)
-          match-vals (if (== (.-length matches) 1)
-                       match-str
-                       (vec matches))]
-      (cons match-vals
-            (lazy-seq
-             (let [post-idx (+ (.-index matches)
-                               (max 1 (.-length match-str)))]
-               (when (<= post-idx (.-length s))
-                 (re-seq* re (subs s post-idx)))))))))
-
-(defn re-seq
-  "Returns a lazy sequence of successive matches of re in s."
-  [re s]
-  (if (string? s)
-    (re-seq* re s)
-    (throw (js/TypeError. "re-seq must match against a string."))))
 
 (defn make-state [extensions doc]
   (let [[doc ranges] (->> (re-seq #"\||<[^>]*?>|[^<>|]+" doc)
@@ -194,6 +168,7 @@
   (assert.equal (apply-f format/format (str "<" input ">"))
                 (str "<" expected ">")))
 
+;; nav
 (doseq [[input dir expected]
         (partition 3
                    ["|()" 1 "()|"
@@ -207,7 +182,7 @@
                     "a|\nb" 1 "a\nb|"])]
   (assert.equal (apply-f (commands/nav dir) input)
                 expected))
-
+;; nav-select
 (doseq [[input dir expected]
         (partition 3 ["|()" 1 "<()>"
                       "()|" -1 "<()>"
@@ -225,6 +200,7 @@
   (assert.equal (apply-f (commands/nav-select dir) input)
                 expected))
 
+;; close-brackets
 (doseq [[input insert expected]
         (partition 3 ["|" \( "(|)" ;; auto-close brackets
                       "(|" \( "((|)"
@@ -236,39 +212,31 @@
   (assert.equal (apply-f #(close-brackets/handle-open % insert) input)
                 expected))
 
-#_(do
-    (deftest nav
-      )
+;; handle-close
+(doseq [[input bracket expected]
+        (partition 3 ["|" \) "|"
+                      "|(" \) "|("
+                      "|)" \) ")|"
+                      "(|)" \) "()|"
+                      "() |()" \) "() ()|"
+                      "[(|)]" \) "[()|]"
+                      "[()|]" \) "[()]|"
+                      "([]| s)" \) "([] s)|"
+                      "(|" \) "()|" ;; close unclosed parent
+                      "[(|]" \} "[(]|" ;; non-matching bracket doesn't close ancestor
+                      "((|)" \] "(()|" ;; non-matching bracket doesn't close ancestor
+                      "((|)" \) "(())|" ;; a bit weird - it finds an unclosed ancestor, and closes that.
+                      "\"|\"" \) "\")|\"" ;; normal behaviour inside strings
+                      ])]
+  (assert.equal (apply-f #(close-brackets/handle-close % bracket) input)
+                expected))
 
-
-    (deftest nav-select
-      )
-
-
-    (deftest close-brackets
-      (testing "handle-open"
+(deftest close-brackets
+  (testing "handle-open"
         )
 
       (testing "handle-close"
-        (are [input bracket expected]
-            (= (apply-f #(close-brackets/handle-close % bracket) input)
-               expected)
-          "|" \) "|"
-          "|(" \) "|("
-          "|)" \) ")|"
-          "(|)" \) "()|"
-          "() |()" \) "() ()|"
-          "[(|)]" \) "[()|]"
-          "[()|]" \) "[()]|"
-          "([]| s)" \) "([] s)|"
-          "(|" \) "()|" ;; close unclosed parent
-          "[(|]" \} "[(]|" ;; non-matching bracket doesn't close ancestor
-          "((|)" \] "(()|" ;; non-matching bracket doesn't close ancestor
-          "((|)" \) "(())|" ;; a bit weird - it finds an unclosed ancestor, and closes that.
-          "\"|\"" \) "\")|\"" ;; normal behaviour inside strings
-          ))
-
-
+        )
 
       (testing "handle-open string"
         (are [input expected]
@@ -297,13 +265,17 @@
           "\"[|]\"" "\"|]\"" ;; normal deletion inside strings
           ))
 
-      (testing "handle backspace (embedded)"
+      #_(testing "handle backspace (embedded)"
         (are [input expected]
             (= (apply-embedded-f close-brackets/handle-backspace input)
                expected)
           "```\n()|\n```" "```\n(|)\n```"
           "```\n[[]]|\n```" "```\n[[]|]\n```"
           "```\n(| )\n```" "```\n|\n```")))
+
+(do
+    
+    
 
     (deftest indentSelection
 
@@ -434,7 +406,7 @@
         "('xy|z 1) 2" 1 "('xy|z 1 2)"
         "'ab|c 1" 1 "'ab|c 1"))
 
-    (deftest slurp-embedded
+    #_(deftest slurp-embedded
       (are [input dir expected]
           (= (apply-embedded-f (commands/slurp dir) input) expected)
         "```\n(|) a\n```" 1 "```\n(|a)\n```"
