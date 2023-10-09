@@ -9,12 +9,12 @@ import * as match_brackets from './clojure_mode/extensions/match_brackets.mjs';
 import * as format from './Clojure_mode/extensions/formatting.mjs';
 import * as sel_history from './clojure_mode/extensions/selection_history.mjs';
 import * as keymap from './clojure_mode/keymap.mjs';
-import * as n from './clojure_mode/node.mjs';
+import * as n from './clojure_mode/keymap.mjs';
 var fold_node_props = (function () {
- let coll_span43 = (function (tree) {
+ let coll_span1 = (function (tree) {
 return ({ "from": (n.start(tree) + 1), "to": (n.end(tree) - 1) });
 });
-return ({ "Vector": coll_span43, "Map": coll_span43, "List": coll_span43 });
+return ({ "Vector": coll_span1, "Map": coll_span1, "List": coll_span1 });
 })()
 ;
 var style_tags = ({ "LineComment": tags["lineComment"], "NS": tags["keyword"], "\"\\\"\"": tags["string"], "VarName/Symbol": tags.definition(tags["variableName"]), "DocString/...": tags["emphasis"], "Boolean": tags["atom"], "Keyword": tags["atom"], "Number": tags["number"], "RegExp": tags["regexp"], "StringContent": tags["string"], "Operator/Symbol": tags["keyword"], "Discard!": tags["comment"], "DefLike": tags["keyword"], "Nil": tags["null"] })
@@ -23,25 +23,25 @@ var parser = lezer_clj.parser
 ;
 null;
 var syntax = (function () {
- let f44 = (function (var_args) {
-let G__4748 = arguments["length"];
-switch (G__4748) {case 0:
-return f44.cljs$core$IFn$_invoke$arity$0();
+ let f2 = (function (var_args) {
+let G__56 = arguments["length"];
+switch (G__56) {case 0:
+return f2.cljs$core$IFn$_invoke$arity$0();
 break;
 case 1:
-return f44.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f2.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f44["cljs$core$IFn$_invoke$arity$0"] = (function () {
+f2["cljs$core$IFn$_invoke$arity$0"] = (function () {
 return syntax(parser);
 });
-f44["cljs$core$IFn$_invoke$arity$1"] = (function (parser) {
+f2["cljs$core$IFn$_invoke$arity$1"] = (function (parser) {
 return LRLanguage.define(({ "parser": parser.configure(({ "props": [format.props, language.foldNodeProp.add(fold_node_props), highlight.styleTags(style_tags)] })) }));
 });
-f44["cljs$lang$maxFixedArity"] = 1;
-return f44;
+f2["cljs$lang$maxFixedArity"] = 1;
+return f2;
 })()
 ;
 var complete_keymap = keymap.complete

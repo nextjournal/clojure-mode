@@ -7,7 +7,8 @@
             ["./Clojure_mode/extensions/formatting.mjs" :as format]
             ["./clojure_mode/extensions/selection_history.mjs" :as sel-history]
             ["./clojure_mode/keymap.mjs" :as keymap]
-            ["./clojure_mode/node.mjs" :as n]
+            [nextjournal.clojure-mode.node :as n]
+            #_["./clojure_mode/node.mjs" :as n]
             ;; TODO:
             #_[nextjournal.clojure-mode.test-utils :as test-utils]))
 
