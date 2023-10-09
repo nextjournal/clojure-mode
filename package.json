@@ -25,11 +25,11 @@
     "punycode": "2.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "squint-cljs": "^0.2.29",
+    "squint-cljs": "link:../squint",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {
-    "to run squint as a local dependency:": "link:../squint"
+    "to run squint as a local dependency:": "bb yarn-install:squint-dev"
   },
   "scripts": {
     "watch": "bb copy-viewer-css && shadow-cljs -A:demo watch demo livedoc test",

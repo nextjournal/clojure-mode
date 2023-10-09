@@ -38,6 +38,10 @@
 
   watch-cljs (t/watch-cljs)
 
+  yarn-install:squint-dev (do
+                            (shell "yarn add squint-cljs@link:../squint")
+                            (shell {:dir "node_modules/.bin"} "ln -sf" "../squint-cljs/node_cli.js" "squint"))
+
   vite-dev {:doc "Launches vite application"
             :depends [yarn-install]
             :task (shell "yarn dev")}
