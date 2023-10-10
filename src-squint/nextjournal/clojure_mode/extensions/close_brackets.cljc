@@ -1,11 +1,11 @@
 (ns nextjournal.clojure-mode.extensions.close-brackets
-  (:require ["../node.mjs" :as n]
-            ["../util.mjs" :as u :refer [from-to]]
+  (:require ["@codemirror/view" :as view]
             ["@codemirror/state" :refer [EditorState
                                          Prec]]
-            ["@codemirror/view" :as view]
-            #_[nextjournal.clojure-mode.node :as n]
-            #_[nextjournal.clojure-mode.util :as u :refer [from-to]]
+            #?@(:squint []
+                :cljs [[applied-science.js-interop :as j]])
+            [nextjournal.clojure-mode.node :as n]
+            [nextjournal.clojure-mode.util :as u :refer [from-to]]
             [clojure.string :as str]))
 
 (defn in-string? [state pos]
@@ -25,10 +25,11 @@
     {:cursor (dec from)}
     (u/deletion from to)))
 
-(defn handle-backspace
+(#?(:squint defn
+    :cljs j/defn) handle-backspace
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
-  [^:js {:as ^EditorState state :keys [doc]}]
+  [^:js {:as ^EditorState state}]
   (when-not (and (= 1 (.. state -selection -ranges -length))
                  (let [^js range (get-in state [:selection :ranges 0])]
                    (and (.-empty range) (= 0 (.-from range)))))
