@@ -1,12 +1,13 @@
 (ns nextjournal.clojure-mode
-  (:require ["@lezer/highlight" :as highlight :refer [tags]]
-            ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
+  (:require ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
+            ["@lezer/highlight" :as highlight :refer [tags]]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            ["./clojure_mode/extensions/close_brackets.mjs" :as close-brackets]
-            ["./clojure_mode/extensions/match_brackets.mjs" :as match-brackets]
-            ["./Clojure_mode/extensions/formatting.mjs" :as format]
-            ["./clojure_mode/extensions/selection_history.mjs" :as sel-history]
-            ["./clojure_mode/keymap.mjs" :as keymap]
+            [applied-science.js-interop :as j]
+            [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
+            [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
+            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
+            [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.node :as n]
             ;; TODO:
             #_[nextjournal.clojure-mode.test-utils :as test-utils]))
@@ -14,27 +15,28 @@
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
                                      :to (dec (n/end tree))})]
-    {:Vector coll-span
-     :Map coll-span
-     :List coll-span}))
+    (j/lit
+     {:Vector coll-span
+      :Map coll-span
+      :List coll-span})))
 
 (def style-tags
-  {:NS (.-keyword tags)
-   :DefLike (.-keyword tags)
-   "Operator/Symbol" (.-keyword tags)
-   "VarName/Symbol" (.definition tags (.-variableName tags))
-   :Boolean (.-atom tags)
-   "DocString/..." (.-emphasis tags)
-   :Discard! (.-comment tags)
-   :Number (.-number tags)
-   :StringContent (.-string tags)
-   ;; need to pass something, that returns " when being parsed as JSON
-   ;; also #js doesn't treat this correctly, hence clj->js above
-   "\"\\\"\"" (.-string tags)
-   :Keyword (.-atom tags)
-   :Nil (.-null tags)
-   :LineComment (.-lineComment tags)
-   :RegExp (.-regexp tags)})
+  (clj->js {:NS (.-keyword tags)
+            :DefLike (.-keyword tags)
+            "Operator/Symbol" (.-keyword tags)
+            "VarName/Symbol" (.definition tags (.-variableName tags))
+            :Boolean (.-atom tags)
+            "DocString/..." (.-emphasis tags)
+            :Discard! (.-comment tags)
+            :Number (.-number tags)
+            :StringContent (.-string tags)
+           ;; need to pass something, that returns " when being parsed as JSON
+           ;; also #js doesn't treat this correctly, hence clj->js above
+            "\"\\\"\"" (.-string tags)
+            :Keyword (.-atom tags)
+            :Nil (.-null tags)
+            :LineComment (.-lineComment tags)
+            :RegExp (.-regexp tags)}))
 
 (def parser lezer-clj/parser)
 
@@ -81,19 +83,16 @@
   (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "\"\" :a")]
     (-> state
         n/tree
-        (n/cursor 0 1)
-        ))
+        (n/cursor 0 1)))
   (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "a\n\nb")]
     (-> state
         (n/tree 1 1)
         (->> (n/string state))
-        str
-        ))
+        str))
   (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "([]| s)")]
     (-> state
         n/tree
-        (n/terminal-cursor 3 1)
-        ))
+        (n/terminal-cursor 3 1)))
 
   (let [state (test-utils/make-state #js[(syntax lezer-clj/parser)] "(|")]
     (-> state
