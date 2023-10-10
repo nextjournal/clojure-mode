@@ -3,21 +3,21 @@ import * as commands from '@codemirror/commands';
 import * as cmd from './commands.mjs';
 var update_some = (function (m, updates) {
 return squint_core.reduce_kv((function (m, k, f) {
-let temp__24849__auto__248 = squint_core.get(m, k);
-let test__26256__auto__249 = squint_core.nil_QMARK_(temp__24849__auto__248);
-if (test__26256__auto__249 != null && test__26256__auto__249 !== false) {
+let temp__31789__auto__294 = squint_core.get(m, k);
+let test__60965__auto__295 = squint_core.nil_QMARK_(temp__31789__auto__294);
+if (test__60965__auto__295 != null && test__60965__auto__295 !== false) {
 return squint_core.dissoc(m, k);} else {
-let existing250 = temp__24849__auto__248;
+let existing296 = temp__31789__auto__294;
 return squint_core.assoc(m, k, (function () {
- let test__26256__auto__251 = (function () {
- let c__25419__auto__252 = Function;
-let x__25420__auto__253 = f;
-let ret__25421__auto__254 = (x__25420__auto__253 instanceof c__25419__auto__252);
-return ret__25421__auto__254;
+ let test__60965__auto__297 = (function () {
+ let c__32146__auto__298 = Function;
+let x__32147__auto__299 = f;
+let ret__32148__auto__300 = (x__32147__auto__299 instanceof c__32146__auto__298);
+return ret__32148__auto__300;
 })();
-if (test__26256__auto__251 != null && test__26256__auto__251 !== false) {
-return f(existing250);} else {
-return squint_core.get(f, existing250);}
+if (test__60965__auto__297 != null && test__60965__auto__297 !== false) {
+return f(existing296);} else {
+return squint_core.get(f, existing296);}
 })());}
 }), m, updates);
 })
@@ -31,11 +31,11 @@ return update_some(command, ({ "run": cmd.index, "shift": cmd.index }));
 })
 ;
 var group = (function (commands) {
-return squint_core.reduce((function (out, p__255) {
-let map__256257 = p__255;
-let cmd258 = map__256257;
-let run259 = squint_core.get(map__256257, "run");
-return squint_core.update(out, run259, squint_core.fnil(squint_core.conj, []), squint_core.dissoc(cmd258, "run"));
+return squint_core.reduce((function (out, p__301) {
+let map__302303 = p__301;
+let cmd304 = map__302303;
+let run305 = squint_core.get(map__302303, "run");
+return squint_core.update(out, run305, squint_core.fnil(squint_core.conj, []), squint_core.dissoc(cmd304, "run"));
 }), ({  }), squint_core.map(serialize, commands));
 })
 ;

@@ -11,22 +11,22 @@ let vec__5558 = squint_core.reduce((function (p__59, match) {
 let vec__6063 = p__59;
 let doc64 = squint_core.nth(vec__6063, 0, null);
 let ranges65 = squint_core.nth(vec__6063, 1, null);
-let test__27714__auto__66 = (match === "|");
-if (test__27714__auto__66 != null && test__27714__auto__66 !== false) {
+let test__60965__auto__66 = (match === "|");
+if (test__60965__auto__66 != null && test__60965__auto__66 !== false) {
 return [doc64, squint_core.conj(ranges65, EditorSelection.cursor(squint_core.count(doc64)))];} else {
-let test__27714__auto__67 = match.startsWith("<");
-if (test__27714__auto__67 != null && test__27714__auto__67 !== false) {
+let test__60965__auto__67 = match.startsWith("<");
+if (test__60965__auto__67 != null && test__60965__auto__67 !== false) {
 return [squint_core.str(doc64, squint_core.subs(match, 1, (squint_core.count(match) - 1))), squint_core.conj(ranges65, EditorSelection.range(squint_core.count(doc64), (squint_core.count(doc64) + (squint_core.count(match) - 2))))];} else {
-let test__27714__auto__68 = "else";
-if (test__27714__auto__68 != null && test__27714__auto__68 !== false) {
+let test__60965__auto__68 = "else";
+if (test__60965__auto__68 != null && test__60965__auto__68 !== false) {
 return [squint_core.str(doc64, match), ranges65];} else {
 return null;}}}
 }), ["", []], squint_core.re_seq(/\||<[^>]*?>|[^<>|]+/, doc));
 let doc69 = squint_core.nth(vec__5558, 0, null);
 let ranges70 = squint_core.nth(vec__5558, 1, null);
 return EditorState.create(({ "doc": doc69, "selection": (function () {
- let test__27714__auto__71 = squint_core.seq(ranges70);
-if (test__27714__auto__71 != null && test__27714__auto__71 !== false) {
+ let test__60965__auto__71 = squint_core.seq(ranges70);
+if (test__60965__auto__71 != null && test__60965__auto__71 !== false) {
 return EditorSelection.create(squint_core.into_array(ranges70));} else {
 return undefined;}
 })(), "extensions": (function () {
