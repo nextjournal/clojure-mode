@@ -8,7 +8,8 @@
         ret (watch "src-squint"
                    (fn [{:keys [type path]}]
                      (when (and (#{:write :write|chmod :create} type)
-                                (str/ends-with? path ".cljs")
+                                (or (str/ends-with? path ".cljs")
+                                    (str/ends-with? path ".cljc"))
                                 ;; emacs shit:
                                 (not (str/includes? path ".#")))
                        (shell {:continue true
