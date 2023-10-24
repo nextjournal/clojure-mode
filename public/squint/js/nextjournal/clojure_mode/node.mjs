@@ -13,8 +13,8 @@ var start_edge_prop = lz_tree.NodeProp["closedBy"];
 var end_edge_prop = lz_tree.NodeProp["openedBy"];
 var same_edge_prop = lezer_clj.props["sameEdge"];
 var node_prop = (function (prop_name) {
-let G__601 = prop_name;
-switch (G__601) {case "prefixColl":
+let G__2371 = prop_name;
+switch (G__2371) {case "prefixColl":
 return prefix_coll_prop;
 break;
 case "coll":
@@ -30,35 +30,51 @@ case "sameEdge":
 return same_edge_prop;
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__601))}
+throw new Error(squint_core.str("No matching clause: ", G__2371))}
 });
 var type = (function (node) {
 return node["type"];
 });
 var start = (function (node) {
+let test__27847__auto__1 = node["from"];
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
+null} else {
+throw new Error("Assert failed: (.-from node)")};
 return node["from"];
 });
 var end = (function (node) {
+let test__27847__auto__1 = node["to"];
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
+null} else {
+throw new Error("Assert failed: (.-to node)")};
 return node["to"];
 });
 var up = (function (node) {
 return node["parent"];
 });
 var down = (function (node) {
+let test__27847__auto__1 = !squint_core.fn_QMARK_(node["lastChild"]);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
+null} else {
+throw new Error("Assert failed: (not (fn? (.-lastChild node)))")};
 return node["firstChild"];
 });
 var down_last = (function (node) {
+let test__27847__auto__1 = !squint_core.fn_QMARK_(node["lastChild"]);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
+null} else {
+throw new Error("Assert failed: (not (fn? (.-lastChild node)))")};
 return node["lastChild"];
 });
 var depth = (function (node) {
 let node1 = node;
 let i2 = 0;
 while(true){
-let temp__24871__auto__3 = up(node1);
-let test__23320__auto__4 = squint_core.nil_QMARK_(temp__24871__auto__3);
-if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
+let temp__27741__auto__3 = up(node1);
+let test__27847__auto__4 = squint_core.nil_QMARK_(temp__27741__auto__3);
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return i2;} else {
-let parent5 = temp__24871__auto__3;
+let parent5 = temp__27741__auto__3;
 let G__6 = parent5;
 let G__7 = (i2 + 1);
 node1 = G__6;
@@ -126,21 +142,21 @@ var end_edge_QMARK_ = (function (n) {
 return end_edge_type_QMARK_(type(n));
 });
 var left_edge_type_QMARK_ = (function (t) {
-let or__25455__auto__1 = start_edge_type_QMARK_(t);
-if (or__25455__auto__1 != null && or__25455__auto__1 !== false) {
-return or__25455__auto__1;} else {
-let or__25455__auto__2 = same_edge_type_QMARK_(t);
-if (or__25455__auto__2 != null && or__25455__auto__2 !== false) {
-return or__25455__auto__2;} else {
+let or__28221__auto__1 = start_edge_type_QMARK_(t);
+if (or__28221__auto__1 != null && or__28221__auto__1 !== false) {
+return or__28221__auto__1;} else {
+let or__28221__auto__2 = same_edge_type_QMARK_(t);
+if (or__28221__auto__2 != null && or__28221__auto__2 !== false) {
+return or__28221__auto__2;} else {
 return prefix_edge_type_QMARK_(t);}}
 });
 var left_edge_QMARK_ = (function (n) {
 return left_edge_type_QMARK_(type(n));
 });
 var right_edge_type_QMARK_ = (function (t) {
-let or__25455__auto__1 = end_edge_type_QMARK_(t);
-if (or__25455__auto__1 != null && or__25455__auto__1 !== false) {
-return or__25455__auto__1;} else {
+let or__28221__auto__1 = end_edge_type_QMARK_(t);
+if (or__28221__auto__1 != null && or__28221__auto__1 !== false) {
+return or__28221__auto__1;} else {
 return same_edge_type_QMARK_(t);}
 });
 var right_edge_QMARK_ = (function (n) {
@@ -148,30 +164,30 @@ return right_edge_type_QMARK_(type(n));
 });
 var edge_QMARK_ = (function (n) {
 let t1 = type(n);
-let or__25455__auto__2 = start_edge_type_QMARK_(t1);
-if (or__25455__auto__2 != null && or__25455__auto__2 !== false) {
-return or__25455__auto__2;} else {
-let or__25455__auto__3 = end_edge_type_QMARK_(t1);
-if (or__25455__auto__3 != null && or__25455__auto__3 !== false) {
-return or__25455__auto__3;} else {
-let or__25455__auto__4 = same_edge_type_QMARK_(t1);
-if (or__25455__auto__4 != null && or__25455__auto__4 !== false) {
-return or__25455__auto__4;} else {
+let or__28221__auto__2 = start_edge_type_QMARK_(t1);
+if (or__28221__auto__2 != null && or__28221__auto__2 !== false) {
+return or__28221__auto__2;} else {
+let or__28221__auto__3 = end_edge_type_QMARK_(t1);
+if (or__28221__auto__3 != null && or__28221__auto__3 !== false) {
+return or__28221__auto__3;} else {
+let or__28221__auto__4 = same_edge_type_QMARK_(t1);
+if (or__28221__auto__4 != null && or__28221__auto__4 !== false) {
+return or__28221__auto__4;} else {
 return prefix_type_QMARK_(t1);}}}
 });
 var closed_by = (function (n) {
-let G__611 = type(n).prop(lz_tree.NodeProp["closedBy"]);
-let test__23320__auto__2 = squint_core.nil_QMARK_(G__611);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let G__2381 = type(n).prop(lz_tree.NodeProp["closedBy"]);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2381);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return G__611[0];}
+return G__2381[0];}
 });
 var opened_by = (function (n) {
-let G__621 = type(n).prop(lz_tree.NodeProp["openedBy"]);
-let test__23320__auto__2 = squint_core.nil_QMARK_(G__621);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let G__2391 = type(n).prop(lz_tree.NodeProp["openedBy"]);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2391);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return G__621[0];}
+return G__2391[0];}
 });
 var name = (function (node) {
 return node["name"];
@@ -202,231 +218,231 @@ var coll_QMARK_ = (function (node) {
 return coll_type_QMARK_(type(node));
 });
 var terminal_type_QMARK_ = (function (node_type) {
-let test__23320__auto__1 = top_type_QMARK_(node_type);
-if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
+let test__27847__auto__1 = top_type_QMARK_(node_type);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
 return false;} else {
-let test__23320__auto__2 = node_type.prop(prefix_coll_prop);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let test__27847__auto__2 = node_type.prop(prefix_coll_prop);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return false;} else {
-let test__23320__auto__3 = node_type.prop(coll_prop);
-if (test__23320__auto__3 != null && test__23320__auto__3 !== false) {
+let test__27847__auto__3 = node_type.prop(coll_prop);
+if (test__27847__auto__3 != null && test__27847__auto__3 !== false) {
 return false;} else {
-let test__23320__auto__4 = squint_core.identical_QMARK_("Meta", name(node_type));
-if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
+let test__27847__auto__4 = squint_core.identical_QMARK_("Meta", name(node_type));
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return false;} else {
-let test__23320__auto__5 = squint_core.identical_QMARK_("TaggedLiteral", name(node_type));
-if (test__23320__auto__5 != null && test__23320__auto__5 !== false) {
+let test__27847__auto__5 = squint_core.identical_QMARK_("TaggedLiteral", name(node_type));
+if (test__27847__auto__5 != null && test__27847__auto__5 !== false) {
 return false;} else {
-let test__23320__auto__6 = squint_core.identical_QMARK_("ConstructorCall", name(node_type));
-if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
+let test__27847__auto__6 = squint_core.identical_QMARK_("ConstructorCall", name(node_type));
+if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
 return false;} else {
-let test__23320__auto__7 = "else";
-if (test__23320__auto__7 != null && test__23320__auto__7 !== false) {
+let test__27847__auto__7 = "else";
+if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
 return true;} else {
 return null;}}}}}}}
 });
-var balanced_QMARK_ = (function (p__63) {
-let map__12 = p__63;
+var balanced_QMARK_ = (function (p__240) {
+let map__12 = p__240;
 let _node3 = map__12;
 let firstChild4 = squint_core.get(map__12, "firstChild");
 let lastChild5 = squint_core.get(map__12, "lastChild");
-let temp__24840__auto__6 = closed_by(firstChild4);
-if (temp__24840__auto__6 != null && temp__24840__auto__6 !== false) {
-let closing7 = temp__24840__auto__6;
-let and__25489__auto__8 = (closing7 === name(lastChild5));
-if (and__25489__auto__8 != null && and__25489__auto__8 !== false) {
+let temp__27663__auto__6 = closed_by(firstChild4);
+if (temp__27663__auto__6 != null && temp__27663__auto__6 !== false) {
+let closing7 = temp__27663__auto__6;
+let and__28236__auto__8 = (closing7 === name(lastChild5));
+if (and__28236__auto__8 != null && and__28236__auto__8 !== false) {
 return (end(firstChild4) !== end(lastChild5));} else {
-return and__25489__auto__8;}} else {
+return and__28236__auto__8;}} else {
 return true;}
 });
 var ancestors = (function (node) {
-let temp__24947__auto__1 = up(node);
-let test__23320__auto__2 = squint_core.nil_QMARK_(temp__24947__auto__1);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let temp__27820__auto__1 = up(node);
+let test__27847__auto__2 = squint_core.nil_QMARK_(temp__27820__auto__1);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-let parent3 = temp__24947__auto__1;
+let parent3 = temp__27820__auto__1;
 return squint_core.cons(parent3, new squint_core.LazySeq((function () {
 return ancestors(parent3);
 })));}
 });
 var closest = (function (node, pred) {
-let test__23320__auto__1 = pred(node);
-if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
+let test__27847__auto__1 = pred(node);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
 return node;} else {
 return squint_core.reduce((function (_, x) {
-let test__23320__auto__2 = pred(x);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let test__27847__auto__2 = pred(x);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return squint_core.reduced(x);}
 }), null, ancestors(node));}
 });
 var highest = (function (node, pred) {
 return squint_core.reduce((function (found, x) {
-let test__23320__auto__1 = pred(x);
-if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
+let test__27847__auto__1 = pred(x);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
 return x;} else {
 return squint_core.reduced(found);}
 }), null, squint_core.cons(node, ancestors(node)));
 });
 var children = (function () {
- let f64 = (function (var_args) {
-let G__671 = arguments["length"];
-switch (G__671) {case 3:
-return f64.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+ let f241 = (function (var_args) {
+let G__2441 = arguments["length"];
+switch (G__2441) {case 3:
+return f241.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 case 1:
-return f64.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f241.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f64["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
-let temp__24947__auto__3 = (function () {
- let G__684 = dir;
-switch (G__684) {case 1:
+f241["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
+let temp__27820__auto__3 = (function () {
+ let G__2454 = dir;
+switch (G__2454) {case 1:
 return parent.childAfter(from);
 break;
 case -1:
 return parent.childBefore(from);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__684))}
+throw new Error(squint_core.str("No matching clause: ", G__2454))}
 })();
-let test__23320__auto__6 = squint_core.nil_QMARK_(temp__24947__auto__3);
-if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
+let test__27847__auto__6 = squint_core.nil_QMARK_(temp__27820__auto__3);
+if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
 return null;} else {
-let child7 = temp__24947__auto__3;
+let child7 = temp__27820__auto__3;
 return squint_core.cons(child7, new squint_core.LazySeq((function () {
 return children(parent, (function () {
- let G__698 = dir;
-switch (G__698) {case 1:
+ let G__2468 = dir;
+switch (G__2468) {case 1:
 return end(child7);
 break;
 case -1:
 return start(child7);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__698))}
+throw new Error(squint_core.str("No matching clause: ", G__2468))}
 })(), dir);
 })));}
 });
-f64["cljs$core$IFn$_invoke$arity$1"] = (function (subtree) {
+f241["cljs$core$IFn$_invoke$arity$1"] = (function (subtree) {
 return children(subtree, start(subtree), 1);
 });
-f64["cljs$lang$maxFixedArity"] = 3;
-return f64;
+f241["cljs$lang$maxFixedArity"] = 3;
+return f241;
 })();
 var eq_QMARK_ = (function (x, y) {
-let and__25489__auto__1 = (start(x) == start(y));
-if (and__25489__auto__1 != null && and__25489__auto__1 !== false) {
-let and__25489__auto__2 = (end(x) == end(y));
-if (and__25489__auto__2 != null && and__25489__auto__2 !== false) {
+let and__28236__auto__1 = (start(x) == start(y));
+if (and__28236__auto__1 != null && and__28236__auto__1 !== false) {
+let and__28236__auto__2 = (end(x) == end(y));
+if (and__28236__auto__2 != null && and__28236__auto__2 !== false) {
 return (depth(x) == depth(y));} else {
-return and__25489__auto__2;}} else {
-return and__25489__auto__1;}
+return and__28236__auto__2;}} else {
+return and__28236__auto__1;}
 });
 var empty_QMARK_ = (function (node) {
 let type_name1 = name(node);
-let test__23320__auto__2 = coll_QMARK_(node);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let test__27847__auto__2 = coll_QMARK_(node);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return eq_QMARK_(right(down(node)), down_last(node));} else {
-let test__23320__auto__3 = ("String" === type_name1);
-if (test__23320__auto__3 != null && test__23320__auto__3 !== false) {
+let test__27847__auto__3 = ("String" === type_name1);
+if (test__27847__auto__3 != null && test__27847__auto__3 !== false) {
 return (end(down(node)) == start(down_last(node)));} else {
-let test__23320__auto__4 = "else";
-if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
+let test__27847__auto__4 = "else";
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return false;} else {
 return null;}}}
 });
 var from_to = (function () {
- let f70 = (function (var_args) {
-let G__731 = arguments["length"];
-switch (G__731) {case 2:
-return f70.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f247 = (function (var_args) {
+let G__2501 = arguments["length"];
+switch (G__2501) {case 2:
+return f247.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 1:
-return f70.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f247.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f70["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
+f247["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
 return ({ "from": from, "to": to });
 });
-f70["cljs$core$IFn$_invoke$arity$1"] = (function (node) {
+f247["cljs$core$IFn$_invoke$arity$1"] = (function (node) {
 return from_to(start(node), end(node));
 });
-f70["cljs$lang$maxFixedArity"] = 2;
-return f70;
+f247["cljs$lang$maxFixedArity"] = 2;
+return f247;
 })();
 var range = (function (node) {
 return sel.range(start(node), end(node));
 });
 var string = (function () {
- let f74 = (function (var_args) {
-let G__771 = arguments["length"];
-switch (G__771) {case 2:
-return f74.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f251 = (function (var_args) {
+let G__2541 = arguments["length"];
+switch (G__2541) {case 2:
+return f251.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f74.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f251.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f74["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
+f251["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
 return string(state, start(node), end(node));
 });
-f74["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
+f251["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
 return state["doc"].sliceString(from, to, "\n");
 });
-f74["cljs$lang$maxFixedArity"] = 3;
-return f74;
+f251["cljs$lang$maxFixedArity"] = 3;
+return f251;
 })();
 var ancestor_QMARK_ = (function (parent, child) {
 return squint_core.boolean$((function () {
- let and__25489__auto__1 = (start(parent) <= start(child));
-if (and__25489__auto__1 != null && and__25489__auto__1 !== false) {
-let and__25489__auto__2 = (end(parent) >= end(child));
-if (and__25489__auto__2 != null && and__25489__auto__2 !== false) {
+ let and__28236__auto__1 = (start(parent) <= start(child));
+if (and__28236__auto__1 != null && and__28236__auto__1 !== false) {
+let and__28236__auto__2 = (end(parent) >= end(child));
+if (and__28236__auto__2 != null && and__28236__auto__2 !== false) {
 return (depth(parent) < depth(child));} else {
-return and__25489__auto__2;}} else {
-return and__25489__auto__1;}
+return and__28236__auto__2;}} else {
+return and__28236__auto__1;}
 })());
 });
 var move_toward = (function (node, to_node) {
-let test__23320__auto__1 = eq_QMARK_(node, to_node);
-if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
+let test__27847__auto__1 = eq_QMARK_(node, to_node);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
 return null;} else {
-let G__782 = squint_core.compare(start(to_node), start(node));
-switch (G__782) {case 0:
-let test__23320__auto__4 = ancestor_QMARK_(to_node, node);
-if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
+let G__2552 = squint_core.compare(start(to_node), start(node));
+switch (G__2552) {case 0:
+let test__27847__auto__4 = ancestor_QMARK_(to_node, node);
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return up(node);} else {
-let test__23320__auto__5 = ancestor_QMARK_(node, to_node);
-if (test__23320__auto__5 != null && test__23320__auto__5 !== false) {
+let test__27847__auto__5 = ancestor_QMARK_(node, to_node);
+if (test__27847__auto__5 != null && test__27847__auto__5 !== false) {
 return down(node);} else {
 return null;}}
 break;
 case -1:
-let test__23320__auto__6 = ancestor_QMARK_(node, to_node);
-if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
+let test__27847__auto__6 = ancestor_QMARK_(node, to_node);
+if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
 return down_last(node);} else {
-let or__25455__auto__7 = left(node);
-if (or__25455__auto__7 != null && or__25455__auto__7 !== false) {
-return or__25455__auto__7;} else {
+let or__28221__auto__7 = left(node);
+if (or__28221__auto__7 != null && or__28221__auto__7 !== false) {
+return or__28221__auto__7;} else {
 return up(node);}}
 break;
 case 1:
-let test__23320__auto__8 = ancestor_QMARK_(node, to_node);
-if (test__23320__auto__8 != null && test__23320__auto__8 !== false) {
+let test__27847__auto__8 = ancestor_QMARK_(node, to_node);
+if (test__27847__auto__8 != null && test__27847__auto__8 !== false) {
 return down(node);} else {
-let or__25455__auto__9 = right(node);
-if (or__25455__auto__9 != null && or__25455__auto__9 !== false) {
-return or__25455__auto__9;} else {
+let or__28221__auto__9 = right(node);
+if (or__28221__auto__9 != null && or__28221__auto__9 !== false) {
+return or__28221__auto__9;} else {
 return up(node);}}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__782))}}
+throw new Error(squint_core.str("No matching clause: ", G__2552))}}
 });
 var nodes_between = (function (node, to_node) {
 return squint_core.take_while(squint_core.identity, squint_core.iterate((function (_PERCENT_1) {
@@ -434,81 +450,81 @@ return move_toward(_PERCENT_1, to_node);
 }), node));
 });
 var require_balance_QMARK_ = (function (node) {
-let or__25455__auto__1 = coll_QMARK_(node);
-if (or__25455__auto__1 != null && or__25455__auto__1 !== false) {
-return or__25455__auto__1;} else {
-let or__25455__auto__2 = string_QMARK_(node);
-if (or__25455__auto__2 != null && or__25455__auto__2 !== false) {
-return or__25455__auto__2;} else {
+let or__28221__auto__1 = coll_QMARK_(node);
+if (or__28221__auto__1 != null && or__28221__auto__1 !== false) {
+return or__28221__auto__1;} else {
+let or__28221__auto__2 = string_QMARK_(node);
+if (or__28221__auto__2 != null && or__28221__auto__2 !== false) {
+return or__28221__auto__2;} else {
 return regexp_QMARK_(node);}}
 });
 var tree = (function () {
- let f79 = (function (var_args) {
-let G__821 = arguments["length"];
-switch (G__821) {case 1:
-return f79.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+ let f256 = (function (var_args) {
+let G__2591 = arguments["length"];
+switch (G__2591) {case 1:
+return f256.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 case 2:
-return f79.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+return f256.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f79.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f256.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f79["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+f256["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
 return language.syntaxTree(state);
 });
-f79["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+f256["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
 return language.syntaxTree(state).resolveInner(pos);
 });
-f79["cljs$core$IFn$_invoke$arity$3"] = (function (state, pos, dir) {
+f256["cljs$core$IFn$_invoke$arity$3"] = (function (state, pos, dir) {
 return language.syntaxTree(state).resolveInner(pos, dir);
 });
-f79["cljs$lang$maxFixedArity"] = 3;
-return f79;
+f256["cljs$lang$maxFixedArity"] = 3;
+return f256;
 })();
 var cursor = (function () {
- let f83 = (function (var_args) {
-let G__861 = arguments["length"];
-switch (G__861) {case 1:
-return f83.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+ let f260 = (function (var_args) {
+let G__2631 = arguments["length"];
+switch (G__2631) {case 1:
+return f260.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 case 2:
-return f83.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+return f260.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f83.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f260.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f83["cljs$core$IFn$_invoke$arity$1"] = (function (tree) {
+f260["cljs$core$IFn$_invoke$arity$1"] = (function (tree) {
 return tree.cursor();
 });
-f83["cljs$core$IFn$_invoke$arity$2"] = (function (tree, pos) {
+f260["cljs$core$IFn$_invoke$arity$2"] = (function (tree, pos) {
 return tree.cursorAt(pos);
 });
-f83["cljs$core$IFn$_invoke$arity$3"] = (function (tree, pos, dir) {
+f260["cljs$core$IFn$_invoke$arity$3"] = (function (tree, pos, dir) {
 return tree.cursorAt(pos, dir);
 });
-f83["cljs$lang$maxFixedArity"] = 3;
-return f83;
+f260["cljs$lang$maxFixedArity"] = 3;
+return f260;
 })();
 var terminal_cursor = (function (tree, pos, dir) {
 let i1 = pos;
 while(true){
 let c2 = cursor(tree, i1, dir);
 let type3 = c2["type"];
-let test__23320__auto__4 = top_type_QMARK_(type3);
-if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
+let test__27847__auto__4 = top_type_QMARK_(type3);
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return null;} else {
-let test__23320__auto__5 = terminal_type_QMARK_(c2["type"]);
-if (test__23320__auto__5 != null && test__23320__auto__5 !== false) {
+let test__27847__auto__5 = terminal_type_QMARK_(c2["type"]);
+if (test__27847__auto__5 != null && test__27847__auto__5 !== false) {
 return c2;} else {
-let test__23320__auto__6 = "else";
-if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
+let test__27847__auto__6 = "else";
+if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
 let G__7 = (dir + i1);
 i1 = G__7;
 continue;
@@ -519,11 +535,11 @@ return null;}}};break;
 });
 var up_here = (function (node) {
 let from1 = start(node);
-let or__25455__auto__2 = highest(node, (function (_PERCENT_1) {
+let or__28221__auto__2 = highest(node, (function (_PERCENT_1) {
 return (from1 === start(_PERCENT_1));
 }));
-if (or__25455__auto__2 != null && or__25455__auto__2 !== false) {
-return or__25455__auto__2;} else {
+if (or__28221__auto__2 != null && or__28221__auto__2 !== false) {
+return or__28221__auto__2;} else {
 return node;}
 });
 var topmost_cursor = (function (state, from) {
@@ -534,29 +550,29 @@ let cursor1 = topmost_cursor(state, from);
 let found2 = [];
 while(true){
 let node_type3 = type(cursor1);
-let test__23320__auto__4 = (start(cursor1) > to);
-if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
+let test__27847__auto__4 = (start(cursor1) > to);
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return found2;} else {
-let test__23320__auto__5 = (function () {
- let or__25455__auto__6 = terminal_type_QMARK_(node_type3);
-if (or__25455__auto__6 != null && or__25455__auto__6 !== false) {
-return or__25455__auto__6;} else {
+let test__27847__auto__5 = (function () {
+ let or__28221__auto__6 = terminal_type_QMARK_(node_type3);
+if (or__28221__auto__6 != null && or__28221__auto__6 !== false) {
+return or__28221__auto__6;} else {
 return error_QMARK_(node_type3);}
 })();
-if (test__23320__auto__5 != null && test__23320__auto__5 !== false) {
+if (test__27847__auto__5 != null && test__27847__auto__5 !== false) {
 let found7 = squint_core.conj(found2, ({ "type": node_type3, "from": start(cursor1), "to": end(cursor1) }));
 cursor1.lastChild();
-let test__23320__auto__8 = cursor1.next();
-if (test__23320__auto__8 != null && test__23320__auto__8 !== false) {
+let test__27847__auto__8 = cursor1.next();
+if (test__27847__auto__8 != null && test__27847__auto__8 !== false) {
 let G__9 = found7;
 found2 = G__9;
 continue;
 } else {
 return found7;}} else {
-let test__23320__auto__10 = "else";
-if (test__23320__auto__10 != null && test__23320__auto__10 !== false) {
-let test__23320__auto__11 = cursor1.next();
-if (test__23320__auto__11 != null && test__23320__auto__11 !== false) {
+let test__27847__auto__10 = "else";
+if (test__27847__auto__10 != null && test__27847__auto__10 !== false) {
+let test__27847__auto__11 = cursor1.next();
+if (test__27847__auto__11 != null && test__27847__auto__11 !== false) {
 let G__12 = found2;
 found2 = G__12;
 continue;
@@ -567,80 +583,80 @@ return null;}}};break;
 
 });
 var balanced_range = (function () {
- let f87 = (function (var_args) {
-let G__901 = arguments["length"];
-switch (G__901) {case 2:
-return f87.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f264 = (function (var_args) {
+let G__2671 = arguments["length"];
+switch (G__2671) {case 2:
+return f264.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f87.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f264.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f87["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
+f264["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
 return balanced_range(state, start(node), end(node));
 });
-f87["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
+f264["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
 let vec__39 = squint_core.sort([from, to]);
 let from10 = squint_core.nth(vec__39, 0, null);
 let to11 = squint_core.nth(vec__39, 1, null);
 let from_node12 = tree(state, from10, 1);
 let to_node13 = tree(state, to11, -1);
 let from14 = (function () {
- let test__23320__auto__15 = require_balance_QMARK_(from_node12);
-if (test__23320__auto__15 != null && test__23320__auto__15 !== false) {
+ let test__27847__auto__15 = require_balance_QMARK_(from_node12);
+if (test__27847__auto__15 != null && test__27847__auto__15 !== false) {
 return start(from_node12);} else {
 return from10;}
 })();
 let to16 = (function () {
- let test__23320__auto__17 = require_balance_QMARK_(to_node13);
-if (test__23320__auto__17 != null && test__23320__auto__17 !== false) {
+ let test__27847__auto__17 = require_balance_QMARK_(to_node13);
+if (test__27847__auto__17 != null && test__27847__auto__17 !== false) {
 return end(to_node13);} else {
 return to11;}
 })();
-let vec__618 = squint_core.reduce((function (p__91, node_between) {
-let vec__1922 = p__91;
+let vec__618 = squint_core.reduce((function (p__268, node_between) {
+let vec__1922 = p__268;
 let left23 = squint_core.nth(vec__1922, 0, null);
 let right24 = squint_core.nth(vec__1922, 1, null);
 return [(function () {
- let test__23320__auto__25 = ancestor_QMARK_(node_between, from_node12);
-if (test__23320__auto__25 != null && test__23320__auto__25 !== false) {
+ let test__27847__auto__25 = ancestor_QMARK_(node_between, from_node12);
+if (test__27847__auto__25 != null && test__27847__auto__25 !== false) {
 return start(node_between);} else {
 return left23;}
 })(), (function () {
- let test__23320__auto__26 = ancestor_QMARK_(node_between, to_node13);
-if (test__23320__auto__26 != null && test__23320__auto__26 !== false) {
+ let test__27847__auto__26 = ancestor_QMARK_(node_between, to_node13);
+if (test__27847__auto__26 != null && test__27847__auto__26 !== false) {
 return end(node_between);} else {
 return right24;}
 })()];
 }), [from14, to16], squint_core.map((function (_PERCENT_1) {
-let G__9227 = _PERCENT_1;
-let test__23320__auto__28 = edge_QMARK_(_PERCENT_1);
-if (test__23320__auto__28 != null && test__23320__auto__28 !== false) {
-return up(G__9227);} else {
-return G__9227;}
+let G__26927 = _PERCENT_1;
+let test__27847__auto__28 = edge_QMARK_(_PERCENT_1);
+if (test__27847__auto__28 != null && test__27847__auto__28 !== false) {
+return up(G__26927);} else {
+return G__26927;}
 }), nodes_between(from_node12, to_node13)));
 let left29 = squint_core.nth(vec__618, 0, null);
 let right30 = squint_core.nth(vec__618, 1, null);
 return sel.range(left29, right30);
 });
-f87["cljs$lang$maxFixedArity"] = 3;
-return f87;
+f264["cljs$lang$maxFixedArity"] = 3;
+return f264;
 })();
-var inner_span = (function (p__93) {
-let map__12 = p__93;
+var inner_span = (function (p__270) {
+let map__12 = p__270;
 let node3 = map__12;
 let firstChild4 = squint_core.get(map__12, "firstChild");
 let lastChild5 = squint_core.get(map__12, "lastChild");
 return ({ "from": (function () {
- let test__23320__auto__6 = left_edge_QMARK_(firstChild4);
-if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
+ let test__27847__auto__6 = left_edge_QMARK_(firstChild4);
+if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
 return end(firstChild4);} else {
 return start(node3);}
 })(), "to": (function () {
- let test__23320__auto__7 = right_edge_QMARK_(lastChild5);
-if (test__23320__auto__7 != null && test__23320__auto__7 !== false) {
+ let test__27847__auto__7 = right_edge_QMARK_(lastChild5);
+if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
 return start(lastChild5);} else {
 return end(node3);}
 })() });
@@ -648,185 +664,184 @@ return end(node3);}
 var within_QMARK__LT_ = (function (parent, child) {
 let c11 = squint_core.compare(start(parent), start(child));
 let c22 = squint_core.compare(end(parent), end(child));
-let and__25489__auto__3 = (function () {
- let or__25455__auto__4 = squint_core.pos_QMARK_(c11);
-if (or__25455__auto__4 != null && or__25455__auto__4 !== false) {
-return or__25455__auto__4;} else {
+let and__28236__auto__3 = (function () {
+ let or__28221__auto__4 = squint_core.pos_QMARK_(c11);
+if (or__28221__auto__4 != null && or__28221__auto__4 !== false) {
+return or__28221__auto__4;} else {
 return squint_core.neg_QMARK_(c22);}
 })();
-if (and__25489__auto__3 != null && and__25489__auto__3 !== false) {
-let and__25489__auto__5 = !squint_core.neg_QMARK_(c11);
-if (and__25489__auto__5 != null && and__25489__auto__5 !== false) {
+if (and__28236__auto__3 != null && and__28236__auto__3 !== false) {
+let and__28236__auto__5 = !squint_core.neg_QMARK_(c11);
+if (and__28236__auto__5 != null && and__28236__auto__5 !== false) {
 return !squint_core.pos_QMARK_(c22);} else {
-return and__25489__auto__5;}} else {
-return and__25489__auto__3;}
+return and__28236__auto__5;}} else {
+return and__28236__auto__3;}
 });
 var within_QMARK_ = (function (parent, child) {
-let and__25489__auto__1 = !squint_core.neg_QMARK_(squint_core.compare(start(parent), start(child)));
-if (and__25489__auto__1 != null && and__25489__auto__1 !== false) {
+let and__28236__auto__1 = !squint_core.neg_QMARK_(squint_core.compare(start(parent), start(child)));
+if (and__28236__auto__1 != null && and__28236__auto__1 !== false) {
 return !squint_core.pos_QMARK_(squint_core.compare(end(parent), end(child)));} else {
-return and__25489__auto__1;}
+return and__28236__auto__1;}
 });
 var follow_edges = (function (node) {
-let test__23320__auto__1 = edge_QMARK_(node);
-if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
+let test__27847__auto__1 = edge_QMARK_(node);
+if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
 return up(node);} else {
 return node;}
 });
 var prefix = (function (node) {
-let temp__24947__auto__1 = up(node);
-let test__23320__auto__2 = squint_core.nil_QMARK_(temp__24947__auto__1);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let temp__27820__auto__1 = up(node);
+let test__27847__auto__2 = squint_core.nil_QMARK_(temp__27820__auto__1);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-let parent3 = temp__24947__auto__1;
-let or__25455__auto__4 = u.guard(parent3, prefix_container_QMARK_);
-if (or__25455__auto__4 != null && or__25455__auto__4 !== false) {
-return or__25455__auto__4;} else {
+let parent3 = temp__27820__auto__1;
+let or__28221__auto__4 = u.guard(parent3, prefix_container_QMARK_);
+if (or__28221__auto__4 != null && or__28221__auto__4 !== false) {
+return or__28221__auto__4;} else {
 return u.guard(down(parent3), prefix_edge_QMARK_);}}
 });
 var left_edge_with_prefix = (function (state, node) {
 return squint_core.str((function () {
- let G__941 = prefix(node);
-let test__23320__auto__2 = squint_core.nil_QMARK_(G__941);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+ let G__2711 = prefix(node);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2711);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return string(state, G__941);}
+return string(state, G__2711);}
 })(), name(down(node)));
 });
 var with_prefix = (function (node) {
-let G__951 = node;
-let test__23320__auto__2 = prefix(node);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
-return up(G__951);} else {
-return G__951;}
+let G__2721 = node;
+let test__27847__auto__2 = prefix(node);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
+return up(G__2721);} else {
+return G__2721;}
 });
 var node_BAR_ = (function (state, pos) {
-let G__961 = tree(state, pos, -1);
-let test__23320__auto__2 = squint_core.nil_QMARK_(G__961);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let G__2731 = tree(state, pos, -1);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2731);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return u.guard(G__961, (function (_PERCENT_1) {
+return u.guard(G__2731, (function (_PERCENT_1) {
 return (pos === end(_PERCENT_1));
 }));}
 });
 var _BAR_node = (function (state, pos) {
-let G__971 = tree(state, pos, 1);
-let test__23320__auto__2 = squint_core.nil_QMARK_(G__971);
-if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
+let G__2741 = tree(state, pos, 1);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2741);
+if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return u.guard(G__971, (function (_PERCENT_1) {
+return u.guard(G__2741, (function (_PERCENT_1) {
 return (pos === start(_PERCENT_1));
 }));}
 });
 var nearest_touching = (function (state, pos, dir) {
 let L1 = (function () {
- let G__982 = tree(state, pos, -1);
-let test__23320__auto__3 = squint_core.nil_QMARK_(G__982);
-if (test__23320__auto__3 != null && test__23320__auto__3 !== false) {
+ let G__2752 = tree(state, pos, -1);
+let test__27847__auto__3 = squint_core.nil_QMARK_(G__2752);
+if (test__27847__auto__3 != null && test__27847__auto__3 !== false) {
 return null;} else {
-return u.guard(G__982, (function (p__99) {
-let map__45 = p__99;
+return u.guard(G__2752, (function (p__276) {
+let map__45 = p__276;
 let to6 = squint_core.get(map__45, "to");
 return (pos === to6);
 }));}
 })();
 let R7 = (function () {
- let G__1008 = tree(state, pos, 1);
-let test__23320__auto__9 = squint_core.nil_QMARK_(G__1008);
-if (test__23320__auto__9 != null && test__23320__auto__9 !== false) {
+ let G__2778 = tree(state, pos, 1);
+let test__27847__auto__9 = squint_core.nil_QMARK_(G__2778);
+if (test__27847__auto__9 != null && test__27847__auto__9 !== false) {
 return null;} else {
-return u.guard(G__1008, (function (p__101) {
-let map__1011 = p__101;
+return u.guard(G__2778, (function (p__278) {
+let map__1011 = p__278;
 let from12 = squint_core.get(map__1011, "from");
 return (pos === from12);
 }));}
 })();
 let mid13 = tree(state, pos);
-let G__10214 = dir;
-switch (G__10214) {case 1:
-let or__25455__auto__16 = u.guard(R7, squint_core.every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
-let or__25455__auto__17 = same_edge_QMARK_(_PERCENT_1);
-if (or__25455__auto__17 != null && or__25455__auto__17 !== false) {
-return or__25455__auto__17;} else {
+let G__27914 = dir;
+switch (G__27914) {case 1:
+let or__28221__auto__16 = u.guard(R7, squint_core.every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
+let or__28221__auto__17 = same_edge_QMARK_(_PERCENT_1);
+if (or__28221__auto__17 != null && or__28221__auto__17 !== false) {
+return or__28221__auto__17;} else {
 return !right_edge_QMARK_(_PERCENT_1);}
 })));
-if (or__25455__auto__16 != null && or__25455__auto__16 !== false) {
-return or__25455__auto__16;} else {
-let or__25455__auto__18 = L1;
-if (or__25455__auto__18 != null && or__25455__auto__18 !== false) {
-return or__25455__auto__18;} else {
-let or__25455__auto__19 = R7;
-if (or__25455__auto__19 != null && or__25455__auto__19 !== false) {
-return or__25455__auto__19;} else {
+if (or__28221__auto__16 != null && or__28221__auto__16 !== false) {
+return or__28221__auto__16;} else {
+let or__28221__auto__18 = L1;
+if (or__28221__auto__18 != null && or__28221__auto__18 !== false) {
+return or__28221__auto__18;} else {
+let or__28221__auto__19 = R7;
+if (or__28221__auto__19 != null && or__28221__auto__19 !== false) {
+return or__28221__auto__19;} else {
 return mid13;}}}
 break;
 case -1:
-let or__25455__auto__20 = u.guard(L1, squint_core.every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
-let or__25455__auto__21 = same_edge_QMARK_(_PERCENT_1);
-if (or__25455__auto__21 != null && or__25455__auto__21 !== false) {
-return or__25455__auto__21;} else {
+let or__28221__auto__20 = u.guard(L1, squint_core.every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
+let or__28221__auto__21 = same_edge_QMARK_(_PERCENT_1);
+if (or__28221__auto__21 != null && or__28221__auto__21 !== false) {
+return or__28221__auto__21;} else {
 return !left_edge_QMARK_(_PERCENT_1);}
 })));
-if (or__25455__auto__20 != null && or__25455__auto__20 !== false) {
-return or__25455__auto__20;} else {
-let or__25455__auto__22 = R7;
-if (or__25455__auto__22 != null && or__25455__auto__22 !== false) {
-return or__25455__auto__22;} else {
-let or__25455__auto__23 = L1;
-if (or__25455__auto__23 != null && or__25455__auto__23 !== false) {
-return or__25455__auto__23;} else {
+if (or__28221__auto__20 != null && or__28221__auto__20 !== false) {
+return or__28221__auto__20;} else {
+let or__28221__auto__22 = R7;
+if (or__28221__auto__22 != null && or__28221__auto__22 !== false) {
+return or__28221__auto__22;} else {
+let or__28221__auto__23 = L1;
+if (or__28221__auto__23 != null && or__28221__auto__23 !== false) {
+return or__28221__auto__23;} else {
 return mid13;}}}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__10214))}
+throw new Error(squint_core.str("No matching clause: ", G__27914))}
 });
 var embedded_QMARK_ = (function () {
- let f103 = (function (var_args) {
-let G__1061 = arguments["length"];
-switch (G__1061) {case 1:
-return f103.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+ let f280 = (function (var_args) {
+let G__2831 = arguments["length"];
+switch (G__2831) {case 1:
+return f280.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 case 2:
-return f103.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+return f280.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f103["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+f280["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
 return embedded_QMARK_(state, state["selection"]["main"]["head"]);
 });
-f103["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+f280["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
 return squint_core.identical_QMARK_(lezer_markdown.parser.nodeTypes["FencedCode"], state["tree"].resolve(pos)["type"]["id"]);
 });
-f103["cljs$lang$maxFixedArity"] = 2;
-return f103;
+f280["cljs$lang$maxFixedArity"] = 2;
+return f280;
 })();
 var within_program_QMARK_ = (function () {
- let f107 = (function (var_args) {
-let G__1101 = arguments["length"];
-switch (G__1101) {case 1:
-return f107.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+ let f284 = (function (var_args) {
+let G__2871 = arguments["length"];
+switch (G__2871) {case 1:
+return f284.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 case 2:
-return f107.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+return f284.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f107["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+f284["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
 return within_program_QMARK_(state, state["selection"]["main"]["head"]);
 });
-f107["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+f284["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
 let n3 = tree(state, pos);
-let or__25455__auto__4 = program_QMARK_(n3);
-if (or__25455__auto__4 != null && or__25455__auto__4 !== false) {
-return or__25455__auto__4;} else {
+let or__28221__auto__4 = program_QMARK_(n3);
+if (or__28221__auto__4 != null && or__28221__auto__4 !== false) {
+return or__28221__auto__4;} else {
 return squint_core.some(program_QMARK_, ancestors(n3));}
 });
-f107["cljs$lang$maxFixedArity"] = 2;
-return f107;
+f284["cljs$lang$maxFixedArity"] = 2;
+return f284;
 })();
-squint_core.prn("node-loaded");
 null;
 
 export { end_edge_prop, ancestors, range, string_QMARK_, within_QMARK__LT_, edge_QMARK_, right, terminal_nodes, string, same_edge_type_QMARK_, up, line_comment_QMARK_, prefix_coll_prop, prefix, left_edge_with_prefix, top_QMARK_, empty_QMARK_, terminal_type_QMARK_, left_edge_type_QMARK_, children, nodes_between, prefix_edge_QMARK_, discard_QMARK_, right_edge_type_QMARK_, balanced_range, prefix_container_QMARK_, topmost_cursor, coll_prop, closed_by, error_QMARK_, _BAR_node, balanced_QMARK_, start_edge_type_QMARK_, prefix_container_prop, down_last, prefix_QMARK_, name, same_edge_QMARK_, prefix_container_type_QMARK_, rights, with_prefix, start, tree, closest, cursor, node_prop, from_to, follow_edges, start_edge_QMARK_, highest, embedded_QMARK_, opened_by, coll_QMARK_, down, type, terminal_cursor, within_QMARK_, inner_span, depth, prefix_type_QMARK_, same_edge_prop, nearest_touching, regexp_QMARK_, top_type_QMARK_, error_type_QMARK_, up_here, ancestor_QMARK_, end_edge_type_QMARK_, right_edge_QMARK_, start_edge_prop, prefix_edge_prop, node_BAR_, left_edge_QMARK_, coll_type_QMARK_, lefts, require_balance_QMARK_, end, prefix_edge_type_QMARK_, within_program_QMARK_, left, end_edge_QMARK_, program_QMARK_, move_toward, eq_QMARK_ }
