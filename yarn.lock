@@ -926,10 +926,9 @@ markdown-it-block-image@0.0.3:
   resolved "https://registry.npmjs.org/markdown-it-block-image/-/markdown-it-block-image-0.0.3.tgz"
   integrity sha512-+esbdLegMSWmIRGwVncj5ZwVi5K1qt894uXfnkZIyMFC7ssbv7aR7YEVI16w0PdFWow1HmBNUZ4chl0vScjoIA==
 
-markdown-it-sidenote@gerwitz/markdown-it-sidenote#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083:
+"markdown-it-sidenote@https://github.com/gerwitz/markdown-it-sidenote#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083":
   version "0.2.0"
-  resolved "git+ssh://git@github.com/gerwitz/markdown-it-sidenote.git#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083"
-  integrity sha512-4DEd5Txhqs7u+bfAs0BfqUW0CJcqqNYHN8pLAOIO4MhbVk/rJmRGkRTZWMBnlMFwkKY0OxLN/3NUmjdYyOKHgQ==
+  resolved "https://github.com/gerwitz/markdown-it-sidenote#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083"
 
 markdown-it-texmath@0.9.1:
   version "0.9.1"
@@ -1358,6 +1357,7 @@ stream-http@^2.7.2:
     xtend "^4.0.0"
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -1390,6 +1390,7 @@ string_decoder@~1.1.1:
     safe-buffer "~5.1.0"
 
 "strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+  name strip-ansi-cjs
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==

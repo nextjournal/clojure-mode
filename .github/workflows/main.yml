@@ -19,9 +19,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: 🧶 Yarn Install
-        run: |
-          ssh -Tv git@github.com
-          yarn install
+        run: yarn install
 
       - name: 🧪 Run tests
         run: yarn test
