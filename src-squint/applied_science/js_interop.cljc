@@ -22,7 +22,7 @@
   (list (symbol (str "." f)) obj))
 
 (defmacro !set [obj k v]
-  `(do (cljs.core/set! (list (symbol (str ".-" ~(name k))) ~obj) ~v)
+  `(do (cljs.core/set! ~(list (symbol (str ".-" (name k))) obj) ~v)
        ~obj))
 
 (defmacro extend! [obj other]

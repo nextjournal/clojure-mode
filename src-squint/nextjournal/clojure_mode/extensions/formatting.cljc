@@ -86,11 +86,11 @@
                          actual (- start2 end1)]
                      (case (compare actual expected)
                        0 out
-                       1 (u/push! out #js{:from (if (zero? expected)
+                       1 (j/push! out #js{:from (if (zero? expected)
                                                   end1
                                                   (inc end1))
                                           :to start2})
-                       -1 (u/push! out #js{:from end1
+                       -1 (j/push! out #js{:from end1
                                            :insert " "})
                        out)))
 
@@ -134,7 +134,7 @@
                                        (+ from (count text))))]
     (cond-> changes
       space-changes (into-arr space-changes)
-      indentation-change (u/push! indentation-change))))
+      indentation-change (j/push! indentation-change))))
 
 (defn format-selection
   [^js state]

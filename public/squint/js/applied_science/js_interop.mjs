@@ -192,7 +192,7 @@ var call = (function (_AMPERSAND_form, _AMPERSAND_env, obj, f) {
 return squint_core.list(symbol(squint_core.str(".", f)), obj);
 });
 var _BANG_set = (function (_AMPERSAND_form, _AMPERSAND_env, obj, k, v) {
-return sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("do")), squint_core.list(sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("cljs.core/set!")), squint_core.list(sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("list")), squint_core.list(sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("symbol")), squint_core.list(sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("str")), squint_core.list(".-"), squint_core.list(name(k)))))))))), squint_core.list(obj))))), squint_core.list(v))))), squint_core.list(obj))));
+return sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("do")), squint_core.list(sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("cljs.core/set!")), squint_core.list(squint_core.list(symbol(squint_core.str(".-", name(k))), obj)), squint_core.list(v))))), squint_core.list(obj))));
 });
 var extend_BANG_ = (function (_AMPERSAND_form, _AMPERSAND_env, obj, other) {
 return sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("js/Object.assign")), squint_core.list(obj), squint_core.list(other))));
