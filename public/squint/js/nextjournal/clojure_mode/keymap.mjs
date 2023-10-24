@@ -3,19 +3,19 @@ import * as commands from '@codemirror/commands';
 import * as cmd from './commands.mjs';
 var update_some = (function (m, updates) {
 return squint_core.reduce_kv((function (m, k, f) {
-let temp__31764__auto__1 = squint_core.get(m, k);
-let test__243599__auto__2 = squint_core.nil_QMARK_(temp__31764__auto__1);
-if (test__243599__auto__2 != null && test__243599__auto__2 !== false) {
+let temp__24871__auto__1 = squint_core.get(m, k);
+let test__23320__auto__2 = squint_core.nil_QMARK_(temp__24871__auto__1);
+if (test__23320__auto__2 != null && test__23320__auto__2 !== false) {
 return squint_core.dissoc(m, k);} else {
-let existing3 = temp__31764__auto__1;
+let existing3 = temp__24871__auto__1;
 return squint_core.assoc(m, k, (function () {
- let test__243599__auto__4 = (function () {
- let c__32146__auto__5 = Function;
-let x__32147__auto__6 = f;
-let ret__32148__auto__7 = (x__32147__auto__6 instanceof c__32146__auto__5);
-return ret__32148__auto__7;
+ let test__23320__auto__4 = (function () {
+ let c__25347__auto__5 = Function;
+let x__25348__auto__6 = f;
+let ret__25349__auto__7 = (x__25348__auto__6 instanceof c__25347__auto__5);
+return ret__25349__auto__7;
 })();
-if (test__243599__auto__4 != null && test__243599__auto__4 !== false) {
+if (test__23320__auto__4 != null && test__23320__auto__4 !== false) {
 return f(existing3);} else {
 return squint_core.get(f, existing3);}
 })());}

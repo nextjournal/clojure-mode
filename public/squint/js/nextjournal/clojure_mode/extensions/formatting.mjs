@@ -7,49 +7,49 @@ import * as u from './../util.mjs';
 var spaces = (function (state, n) {
 return language.indentString(state, n);
 });
-var indent_node_props = (function (p__305) {
-let map__12 = p__305;
+var indent_node_props = (function (p__281) {
+let map__12 = p__281;
 let type3 = map__12;
 let type_name4 = squint_core.get(map__12, "name");
-return function (p__306) {
-let map__56 = p__306;
+return function (p__282) {
+let map__56 = p__282;
 let context7 = map__56;
 let node8 = squint_core.get(map__56, "node");
-let test__243599__auto__9 = ("Program" === type_name4);
-if (test__243599__auto__9 != null && test__243599__auto__9 !== false) {
+let test__23320__auto__9 = ("Program" === type_name4);
+if (test__23320__auto__9 != null && test__23320__auto__9 !== false) {
 return 0;} else {
-let test__243599__auto__10 = n.coll_type_QMARK_(type3);
-if (test__243599__auto__10 != null && test__243599__auto__10 !== false) {
-let G__30711 = context7.column(n.end(n.down(node8)));
-let test__243599__auto__12 = (function () {
- let and__32262__auto__13 = ("List" === type_name4);
-if (and__32262__auto__13 != null && and__32262__auto__13 !== false) {
+let test__23320__auto__10 = n.coll_type_QMARK_(type3);
+if (test__23320__auto__10 != null && test__23320__auto__10 !== false) {
+let G__28311 = context7.column(n.end(n.down(node8)));
+let test__23320__auto__12 = (function () {
+ let and__25489__auto__13 = ("List" === type_name4);
+if (and__25489__auto__13 != null && and__25489__auto__13 !== false) {
 return squint_core.contains_QMARK_(new Set(["Operator", "DefLike", "NS"]), (function () {
- let G__30814 = node8;
-let G__30815 = (function () {
- let test__243599__auto__16 = squint_core.nil_QMARK_(G__30814);
-if (test__243599__auto__16 != null && test__243599__auto__16 !== false) {
+ let G__28414 = node8;
+let G__28415 = (function () {
+ let test__23320__auto__16 = squint_core.nil_QMARK_(G__28414);
+if (test__23320__auto__16 != null && test__23320__auto__16 !== false) {
 return null;} else {
-return n.down(G__30814);}
+return n.down(G__28414);}
 })();
-let G__30817 = (function () {
- let test__243599__auto__18 = squint_core.nil_QMARK_(G__30815);
-if (test__243599__auto__18 != null && test__243599__auto__18 !== false) {
+let G__28417 = (function () {
+ let test__23320__auto__18 = squint_core.nil_QMARK_(G__28415);
+if (test__23320__auto__18 != null && test__23320__auto__18 !== false) {
 return null;} else {
-return n.right(G__30815);}
+return n.right(G__28415);}
 })();
-let test__243599__auto__19 = squint_core.nil_QMARK_(G__30817);
-if (test__243599__auto__19 != null && test__243599__auto__19 !== false) {
+let test__23320__auto__19 = squint_core.nil_QMARK_(G__28417);
+if (test__23320__auto__19 != null && test__23320__auto__19 !== false) {
 return null;} else {
-return n.name(G__30817);}
+return n.name(G__28417);}
 })());} else {
-return and__32262__auto__13;}
+return and__25489__auto__13;}
 })();
-if (test__243599__auto__12 != null && test__243599__auto__12 !== false) {
-return (G__30711 + 1);} else {
-return G__30711;}} else {
-let test__243599__auto__20 = "else";
-if (test__243599__auto__20 != null && test__243599__auto__20 !== false) {
+if (test__23320__auto__12 != null && test__23320__auto__12 !== false) {
+return (G__28311 + 1);} else {
+return G__28311;}} else {
+let test__23320__auto__20 = "else";
+if (test__23320__auto__20 != null && test__23320__auto__20 !== false) {
 return -1;} else {
 return null;}}}
 };
@@ -67,8 +67,8 @@ return u.update_lines(state, (function (from, content, _line_num) {
 let current_indent2 = /^\s*/.exec(content)[0]["length"];
 let indent3 = u.guard(get_indentation(context1, from), squint_core.complement(squint_core.neg_QMARK_));
 if (indent3 != null && indent3 !== false) {
-let G__3094 = squint_core.compare(indent3, current_indent2);
-switch (G__3094) {case 0:
+let G__2854 = squint_core.compare(indent3, current_indent2);
+switch (G__2854) {case 0:
 return null;
 break;
 case 1:
@@ -78,48 +78,48 @@ case -1:
 return ({ "from": (from + indent3), "to": (from + current_indent2) });
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__3094))}}
+throw new Error(squint_core.str("No matching clause: ", G__2854))}}
 }));
 });
 var expected_space = (function (n1, n2) {
-let test__243599__auto__1 = (function () {
- let or__32177__auto__2 = n.start_edge_type_QMARK_(n1);
-if (or__32177__auto__2 != null && or__32177__auto__2 !== false) {
-return or__32177__auto__2;} else {
-let or__32177__auto__3 = n.prefix_edge_type_QMARK_(n1);
-if (or__32177__auto__3 != null && or__32177__auto__3 !== false) {
-return or__32177__auto__3;} else {
-let or__32177__auto__4 = n.end_edge_type_QMARK_(n2);
-if (or__32177__auto__4 != null && or__32177__auto__4 !== false) {
-return or__32177__auto__4;} else {
+let test__23320__auto__1 = (function () {
+ let or__25455__auto__2 = n.start_edge_type_QMARK_(n1);
+if (or__25455__auto__2 != null && or__25455__auto__2 !== false) {
+return or__25455__auto__2;} else {
+let or__25455__auto__3 = n.prefix_edge_type_QMARK_(n1);
+if (or__25455__auto__3 != null && or__25455__auto__3 !== false) {
+return or__25455__auto__3;} else {
+let or__25455__auto__4 = n.end_edge_type_QMARK_(n2);
+if (or__25455__auto__4 != null && or__25455__auto__4 !== false) {
+return or__25455__auto__4;} else {
 return n.same_edge_type_QMARK_(n2);}}}
 })();
-if (test__243599__auto__1 != null && test__243599__auto__1 !== false) {
+if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
 return 0;} else {
 return 1;}
 });
 var space_changes = (function (state, from, to) {
 let nodes1 = squint_core.reverse(squint_core.filter((function (_PERCENT_1) {
-let or__32177__auto__2 = ((from <= n.start(_PERCENT_1)) && (n.start(_PERCENT_1) <= to));
-if (or__32177__auto__2 != null && or__32177__auto__2 !== false) {
-return or__32177__auto__2;} else {
+let or__25455__auto__2 = ((from <= n.start(_PERCENT_1)) && (n.start(_PERCENT_1) <= to));
+if (or__25455__auto__2 != null && or__25455__auto__2 !== false) {
+return or__25455__auto__2;} else {
 ((from <= n.end(_PERCENT_1)) && (n.end(_PERCENT_1) <= to))}
 }), n.terminal_nodes(state, from, to)));
 let trim_QMARK_3 = (function () {
- let G__3104 = squint_core.first(nodes1);
-let G__3105 = (function () {
- let test__243599__auto__6 = squint_core.nil_QMARK_(G__3104);
-if (test__243599__auto__6 != null && test__243599__auto__6 !== false) {
+ let G__2864 = squint_core.first(nodes1);
+let G__2865 = (function () {
+ let test__23320__auto__6 = squint_core.nil_QMARK_(G__2864);
+if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
 return null;} else {
-return n.end(G__3104);}
+return n.end(G__2864);}
 })();
-let test__243599__auto__7 = squint_core.nil_QMARK_(G__3105);
-if (test__243599__auto__7 != null && test__243599__auto__7 !== false) {
+let test__23320__auto__7 = squint_core.nil_QMARK_(G__2865);
+if (test__23320__auto__7 != null && test__23320__auto__7 !== false) {
 return null;} else {
-return (G__3105 < to);}
+return (G__2865 < to);}
 })();
-return squint_core.reduce((function (out, p__311) {
-let vec__813 = p__311;
+return squint_core.reduce((function (out, p__287) {
+let vec__813 = p__287;
 let map__1114 = squint_core.nth(vec__813, 0, null);
 let n215 = squint_core.get(map__1114, "type");
 let start216 = squint_core.get(map__1114, "from");
@@ -128,14 +128,14 @@ let n118 = squint_core.get(map__1217, "type");
 let end119 = squint_core.get(map__1217, "to");
 let expected20 = expected_space(n118, n215);
 let actual21 = (start216 - end119);
-let G__31222 = squint_core.compare(actual21, expected20);
-switch (G__31222) {case 0:
+let G__28822 = squint_core.compare(actual21, expected20);
+switch (G__28822) {case 0:
 return out;
 break;
 case 1:
 return u.push_BANG_(out, ({ "from": (function () {
- let test__243599__auto__24 = (expected20 == 0);
-if (test__243599__auto__24 != null && test__243599__auto__24 !== false) {
+ let test__23320__auto__24 = (expected20 == 0);
+if (test__23320__auto__24 != null && test__23320__auto__24 !== false) {
 return end119;} else {
 return (end119 + 1);}
 })(), "to": start216 }));
@@ -158,8 +158,8 @@ var format_line = (function (state, indent_context, from, text, _line_num, chang
 let current_indent1 = /^\s*/.exec(text)[0]["length"];
 let indent2 = u.guard(get_indentation(indent_context, from), squint_core.complement(squint_core.neg_QMARK_));
 let indentation_change3 = ((indent2 != null && indent2 !== false) ? ((function () {
- let G__3134 = squint_core.compare(indent2, current_indent1);
-switch (G__3134) {case 0:
+ let G__2894 = squint_core.compare(indent2, current_indent1);
+switch (G__2894) {case 0:
 return null;
 break;
 case 1:
@@ -169,31 +169,31 @@ case -1:
 return ({ "from": (from + indent2), "to": (from + current_indent1) });
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__3134))}
+throw new Error(squint_core.str("No matching clause: ", G__2894))}
 })()) : (null));
 let space_changes6 = (function () {
- let test__243599__auto__7 = (function () {
- let and__32262__auto__8 = format_spaces_QMARK_;
-if (and__32262__auto__8 != null && and__32262__auto__8 !== false) {
-let or__32177__auto__9 = n.embedded_QMARK_(state, from);
-if (or__32177__auto__9 != null && or__32177__auto__9 !== false) {
-return or__32177__auto__9;} else {
+ let test__23320__auto__7 = (function () {
+ let and__25489__auto__8 = format_spaces_QMARK_;
+if (and__25489__auto__8 != null && and__25489__auto__8 !== false) {
+let or__25455__auto__9 = n.embedded_QMARK_(state, from);
+if (or__25455__auto__9 != null && or__25455__auto__9 !== false) {
+return or__25455__auto__9;} else {
 return n.within_program_QMARK_(state, from);}} else {
-return and__32262__auto__8;}
+return and__25489__auto__8;}
 })();
-if (test__243599__auto__7 != null && test__243599__auto__7 !== false) {
+if (test__23320__auto__7 != null && test__23320__auto__7 !== false) {
 return space_changes(state, (from + current_indent1), (from + squint_core.count(text)));}
 })();
-let G__31410 = changes;
-let G__31411 = ((space_changes6 != null && space_changes6 !== false) ? (into_arr(G__31410, space_changes6)) : (G__31410));
+let G__29010 = changes;
+let G__29011 = ((space_changes6 != null && space_changes6 !== false) ? (into_arr(G__29010, space_changes6)) : (G__29010));
 if (indentation_change3 != null && indentation_change3 !== false) {
-return u.push_BANG_(G__31411, indentation_change3);} else {
-return G__31411;}
+return u.push_BANG_(G__29011, indentation_change3);} else {
+return G__29011;}
 });
 var format_selection = (function (state) {
 let context1 = make_indent_context(state);
-return u.update_selected_lines(state, (function (p__315, changes, _range) {
-let map__23 = p__315;
+return u.update_selected_lines(state, (function (p__291, changes, _range) {
+let map__23 = p__291;
 let _line4 = map__23;
 let from5 = squint_core.get(map__23, "from");
 let text6 = squint_core.get(map__23, "text");
@@ -209,11 +209,11 @@ return format_line(state, context1, from, text, line_num, [], true);
 });
 var format_transaction = (function (tr) {
 let origin1 = u.get_user_event_annotation(tr);
-let temp__31764__auto__2 = (function () {
- let test__243599__auto__3 = n.within_program_QMARK_(tr["startState"]);
-if (test__243599__auto__3 != null && test__243599__auto__3 !== false) {
-let G__3164 = origin1;
-switch (G__3164) {case "input":
+let temp__24871__auto__2 = (function () {
+ let test__23320__auto__3 = n.within_program_QMARK_(tr["startState"]);
+if (test__23320__auto__3 != null && test__23320__auto__3 !== false) {
+let G__2924 = origin1;
+switch (G__2924) {case "input":
 return null;
 break;
 case "input.type":
@@ -244,8 +244,8 @@ case "format-selections":
 return format_selection(tr["state"]);
 break;
 default:
-let test__243599__auto__6 = tr["changes"]["empty"];
-if (test__243599__auto__6 != null && test__243599__auto__6 !== false) {
+let test__23320__auto__6 = tr["changes"]["empty"];
+if (test__23320__auto__6 != null && test__23320__auto__6 !== false) {
 return null;} else {
 let state7 = tr["state"];
 let context8 = make_indent_context(state7);
@@ -253,15 +253,15 @@ return u.iter_changed_lines(tr, (function (line, changes) {
 return format_line(state7, context8, line["from"], line["text"], line["number"], changes, true);
 }));}}}
 })();
-let test__243599__auto__9 = squint_core.nil_QMARK_(temp__31764__auto__2);
-if (test__243599__auto__9 != null && test__243599__auto__9 !== false) {
+let test__23320__auto__9 = squint_core.nil_QMARK_(temp__24871__auto__2);
+if (test__23320__auto__9 != null && test__23320__auto__9 !== false) {
 return tr;} else {
-let changes10 = temp__31764__auto__2;
+let changes10 = temp__24871__auto__2;
 return tr["startState"].update(squint_core.assoc_BANG_(changes10, "filter", false));}
 });
 var format = (function (state) {
-let test__243599__auto__1 = u.something_selected_QMARK_(state);
-if (test__243599__auto__1 != null && test__243599__auto__1 !== false) {
+let test__23320__auto__1 = u.something_selected_QMARK_(state);
+if (test__23320__auto__1 != null && test__23320__auto__1 !== false) {
 return state.update(format_selection(state));} else {
 return format_all(state);}
 });

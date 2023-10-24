@@ -9,9 +9,7 @@
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
             [nextjournal.clojure-mode.keymap :as keymap]
-            [nextjournal.clojure-mode.node :as n]
-            ;; TODO:
-            #_[nextjournal.clojure-mode.test-utils :as test-utils])
+            [nextjournal.clojure-mode.node :as n])
   #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (def fold-node-props
@@ -73,8 +71,6 @@
   "Eases embedding clojure mode into other languages (e.g. markdown).
   See https://codemirror.net/docs/ref/#language.LanguageSupport for motivations"
   (LanguageSupport. (syntax) (.. default-extensions (slice 1))))
-
-(prn :yolo!!!)
 
 (comment
 
