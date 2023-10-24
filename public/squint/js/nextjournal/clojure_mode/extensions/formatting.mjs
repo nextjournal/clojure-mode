@@ -7,12 +7,12 @@ import * as u from './../util.mjs';
 var spaces = (function (state, n) {
 return language.indentString(state, n);
 });
-var indent_node_props = (function (p__301) {
-let map__12 = p__301;
+var indent_node_props = (function (p__405) {
+let map__12 = p__405;
 let type3 = map__12;
 let type_name4 = squint_core.get(map__12, "name");
-return function (p__302) {
-let map__56 = p__302;
+return function (p__406) {
+let map__56 = p__406;
 let context7 = map__56;
 let node8 = squint_core.get(map__56, "node");
 let test__27847__auto__9 = ("Program" === type_name4);
@@ -20,34 +20,34 @@ if (test__27847__auto__9 != null && test__27847__auto__9 !== false) {
 return 0;} else {
 let test__27847__auto__10 = n.coll_type_QMARK_(type3);
 if (test__27847__auto__10 != null && test__27847__auto__10 !== false) {
-let G__30311 = context7.column(n.end(n.down(node8)));
+let G__40711 = context7.column(n.end(n.down(node8)));
 let test__27847__auto__12 = (function () {
  let and__28236__auto__13 = ("List" === type_name4);
 if (and__28236__auto__13 != null && and__28236__auto__13 !== false) {
 return squint_core.contains_QMARK_(new Set(["Operator", "DefLike", "NS"]), (function () {
- let G__30414 = node8;
-let G__30415 = (function () {
- let test__27847__auto__16 = squint_core.nil_QMARK_(G__30414);
+ let G__40814 = node8;
+let G__40815 = (function () {
+ let test__27847__auto__16 = squint_core.nil_QMARK_(G__40814);
 if (test__27847__auto__16 != null && test__27847__auto__16 !== false) {
 return null;} else {
-return n.down(G__30414);}
+return n.down(G__40814);}
 })();
-let G__30417 = (function () {
- let test__27847__auto__18 = squint_core.nil_QMARK_(G__30415);
+let G__40817 = (function () {
+ let test__27847__auto__18 = squint_core.nil_QMARK_(G__40815);
 if (test__27847__auto__18 != null && test__27847__auto__18 !== false) {
 return null;} else {
-return n.right(G__30415);}
+return n.right(G__40815);}
 })();
-let test__27847__auto__19 = squint_core.nil_QMARK_(G__30417);
+let test__27847__auto__19 = squint_core.nil_QMARK_(G__40817);
 if (test__27847__auto__19 != null && test__27847__auto__19 !== false) {
 return null;} else {
-return n.name(G__30417);}
+return n.name(G__40817);}
 })());} else {
 return and__28236__auto__13;}
 })();
 if (test__27847__auto__12 != null && test__27847__auto__12 !== false) {
-return (G__30311 + 1);} else {
-return G__30311;}} else {
+return (G__40711 + 1);} else {
+return G__40711;}} else {
 let test__27847__auto__20 = "else";
 if (test__27847__auto__20 != null && test__27847__auto__20 !== false) {
 return -1;} else {
@@ -67,8 +67,8 @@ return u.update_lines(state, (function (from, content, _line_num) {
 let current_indent2 = /^\s*/.exec(content)[0]["length"];
 let indent3 = u.guard(get_indentation(context1, from), squint_core.complement(squint_core.neg_QMARK_));
 if (indent3 != null && indent3 !== false) {
-let G__3054 = squint_core.compare(indent3, current_indent2);
-switch (G__3054) {case 0:
+let G__4094 = squint_core.compare(indent3, current_indent2);
+switch (G__4094) {case 0:
 return null;
 break;
 case 1:
@@ -78,7 +78,7 @@ case -1:
 return ({ "from": (from + indent3), "to": (from + current_indent2) });
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__3054))}}
+throw new Error(squint_core.str("No matching clause: ", G__4094))}}
 }));
 });
 var expected_space = (function (n1, n2) {
@@ -106,20 +106,20 @@ return or__28221__auto__2;} else {
 ((from <= n.end(_PERCENT_1)) && (n.end(_PERCENT_1) <= to))}
 }), n.terminal_nodes(state, from, to)));
 let trim_QMARK_3 = (function () {
- let G__3064 = squint_core.first(nodes1);
-let G__3065 = (function () {
- let test__27847__auto__6 = squint_core.nil_QMARK_(G__3064);
+ let G__4104 = squint_core.first(nodes1);
+let G__4105 = (function () {
+ let test__27847__auto__6 = squint_core.nil_QMARK_(G__4104);
 if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
 return null;} else {
-return n.end(G__3064);}
+return n.end(G__4104);}
 })();
-let test__27847__auto__7 = squint_core.nil_QMARK_(G__3065);
+let test__27847__auto__7 = squint_core.nil_QMARK_(G__4105);
 if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
 return null;} else {
-return (G__3065 < to);}
+return (G__4105 < to);}
 })();
-return squint_core.reduce((function (out, p__307) {
-let vec__813 = p__307;
+return squint_core.reduce((function (out, p__411) {
+let vec__813 = p__411;
 let map__1114 = squint_core.nth(vec__813, 0, null);
 let n215 = squint_core.get(map__1114, "type");
 let start216 = squint_core.get(map__1114, "from");
@@ -128,8 +128,8 @@ let n118 = squint_core.get(map__1217, "type");
 let end119 = squint_core.get(map__1217, "to");
 let expected20 = expected_space(n118, n215);
 let actual21 = (start216 - end119);
-let G__30822 = squint_core.compare(actual21, expected20);
-switch (G__30822) {case 0:
+let G__41222 = squint_core.compare(actual21, expected20);
+switch (G__41222) {case 0:
 return out;
 break;
 case 1:
@@ -158,8 +158,8 @@ var format_line = (function (state, indent_context, from, text, _line_num, chang
 let current_indent1 = /^\s*/.exec(text)[0]["length"];
 let indent2 = u.guard(get_indentation(indent_context, from), squint_core.complement(squint_core.neg_QMARK_));
 let indentation_change3 = ((indent2 != null && indent2 !== false) ? ((function () {
- let G__3094 = squint_core.compare(indent2, current_indent1);
-switch (G__3094) {case 0:
+ let G__4134 = squint_core.compare(indent2, current_indent1);
+switch (G__4134) {case 0:
 return null;
 break;
 case 1:
@@ -169,7 +169,7 @@ case -1:
 return ({ "from": (from + indent2), "to": (from + current_indent1) });
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__3094))}
+throw new Error(squint_core.str("No matching clause: ", G__4134))}
 })()) : (null));
 let space_changes6 = (function () {
  let test__27847__auto__7 = (function () {
@@ -184,16 +184,16 @@ return and__28236__auto__8;}
 if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
 return space_changes(state, (from + current_indent1), (from + squint_core.count(text)));}
 })();
-let G__31010 = changes;
-let G__31011 = ((space_changes6 != null && space_changes6 !== false) ? (into_arr(G__31010, space_changes6)) : (G__31010));
+let G__41410 = changes;
+let G__41411 = ((space_changes6 != null && space_changes6 !== false) ? (into_arr(G__41410, space_changes6)) : (G__41410));
 if (indentation_change3 != null && indentation_change3 !== false) {
-return u.push_BANG_(G__31011, indentation_change3);} else {
-return G__31011;}
+return u.push_BANG_(G__41411, indentation_change3);} else {
+return G__41411;}
 });
 var format_selection = (function (state) {
 let context1 = make_indent_context(state);
-return u.update_selected_lines(state, (function (p__311, changes, _range) {
-let map__23 = p__311;
+return u.update_selected_lines(state, (function (p__415, changes, _range) {
+let map__23 = p__415;
 let _line4 = map__23;
 let from5 = squint_core.get(map__23, "from");
 let text6 = squint_core.get(map__23, "text");
@@ -212,8 +212,8 @@ let origin1 = u.get_user_event_annotation(tr);
 let temp__27741__auto__2 = (function () {
  let test__27847__auto__3 = n.within_program_QMARK_(tr["startState"]);
 if (test__27847__auto__3 != null && test__27847__auto__3 !== false) {
-let G__3124 = origin1;
-switch (G__3124) {case "input":
+let G__4164 = origin1;
+switch (G__4164) {case "input":
 return null;
 break;
 case "input.type":

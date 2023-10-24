@@ -1,15 +1,13 @@
 (ns nextjournal.clojure-mode.util
-  (:require [applied-science.js-interop :as j]
+  (:require #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
             ["@codemirror/state" :refer [EditorSelection
-                                         ChangeSet
-                                         ChangeDesc
-                                         TransactionSpec
-                                         StrictTransactionSpec
                                          StateEffect
                                          Transaction]]
-            [nextjournal.clojure-mode.selections :as sel]))
+            [nextjournal.clojure-mode.selections :as sel])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
-(goog-define node-js? false)
+#?(:squint (def node-js? (some? js/globalThis.process))
+   :cljs (goog-define node-js? false))
 
 (defn user-event-annotation [event-name]
   (.. Transaction -userEvent (of event-name)))
@@ -139,7 +137,7 @@
         next-changes #js[]
         _ (.iterChanges
            changes
-           (fn [from-a to-a from-b to-b inserted]
+           (fn [_from-a _to-a from-b to-b _inserted]
              (j/let [^:js {:as line line-number :number line-to :to} (.lineAt doc from-b)]
                (loop [line line]
                  (when (> line-number @at-line)
@@ -165,5 +163,7 @@
 (j/defn something-selected? [^:js {{:keys [ranges]} :selection}]
   (not (every? #(.-empty ^js %) ranges)))
 
-(j/defn range-str [state ^:js {:as selection :keys [from to]}]
+(j/defn range-str [state ^:js {:as _selection :keys [from to]}]
   (str (j/call-in state [:doc :slice] from to)))
+
+#_(prn (js/call-in #js {:a {:b {:c 3}}} [:a :b :c] inc))
