@@ -36,7 +36,7 @@
              :task (shell {:std :inherit :err :inherit}
                           "yarn build")}
 
-  watch-cljs (t/watch-cljs)
+  watch-cljs (shell "yarn run squint watch")
 
   yarn-install:squint-dev (do
                             (shell "yarn add squint-cljs@link:../squint")

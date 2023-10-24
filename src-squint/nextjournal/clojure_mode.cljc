@@ -2,7 +2,8 @@
   (:require ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
             ["@lezer/highlight" :as highlight :refer [tags]]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            [applied-science.js-interop :as j]
+            #?@(:squint []
+                :cljs [[applied-science.js-interop :as j]])
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
@@ -10,7 +11,8 @@
             [nextjournal.clojure-mode.keymap :as keymap]
             [nextjournal.clojure-mode.node :as n]
             ;; TODO:
-            #_[nextjournal.clojure-mode.test-utils :as test-utils]))
+            #_[nextjournal.clojure-mode.test-utils :as test-utils])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))
@@ -100,3 +102,4 @@
         (->> (n/string state)))))
 
 (prn :clojure-mode-loaded)
+(prn :hello)

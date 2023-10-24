@@ -1,12 +1,10 @@
 (ns nextjournal.clojure-mode.extensions.match-brackets
   (:require
-   ["../node.mjs" :as n]
-   ["../util.mjs" :as u]
    ["@codemirror/state" :refer [StateField]]
    ["@codemirror/view" :refer [EditorView
                                Decoration]]
-   #_[nextjournal.clojure-mode.node :as n]
-   #_[nextjournal.clojure-mode.util :as u :refer [from-to]]))
+   [nextjournal.clojure-mode.node :as n]
+   [nextjournal.clojure-mode.util :as u]))
 
 (def base-theme
   (->>

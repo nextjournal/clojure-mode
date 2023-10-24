@@ -1,9 +1,8 @@
 (ns nextjournal.clojure-mode.util
-  (:require ["./selections.mjs" :as sel]
-            ["@codemirror/state" :refer [EditorSelection
+  (:require ["@codemirror/state" :refer [EditorSelection
                                          StateEffect
                                          Transaction]]
-            #_[nextjournal.clojure-mode.selections :as sel]))
+            [nextjournal.clojure-mode.selections :as sel]))
 
 (def node-js? (some? js/globalThis.process))
 

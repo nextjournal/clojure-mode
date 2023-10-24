@@ -1,11 +1,10 @@
 (ns nextjournal.clojure-mode.extensions.formatting
   (:require ["@codemirror/language" :as language :refer [IndentContext]]
             ["@codemirror/state" :refer [EditorState]]
-            ["../node.mjs" :as n]
-            #_[nextjournal.clojure-mode.node :as n]
-            ["../util.mjs" :as u]
-            #_[nextjournal.clojure-mode.util :as u :refer [from-to]]
-            ))
+            #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
+            [nextjournal.clojure-mode.node :as n]
+            [nextjournal.clojure-mode.util :as u])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 ;; CodeMirror references
 ;; IndentContext https://codemirror.net/6/docs/ref/#state.IndentContext
@@ -18,8 +17,8 @@
 (defn spaces [^js state n]
   (.indentString language state n))
 
-(defn indent-node-props [^:js {type-name :name :as type}]
-  (fn [^:js {:as ^js context :keys [pos unit node ^js state]}]
+(j/defn indent-node-props [^:js {type-name :name :as type}]
+  (j/fn [^:js {:as ^js context :keys [node]}]
     (cond (= "Program" type-name)
           0
 
@@ -48,7 +47,7 @@
 (defn indent-all [^js state]
   (let [context (make-indent-context state)]
     (u/update-lines state
-                    (fn [from content line-num]
+                    (fn [from content _line-num]
                       (let [current-indent (-> (.exec #"^\s*" content)
                                                ^js (aget 0)
                                                .-length)
@@ -81,8 +80,8 @@
         trim? (some-> (first nodes) n/end (< to))]
     (->> nodes
          (partition 2 1)
-         (reduce (fn [out [^:js {n2 :type start2 :from end2 :to}
-                             ^:js {n1 :type start1 :from end1 :to}]]
+         (reduce (j/fn [out [^:js {n2 :type start2 :from}
+                             ^:js {n1 :type end1 :to}]]
                    (let [expected (expected-space n1 n2)
                          actual (- start2 end1)]
                      (case (compare actual expected)
@@ -110,7 +109,7 @@
    indent-context
    from
    text
-   line-num
+   _line-num
    changes
    format-spaces?]
   ;; TODO: fix in squint
@@ -141,7 +140,7 @@
   [^js state]
   (let [context (make-indent-context state)]
     (u/update-selected-lines state
-                             (fn [^:js {:as line :keys [from text number]} ^js changes ^js range]
+                             (j/fn [^:js {:as _line :keys [from text number]} ^js changes ^js _range]
                                (format-line state context from text number changes true)))))
 
 (defn format-all [state]
@@ -156,12 +155,12 @@
               (when (n/within-program? (.-startState tr))
                 (case origin
                   ("input" "input.type"
-                   "delete"
-                   "keyboardselection"
-                   "pointerselection" "select.pointer"
-                   "cut"
-                   "noformat"
-                   "evalregion") nil
+                           "delete"
+                           "keyboardselection"
+                           "pointerselection" "select.pointer"
+                           "cut"
+                           "noformat"
+                           "evalregion") nil
                   "format-selections" (format-selection (.-state tr))
                   (when-not (.. tr -changes -empty)
                     (let [state (.-state tr)
@@ -179,7 +178,7 @@
 
 (defn prefix-all [prefix state]
   (u/update-lines state
-    (fn [from _ _] #js{:from from :insert prefix})))
+                  (fn [from _ _] #js{:from from :insert prefix})))
 
 (defn ext-format-changed-lines [] (.. EditorState -transactionFilter (of format-transaction)))
 

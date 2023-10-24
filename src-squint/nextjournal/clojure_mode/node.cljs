@@ -4,11 +4,8 @@
             ["@lezer/markdown" :as lezer-markdown]
             ["@codemirror/language" :as language]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            ["./util.mjs" :as u]
-            #_[nextjournal.clojure-mode.util :as u]
-            ["./selections.mjs" :as sel]
-            #_[nextjournal.clojure-mode.selections :as sel]
-            ))
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.selections :as sel]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Node props are marked in the grammar and distinguish categories of nodes
