@@ -7,8 +7,8 @@ import * as cm_state from '@codemirror/state';
 import { EditorState, EditorSelection } from '@codemirror/state';
 import * as assert from 'assert';
 var make_state = (function (extensions, doc) {
-let vec__14 = squint_core.reduce((function (p__250, match) {
-let vec__58 = p__250;
+let vec__14 = squint_core.reduce((function (p__246, match) {
+let vec__58 = p__246;
 let doc9 = squint_core.nth(vec__58, 0, null);
 let ranges10 = squint_core.nth(vec__58, 1, null);
 let test__23320__auto__11 = (match === "|");
@@ -30,18 +30,18 @@ if (test__23320__auto__16 != null && test__23320__auto__16 !== false) {
 return EditorSelection.create(squint_core.into_array(ranges15));} else {
 return undefined;}
 })(), "extensions": (function () {
- let G__25117 = [EditorState["allowMultipleSelections"].of(true)];
+ let G__24717 = [EditorState["allowMultipleSelections"].of(true)];
 if (extensions != null && extensions !== false) {
-let G__25218 = G__25117;
-G__25218.push(extensions);
-return G__25218;} else {
-return G__25117;}
+let G__24818 = G__24717;
+G__24818.push(extensions);
+return G__24818;} else {
+return G__24717;}
 })() }));
 });
 var state_str = (function (state) {
 let doc1 = squint_core.str(state["doc"]);
-return squint_core.reduce((function (doc, p__253) {
-let map__23 = p__253;
+return squint_core.reduce((function (doc, p__249) {
+let map__23 = p__249;
 let empty4 = squint_core.get(map__23, "empty");
 let from5 = squint_core.get(map__23, "from");
 let to6 = squint_core.get(map__23, "to");

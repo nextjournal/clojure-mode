@@ -1,19 +1,15 @@
 (ns nextjournal.clojure-mode.extensions.close-brackets
-  (:require ["w3c-keyname" :refer [keyName]]
-            ["@codemirror/view" :as view]
-            ["@codemirror/state" :refer [EditorState
-                                         EditorSelection
-                                         Transaction
-                                         CharCategory
-                                         Extension
+  (:require ["@codemirror/state" :refer [EditorState
                                          Prec]]
-            [applied-science.js-interop :as j]
+            ["@codemirror/view" :as view]
+            #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
+            [clojure.string :as str]
             [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.util :as u :refer [from-to]]
-            [clojure.string :as str]))
+            [nextjournal.clojure-mode.util :as u :refer [from-to]])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (defn in-string? [state pos]
-  (#{"StringContent" "String"} (n/name (n/tree state pos))))
+  (contains? #{"StringContent" "String"} (n/name (n/tree state pos))))
 
 (defn escaped? [state pos]
   (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
@@ -32,14 +28,14 @@
 (j/defn handle-backspace
   "- skips over closing brackets
    - when deleting an opening bracket of an empty list, removes both brackets"
-  [^:js {:as ^EditorState state :keys [doc]}]
+  [^:js {:as ^EditorState state}]
   (when-not (and (= 1 (.. state -selection -ranges -length))
                  (let [^js range (j/get-in state [:selection :ranges 0])]
                    (and (.-empty range) (= 0 (.-from range)))))
     (u/update-ranges state
       #js{:annotations (u/user-event-annotation "delete")}
-      (j/fn [^:js {:as range :keys [head empty anchor]}]
-        (j/let [^:js {:as range from :from to :to} (from-to head anchor)
+      (j/fn [^:js {:as _range :keys [head empty anchor]}]
+        (j/let [^:js {:as _range from :from to :to} (from-to head anchor)
                 ^js node| (.resolveInner (n/tree state) from -1) ;; node immediately to the left of cursor
                 ^js parent (.-parent node|)]
           (cond
@@ -65,10 +61,11 @@
 
             :else (backspace-backoff state from to)))))))
 
-(def coll-pairs {"(" ")"
-                 "[" "]"
-                 "{" "}"
-                 \" \"})
+(def coll-pairs (fn [x]
+                  (get {"(" ")"
+                        "[" "]"
+                        "{" "}"
+                        \" \"} x)))
 
 (defn handle-open [^EditorState state ^string open]
   (let [^string close (coll-pairs open)]
@@ -96,7 +93,7 @@
 (defn handle-close [state key-name]
   (u/update-ranges state
     #js{:annotations (u/user-event-annotation "input")}
-    (j/fn [^:js {:as range :keys [empty head from to]}]
+    (j/fn [^:js {:as _range :keys [empty head from to]}]
       (if (or (in-string? state from)
               (escaped? state from))
         (u/insertion from to key-name)

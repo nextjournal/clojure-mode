@@ -9,8 +9,8 @@ var nonmatching_mark = Decoration.mark(({ "class": "cm-nonmatchingBracket" }));
 var mark_node = (function (node, mark) {
 return mark.range(n.start(node), n.end(node));
 });
-var state = StateField.define(({ "create": squint_core.constantly(Decoration["none"]), "update": (function (deco, p__254) {
-let map__12 = p__254;
+var state = StateField.define(({ "create": squint_core.constantly(Decoration["none"]), "update": (function (deco, p__263) {
+let map__12 = p__263;
 let tr3 = map__12;
 let state4 = squint_core.get(map__12, "state");
 let docChanged5 = squint_core.get(map__12, "docChanged");
@@ -22,8 +22,8 @@ return or__25455__auto__8;} else {
 return selection6;}
 })();
 if (test__23320__auto__7 != null && test__23320__auto__7 !== false) {
-let decos9 = squint_core.reduce((function (out, p__255) {
-let map__1011 = p__255;
+let decos9 = squint_core.reduce((function (out, p__264) {
+let map__1011 = p__264;
 let head12 = squint_core.get(map__1011, "head");
 let empty13 = squint_core.get(map__1011, "empty");
 let or__25455__auto__14 = (function () {

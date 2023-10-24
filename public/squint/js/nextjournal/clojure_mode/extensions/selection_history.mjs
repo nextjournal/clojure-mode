@@ -19,8 +19,8 @@ return !_PERCENT_1["empty"];
 });
 var selection_history_field = StateField.define(({ "create": (function (state) {
 return squint_core.list(({ "selection": state["selection"] }));
-}), "update": (function (stack, p__293) {
-let map__13 = p__293;
+}), "update": (function (stack, p__285) {
+let map__13 = p__285;
 let tr4 = map__13;
 let map__25 = squint_core.get(map__13, "state");
 let selection6 = squint_core.get(map__25, "selection");
@@ -56,8 +56,8 @@ return state.field(selection_history_field);
 });
 var grow_1 = (function (state, start, end) {
 let node1 = n.nearest_touching(state, end, -1);
-return squint_core.first(squint_core.filter((function (p__294) {
-let map__23 = p__294;
+return squint_core.first(squint_core.filter((function (p__286) {
+let map__23 = p__286;
 let a_start4 = squint_core.get(map__23, "from");
 let a_end5 = squint_core.get(map__23, "to");
 let and__25489__auto__6 = (a_start4 <= start);
@@ -75,8 +75,8 @@ return and__25489__auto__6;}
 }), squint_core.cons(node1, squint_core.mapcat(squint_core.juxt(n.inner_span, squint_core.identity), n.ancestors(node1)))));
 });
 var selection_grow_STAR_ = (function (state) {
-return u.update_ranges(state, ({ "annotations": event_annotation }), (function (p__295) {
-let map__12 = p__295;
+return u.update_ranges(state, ({ "annotations": event_annotation }), (function (p__287) {
+let map__12 = p__287;
 let range3 = map__12;
 let from4 = squint_core.get(map__12, "from");
 let to5 = squint_core.get(map__12, "to");
@@ -84,11 +84,11 @@ let empty6 = squint_core.get(map__12, "empty");
 if (empty6 != null && empty6 !== false) {
 return ({ "range": (function () {
  let or__25455__auto__7 = (function () {
- let G__2968 = n.nearest_touching(state, from4, -1);
-let test__23320__auto__9 = squint_core.nil_QMARK_(G__2968);
+ let G__2888 = n.nearest_touching(state, from4, -1);
+let test__23320__auto__9 = squint_core.nil_QMARK_(G__2888);
 if (test__23320__auto__9 != null && test__23320__auto__9 !== false) {
 return null;} else {
-return n.balanced_range(state, G__2968);}
+return n.balanced_range(state, G__2888);}
 })();
 if (or__25455__auto__7 != null && or__25455__auto__7 !== false) {
 return or__25455__auto__7;} else {
@@ -96,11 +96,11 @@ return range3;}
 })() });} else {
 return ({ "range": (function () {
  let or__25455__auto__10 = (function () {
- let G__29711 = grow_1(state, from4, to5);
-let test__23320__auto__12 = squint_core.nil_QMARK_(G__29711);
+ let G__28911 = grow_1(state, from4, to5);
+let test__23320__auto__12 = squint_core.nil_QMARK_(G__28911);
 if (test__23320__auto__12 != null && test__23320__auto__12 !== false) {
 return null;} else {
-return n.range(G__29711);}
+return n.range(G__28911);}
 })();
 if (or__25455__auto__10 != null && or__25455__auto__10 !== false) {
 return or__25455__auto__10;} else {
