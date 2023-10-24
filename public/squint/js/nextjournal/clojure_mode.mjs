@@ -20,25 +20,25 @@ var style_tags = ({ "LineComment": tags["lineComment"], "NS": tags["keyword"], "
 var parser = lezer_clj.parser;
 null;
 var syntax = (function () {
- let f306 = (function (var_args) {
-let G__3091 = arguments["length"];
-switch (G__3091) {case 0:
-return f306.cljs$core$IFn$_invoke$arity$0();
+ let f277 = (function (var_args) {
+let G__2801 = arguments["length"];
+switch (G__2801) {case 0:
+return f277.cljs$core$IFn$_invoke$arity$0();
 break;
 case 1:
-return f306.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f277.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f306["cljs$core$IFn$_invoke$arity$0"] = (function () {
+f277["cljs$core$IFn$_invoke$arity$0"] = (function () {
 return syntax(parser);
 });
-f306["cljs$core$IFn$_invoke$arity$1"] = (function (parser) {
+f277["cljs$core$IFn$_invoke$arity$1"] = (function (parser) {
 return LRLanguage.define(({ "parser": parser.configure(({ "props": [format.props, language.foldNodeProp.add(fold_node_props), highlight.styleTags(style_tags)] })) }));
 });
-f306["cljs$lang$maxFixedArity"] = 1;
-return f306;
+f277["cljs$lang$maxFixedArity"] = 1;
+return f277;
 })();
 var complete_keymap = keymap.complete;
 var builtin_keymap = keymap.builtin;
