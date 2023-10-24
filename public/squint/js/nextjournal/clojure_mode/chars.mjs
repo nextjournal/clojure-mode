@@ -5,19 +5,19 @@ let end1 = squint_core.count(char_pairs);
 let ch2 = text.codePointAt(char, 0);
 let i3 = 0;
 while(true){
-let test__23379__auto__4 = (i3 >= end1);
-if (test__23379__auto__4 != null && test__23379__auto__4 !== false) {
+let test__243599__auto__4 = (i3 >= end1);
+if (test__243599__auto__4 != null && test__243599__auto__4 !== false) {
 return text.fromCodePoint((function () {
- let test__23379__auto__5 = (ch2 < 128);
-if (test__23379__auto__5 != null && test__23379__auto__5 !== false) {
+ let test__243599__auto__5 = (ch2 < 128);
+if (test__243599__auto__5 != null && test__243599__auto__5 !== false) {
 return ch2;} else {
 return (ch2 + 1);}
 })());} else {
-let test__23379__auto__6 = (ch2 == char_pairs.charCodeAt(i3));
-if (test__23379__auto__6 != null && test__23379__auto__6 !== false) {
+let test__243599__auto__6 = (ch2 == char_pairs.charCodeAt(i3));
+if (test__243599__auto__6 != null && test__243599__auto__6 !== false) {
 return char_pairs.charAt((i3 + 1));} else {
-let test__23379__auto__7 = "else";
-if (test__23379__auto__7 != null && test__23379__auto__7 !== false) {
+let test__243599__auto__7 = "else";
+if (test__243599__auto__7 != null && test__243599__auto__7 !== false) {
 let G__8 = (i3 + 2);
 i3 = G__8;
 continue;
@@ -34,8 +34,8 @@ let next1 = doc.sliceString(pos, (pos + 2));
 return next1.slice(0, text.codePointSize(text.codePointAt(next1, 0)));
 });
 var prev_char = (function (doc, pos) {
-let test__23379__auto__1 = pos_int_QMARK_(pos);
-if (test__23379__auto__1 != null && test__23379__auto__1 !== false) {
+let test__243599__auto__1 = pos_int_QMARK_(pos);
+if (test__243599__auto__1 != null && test__243599__auto__1 !== false) {
 return doc.sliceString((pos - 1), pos);} else {
 return "";}
 });

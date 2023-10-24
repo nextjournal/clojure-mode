@@ -1329,13 +1329,9 @@ source-map@^0.5.6:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
-squint-cljs@0.3.33:
-  version "0.3.33"
-  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.3.33.tgz#c2ec40419eea93acacb58bec9a830b78cc2411c1"
-  integrity sha512-26H0ohAyw81tDJvryeDgiHkYiBX3heBhVEHcn1+RyXNrf+kVMvbs03Y4ulA95YOYRMZiS8dLe19QGyJwrzA6vw==
-  dependencies:
-    chokidar "^3.5.3"
-    glob "^10.3.10"
+"squint-cljs@link:../squint":
+  version "0.0.0"
+  uid ""
 
 stream-browserify@^2.0.1:
   version "2.0.2"
