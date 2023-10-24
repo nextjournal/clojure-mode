@@ -21,8 +21,13 @@ jobs:
       - name: 🧶 Yarn Install
         run: yarn install
 
-      - name: 🧪 Run tests
+      - name: 🧪 Run CLJS tests
         run: yarn test
+
+      - name: 🧪 Run squint tests
+        run: |
+          yarn squint compile
+          node public/squint/js/nextjournal/clojure_mode_tests.mjs
 
   snapshot:
     name: Static App / Build
