@@ -7,41 +7,41 @@ import * as cm_state from '@codemirror/state';
 import { EditorState, EditorSelection } from '@codemirror/state';
 import * as assert from 'assert';
 var make_state = (function (extensions, doc) {
-let vec__14 = squint_core.reduce((function (p__300, match) {
-let vec__58 = p__300;
+let vec__14 = squint_core.reduce((function (p__313, match) {
+let vec__58 = p__313;
 let doc9 = squint_core.nth(vec__58, 0, null);
 let ranges10 = squint_core.nth(vec__58, 1, null);
-let test__78824__auto__11 = (match === "|");
-if (test__78824__auto__11 != null && test__78824__auto__11 !== false) {
+let test__23322__auto__11 = (match === "|");
+if (test__23322__auto__11 != null && test__23322__auto__11 !== false) {
 return [doc9, squint_core.conj(ranges10, EditorSelection.cursor(squint_core.count(doc9)))];} else {
-let test__78824__auto__12 = match.startsWith("<");
-if (test__78824__auto__12 != null && test__78824__auto__12 !== false) {
+let test__23322__auto__12 = match.startsWith("<");
+if (test__23322__auto__12 != null && test__23322__auto__12 !== false) {
 return [squint_core.str(doc9, squint_core.subs(match, 1, (squint_core.count(match) - 1))), squint_core.conj(ranges10, EditorSelection.range(squint_core.count(doc9), (squint_core.count(doc9) + (squint_core.count(match) - 2))))];} else {
-let test__78824__auto__13 = "else";
-if (test__78824__auto__13 != null && test__78824__auto__13 !== false) {
+let test__23322__auto__13 = "else";
+if (test__23322__auto__13 != null && test__23322__auto__13 !== false) {
 return [squint_core.str(doc9, match), ranges10];} else {
 return null;}}}
 }), ["", []], squint_core.re_seq(/\||<[^>]*?>|[^<>|]+/, doc));
 let doc14 = squint_core.nth(vec__14, 0, null);
 let ranges15 = squint_core.nth(vec__14, 1, null);
 return EditorState.create(({ "doc": doc14, "selection": (function () {
- let test__78824__auto__16 = squint_core.seq(ranges15);
-if (test__78824__auto__16 != null && test__78824__auto__16 !== false) {
+ let test__23322__auto__16 = squint_core.seq(ranges15);
+if (test__23322__auto__16 != null && test__23322__auto__16 !== false) {
 return EditorSelection.create(squint_core.into_array(ranges15));} else {
 return undefined;}
 })(), "extensions": (function () {
- let G__30117 = [EditorState["allowMultipleSelections"].of(true)];
+ let G__31417 = [EditorState["allowMultipleSelections"].of(true)];
 if (extensions != null && extensions !== false) {
-let G__30218 = G__30117;
-G__30218.push(extensions);
-return G__30218;} else {
-return G__30117;}
+let G__31518 = G__31417;
+G__31518.push(extensions);
+return G__31518;} else {
+return G__31417;}
 })() }));
 });
 var state_str = (function (state) {
 let doc1 = squint_core.str(state["doc"]);
-return squint_core.reduce((function (doc, p__303) {
-let map__23 = p__303;
+return squint_core.reduce((function (doc, p__316) {
+let map__23 = p__316;
 let empty4 = squint_core.get(map__23, "empty");
 let from5 = squint_core.get(map__23, "from");
 let to6 = squint_core.get(map__23, "to");

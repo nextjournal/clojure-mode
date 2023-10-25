@@ -1,5 +1,5 @@
 (ns applied-science.js-interop
-  (:refer-clojure :exclude [defn get-in fn let select-keys assoc!]))
+  (:refer-clojure :exclude [defn get get-in fn let select-keys assoc!]))
 
 (defmacro lit [x] x)
 
@@ -40,3 +40,6 @@
 
 (defmacro obj [& body]
   `(cljs.core/js-obj ~@body))
+
+(defmacro get [& body]
+  `(cljs.core/get ~@body))
