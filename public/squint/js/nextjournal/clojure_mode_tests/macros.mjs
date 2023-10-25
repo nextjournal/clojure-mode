@@ -6,8 +6,8 @@ let args21 = [];
 let len__27398__auto__2 = arguments["length"];
 let i33 = 0;
 while(true){
-let test__27847__auto__4 = (i33 < len__27398__auto__2);
-if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
+let test__78824__auto__4 = (i33 < len__27398__auto__2);
+if (test__78824__auto__4 != null && test__78824__auto__4 !== false) {
 args21.push((arguments[i33]));
 let G__5 = (i33 + 1);
 i33 = G__5;
@@ -16,8 +16,8 @@ continue;
 }
 ;
 let argseq__27826__auto__6 = (function () {
- let test__27847__auto__7 = (3 < args21["length"]);
-if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
+ let test__78824__auto__7 = (3 < args21["length"]);
+if (test__78824__auto__7 != null && test__78824__auto__7 !== false) {
 return args21.slice(3);}
 })();
 return f1.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), (arguments[2]), argseq__27826__auto__6);
@@ -44,8 +44,8 @@ let args91 = [];
 let len__27398__auto__2 = arguments["length"];
 let i103 = 0;
 while(true){
-let test__27847__auto__4 = (i103 < len__27398__auto__2);
-if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
+let test__78824__auto__4 = (i103 < len__27398__auto__2);
+if (test__78824__auto__4 != null && test__78824__auto__4 !== false) {
 args91.push((arguments[i103]));
 let G__5 = (i103 + 1);
 i103 = G__5;
@@ -54,8 +54,8 @@ continue;
 }
 ;
 let argseq__27826__auto__6 = (function () {
- let test__27847__auto__7 = (3 < args91["length"]);
-if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
+ let test__78824__auto__7 = (3 < args91["length"]);
+if (test__78824__auto__7 != null && test__78824__auto__7 !== false) {
 return args91.slice(3);}
 })();
 return f8.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), (arguments[2]), argseq__27826__auto__6);
@@ -77,12 +77,12 @@ return self__27415__auto__14.cljs$core$IFn$_invoke$arity$variadic(G__128, G__131
 return f8;
 })();
 var apply_template = (function (argv, expr, values) {
-let test__27847__auto__1 = squint_core.vector_QMARK_(argv);
-if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
+let test__78824__auto__1 = squint_core.vector_QMARK_(argv);
+if (test__78824__auto__1 != null && test__78824__auto__1 !== false) {
 null} else {
 throw new Error("Assert failed: (vector? argv)")};
-let test__27847__auto__2 = squint_core.every_QMARK_(symbol_QMARK_, argv);
-if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
+let test__78824__auto__2 = squint_core.every_QMARK_(symbol_QMARK_, argv);
+if (test__78824__auto__2 != null && test__78824__auto__2 !== false) {
 null} else {
 throw new Error("Assert failed: (every? symbol? argv)")};
 return clojure.walk.postwalk_replace(zipmap(argv, values), expr);
@@ -93,8 +93,8 @@ let args161 = [];
 let len__27398__auto__2 = arguments["length"];
 let i173 = 0;
 while(true){
-let test__27847__auto__4 = (i173 < len__27398__auto__2);
-if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
+let test__78824__auto__4 = (i173 < len__27398__auto__2);
+if (test__78824__auto__4 != null && test__78824__auto__4 !== false) {
 args161.push((arguments[i173]));
 let G__5 = (i173 + 1);
 i173 = G__5;
@@ -103,8 +103,8 @@ continue;
 }
 ;
 let argseq__27826__auto__6 = (function () {
- let test__27847__auto__7 = (4 < args161["length"]);
-if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
+ let test__78824__auto__7 = (4 < args161["length"]);
+if (test__78824__auto__7 != null && test__78824__auto__7 !== false) {
 return args161.slice(4);}
 })();
 return f15.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), (arguments[2]), (arguments[3]), argseq__27826__auto__6);
@@ -132,13 +132,13 @@ return f15;
 })();
 var __GT_assert = (function (expr) {
 return clojure.walk.postwalk((function (expr) {
-let test__27847__auto__1 = (function () {
+let test__78824__auto__1 = (function () {
  let and__28236__auto__2 = seq_QMARK_(expr);
 if (and__28236__auto__2 != null && and__28236__auto__2 !== false) {
 return (symbol("=") === squint_core.first(expr));} else {
 return and__28236__auto__2;}
 })();
-if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
+if (test__78824__auto__1 != null && test__78824__auto__1 !== false) {
 return list_STAR_(symbol("assert.equal"), squint_core.rest(expr));} else {
 return expr;}
 }), expr);
@@ -149,8 +149,8 @@ let args241 = [];
 let len__27398__auto__2 = arguments["length"];
 let i253 = 0;
 while(true){
-let test__27847__auto__4 = (i253 < len__27398__auto__2);
-if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
+let test__78824__auto__4 = (i253 < len__27398__auto__2);
+if (test__78824__auto__4 != null && test__78824__auto__4 !== false) {
 args241.push((arguments[i253]));
 let G__5 = (i253 + 1);
 i253 = G__5;
@@ -159,14 +159,14 @@ continue;
 }
 ;
 let argseq__27826__auto__6 = (function () {
- let test__27847__auto__7 = (4 < args241["length"]);
-if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
+ let test__78824__auto__7 = (4 < args241["length"]);
+if (test__78824__auto__7 != null && test__78824__auto__7 !== false) {
 return args241.slice(4);}
 })();
 return f23.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), (arguments[2]), (arguments[3]), argseq__27826__auto__6);
 });
 f23["cljs$core$IFn$_invoke$arity$variadic"] = (function (_AMPERSAND_form, _AMPERSAND_env, argv, expr, args) {
-let test__27847__auto__8 = (function () {
+let test__78824__auto__8 = (function () {
  let or__28221__auto__9 = (function () {
  let and__28236__auto__10 = squint_core.empty_QMARK_(argv);
 if (and__28236__auto__10 != null && and__28236__auto__10 !== false) {
@@ -183,7 +183,7 @@ if (and__28236__auto__12 != null && and__28236__auto__12 !== false) {
 return and__28236__auto__12;}} else {
 return and__28236__auto__11;}}
 })();
-if (test__27847__auto__8 != null && test__27847__auto__8 !== false) {
+if (test__78824__auto__8 != null && test__78824__auto__8 !== false) {
 return sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("do")), squint_core.map((function (a) {
 return apply_template(argv, __GT_assert(expr), a);
 }), squint_core.partition(squint_core.count(args), args)))));} else {

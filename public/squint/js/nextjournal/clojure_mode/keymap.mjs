@@ -4,18 +4,18 @@ import * as cmd from './commands.mjs';
 var update_some = (function (m, updates) {
 return squint_core.reduce_kv((function (m, k, f) {
 let temp__27741__auto__1 = squint_core.get(m, k);
-let test__27847__auto__2 = squint_core.nil_QMARK_(temp__27741__auto__1);
-if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
+let test__78824__auto__2 = squint_core.nil_QMARK_(temp__27741__auto__1);
+if (test__78824__auto__2 != null && test__78824__auto__2 !== false) {
 return squint_core.dissoc(m, k);} else {
 let existing3 = temp__27741__auto__1;
 return squint_core.assoc(m, k, (function () {
- let test__27847__auto__4 = (function () {
+ let test__78824__auto__4 = (function () {
  let c__28208__auto__5 = Function;
 let x__28209__auto__6 = f;
 let ret__28210__auto__7 = (x__28209__auto__6 instanceof c__28208__auto__5);
 return ret__28210__auto__7;
 })();
-if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
+if (test__78824__auto__4 != null && test__78824__auto__4 !== false) {
 return f(existing3);} else {
 return squint_core.get(f, existing3);}
 })());}

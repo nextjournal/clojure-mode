@@ -20,31 +20,31 @@ var style_tags = ({ "LineComment": tags["lineComment"], "NS": tags["keyword"], "
 var parser = lezer_clj.parser;
 null;
 var syntax = (function () {
- let f294 = (function (var_args) {
-let G__2971 = arguments["length"];
-switch (G__2971) {case 0:
-return f294.cljs$core$IFn$_invoke$arity$0();
+ let f296 = (function (var_args) {
+let G__2991 = arguments["length"];
+switch (G__2991) {case 0:
+return f296.cljs$core$IFn$_invoke$arity$0();
 break;
 case 1:
-return f294.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f296.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f294["cljs$core$IFn$_invoke$arity$0"] = (function () {
+f296["cljs$core$IFn$_invoke$arity$0"] = (function () {
 return syntax(parser);
 });
-f294["cljs$core$IFn$_invoke$arity$1"] = (function (parser) {
+f296["cljs$core$IFn$_invoke$arity$1"] = (function (parser) {
 return LRLanguage.define(({ "parser": parser.configure(({ "props": [format.props, language.foldNodeProp.add(fold_node_props), highlight.styleTags(style_tags)] })) }));
 });
-f294["cljs$lang$maxFixedArity"] = 1;
-return f294;
+f296["cljs$lang$maxFixedArity"] = 1;
+return f296;
 })();
 var complete_keymap = keymap.complete;
 var builtin_keymap = keymap.builtin;
 var paredit_keymap = keymap.paredit;
 var default_extensions = [syntax(lezer_clj.parser), close_brackets.extension(), match_brackets.extension(), sel_history.extension(), format.ext_format_changed_lines()];
-var language_support = "Eases embedding clojure mode into other languages (e.g. markdown).\n  See https://codemirror.net/docs/ref/#language.LanguageSupport for motivations";
+var language_support = new LanguageSupport(syntax(), default_extensions.slice(1));
 null;
 
 export { paredit_keymap, parser, style_tags, complete_keymap, default_extensions, builtin_keymap, fold_node_props, syntax, language_support }

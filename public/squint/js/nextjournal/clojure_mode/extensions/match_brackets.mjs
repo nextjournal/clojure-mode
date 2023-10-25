@@ -9,21 +9,21 @@ var nonmatching_mark = Decoration.mark(squint_core.js_obj("class", "cm-nonmatchi
 var mark_node = (function (node, mark) {
 return mark.range(n.start(node), n.end(node));
 });
-var state = StateField.define(({ "create": squint_core.constantly(Decoration["none"]), "update": (function (deco, p__419) {
-let map__12 = p__419;
+var state = StateField.define(({ "create": squint_core.constantly(Decoration["none"]), "update": (function (deco, p__410) {
+let map__12 = p__410;
 let tr3 = map__12;
 let state4 = squint_core.get(map__12, "state");
 let docChanged5 = squint_core.get(map__12, "docChanged");
 let selection6 = squint_core.get(map__12, "selection");
-let test__27847__auto__7 = (function () {
+let test__78824__auto__7 = (function () {
  let or__28221__auto__8 = docChanged5;
 if (or__28221__auto__8 != null && or__28221__auto__8 !== false) {
 return or__28221__auto__8;} else {
 return selection6;}
 })();
-if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
-let decos9 = squint_core.reduce((function (out, p__420) {
-let map__1011 = p__420;
+if (test__78824__auto__7 != null && test__78824__auto__7 !== false) {
+let decos9 = squint_core.reduce((function (out, p__411) {
+let map__1011 = p__411;
 let head12 = squint_core.get(map__1011, "head");
 let empty13 = squint_core.get(map__1011, "empty");
 let or__28221__auto__14 = (function () {
@@ -36,23 +36,23 @@ return and__28236__auto__16;}
 if (temp__27767__auto__15 != null && temp__27767__auto__15 !== false) {
 let bracket17 = temp__27767__auto__15;
 let temp__27663__auto__18 = (function () {
- let test__27847__auto__19 = (function () {
+ let test__78824__auto__19 = (function () {
  let and__28236__auto__20 = n.start_edge_QMARK_(bracket17);
 if (and__28236__auto__20 != null && and__28236__auto__20 !== false) {
 return (n.start(bracket17) === n.start(n.up(bracket17)));} else {
 return and__28236__auto__20;}
 })();
-if (test__27847__auto__19 != null && test__27847__auto__19 !== false) {
+if (test__78824__auto__19 != null && test__78824__auto__19 !== false) {
 return u.guard(n.down_last(n.up(bracket17)), (function (_PERCENT_1) {
 return (n.name(_PERCENT_1) === n.closed_by(bracket17));
 }));} else {
-let test__27847__auto__21 = (function () {
+let test__78824__auto__21 = (function () {
  let and__28236__auto__22 = n.end_edge_QMARK_(bracket17);
 if (and__28236__auto__22 != null && and__28236__auto__22 !== false) {
 return (n.end(bracket17) === n.end(n.up(bracket17)));} else {
 return and__28236__auto__22;}
 })();
-if (test__27847__auto__21 != null && test__27847__auto__21 !== false) {
+if (test__78824__auto__21 != null && test__78824__auto__21 !== false) {
 return u.guard(n.down(n.up(bracket17)), (function (_PERCENT_1) {
 return (n.name(_PERCENT_1) === n.opened_by(bracket17));
 }));} else {
