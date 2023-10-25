@@ -34,6 +34,7 @@
   "scripts": {
     "watch": "bb copy-viewer-css && shadow-cljs -A:demo watch demo livedoc test",
     "build": "shadow-cljs -A:demo release demo livedoc",
+    "build:squint": "squint compile",
     "test": "shadow-cljs -A:dev release ci-test && node out/node-tests.js",
     "watch2": "git ls-files | entr yarn test",
     "dev": "vite --open -l info --config vite.config.js public/squint"
