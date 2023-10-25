@@ -59,6 +59,9 @@ jobs:
       - name: 🧶 Yarn Build
         run: |
           yarn build
+
+      - name: 🧶 Squint build
+        run: |
           yarn squint compile
           yarn vite:build
 
