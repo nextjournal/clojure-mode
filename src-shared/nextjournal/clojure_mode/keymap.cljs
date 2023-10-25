@@ -7,9 +7,7 @@
   [m updates]
   (reduce-kv (fn [m k f]
                (if-some [existing (get m k)]
-                 (assoc m k (if (instance? js/Function f)
-                              (f existing)
-                              (get f existing)))
+                 (assoc m k (get f existing))
                  (dissoc m k))) m updates))
 
 ;; (de)serializing commands from keyword-id to function
@@ -31,7 +29,8 @@
   (->> commands
        (reduce-kv
         (fn [out k bindings]
-          (into out (map #(deserialize (assoc % :run k)) bindings))) [])))
+          (into out (map #(deserialize (assoc % :run k)) bindings))) [])
+       (clj->js)))
 
 (comment
  (->> [commands/standardKeymap #_historyKeymap]
@@ -152,5 +151,3 @@
 
 (comment
  (ungroup default-keymap))
-
-(prn :keymap-loaded)
