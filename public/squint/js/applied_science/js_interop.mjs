@@ -239,5 +239,41 @@ return self__27415__auto__12.cljs$core$IFn$_invoke$arity$variadic(G__1028, G__10
 });
 return f98;
 })();
+var obj = (function () {
+ let f104 = (function (var_args) {
+let args1051 = [];
+let len__27398__auto__2 = arguments["length"];
+let i1063 = 0;
+while(true){
+let test__27847__auto__4 = (i1063 < len__27398__auto__2);
+if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
+args1051.push((arguments[i1063]));
+let G__5 = (i1063 + 1);
+i1063 = G__5;
+continue;
+};break;
+}
+;
+let argseq__27826__auto__6 = (function () {
+ let test__27847__auto__7 = (2 < args1051["length"]);
+if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
+return args1051.slice(2);}
+})();
+return f104.cljs$core$IFn$_invoke$arity$variadic((arguments[0]), (arguments[1]), argseq__27826__auto__6);
+});
+f104["cljs$core$IFn$_invoke$arity$variadic"] = (function (_AMPERSAND_form, _AMPERSAND_env, body) {
+return sequence(squint_core.seq(squint_core.concat(squint_core.list(symbol("cljs.core/js-obj")), body)));
+});
+f104["cljs$lang$maxFixedArity"] = 2;
+f104["cljs$lang$applyTo"] = (function (seq107) {
+let G__1088 = squint_core.first(seq107);
+let seq1079 = squint_core.next(seq107);
+let G__10910 = squint_core.first(seq1079);
+let seq10711 = squint_core.next(seq1079);
+let self__27415__auto__12 = this;
+return self__27415__auto__12.cljs$core$IFn$_invoke$arity$variadic(G__1088, G__10910, seq10711);
+});
+return f104;
+})();
 
-export { defn, call, let$, extend_BANG_, fn, get_in, select_keys, push_BANG_, call_in, _BANG_set, assoc_BANG_, lit }
+export { defn, call, let$, obj, extend_BANG_, fn, get_in, select_keys, push_BANG_, call_in, _BANG_set, assoc_BANG_, lit }

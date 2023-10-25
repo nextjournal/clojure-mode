@@ -4,13 +4,13 @@ import { EditorView, Decoration } from '@codemirror/view';
 import * as n from './../node.mjs';
 import * as u from './../util.mjs';
 var base_theme = EditorView.baseTheme(({ "$matchingBracket": ({ "color": "#0b0" }), "$nonmatchingBracket": ({ "color": "#a22" }) }));
-var matching_mark = Decoration.mark(({ "class": "cm-matchingBracket" }));
-var nonmatching_mark = Decoration.mark(({ "class": "cm-nonmatchingBracket" }));
+var matching_mark = Decoration.mark(squint_core.js_obj("class", "cm-matchingBracket"));
+var nonmatching_mark = Decoration.mark(squint_core.js_obj("class", "cm-nonmatchingBracket"));
 var mark_node = (function (node, mark) {
 return mark.range(n.start(node), n.end(node));
 });
-var state = StateField.define(({ "create": squint_core.constantly(Decoration["none"]), "update": (function (deco, p__64) {
-let map__12 = p__64;
+var state = StateField.define(({ "create": squint_core.constantly(Decoration["none"]), "update": (function (deco, p__419) {
+let map__12 = p__419;
 let tr3 = map__12;
 let state4 = squint_core.get(map__12, "state");
 let docChanged5 = squint_core.get(map__12, "docChanged");
@@ -22,8 +22,8 @@ return or__28221__auto__8;} else {
 return selection6;}
 })();
 if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
-let decos9 = squint_core.reduce((function (out, p__65) {
-let map__1011 = p__65;
+let decos9 = squint_core.reduce((function (out, p__420) {
+let map__1011 = p__420;
 let head12 = squint_core.get(map__1011, "head");
 let empty13 = squint_core.get(map__1011, "empty");
 let or__28221__auto__14 = (function () {
@@ -86,6 +86,5 @@ return deco;}
 var extension = (function () {
 return [base_theme, state, EditorView["decorations"].from(state)];
 });
-squint_core.prn("match-brackets-loaded");
 
 export { base_theme, matching_mark, nonmatching_mark, mark_node, state, extension }

@@ -38,3 +38,5 @@
 (defmacro assoc! [& body]
   `(clojure.core/assoc! ~@body))
 
+(defmacro obj [& body]
+  `(cljs.core/js-obj ~@body))
