@@ -1,4 +1,5 @@
-{
+{ "name": "@nextjournal/clojure-mode",
+  "files": ["dist"],
   "dependencies": {
     "@codemirror/autocomplete": "^6.0.2",
     "@codemirror/commands": "^6.0.0",
