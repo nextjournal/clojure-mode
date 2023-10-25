@@ -57,7 +57,10 @@ jobs:
         run: yarn install
 
       - name: 🧶 Yarn Build
-        run: yarn build
+        run: |
+          yarn build
+          yarn squint compile
+          yarn vite:build
 
       - name: 📠 Copy static build to bucket under SHA
         run: gsutil cp -r public gs://nextjournal-snapshots/clojure-mode/build/${{ github.sha }}

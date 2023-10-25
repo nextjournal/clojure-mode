@@ -317,6 +317,10 @@
     "@lezer/common" "^1.0.0"
     "@lezer/highlight" "^1.0.0"
 
+"@nextjournal/clojure-mode@link:.":
+  version "0.0.0"
+  uid ""
+
 "@nextjournal/lezer-clojure@1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@nextjournal/lezer-clojure/-/lezer-clojure-1.0.0.tgz"
@@ -1239,6 +1243,11 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+rollup-plugin-analyzer@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-analyzer/-/rollup-plugin-analyzer-4.0.0.tgz#96b757ed64a098b59d72f085319e68cdd86d5798"
+  integrity sha512-LL9GEt3bkXp6Wa19SNR5MWcvHNMvuTFYg+eYBZN2OIFhSWN+pEJUQXEKu5BsOeABob3x9PDaLKW7w5iOJnsESQ==
 
 rollup@^3.27.1:
   version "3.28.1"

@@ -1,2 +1,2 @@
 {:paths ["src-shared" "src-squint"]
- :output-dir "public/squint/js"}
+ :output-dir "dist"}

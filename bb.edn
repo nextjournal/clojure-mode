@@ -42,11 +42,14 @@
                             (shell "yarn add squint-cljs@link:../squint")
                             (shell {:dir "node_modules/.bin"} "ln -sf" "../squint-cljs/node_cli.js" "squint"))
 
-  vite-dev {:doc "Launches vite application"
+  vite:dev {:doc "Launches vite application"
             :depends [yarn-install]
-            :task (shell "yarn dev")}
+            :task (shell "yarn vite:dev")}
 
-  -dev {:depends [vite-dev watch-cljs]}
+  vite:build {:depends [yarn-install]
+              :task (shell "yarn vite:build")}
+
+  -dev {:depends [vite:dev watch-cljs]}
 
   dev {:doc "Compiles all cljs to mjs, runs vite in dev and starts a cherry watcher to recompile changed cljs. When run as `bb dev collab` also starts a Y.js collaboration server."
        ;; :depends [compile]
