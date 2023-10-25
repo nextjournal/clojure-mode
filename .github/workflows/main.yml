@@ -27,7 +27,7 @@ jobs:
       - name: 🧪 Run squint tests
         run: |
           yarn squint compile
-          node public/squint/js/nextjournal/clojure_mode_tests.mjs
+          node dist/nextjournal/clojure_mode_tests.mjs
 
   snapshot:
     name: Static App / Build
