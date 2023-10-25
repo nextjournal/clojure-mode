@@ -13,8 +13,8 @@ var start_edge_prop = lz_tree.NodeProp["closedBy"];
 var end_edge_prop = lz_tree.NodeProp["openedBy"];
 var same_edge_prop = lezer_clj.props["sameEdge"];
 var node_prop = (function (prop_name) {
-let G__2851 = prop_name;
-switch (G__2851) {case "prefixColl":
+let G__2891 = prop_name;
+switch (G__2891) {case "prefixColl":
 return prefix_coll_prop;
 break;
 case "coll":
@@ -30,7 +30,7 @@ case "sameEdge":
 return same_edge_prop;
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__2851))}
+throw new Error(squint_core.str("No matching clause: ", G__2891))}
 });
 var type = (function (node) {
 return node["type"];
@@ -176,18 +176,18 @@ return or__28221__auto__4;} else {
 return prefix_type_QMARK_(t1);}}}
 });
 var closed_by = (function (n) {
-let G__2861 = type(n).prop(lz_tree.NodeProp["closedBy"]);
-let test__27847__auto__2 = squint_core.nil_QMARK_(G__2861);
+let G__2901 = type(n).prop(lz_tree.NodeProp["closedBy"]);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2901);
 if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return G__2861[0];}
+return G__2901[0];}
 });
 var opened_by = (function (n) {
-let G__2871 = type(n).prop(lz_tree.NodeProp["openedBy"]);
-let test__27847__auto__2 = squint_core.nil_QMARK_(G__2871);
+let G__2911 = type(n).prop(lz_tree.NodeProp["openedBy"]);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__2911);
 if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return G__2871[0];}
+return G__2911[0];}
 });
 var name = (function (node) {
 return node["name"];
@@ -241,8 +241,8 @@ if (test__27847__auto__7 != null && test__27847__auto__7 !== false) {
 return true;} else {
 return null;}}}}}}}
 });
-var balanced_QMARK_ = (function (p__288) {
-let map__12 = p__288;
+var balanced_QMARK_ = (function (p__292) {
+let map__12 = p__292;
 let _node3 = map__12;
 let firstChild4 = squint_core.get(map__12, "firstChild");
 let lastChild5 = squint_core.get(map__12, "lastChild");
@@ -284,28 +284,28 @@ return squint_core.reduced(found);}
 }), null, squint_core.cons(node, ancestors(node)));
 });
 var children = (function () {
- let f289 = (function (var_args) {
-let G__2921 = arguments["length"];
-switch (G__2921) {case 3:
-return f289.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+ let f293 = (function (var_args) {
+let G__2961 = arguments["length"];
+switch (G__2961) {case 3:
+return f293.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 case 1:
-return f289.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+return f293.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f289["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
+f293["cljs$core$IFn$_invoke$arity$3"] = (function (parent, from, dir) {
 let temp__27820__auto__3 = (function () {
- let G__2934 = dir;
-switch (G__2934) {case 1:
+ let G__2974 = dir;
+switch (G__2974) {case 1:
 return parent.childAfter(from);
 break;
 case -1:
 return parent.childBefore(from);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__2934))}
+throw new Error(squint_core.str("No matching clause: ", G__2974))}
 })();
 let test__27847__auto__6 = squint_core.nil_QMARK_(temp__27820__auto__3);
 if (test__27847__auto__6 != null && test__27847__auto__6 !== false) {
@@ -313,23 +313,23 @@ return null;} else {
 let child7 = temp__27820__auto__3;
 return squint_core.cons(child7, new squint_core.LazySeq((function () {
 return children(parent, (function () {
- let G__2948 = dir;
-switch (G__2948) {case 1:
+ let G__2988 = dir;
+switch (G__2988) {case 1:
 return end(child7);
 break;
 case -1:
 return start(child7);
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__2948))}
+throw new Error(squint_core.str("No matching clause: ", G__2988))}
 })(), dir);
 })));}
 });
-f289["cljs$core$IFn$_invoke$arity$1"] = (function (subtree) {
+f293["cljs$core$IFn$_invoke$arity$1"] = (function (subtree) {
 return children(subtree, start(subtree), 1);
 });
-f289["cljs$lang$maxFixedArity"] = 3;
-return f289;
+f293["cljs$lang$maxFixedArity"] = 3;
+return f293;
 })();
 var eq_QMARK_ = (function (x, y) {
 let and__28236__auto__1 = (start(x) == start(y));
@@ -354,49 +354,49 @@ return false;} else {
 return null;}}}
 });
 var from_to = (function () {
- let f295 = (function (var_args) {
-let G__2981 = arguments["length"];
-switch (G__2981) {case 2:
-return f295.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
-break;
-case 1:
-return f295.cljs$core$IFn$_invoke$arity$1((arguments[0]));
-break;
-default:
-throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
-});
-f295["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
-return ({ "from": from, "to": to });
-});
-f295["cljs$core$IFn$_invoke$arity$1"] = (function (node) {
-return from_to(start(node), end(node));
-});
-f295["cljs$lang$maxFixedArity"] = 2;
-return f295;
-})();
-var range = (function (node) {
-return sel.range(start(node), end(node));
-});
-var string = (function () {
  let f299 = (function (var_args) {
 let G__3021 = arguments["length"];
 switch (G__3021) {case 2:
 return f299.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
-case 3:
-return f299.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+case 1:
+return f299.cljs$core$IFn$_invoke$arity$1((arguments[0]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f299["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
+f299["cljs$core$IFn$_invoke$arity$2"] = (function (from, to) {
+return ({ "from": from, "to": to });
+});
+f299["cljs$core$IFn$_invoke$arity$1"] = (function (node) {
+return from_to(start(node), end(node));
+});
+f299["cljs$lang$maxFixedArity"] = 2;
+return f299;
+})();
+var range = (function (node) {
+return sel.range(start(node), end(node));
+});
+var string = (function () {
+ let f303 = (function (var_args) {
+let G__3061 = arguments["length"];
+switch (G__3061) {case 2:
+return f303.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+break;
+case 3:
+return f303.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+break;
+default:
+throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
+});
+f303["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
 return string(state, start(node), end(node));
 });
-f299["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
+f303["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
 return state["doc"].sliceString(from, to, "\n");
 });
-f299["cljs$lang$maxFixedArity"] = 3;
-return f299;
+f303["cljs$lang$maxFixedArity"] = 3;
+return f303;
 })();
 var ancestor_QMARK_ = (function (parent, child) {
 return squint_core.boolean$((function () {
@@ -413,8 +413,8 @@ var move_toward = (function (node, to_node) {
 let test__27847__auto__1 = eq_QMARK_(node, to_node);
 if (test__27847__auto__1 != null && test__27847__auto__1 !== false) {
 return null;} else {
-let G__3032 = squint_core.compare(start(to_node), start(node));
-switch (G__3032) {case 0:
+let G__3072 = squint_core.compare(start(to_node), start(node));
+switch (G__3072) {case 0:
 let test__27847__auto__4 = ancestor_QMARK_(to_node, node);
 if (test__27847__auto__4 != null && test__27847__auto__4 !== false) {
 return up(node);} else {
@@ -442,7 +442,7 @@ return or__28221__auto__9;} else {
 return up(node);}}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__3032))}}
+throw new Error(squint_core.str("No matching clause: ", G__3072))}}
 });
 var nodes_between = (function (node, to_node) {
 return squint_core.take_while(squint_core.identity, squint_core.iterate((function (_PERCENT_1) {
@@ -459,33 +459,6 @@ return or__28221__auto__2;} else {
 return regexp_QMARK_(node);}}
 });
 var tree = (function () {
- let f304 = (function (var_args) {
-let G__3071 = arguments["length"];
-switch (G__3071) {case 1:
-return f304.cljs$core$IFn$_invoke$arity$1((arguments[0]));
-break;
-case 2:
-return f304.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
-break;
-case 3:
-return f304.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
-break;
-default:
-throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
-});
-f304["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
-return language.syntaxTree(state);
-});
-f304["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
-return language.syntaxTree(state).resolveInner(pos);
-});
-f304["cljs$core$IFn$_invoke$arity$3"] = (function (state, pos, dir) {
-return language.syntaxTree(state).resolveInner(pos, dir);
-});
-f304["cljs$lang$maxFixedArity"] = 3;
-return f304;
-})();
-var cursor = (function () {
  let f308 = (function (var_args) {
 let G__3111 = arguments["length"];
 switch (G__3111) {case 1:
@@ -500,17 +473,44 @@ break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f308["cljs$core$IFn$_invoke$arity$1"] = (function (tree) {
-return tree.cursor();
+f308["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+return language.syntaxTree(state);
 });
-f308["cljs$core$IFn$_invoke$arity$2"] = (function (tree, pos) {
-return tree.cursorAt(pos);
+f308["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+return language.syntaxTree(state).resolveInner(pos);
 });
-f308["cljs$core$IFn$_invoke$arity$3"] = (function (tree, pos, dir) {
-return tree.cursorAt(pos, dir);
+f308["cljs$core$IFn$_invoke$arity$3"] = (function (state, pos, dir) {
+return language.syntaxTree(state).resolveInner(pos, dir);
 });
 f308["cljs$lang$maxFixedArity"] = 3;
 return f308;
+})();
+var cursor = (function () {
+ let f312 = (function (var_args) {
+let G__3151 = arguments["length"];
+switch (G__3151) {case 1:
+return f312.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+break;
+case 2:
+return f312.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+break;
+case 3:
+return f312.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+break;
+default:
+throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
+});
+f312["cljs$core$IFn$_invoke$arity$1"] = (function (tree) {
+return tree.cursor();
+});
+f312["cljs$core$IFn$_invoke$arity$2"] = (function (tree, pos) {
+return tree.cursorAt(pos);
+});
+f312["cljs$core$IFn$_invoke$arity$3"] = (function (tree, pos, dir) {
+return tree.cursorAt(pos, dir);
+});
+f312["cljs$lang$maxFixedArity"] = 3;
+return f312;
 })();
 var terminal_cursor = (function (tree, pos, dir) {
 let i1 = pos;
@@ -583,21 +583,21 @@ return null;}}};break;
 
 });
 var balanced_range = (function () {
- let f312 = (function (var_args) {
-let G__3151 = arguments["length"];
-switch (G__3151) {case 2:
-return f312.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+ let f316 = (function (var_args) {
+let G__3191 = arguments["length"];
+switch (G__3191) {case 2:
+return f316.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
 break;
 case 3:
-return f312.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
+return f316.cljs$core$IFn$_invoke$arity$3((arguments[0]), (arguments[1]), (arguments[2]));
 break;
 default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
-f312["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
+f316["cljs$core$IFn$_invoke$arity$2"] = (function (state, node) {
 return balanced_range(state, start(node), end(node));
 });
-f312["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
+f316["cljs$core$IFn$_invoke$arity$3"] = (function (state, from, to) {
 let vec__39 = squint_core.sort([from, to]);
 let from10 = squint_core.nth(vec__39, 0, null);
 let to11 = squint_core.nth(vec__39, 1, null);
@@ -615,8 +615,8 @@ if (test__27847__auto__17 != null && test__27847__auto__17 !== false) {
 return end(to_node13);} else {
 return to11;}
 })();
-let vec__618 = squint_core.reduce((function (p__316, node_between) {
-let vec__1922 = p__316;
+let vec__618 = squint_core.reduce((function (p__320, node_between) {
+let vec__1922 = p__320;
 let left23 = squint_core.nth(vec__1922, 0, null);
 let right24 = squint_core.nth(vec__1922, 1, null);
 return [(function () {
@@ -631,21 +631,21 @@ return end(node_between);} else {
 return right24;}
 })()];
 }), [from14, to16], squint_core.map((function (_PERCENT_1) {
-let G__31727 = _PERCENT_1;
+let G__32127 = _PERCENT_1;
 let test__27847__auto__28 = edge_QMARK_(_PERCENT_1);
 if (test__27847__auto__28 != null && test__27847__auto__28 !== false) {
-return up(G__31727);} else {
-return G__31727;}
+return up(G__32127);} else {
+return G__32127;}
 }), nodes_between(from_node12, to_node13)));
 let left29 = squint_core.nth(vec__618, 0, null);
 let right30 = squint_core.nth(vec__618, 1, null);
 return sel.range(left29, right30);
 });
-f312["cljs$lang$maxFixedArity"] = 3;
-return f312;
+f316["cljs$lang$maxFixedArity"] = 3;
+return f316;
 })();
-var inner_span = (function (p__318) {
-let map__12 = p__318;
+var inner_span = (function (p__322) {
+let map__12 = p__322;
 let node3 = map__12;
 let firstChild4 = squint_core.get(map__12, "firstChild");
 let lastChild5 = squint_core.get(map__12, "lastChild");
@@ -702,64 +702,64 @@ return u.guard(down(parent3), prefix_edge_QMARK_);}}
 });
 var left_edge_with_prefix = (function (state, node) {
 return squint_core.str((function () {
- let G__3191 = prefix(node);
-let test__27847__auto__2 = squint_core.nil_QMARK_(G__3191);
+ let G__3231 = prefix(node);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__3231);
 if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return string(state, G__3191);}
+return string(state, G__3231);}
 })(), name(down(node)));
 });
 var with_prefix = (function (node) {
-let G__3201 = node;
+let G__3241 = node;
 let test__27847__auto__2 = prefix(node);
 if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
-return up(G__3201);} else {
-return G__3201;}
+return up(G__3241);} else {
+return G__3241;}
 });
 var node_BAR_ = (function (state, pos) {
-let G__3211 = tree(state, pos, -1);
-let test__27847__auto__2 = squint_core.nil_QMARK_(G__3211);
+let G__3251 = tree(state, pos, -1);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__3251);
 if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return u.guard(G__3211, (function (_PERCENT_1) {
+return u.guard(G__3251, (function (_PERCENT_1) {
 return (pos === end(_PERCENT_1));
 }));}
 });
 var _BAR_node = (function (state, pos) {
-let G__3221 = tree(state, pos, 1);
-let test__27847__auto__2 = squint_core.nil_QMARK_(G__3221);
+let G__3261 = tree(state, pos, 1);
+let test__27847__auto__2 = squint_core.nil_QMARK_(G__3261);
 if (test__27847__auto__2 != null && test__27847__auto__2 !== false) {
 return null;} else {
-return u.guard(G__3221, (function (_PERCENT_1) {
+return u.guard(G__3261, (function (_PERCENT_1) {
 return (pos === start(_PERCENT_1));
 }));}
 });
 var nearest_touching = (function (state, pos, dir) {
 let L1 = (function () {
- let G__3232 = tree(state, pos, -1);
-let test__27847__auto__3 = squint_core.nil_QMARK_(G__3232);
+ let G__3272 = tree(state, pos, -1);
+let test__27847__auto__3 = squint_core.nil_QMARK_(G__3272);
 if (test__27847__auto__3 != null && test__27847__auto__3 !== false) {
 return null;} else {
-return u.guard(G__3232, (function (p__324) {
-let map__45 = p__324;
+return u.guard(G__3272, (function (p__328) {
+let map__45 = p__328;
 let to6 = squint_core.get(map__45, "to");
 return (pos === to6);
 }));}
 })();
 let R7 = (function () {
- let G__3258 = tree(state, pos, 1);
-let test__27847__auto__9 = squint_core.nil_QMARK_(G__3258);
+ let G__3298 = tree(state, pos, 1);
+let test__27847__auto__9 = squint_core.nil_QMARK_(G__3298);
 if (test__27847__auto__9 != null && test__27847__auto__9 !== false) {
 return null;} else {
-return u.guard(G__3258, (function (p__326) {
-let map__1011 = p__326;
+return u.guard(G__3298, (function (p__330) {
+let map__1011 = p__330;
 let from12 = squint_core.get(map__1011, "from");
 return (pos === from12);
 }));}
 })();
 let mid13 = tree(state, pos);
-let G__32714 = dir;
-switch (G__32714) {case 1:
+let G__33114 = dir;
+switch (G__33114) {case 1:
 let or__28221__auto__16 = u.guard(R7, squint_core.every_pred(squint_core.some_QMARK_, (function (_PERCENT_1) {
 let or__28221__auto__17 = same_edge_QMARK_(_PERCENT_1);
 if (or__28221__auto__17 != null && or__28221__auto__17 !== false) {
@@ -794,30 +794,9 @@ return or__28221__auto__23;} else {
 return mid13;}}}
 break;
 default:
-throw new Error(squint_core.str("No matching clause: ", G__32714))}
+throw new Error(squint_core.str("No matching clause: ", G__33114))}
 });
 var embedded_QMARK_ = (function () {
- let f328 = (function (var_args) {
-let G__3311 = arguments["length"];
-switch (G__3311) {case 1:
-return f328.cljs$core$IFn$_invoke$arity$1((arguments[0]));
-break;
-case 2:
-return f328.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
-break;
-default:
-throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
-});
-f328["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
-return embedded_QMARK_(state, state["selection"]["main"]["head"]);
-});
-f328["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
-return squint_core.identical_QMARK_(lezer_markdown.parser.nodeTypes["FencedCode"], state["tree"].resolve(pos)["type"]["id"]);
-});
-f328["cljs$lang$maxFixedArity"] = 2;
-return f328;
-})();
-var within_program_QMARK_ = (function () {
  let f332 = (function (var_args) {
 let G__3351 = arguments["length"];
 switch (G__3351) {case 1:
@@ -830,17 +809,38 @@ default:
 throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
 });
 f332["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
-return within_program_QMARK_(state, state["selection"]["main"]["head"]);
+return embedded_QMARK_(state, state["selection"]["main"]["head"]);
 });
 f332["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
+return squint_core.identical_QMARK_(lezer_markdown.parser.nodeTypes["FencedCode"], state["tree"].resolve(pos)["type"]["id"]);
+});
+f332["cljs$lang$maxFixedArity"] = 2;
+return f332;
+})();
+var within_program_QMARK_ = (function () {
+ let f336 = (function (var_args) {
+let G__3391 = arguments["length"];
+switch (G__3391) {case 1:
+return f336.cljs$core$IFn$_invoke$arity$1((arguments[0]));
+break;
+case 2:
+return f336.cljs$core$IFn$_invoke$arity$2((arguments[0]), (arguments[1]));
+break;
+default:
+throw new Error(squint_core.str("Invalid arity: ", squint_core.alength(arguments)))}
+});
+f336["cljs$core$IFn$_invoke$arity$1"] = (function (state) {
+return within_program_QMARK_(state, state["selection"]["main"]["head"]);
+});
+f336["cljs$core$IFn$_invoke$arity$2"] = (function (state, pos) {
 let n3 = tree(state, pos);
 let or__28221__auto__4 = program_QMARK_(n3);
 if (or__28221__auto__4 != null && or__28221__auto__4 !== false) {
 return or__28221__auto__4;} else {
 return squint_core.some(program_QMARK_, ancestors(n3));}
 });
-f332["cljs$lang$maxFixedArity"] = 2;
-return f332;
+f336["cljs$lang$maxFixedArity"] = 2;
+return f336;
 })();
 null;
 

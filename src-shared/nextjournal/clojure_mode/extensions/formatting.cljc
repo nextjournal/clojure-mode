@@ -2,8 +2,8 @@
   (:require ["@codemirror/language" :as language :refer [IndentContext]]
             ["@codemirror/state" :refer [EditorState]]
             #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
-            [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.util :as u])
+            [nextjournal.clojure-mode.util :as u]
+            [nextjournal.clojure-mode.node :as n])
   #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 ;; CodeMirror references
@@ -47,7 +47,7 @@
 (defn indent-all [^js state]
   (let [context (make-indent-context state)]
     (u/update-lines state
-                    (fn [from content _line-num]
+                    (fn [from content]
                       (let [current-indent (-> (.exec #"^\s*" content)
                                                ^js (aget 0)
                                                .-length)
@@ -95,8 +95,8 @@
                        out)))
 
                  (if trim?
-                   [{:from (-> nodes first n/end)
-                     :to to}]
+                   (j/lit [{:from (-> nodes first n/end)
+                            :to to}])
                    #js[])))))
 
 (defn into-arr [^js arr items]
@@ -112,8 +112,7 @@
    _line-num
    changes
    format-spaces?]
-  ;; TODO: fix in squint
-  #_{:pre [(some? text)]}
+  {:pre [(some? text)]}
   (let [current-indent (-> ^js (aget (.exec #"^\s*" text) 0)
                            .-length)
         ^number indent (-> (get-indentation indent-context from)
@@ -140,7 +139,7 @@
   [^js state]
   (let [context (make-indent-context state)]
     (u/update-selected-lines state
-                             (j/fn [^:js {:as _line :keys [from text number]} ^js changes ^js _range]
+                             (j/fn [^:js {:as _line :keys [from text number]} ^js changes]
                                (format-line state context from text number changes true)))))
 
 (defn format-all [state]
@@ -155,12 +154,12 @@
               (when (n/within-program? (.-startState tr))
                 (case origin
                   ("input" "input.type"
-                           "delete"
-                           "keyboardselection"
-                           "pointerselection" "select.pointer"
-                           "cut"
-                           "noformat"
-                           "evalregion") nil
+                   "delete"
+                   "keyboardselection"
+                   "pointerselection" "select.pointer"
+                   "cut"
+                   "noformat"
+                   "evalregion") nil
                   "format-selections" (format-selection (.-state tr))
                   (when-not (.. tr -changes -empty)
                     (let [state (.-state tr)
@@ -168,7 +167,7 @@
                       (u/iter-changed-lines tr
                                             (fn [^js line ^js changes]
                                               (format-line state context (.-from line) (.-text line) (.-number line) changes true)))))))]
-      (.. tr -startState (update (assoc! changes :filter false)))
+      (.. tr -startState (update (j/assoc! changes :filter false)))
       tr)))
 
 (defn format [state]
@@ -178,8 +177,6 @@
 
 (defn prefix-all [prefix state]
   (u/update-lines state
-                  (fn [from _ _] #js{:from from :insert prefix})))
+    (fn [from _ _] #js{:from from :insert prefix})))
 
 (defn ext-format-changed-lines [] (.. EditorState -transactionFilter (of format-transaction)))
-
-(prn :formatting-loaded)
