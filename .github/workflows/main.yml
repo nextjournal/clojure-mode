@@ -55,6 +55,9 @@ jobs:
           cli: '1.10.3.943'
           bb: 'latest'
 
+      - name: 🧶 Yarn Install
+        run: yarn install
+
       - name: 🔎 Squint build
         run: |
           yarn squint compile
@@ -62,9 +65,6 @@ jobs:
 
       - name: 🔎 Build Squint CDN Demo
         run: bb squint:demo:build
-
-      - name: 🧶 Yarn Install
-        run: yarn install
 
       - name: 🧶 Yarn Build
         run: |
