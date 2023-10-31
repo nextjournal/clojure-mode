@@ -5,6 +5,8 @@
 .cpcache
 public/js
 public/livedoc/js
+public/squint-cdn-demo
+squint-demo/node_modules
 node_modules
 public/test
 *.iml
