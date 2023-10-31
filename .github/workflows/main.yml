@@ -53,6 +53,8 @@ jobs:
         uses: DeLaGuardo/setup-clojure@master
         with:
           cli: '1.10.3.943'
+          bb: 'latest'
+
       - name: 🧶 Yarn Install
         run: yarn install
 
