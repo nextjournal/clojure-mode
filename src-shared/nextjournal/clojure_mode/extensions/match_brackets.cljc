@@ -1,13 +1,12 @@
 (ns nextjournal.clojure-mode.extensions.match-brackets
   (:require
-   ["@codemirror/state" :refer [EditorState
-                                StateField
-                                Extension]]
+   ["@codemirror/state" :refer [StateField]]
    ["@codemirror/view" :refer [EditorView
-                               Decoration DecorationSet]]
-   [applied-science.js-interop :as j]
+                               Decoration]]
+   #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
    [nextjournal.clojure-mode.node :as n]
-   [nextjournal.clojure-mode.util :as u]))
+   [nextjournal.clojure-mode.util :as u])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (def base-theme
   (->>
@@ -64,11 +63,11 @@
                                       ;; (we haven't entered a collection, so brackets are not valid tokens
                                       ;;  and aren't parsed). So we need to check the string to see if an
                                       ;; unmatched bracket is sitting in front of the cursor.
-                                      (when-let [unparsed-bracket (and
-                                                                   ;; skip this check if we're inside a string
-                                                                   (not (-> (n/tree state head) (n/closest n/string?)))
-                                                                   (-> (.. tr -state -doc (slice head (inc head)) toString)
-                                                                       (#{\] \) \}})))]
+                                      (when-let [_unparsed-bracket (and
+                                                                    ;; skip this check if we're inside a string
+                                                                    (not (-> (n/tree state head) (n/closest n/string?)))
+                                                                    (->> (.. tr -state -doc (slice head (inc head)) toString)
+                                                                       (contains? #{\] \) \}})))]
                                         (conj out (mark-node (n/from-to head (inc head)) nonmatching-mark)))
                                       out)) []))]
                    (.set Decoration (into-array decos) true))

@@ -1,12 +1,12 @@
 .shadow-cljs
 .idea
 .calva
-.clj-kondo
+.cache
 .cpcache
-.lsp
 public/js
 public/livedoc/js
 node_modules
 public/test
 *.iml
 out
+dist

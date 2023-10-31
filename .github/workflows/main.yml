@@ -21,8 +21,13 @@ jobs:
       - name: 🧶 Yarn Install
         run: yarn install
 
-      - name: 🧪 Run tests
+      - name: 🧪 Run CLJS tests
         run: yarn test
+
+      - name: 🧪 Run squint tests
+        run: |
+          yarn squint compile
+          node dist/nextjournal/clojure_mode_tests.mjs
 
   snapshot:
     name: Static App / Build
@@ -52,7 +57,13 @@ jobs:
         run: yarn install
 
       - name: 🧶 Yarn Build
-        run: yarn build
+        run: |
+          yarn build
+
+      - name: 🧶 Squint build
+        run: |
+          yarn squint compile
+          yarn vite:build
 
       - name: 📠 Copy static build to bucket under SHA
         run: gsutil cp -r public gs://nextjournal-snapshots/clojure-mode/build/${{ github.sha }}

@@ -4,9 +4,10 @@
             ["@lezer/markdown" :as lezer-markdown]
             ["@codemirror/language" :as language]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            [applied-science.js-interop :as j]
+            #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
             [nextjournal.clojure-mode.util :as u]
-            [nextjournal.clojure-mode.selections :as sel]))
+            [nextjournal.clojure-mode.selections :as sel])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Node props are marked in the grammar and distinguish categories of nodes
@@ -159,7 +160,7 @@
         (identical? "ConstructorCall" (name node-type)) false
         :else true))
 
-(j/defn balanced? [^:js {:as node :keys [^js firstChild ^js lastChild]}]
+(j/defn balanced? [^:js {:as _node :keys [^js firstChild ^js lastChild]}]
   (if-let [closing (closed-by firstChild)]
     (and (= closing (name lastChild))
          (not= (end firstChild) (end lastChild)))
