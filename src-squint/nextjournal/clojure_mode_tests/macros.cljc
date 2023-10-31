@@ -1,8 +1,10 @@
 (ns nextjournal.clojure-mode-tests.macros
   (:require [clojure.walk :as walk]))
 
-(defmacro deftest [_var-name & body]
-  `(do ~@body))
+(defmacro deftest [var-name & body]
+  `(do
+     (~'js* "// ~{}\n" ~var-name)
+     ~@body))
 
 (defmacro testing [_str & body]
   `(do ~@body))
@@ -63,7 +65,12 @@
        (and (pos? (count argv))
             (pos? (count args))
             (zero? (mod (count args) (count argv)))))
-    `(do ~@(map (fn [a] (apply-template argv (->assert expr) a))
-                (partition (count args) args)))
+    (let [processed (map (fn [a]
+                           (apply-template argv (->assert expr) a))
+                         (partition (count argv) args))]
+      #_(println "======")
+      #_(println args)
+      #_(println processed)
+      `(do ~@processed))
     #?(:clj (throw (IllegalArgumentException. "The number of args doesn't match are's argv."))
        :cljs (throw (js/Error "The number of args doesn't match are's argv.")))))

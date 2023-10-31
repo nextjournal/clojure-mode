@@ -1,2 +1,2 @@
-{:paths ["src-shared" "src-squint"]
+{:paths ["src-shared" "src-squint" "test"]
  :output-dir "dist"}
