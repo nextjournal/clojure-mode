@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clojure/Script mode for CodeMirror 6</title>
+
+
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js" crossorigin="anonymous"></script>
+<script type="importmap">
+{
+  "imports": {
+    "@codemirror/language": "https://ga.jspm.io/npm:@codemirror/language@6.9.2/dist/index.js",
+    "@codemirror/state": "https://ga.jspm.io/npm:@codemirror/state@6.3.1/dist/index.js",
+    "@codemirror/view": "https://ga.jspm.io/npm:@codemirror/view@6.21.4/dist/index.js",
+    "@nextjournal/clojure-mode": "https://ga.jspm.io/npm:@nextjournal/clojure-mode@0.1.0-rc4/dist/nextjournal/clojure_mode.mjs"
+  },
+  "scopes": {
+    "https://ga.jspm.io/": {
+      "@codemirror/commands": "https://ga.jspm.io/npm:@codemirror/commands@6.3.0/dist/index.js",
+      "@lezer/common": "https://ga.jspm.io/npm:@lezer/common@1.1.0/dist/index.js",
+      "@lezer/highlight": "https://ga.jspm.io/npm:@lezer/highlight@1.1.6/dist/index.js",
+      "@lezer/lr": "https://ga.jspm.io/npm:@lezer/lr@1.3.13/dist/index.js",
+      "@lezer/markdown": "https://ga.jspm.io/npm:@lezer/markdown@1.1.0/dist/index.js",
+      "@nextjournal/lezer-clojure": "https://ga.jspm.io/npm:@nextjournal/lezer-clojure@1.0.0/dist/index.es.js",
+      "squint-cljs/": "https://ga.jspm.io/npm:squint-cljs@0.3.36/",
+      "style-mod": "https://ga.jspm.io/npm:style-mod@4.1.0/src/style-mod.js",
+      "w3c-keyname": "https://ga.jspm.io/npm:w3c-keyname@2.2.8/index.js"
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css" rel="stylesheet">
+
+    <link href="https://cdn.nextjournal.com/data/QmSaHZCU6U2DeNohfW2PuXDHkayw7w21uvUWL5oEqVWKwH?filename=viewer-1c61aac61ffa4da89b828d538c5e4eff188e7b56.css&content-type=text/css" rel="stylesheet">
+    <link href="https://cdn.nextjournal.com/data/QmZZpjcdZDa8WT27QpcepDfqwuGik6Y3Ueyxaxs1Gqpk9w?filename=nextjournal-c81d440c5a7312046bbc5a2c3f2c5567d9ea9131.css&content-type=text/css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style type="text/tailwindcss" id="viewer-stylesheet"></style>
+    <!-- filled with tailwind styles from js -->
+
+    <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+    <style>
+      /* Use Fira Mono without having to clutter up the demo with a custom CM theme. */
+      .cm-scroller { font-family: var(--code-font) !important; }
+      .kbd {
+        box-shadow: 0 2px 2px rgba(0,0,0,.1);
+        background: white;
+        border: 1px solid rgba(0,0,0,.15);
+        border-radius: 3px;
+        font-size: 0.75em;
+        padding: 2px 5px;
+        position: relative;
+        top: -2px;
+        font-family: var(--code-font);
+        text-transform: uppercase;
+      }
+      img.emoji {
+        height: 1em;
+        width: 1em;
+        margin: 0 .05em 0 .1em;
+        vertical-align: -0.1em;
+        display: inline-block;
+      }
+      .cta img.emoji {
+        margin-right: 0.3em;
+      }
+      @media (max-width: 800px) {
+        .ctas {
+          font-size: 1rem !important;
+        }
+      }
+      @media (max-width: 500px) {
+        .ctas {
+          flex-direction: column;
+        }
+        .ctas .cta {
+          margin-bottom: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="landing-page pt-10">
+      <div class="hero pb-4">
+        <div>
+          <h1>Clojure/Script mode for <a href="https://codemirror.net/6/">CodeMirror 6</a></h1>
+          <p>
+            Enable a decent Clojure/Script editor experience in the browser.<br>
+            Built for and by <a href="https://nextjournal.com">Nextjournal</a>.
+          </p>
+          <div class="ctas">
+            <a href="https://github.com/nextjournal/clojure-mode" class="cta">
+              🐙 Clone on GitHub
+            </a>
+            <a href="https://nextjournal.com/try/clojure?cm6=1" class="cta">
+              🤹‍♀️ Try in Nextjournal
+            </a>
+            <a href="#use-it" class="cta">
+              📦 Use it
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-alt pb-12 px-6 pt-12 mt-6">
+      <h2 id="try-it" class="mt-0 mb-12 text-center text-3xl font-bold">
+        <a href="#try-it" class="near-black">🤹‍♀️ Try it for yourself</a>
+      </h2>
+      <div class="flex flex-col-reverse md:flex-row">
+        <div class="md:w-1/2 flex-shrink-0 md:px-6 mt-12 md:mt-0">
+          <h3 class="text-center sans-serif font-bold text-lg mt-0 mb-1">Try evaluating any of these forms with <span class="kbd alt font-normal">Alt</span> <span class="font-normal">+</span> <span class="kbd font-normal">⏎</span> !</h3>
+          <p class="sans-serif text-sm text-center mb-6 mt-0">
+            In-browser eval is powered by <a href="https://github.com/borkdude/sci">Sci</a>.
+          </p>
+          <div id="editor" class="rounded-md mb-0 text-sm monospace overflow-auto relative border shadow-lg bg-white">
+          </div>
+        </div>
+        <div class="md:w-1/2 flex-shrink-0 md:px-6 sans-serif">
+          <ul class="text-lg">
+            <li class="pr-12 flex">
+              <span class="mr-2">⚡️</span>
+              <div class="flex-auto">
+                <span class="font-bold">Lightning-fast</span> with <a href="https://lezer.codemirror.net">lezer incremental parsing</a><br>
+                <span class="text-sm">
+                  Copy <a href="https://raw.githubusercontent.com/clojure/clojure/master/src/clj/clojure/core.clj" target="_blank"><code>clojure/core.clj</code></a> into 👈 <span class="ml-1">to try!</span>
+                </span>
+              </div>
+            </li>
+            <li class="mt-4 flex">
+              <span class="mr-2">🥤</span>
+              <div class="flex-auto overflow-x-auto">
+                <span class="font-bold">Slurping & 🤮 Barfing</span>
+                <table class="w-full md:max-w-sm text-sm">
+                  <tbody>
+                    <tr class="align-top">
+                      <td class="py-1">forward</td>
+                      <td class="py-1 text-right whitespace-nowrap">
+                        <span class="kbd ctrl">Ctrl</span> + <span class="kbd">←</span> / <span class="kbd">→</span>
+                      </td>
+                      <td class="py-1 text-right whitespace-nowrap">
+                        <span class="mx-1">or</span> <span class="kbd mod">Mod</span> + <span class="kbd">⇧</span> + <span class="kbd">j</span> / <span class="kbd">k</span>
+                      </td>
+                    </tr>
+                    <tr class="border-t">
+                      <td class="py-1 pr-12">backward</td>
+                      <td class="py-1 text-right whitespace-nowrap">
+                        <span class="kbd ctrl">Ctrl</span> + <span class="kbd alt">Alt</span> + <span class="kbd">←</span> / <span class="kbd">→</span>
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+            <li class="mt-4 flex">
+              <span class="mr-2">💗</span>
+              <div class="flex-auto overflow-x-auto">
+                <span class="font-bold">Semantic Selections</span>
+                <table class="w-full md:max-w-sm text-sm">
+                  <tbody>
+                    <tr>
+                      <td class="py-1">Expand / Contract</td>
+                      <td class="py-1 text-right whitespace-nowrap">
+                        <span class="kbd alt">Alt</span> + <span class="kbd">↑</span> / <span class="kbd">↓</span>
+                      </td>
+                      <td class="py-1 text-right whitespace-nowrap">
+                        <span class="mx-1">or</span> <span class="kbd mod">Mod</span> + <span class="kbd">1</span> / <span class="kbd">2</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+            <li class="mt-4 flex">
+              <span class="mr-2">🧙</span>
+              <div class="flex-auto">
+                <span class="font-bold">Evaluation</span>
+                  <table class="w-full md:max-w-sm text-sm">
+                  <tbody>
+                    <tr>
+                      <td class="py-1 pr-12">
+                        At Cursor
+                      </td>
+                      <td class="py-1 text-right">
+                        <span class="kbd alt">Alt</span> + <span class="kbd">⏎</span>
+                      </td>
+                    </tr>
+                    <tr class="border-t">
+                      <td class="py-1 pr-12">
+                        Top-level form
+                      </td>
+                      <td class="py-1 text-right">
+                        <span class="kbd alt">Alt</span> + <span class="kbd">⇧</span> + <span class="kbd">⏎</span>
+                      </td>
+                    </tr>
+                    <tr class="border-t">
+                      <td class="py-1 pr-12">
+                        Cell
+                      </td>
+                      <td class="py-1 text-right">
+                        <span class="kbd mod">Mod</span> + <span class="kbd">⏎</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+            <li class="mt-4 flex">
+              <span class="mr-2">🧹</span>
+              <div class="flex-auto">
+                <span class="font-bold">Autoformatting</span>
+                <p class="mt-1 text-sm">
+                  following <a href="https://tonsky.me/blog/clojurefmt/">Tonsky’s Better Clojure Formatting</a>
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="max-w-4xl mx-auto py-12 px-6">
+      <div class="border-t-0 overflow-auto text-md p-0 m-0 sans-serif">
+        <h2 class="text-center text-3xl font-bold mt-0 mb-12">
+          <a href="#keybindings" class="near-black">🎹 Keybindings</a>
+        </h2>
+        <div id="docs"></div>
+      </div>
+    </div>
+    <div class="bg-alt py-12 px-6">
+      <div id="use-it" class="mx-auto max-w-4xl">
+        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
+          <a href="#use-it" class="near-black">📦 Use it in your project</a>
+        </h2>
+        <pre clojure-mode="true" class="max-w-4xl mx-auto">
+{:deps {nextjournal/clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
+                                  :sha "SHA"}}}
+        </pre>
+      </div>
+    </div>
+    <div id="embed-it" class="bg-alt py-12 px-6">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
+          <a href="#embed-it" class="near-black">🛏 Embed it in Markdown</a>
+        </h2>
+        <div id="markdown-editor"></div>
+      </div>
+    </div>
+    <div class="border-t-2 px-6">
+      <div class="pt-6 pb-12 sans-serif max-w-4xl mx-auto">
+        <div class="flex justify-center">
+          <div class="text-gray-500">© 2020 Nextjournal GmbH</div>
+          <div class="ml-4">
+            <a href="https://nextjournal.com" class="hover:underline">Nextjournal</a>
+            <a href="https://twitter.com/usenextjournal" class="ml-2 hover:underline">Twitter</a>
+            <a href="https://nextjournal.com/about" class="ml-2 hover:underline">About us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="index.mjs" type="module"></script>
+  </body>
+</html>

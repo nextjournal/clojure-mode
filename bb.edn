@@ -56,8 +56,6 @@
            :task (shell "npm publish")}
 
   squint:demo:build {:task (do (shell {:dir "squint-demo"} "npm install")
-                               (shell {:dir "squint-demo"} "npx jspm --version")
-                               (shell {:dir "squint-demo"} "npx jspm link --help")
                                (shell {:dir "squint-demo"} "npx jspm link index.html -o index.html --cache no-cache")
                                (fs/create-dirs "public/squint-cdn-demo")
                                (fs/copy "squint-demo/index.mjs" "public/squint-cdn-demo/index.mjs" {:replace-existing true})
