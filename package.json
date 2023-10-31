@@ -1,8 +1,7 @@
 { "name": "@nextjournal/clojure-mode",
   "files": ["dist"],
-  "version": "0.1.0-rc3",
+  "version": "0.1.0-rc4",
   "license": "EPL-2.0",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/nextjournal/clojure-mode"
