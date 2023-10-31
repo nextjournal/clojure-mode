@@ -26,7 +26,7 @@
     "punycode": "2.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "squint-cljs": "0.3.35",
+    "squint-cljs": "0.3.36",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {
