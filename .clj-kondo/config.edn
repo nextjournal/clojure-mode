@@ -1,0 +1,4 @@
+{:cljc {:features [:cljs]}
+ :lint-as {applied-science.js-interop/defn clojure.core/defn
+           applied-science.js-interop/fn clojure.core/fn
+           applied-science.js-interop/let clojure.core/let}}
