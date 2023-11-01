@@ -3,6 +3,7 @@ import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
+import { javascript } from '@codemirror/lang-javascript';
 
 let theme = EditorView.theme({
   ".cm-content": {whitespace: "pre-wrap",
@@ -50,5 +51,28 @@ let state = EditorState.create({doc: `(comment
                                  extensions: extensions });
 let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
-                             parent: editorElt,
-                             extensions: extensions });
+                             parent: editorElt});
+
+new EditorView({
+  state: EditorState.create({
+    doc: `import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
+import { EditorView, drawSelection, keymap } from  '@codemirror/view';
+import { EditorState } from  '@codemirror/state';
+
+let extensions = [keymap.of(complete_keymap),
+                ...default_extensions
+               ];
+
+let state = EditorState.create({doc: "... some clojure code...",
+                               extensions: extensions });
+let editorElt = document.querySelector('#editor');
+let editor = new EditorView({state: state,
+                           parent: editorElt,
+                           extensions: extensions });`,
+    extensions: [
+      javascript(),
+      foldGutter(),
+      syntaxHighlighting(defaultHighlightStyle),
+      EditorState.readOnly.of(true),
+      theme]}),
+ parent: document.querySelector('#js-usage')});
