@@ -74,7 +74,7 @@ jobs:
           description: 'Ready'
           state: 'success'
           sha: ${{github.event.pull_request.head.sha || github.sha}}
-          target_url: https://snapshots.nextjournal.com/clojure-mode/squint-build/${{ github.sha }}
+          target_url: https://snapshots.nextjournal.com/clojure-mode/squint-build/${{ github.sha }}/squint-cdn-demo
 
   snapshot:
     name: Static App / Build
