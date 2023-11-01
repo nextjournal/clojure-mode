@@ -35,9 +35,7 @@ Enabling a decent Clojure/Script editor experience in the browser. Built for and
 {:deps {io.github.nextjournal/clojure-mode {:git/sha "<SHA>"}}}
 ```
 
-### NPM
-
-Use if from NPM
+### Use if from [NPM](https://www.npmjs.com/package/@nextjournal/clojure-mode)
 
 ```js
 import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
