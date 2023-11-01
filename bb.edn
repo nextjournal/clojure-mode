@@ -36,7 +36,9 @@
              :task (shell {:std :inherit :err :inherit}
                           "yarn build")}
 
-  watch-cljs (shell "yarn run squint watch")
+  watch-cljs (shell "yarn watch")
+
+  squint:watch-cljs (shell "yarn run squint watch")
 
   yarn-install:squint-dev (do
                             (shell "yarn add squint-cljs@link:../squint")
@@ -61,7 +63,7 @@
                                (fs/copy "squint-demo/index.mjs" "public/squint-cdn-demo/index.mjs" {:replace-existing true})
                                (fs/copy "squint-demo/index.html" "public/squint-cdn-demo/index.html" {:replace-existing true}))}
 
-  -dev {:depends [vite:dev watch-cljs]}
+  -dev {:depends [vite:dev squint:watch-cljs watch-cljs]}
 
   dev {:doc "Compiles all cljs to mjs, runs vite in dev and starts a cherry watcher to recompile changed cljs. When run as `bb dev collab` also starts a Y.js collaboration server."
        ;; :depends [compile]
