@@ -175,40 +175,40 @@
                 </table>
               </div>
             </li>
-            <li class="mt-4 flex">
-              <span class="mr-2">🧙</span>
-              <div class="flex-auto">
-                <span class="font-bold">Evaluation</span>
-                  <table class="w-full md:max-w-sm text-sm">
-                  <tbody>
-                    <tr>
-                      <td class="py-1 pr-12">
-                        At Cursor
-                      </td>
-                      <td class="py-1 text-right">
-                        <span class="kbd alt">Alt</span> + <span class="kbd">⏎</span>
-                      </td>
-                    </tr>
-                    <tr class="border-t">
-                      <td class="py-1 pr-12">
-                        Top-level form
-                      </td>
-                      <td class="py-1 text-right">
-                        <span class="kbd alt">Alt</span> + <span class="kbd">⇧</span> + <span class="kbd">⏎</span>
-                      </td>
-                    </tr>
-                    <tr class="border-t">
-                      <td class="py-1 pr-12">
-                        Cell
-                      </td>
-                      <td class="py-1 text-right">
-                        <span class="kbd mod">Mod</span> + <span class="kbd">⏎</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </li>
+<!--            <li class="mt-4 flex">-->
+<!--              <span class="mr-2">🧙</span>-->
+<!--              <div class="flex-auto">-->
+<!--                <span class="font-bold">Evaluation</span>-->
+<!--                  <table class="w-full md:max-w-sm text-sm">-->
+<!--                  <tbody>-->
+<!--                    <tr>-->
+<!--                      <td class="py-1 pr-12">-->
+<!--                        At Cursor-->
+<!--                      </td>-->
+<!--                      <td class="py-1 text-right">-->
+<!--                        <span class="kbd alt">Alt</span> + <span class="kbd">⏎</span>-->
+<!--                      </td>-->
+<!--                    </tr>-->
+<!--                    <tr class="border-t">-->
+<!--                      <td class="py-1 pr-12">-->
+<!--                        Top-level form-->
+<!--                      </td>-->
+<!--                      <td class="py-1 text-right">-->
+<!--                        <span class="kbd alt">Alt</span> + <span class="kbd">⇧</span> + <span class="kbd">⏎</span>-->
+<!--                      </td>-->
+<!--                    </tr>-->
+<!--                    <tr class="border-t">-->
+<!--                      <td class="py-1 pr-12">-->
+<!--                        Cell-->
+<!--                      </td>-->
+<!--                      <td class="py-1 text-right">-->
+<!--                        <span class="kbd mod">Mod</span> + <span class="kbd">⏎</span>-->
+<!--                      </td>-->
+<!--                    </tr>-->
+<!--                  </tbody>-->
+<!--                </table>-->
+<!--              </div>-->
+<!--            </li>-->
             <li class="mt-4 flex">
               <span class="mr-2">🧹</span>
               <div class="flex-auto">
@@ -222,31 +222,27 @@
         </div>
       </div>
     </div>
-    <div class="max-w-4xl mx-auto py-12 px-6">
-      <div class="border-t-0 overflow-auto text-md p-0 m-0 sans-serif">
-        <h2 class="text-center text-3xl font-bold mt-0 mb-12">
-          <a href="#keybindings" class="near-black">🎹 Keybindings</a>
-        </h2>
-        <div id="docs"></div>
-      </div>
-    </div>
     <div class="bg-alt py-12 px-6">
       <div id="use-it" class="mx-auto max-w-4xl">
         <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
           <a href="#use-it" class="near-black">📦 Use it in your project</a>
         </h2>
-        <pre clojure-mode="true" class="max-w-4xl mx-auto">
-{:deps {nextjournal/clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
-                                  :sha "SHA"}}}
+        <pre clojure-mode="true" class="max-w-4xl mx-auto not-prose bg-slate-200 p-2 rounded border-slate-300">
+import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
+import { EditorView, drawSelection, keymap } from  '@codemirror/view';
+import { EditorState } from  '@codemirror/state';
+
+let extensions = [keymap.of(complete_keymap),
+                  ...default_extensions
+                 ];
+
+let state = EditorState.create({doc: "... some clojure code...",
+                                 extensions: extensions });
+let editorElt = document.querySelector('#editor');
+let editor = new EditorView({state: state,
+                             parent: editorElt,
+                             extensions: extensions });
         </pre>
-      </div>
-    </div>
-    <div id="embed-it" class="bg-alt py-12 px-6">
-      <div class="mx-auto max-w-4xl">
-        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
-          <a href="#embed-it" class="near-black">🛏 Embed it in Markdown</a>
-        </h2>
-        <div id="markdown-editor"></div>
       </div>
     </div>
     <div class="border-t-2 px-6">
