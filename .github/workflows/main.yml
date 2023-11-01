@@ -54,12 +54,6 @@ jobs:
         with:
           bb: 'latest'
 
-# TODO: do we need it, move back, needs shadow build
-#      - name: 🔎 Build Squint with Vite
-#        run: |
-#          bb vite:build
-#          bb squint:compile
-
       - name: 🔎 Build Squint static CDN Demo
         run: bb squint:demo:build
 
@@ -100,7 +94,6 @@ jobs:
         uses: DeLaGuardo/setup-clojure@master
         with:
           cli: '1.10.3.943'
-          bb: 'latest'
 
       - name: 🧶 Yarn Install
         run: yarn install
