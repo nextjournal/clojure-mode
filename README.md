@@ -35,6 +35,27 @@ Enabling a decent Clojure/Script editor experience in the browser. Built for and
 {:deps {io.github.nextjournal/clojure-mode {:git/sha "<SHA>"}}}
 ```
 
+### NPM
+
+Use if from NPM
+
+```js
+import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
+import { EditorView, drawSelection, keymap } from  '@codemirror/view';
+import { EditorState } from  '@codemirror/state';
+
+let extensions = [keymap.of(complete_keymap),
+                  ...default_extensions
+                 ];
+
+let state = EditorState.create({doc: "... some clojure code...",
+                                 extensions: extensions });
+let editorElt = document.querySelector('#editor');
+let editor = new EditorView({state: state,
+                             parent: editorElt,
+                             extensions: extensions });
+```
+
 ## 🛠 Development Setup
 
 * Install JS dependencies: `yarn install`
