@@ -1,6 +1,6 @@
 { "name": "@nextjournal/clojure-mode",
   "files": ["dist"],
-  "version": "0.1.0-rc2",
+  "version": "0.1.0",
   "license": "EPL-2.0",
   "repository": {
     "type": "git",
@@ -20,18 +20,6 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
-    "d3-require": "^1.2.4",
-    "emoji-regex": "^10.0.0",
-    "framer-motion": "^6.2.8",
-    "katex": "^0.12.0",
-    "markdown-it": "12.3.2",
-    "markdown-it-block-image": "0.0.3",
-    "markdown-it-sidenote": "https://github.com/gerwitz/markdown-it-sidenote#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083",
-    "markdown-it-texmath": "0.9.1",
-    "markdown-it-toc-done-right": "4.2.0",
-    "punycode": "2.1.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "squint-cljs": "0.3.36",
     "w3c-keyname": "^2.2.4"
   },
@@ -47,10 +35,23 @@
     "vite:build": "yarn vite build --config vite.config.js public/squint"
   },
   "devDependencies": {
+    "@codemirror/lang-javascript": "^6.0.0",
     "@nextjournal/clojure-mode": "link:.",
+    "d3-require": "^1.2.4",
+    "emoji-regex": "^10.0.0",
+    "framer-motion": "^6.2.8",
+    "katex": "^0.12.0",
+    "markdown-it": "12.3.2",
+    "markdown-it-block-image": "0.0.3",
+    "markdown-it-sidenote": "https://github.com/gerwitz/markdown-it-sidenote#aa5de8ce3168b7d41cb33c3aed071a5f41ce0083",
+    "markdown-it-texmath": "0.9.1",
+    "markdown-it-toc-done-right": "4.2.0",
+    "punycode": "2.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "rollup-plugin-analyzer": "^4.0.0",
     "shadow-cljs": "2.19.5",
-    "vite": "^4.4.9",
-    "rollup-plugin-analyzer": "^4.0.0"
+    "vite": "^4.4.9"
   },
   "exports": {
     ".": "dist/nextjournal/clojure_mode.mjs"

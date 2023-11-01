@@ -446,10 +446,11 @@
 
 (def default-extensions
   "An extension turning a Markdown document in a blockwise preview-able editor"
-  [(.low Prec doc-state)
-   (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))
-   eval-region-tooltip
-   tooltip-theme])
+  (into [(.low Prec doc-state)
+         (.highest Prec (.domEventHandlers EditorView (j/obj :keydown handle-keydown)))
+         eval-region-tooltip
+         tooltip-theme]
+        (eval-region/extension {})))
 
 (defn extensions
   "Accepts an `opts` map with optional keys:

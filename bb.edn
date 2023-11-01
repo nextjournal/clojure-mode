@@ -36,7 +36,9 @@
              :task (shell {:std :inherit :err :inherit}
                           "yarn build")}
 
-  watch-cljs (shell "yarn run squint watch")
+  watch-cljs (shell "yarn watch")
+
+  squint:watch-cljs (shell "yarn run squint watch")
 
   yarn-install:squint-dev (do
                             (shell "yarn add squint-cljs@link:../squint")
@@ -49,7 +51,19 @@
   vite:build {:depends [yarn-install]
               :task (shell "yarn vite:build")}
 
-  -dev {:depends [vite:dev watch-cljs]}
+  squint:build {:task (shell "yarn squint compile")}
+
+  publish {:depends [squint:build]
+           :doc "Publish to NPM, do `npm login` manually first to authenticate your shell."
+           :task (shell "npm publish")}
+
+  squint:demo:build {:task (do (shell {:dir "squint-demo"} "npm install")
+                               (shell {:dir "squint-demo"} "npx jspm link index.html -o index.html --cache no-cache")
+                               (fs/create-dirs "public/squint-cdn-demo")
+                               (fs/copy "squint-demo/index.mjs" "public/squint-cdn-demo/index.mjs" {:replace-existing true})
+                               (fs/copy "squint-demo/index.html" "public/squint-cdn-demo/index.html" {:replace-existing true}))}
+
+  -dev {:depends [vite:dev squint:watch-cljs watch-cljs]}
 
   dev {:doc "Compiles all cljs to mjs, runs vite in dev and starts a cherry watcher to recompile changed cljs. When run as `bb dev collab` also starts a Y.js collaboration server."
        ;; :depends [compile]
