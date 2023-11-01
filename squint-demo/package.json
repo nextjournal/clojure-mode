@@ -4,7 +4,7 @@
     "@codemirror/lang-javascript": "^6.0.0",
     "@codemirror/state": "^6.3.1",
     "@codemirror/view": "^6.21.4",
-    "@nextjournal/clojure-mode": "0.1.0-rc5"
+    "@nextjournal/clojure-mode": "0.1.0"
   },
   "devDependencies": {
     "jspm": "^3.1.0"
