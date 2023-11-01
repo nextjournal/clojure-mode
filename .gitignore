@@ -12,3 +12,4 @@ public/test
 *.iml
 out
 dist
+**/.DS_Store
