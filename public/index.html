@@ -208,7 +208,7 @@
     <div class="bg-alt py-12 px-6">
       <div id="use-it" class="mx-auto max-w-4xl">
         <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
-          <a href="#use-it" class="near-black">📦 Use it in your project</a>
+          <a href="#use-it" class="near-black">📦 Use it in your clojure project</a>
         </h2>
         <pre clojure-mode="true" class="max-w-4xl mx-auto">
 {:deps {nextjournal/clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
@@ -216,6 +216,31 @@
         </pre>
       </div>
     </div>
+    <div class="bg-alt py-12 px-6">
+      <div id="npm" class="mx-auto max-w-4xl">
+        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
+          <a href="#npm" class="near-black">📦 Use it from NPM</a>
+        </h2>
+        <pre js-mode="true" class="max-w-4xl">
+import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode'
+import { EditorView, drawSelection, keymap } from  '@codemirror/view'
+import { EditorState } from  '@codemirror/state'
+
+let extensions = [keymap.of(complete_keymap),
+                  ...default_extensions]
+
+let state = EditorState.create({doc: "... some clojure code...",
+                                extensions: extensions })
+
+let editorElt = document.querySelector('#editor')
+let editor = new EditorView({state: state,
+                             parent: editorElt,
+                             extensions: extensions})
+
+        </pre>
+      </div>
+    </div>
+
     <div id="embed-it" class="bg-alt py-12 px-6">
       <div class="mx-auto max-w-4xl">
         <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
