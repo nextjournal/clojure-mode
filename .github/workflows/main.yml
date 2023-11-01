@@ -54,10 +54,11 @@ jobs:
         with:
           bb: 'latest'
 
-      - name: 🔎 Build Squint with Vite
-        run: |
-          bb vite:build
-          bb squint:compile
+# TODO: do we need it, move back, needs shadow build
+#      - name: 🔎 Build Squint with Vite
+#        run: |
+#          bb vite:build
+#          bb squint:compile
 
       - name: 🔎 Build Squint static CDN Demo
         run: bb squint:demo:build
