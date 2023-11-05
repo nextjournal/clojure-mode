@@ -19,9 +19,9 @@ Enabling a decent Clojure/Script editor experience in the browser. Built for and
 * Expand/Contract: <kbd>Alt</kbd> + <kbd>↑</kbd> / <kbd>↓</kbd>	or <kbd>Mod</kbd> + <kbd>1</kbd> / <kbd>2</kbd>
 
 🧙 **Prepared for evaluation**
-* At Cursor: <kbd>Alt</kbd> + <kbd>⏎</kbd>
-* Top-level form: <kbd>Alt</kbd> + <kbd>⇧</kbd> + <kbd>⏎</kbd>
-* Cell: <kbd>Mod</kbd> + <kbd>⏎</kbd>
+* At Cursor: <kbd>Mod</kbd> + <kbd>⏎</kbd>
+* Top-level form: <kbd>Mod</kbd> + <kbd>⇧</kbd> + <kbd>⏎</kbd>
+* Cell: <kbd>Alt</kbd> + <kbd>⏎</kbd>
 
 **🧹 Autoformatting** following [Tonsky’s Better Clojure Formatting](https://tonsky.me/blog/clojurefmt/)
 

@@ -137,7 +137,7 @@
                                :keyup   handle-key-event})]))
 
 (defn extension [{:keys [modifier]
-                  :or   {modifier "Alt"}}]
+                  :or   {modifier "Meta"}}]
   #js[(modifier-extension modifier)
       region-field
       (.. EditorView -decorations (from region-field))])
