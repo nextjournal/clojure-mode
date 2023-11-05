@@ -30,7 +30,20 @@ let extensions = [ theme, foldGutter(),
                    ...default_extensions
                  ];
 
-let state = EditorState.create( {doc: "(+ 1 2 3)",
+let state = EditorState.create( {doc: `(comment
+  (fizz-buzz 1)
+  (fizz-buzz 3)
+  (fizz-buzz 5)
+  (fizz-buzz 15)
+  (fizz-buzz 17)
+  (fizz-buzz 42))
+
+(defn fizz-buzz [n]
+  (condp (fn [a b] (zero? (mod b a))) n
+    15 "fizzbuzz"
+    3  "fizz"
+    5  "buzz"
+    n))`,
                                  extensions: extensions });
 let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
