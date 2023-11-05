@@ -9,11 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
-
-    <!-- fira fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link href="https://fonts.bunny.net/css?family=fira-mono:400,700%7Cfira-sans:400,400i,500,500i,700,700i%7Cfira-sans-condensed:700,700i%7Cpt-serif:400,400i,700,700i" rel="stylesheet">
-
     <link href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css" rel="stylesheet">
 
     <link href="https://cdn.nextjournal.com/data/QmSaHZCU6U2DeNohfW2PuXDHkayw7w21uvUWL5oEqVWKwH?filename=viewer-1c61aac61ffa4da89b828d538c5e4eff188e7b56.css&content-type=text/css" rel="stylesheet">
@@ -97,7 +92,8 @@
           <p class="sans-serif text-sm text-center mb-6 mt-0">
             In-browser eval is powered by <a href="https://github.com/borkdude/sci">Sci</a>.
           </p>
-          <div id="editor"></div>
+          <div id="editor" class="rounded-md mb-0 text-sm monospace overflow-auto relative border shadow-lg bg-white">
+          </div>
         </div>
         <div class="md:w-1/2 flex-shrink-0 md:px-6 sans-serif">
           <ul class="text-lg">
@@ -213,7 +209,7 @@
     <div class="bg-alt py-12 px-6">
       <div id="use-it" class="mx-auto max-w-4xl">
         <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
-          <a href="#use-it" class="near-black">📦 Use it in your clojure project</a>
+          <a href="#use-it" class="near-black">📦 Use it in your project</a>
         </h2>
         <pre clojure-mode="true" class="max-w-4xl mx-auto">
 {:deps {nextjournal/clojure-mode {:git/url "https://github.com/nextjournal/clojure-mode"
@@ -221,31 +217,6 @@
         </pre>
       </div>
     </div>
-    <div class="bg-alt py-12 px-6">
-      <div id="npm" class="mx-auto max-w-4xl">
-        <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
-          <a href="#npm" class="near-black">📦 Use it from NPM</a>
-        </h2>
-        <pre js-mode="true" class="max-w-4xl">
-import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode'
-import { EditorView, drawSelection, keymap } from  '@codemirror/view'
-import { EditorState } from  '@codemirror/state'
-
-let extensions = [keymap.of(complete_keymap),
-                  ...default_extensions]
-
-let state = EditorState.create({doc: "... some clojure code...",
-                                extensions: extensions })
-
-let editorElt = document.querySelector('#editor')
-let editor = new EditorView({state: state,
-                             parent: editorElt,
-                             extensions: extensions})
-
-        </pre>
-      </div>
-    </div>
-
     <div id="embed-it" class="bg-alt py-12 px-6">
       <div class="mx-auto max-w-4xl">
         <h2 class="mt-0 mb-8 text-3xl font-bold text-center">
@@ -266,6 +237,6 @@ let editor = new EditorView({state: state,
         </div>
       </div>
     </div>
-    <script src="js/main.js"></script>
+    <script src="js/demo.mjs" type="module"></script>
   </body>
 </html>

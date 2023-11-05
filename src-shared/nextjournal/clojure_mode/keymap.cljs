@@ -7,7 +7,7 @@
   [m updates]
   (reduce-kv (fn [m k f]
                (if-some [existing (get m k)]
-                 (assoc m k (f existing))
+                 (assoc m k (get f existing))
                  (dissoc m k))) m updates))
 
 ;; (de)serializing commands from keyword-id to function

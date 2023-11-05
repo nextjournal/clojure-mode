@@ -1,10 +1,10 @@
 (ns nextjournal.clojure-mode.test-utils
   (:require ["@codemirror/state" :as cm-state
-             :refer [EditorState EditorSelection Extension StateCommand
-                     ChangeSet ChangeDesc TransactionSpec StrictTransactionSpec]]
-            [applied-science.js-interop :as j]
-            [clojure.string :as str]
-            [nextjournal.clojure-mode.extensions.formatting :as format]))
+             :refer [EditorState EditorSelection]]
+            #?@(:squint []
+               :cljs [[applied-science.js-interop :as j]])
+            [clojure.string :as str])
+  (:require-macros [applied-science.js-interop :as j]))
 
 ;; (de)serialize cursors| and <selections> for testing
 

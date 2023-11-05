@@ -1,6 +1,7 @@
 (ns nextjournal.clojure-mode.demo
   (:require ["@codemirror/commands" :refer [history historyKeymap]]
             ["@codemirror/language" :refer [foldGutter syntaxHighlighting defaultHighlightStyle]]
+            ["@codemirror/lang-javascript" :refer [javascript]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
             ["react" :as react]
@@ -174,11 +175,33 @@
                          [:td.px-3.py-1.align-top.text-sm]
                          [:td.px-3.py-1.align-top]])]))))])
 
+(defn js-syntax [source]
+  (r/with-let [!view (r/atom nil)
+               mount! (fn [el]
+                        (when el
+                          (reset! !view (new EditorView
+                                             (j/obj :parent el
+                                                    :state (.create EditorState (j/obj :doc source
+                                                                                       :extensions (to-array [(javascript (j/obj))
+                                                                                                              (syntaxHighlighting defaultHighlightStyle)
+                                                                                                              (.. EditorState -readOnly (of true))
+                                                                                                              (foldGutter)
+                                                                                                              theme]))))))))]
+    [:div
+     [:div {:class "rounded-md mb-0 text-sm monospace overflow-auto relative border shadow-lg bg-white" :ref mount! :style {:max-height 410}}]]
+    (finally
+     (j/call @!view :destroy))))
+
 (defn ^:dev/after-load render []
   (rdom/render [samples] (js/document.getElementById "editor"))
   (.. (js/document.querySelectorAll "[clojure-mode]")
       (forEach #(when-not (.-firstElementChild %)
                   (rdom/render [editor (str/trim (.-innerHTML %))] %))))
+
+  (.. (js/document.querySelectorAll "[js-mode]")
+      (forEach #(when-not (.-firstElementChild %)
+                  (rdom/render [js-syntax (str/trim (.-innerHTML %))] %))))
+
   (let [mapping (key-mapping)]
     (.. (js/document.querySelectorAll ".mod,.alt,.ctrl")
         (forEach #(when-let [k (get mapping (.-innerHTML %))]

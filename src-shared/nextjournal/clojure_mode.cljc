@@ -1,15 +1,16 @@
 (ns nextjournal.clojure-mode
-  (:require ["@lezer/highlight" :as highlight :refer [tags]]
-            ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
+  (:require ["@codemirror/language" :as language :refer [LRLanguage LanguageSupport]]
+            ["@lezer/highlight" :as highlight :refer [tags]]
             ["@nextjournal/lezer-clojure" :as lezer-clj]
-            [applied-science.js-interop :as j]
+            #?@(:squint []
+                :cljs [[applied-science.js-interop :as j]])
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
-            [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.clojure-mode.extensions.match-brackets :as match-brackets]
             [nextjournal.clojure-mode.extensions.selection-history :as sel-history]
             [nextjournal.clojure-mode.keymap :as keymap]
-            [nextjournal.clojure-mode.node :as n]
-            [nextjournal.clojure-mode.test-utils :as test-utils]))
+            [nextjournal.clojure-mode.node :as n])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (def fold-node-props
   (let [coll-span (fn [^js tree] #js{:from (inc (n/start tree))

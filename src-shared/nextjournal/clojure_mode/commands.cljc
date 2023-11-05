@@ -1,12 +1,13 @@
 (ns nextjournal.clojure-mode.commands
   (:require ["@codemirror/commands" :as commands]
-            [applied-science.js-interop :as j]
+            #?@(:squint []
+                :cljs [[applied-science.js-interop :as j]])
             [nextjournal.clojure-mode.util :as u]
             [nextjournal.clojure-mode.selections :as sel]
             [nextjournal.clojure-mode.node :as n]
             [nextjournal.clojure-mode.extensions.formatting :as format]
-            [nextjournal.clojure-mode.extensions.selection-history :as sel-history]))
-
+            [nextjournal.clojure-mode.extensions.selection-history :as sel-history])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (defn view-command [f]
   (j/fn [^:js {:keys [^js state dispatch]}]
