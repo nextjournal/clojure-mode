@@ -26,7 +26,7 @@
            (on-result))
   true)
 
-(j/defn eval-cell* [on-result ^:js {:keys [state]}]
+(j/defn eval-cell [on-result ^:js {:keys [state]}]
   (-> (.-doc state)
       (str)
       (eval-string)
@@ -49,8 +49,7 @@
   (.of view/keymap
        (j/lit
         [{:key "Alt-Enter"
-          :run (j/fn eval-cell [result]
-                 (partial eval-cell* on-result result))}
+          :run (partial eval-cell on-result)}
          {:key (str modifier "-Enter")
           :shift (j/fn eval-top-level [result]
                    (eval-top-level* on-result result))

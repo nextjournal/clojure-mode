@@ -211,7 +211,7 @@
   (j/assoc! (js/document.getElementById "viewer-stylesheet")
             :innerHTML (rc/inline "stylesheets/viewer.css"))
 
-  (rdom/render [key-bindings-table (merge keymap/paredit-keymap* (demo.sci/keymap* "Alt"))] (js/document.getElementById "docs"))
+  (rdom/render [key-bindings-table (merge keymap/paredit-keymap* (demo.sci/keymap* "Mod"))] (js/document.getElementById "docs"))
   (rdom/render [:div.rounded-md.mb-0.text-sm.monospace.overflow-auto.relative.border.shadow-lg.bg-white
                 [markdown-editor {:doc "# Hello Markdown
 
