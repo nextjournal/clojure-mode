@@ -1,5 +1,8 @@
-{ "name": "@nextjournal/clojure-mode",
-  "files": ["dist"],
+{
+  "name": "@nextjournal/clojure-mode",
+  "files": [
+    "dist"
+  ],
   "version": "0.1.0",
   "license": "EPL-2.0",
   "repository": {
@@ -20,7 +23,7 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
-    "squint-cljs": "0.3.36",
+    "squint-cljs": "link:../squint",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {

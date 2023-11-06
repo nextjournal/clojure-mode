@@ -11,6 +11,8 @@
             #?(:squint ["assert" :as assert]))
   #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing]])))
 
+#?(:squint (warn-on-lazy-reusage))
+
 (def extensions
   cm-clojure/default-extensions
   ;; optionally test with live grammar

@@ -185,9 +185,10 @@
   ([^js parent from dir]
    (when-some [^js child (case dir 1 (.childAfter parent from)
                                    -1 (.childBefore parent from))]
-     (cons child (lazy-seq
-                  (children parent (case dir 1 (end child)
-                                             -1 (start child)) dir)))))
+     (cons child (-> (lazy-seq
+                      (children parent (case dir 1 (end child)
+                                             -1 (start child)) dir))
+                     #_#?(:squint (memo-seq 1))))))
   ([^js subtree]
    (children subtree (start subtree) 1)))
 
