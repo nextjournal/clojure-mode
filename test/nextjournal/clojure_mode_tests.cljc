@@ -4,6 +4,7 @@
             [nextjournal.clojure-mode :as cm-clojure]
             [nextjournal.clojure-mode.test-utils :as test-utils]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [nextjournal.clojure-mode.commands :as commands]
             [nextjournal.clojure-mode.extensions.formatting :as format]
             #?@(:squint []
