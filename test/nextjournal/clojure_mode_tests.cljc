@@ -13,14 +13,27 @@
   #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing]])))
 
 (def extensions
-  cm-clojure/default-extensions
+  (.concat cm-clojure/default-extensions #js [(eval-region/extension {:modified "Meta"})])
   ;; optionally test with live grammar
-  #_
-  #js[(cm-clojure/syntax live-grammar/parser)
+  #_#js[(cm-clojure/syntax live-grammar/parser)
       (.slice cm-clojure/default-extensions 1)])
 
 (def apply-f (partial test-utils/apply-f extensions))
 (def apply-cmd (partial test-utils/apply-cmd extensions))
+
+(js/console.log (test-utils/apply-f (.concat cm-clojure/default-extensions
+                                             #js [(eval-region/extension {:modified "Meta"})])
+                                    (commands/nav 1) "[[|]]"))
+
+(js/console.log :ffff eval-region/cursor-node-string)
+
+(js/console.log (test-utils/apply-f
+                 (.concat cm-clojure/default-extensions
+                          #js [(eval-region/extension {:modified "Meta"})])
+                 eval-region/cursor-node-string
+                 "[(+ 1 2 3)|]"))
+
+(js/process.exit 0)
 
 #?(:squint nil
    :cljs (def apply-embedded-f (partial test-utils/apply-f #js [livedoc/markdown-language-support])))
@@ -323,4 +336,7 @@
       "(()|)" "(()\n |)"
       "(a |b)" "(a\n  |b)"
       "(a b|c)" "(a b\n  |c)"
-      )))
+      ))
+
+  (deftest eval-region-test
+    ))

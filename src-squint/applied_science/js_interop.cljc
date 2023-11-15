@@ -16,7 +16,7 @@
   `(clojure.core/let ~@body))
 
 (defmacro call-in [obj path & fs]
-  `(.. ~obj ~@(map #(symbol (str "-" %)) path) ~@(map list fs)))
+  `(.. ~obj ~@(map #(symbol (str "-" (name %))) path) ~@(map list fs)))
 
 (defmacro call [obj f]
   (list (symbol (str "." f)) obj))
