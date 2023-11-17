@@ -21,7 +21,8 @@
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
     "squint-cljs": "0.3.36",
-    "w3c-keyname": "^2.2.4"
+    "w3c-keyname": "^2.2.4",
+    "squint-macros": "https://github.com/squint-cljs/squint-macros"
   },
   "comments": {
     "to run squint as a local dependency:": "bb yarn-install:squint-dev"

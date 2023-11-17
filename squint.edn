@@ -1,2 +1,2 @@
-{:paths ["src-shared" "src-squint" "test"]
+{:paths ["src-shared" "src-squint" "test" "node_modules/squint-macros/src"]
  :output-dir "dist"}
