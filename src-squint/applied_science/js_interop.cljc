@@ -18,8 +18,8 @@
 (defmacro call-in [obj path & fs]
   `(.. ~obj ~@(map #(symbol (str "-" %)) path) ~@(map list fs)))
 
-(defmacro call [obj f]
-  (list (symbol (str "." f)) obj))
+(defmacro call [obj f & args]
+  (list* (symbol (str "." (name f))) obj args))
 
 (defmacro !set [obj k v]
   `(do (cljs.core/set! ~(list (symbol (str ".-" (name k))) obj) ~v)
