@@ -1346,6 +1346,10 @@ squint-cljs@0.3.36:
     chokidar "^3.5.3"
     glob "^10.3.10"
 
+"squint-macros@https://github.com/squint-cljs/squint-macros":
+  version "0.0.0"
+  resolved "https://github.com/squint-cljs/squint-macros#57cb4e2f71cd74294139872ef7ba60ab946960dd"
+
 stream-browserify@^2.0.1:
   version "2.0.2"
   resolved "https://registry.npmjs.org/stream-browserify/-/stream-browserify-2.0.2.tgz"
