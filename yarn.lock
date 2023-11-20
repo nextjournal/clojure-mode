@@ -316,6 +316,11 @@
   dependencies:
     "@lezer/lr" "^1.0.0"
 
+"@squint-cljs/macros@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@squint-cljs/macros/-/macros-0.1.0.tgz#38259e429222c8f01acc93f3eae3df8a2e10f24c"
+  integrity sha512-VVwgcprJxItnITWZA5n32iUCI41S9n5WiZCQrC2uh314L/MU+7w3E7cjCp+mBygKhJL80U1VCFchY9ra1Z+6Zg==
+
 anymatch@~3.1.2:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/anymatch/-/anymatch-3.1.3.tgz#790c58b19ba1720a84205b57c618d5ad8524973e"
@@ -1177,10 +1182,6 @@ squint-cljs@0.4.56:
   integrity sha512-ekVtveUZJIdrdoPJ8p9ZhMCmrj+o4RazjxQCfm3uwq7yZKP3xOuhsCrE6Jr5Knd14pJ9VZd7NAKI69zXqqrCaw==
   dependencies:
     chokidar "^3.5.3"
-
-"squint-macros@https://github.com/squint-cljs/squint-macros":
-  version ""
-  resolved "https://github.com/squint-cljs/squint-macros#e26bb235f63c3f2defdfaf3cb22241ba1158d98c"
 
 stream-browserify@^2.0.1:
   version "2.0.2"

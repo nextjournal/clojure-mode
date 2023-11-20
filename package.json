@@ -24,7 +24,7 @@
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
     "squint-cljs": "0.4.56",
-    "squint-macros": "https://github.com/squint-cljs/squint-macros",
+    "@squint-cljs/macros": "0.1.0",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {
