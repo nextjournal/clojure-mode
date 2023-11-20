@@ -323,6 +323,10 @@
       "(()|)" "(()\n |)"
       "(a |b)" "(a\n  |b)"
       "(a b|c)" "(a b\n  |c)"
-      )))
+      ))
 
-#_(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ |1 2 3)")))
+  (deftest eval-region-test
+    (are [input f expected]
+        (= (f (test-utils/make-state extensions input)) expected)
+      "(+ |1 2 3)" eval-region/cursor-node-string "1")))
+
