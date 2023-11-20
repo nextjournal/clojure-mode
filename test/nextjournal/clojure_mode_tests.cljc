@@ -332,3 +332,4 @@
       "(+ |(+ 1 2) 2 3)" eval-region/cursor-node-string "(+ 1 2)"
       "(+ (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)")))
 
+#_(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ (+ 1 2)| 2 3)")))
