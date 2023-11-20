@@ -324,3 +324,5 @@
       "(a |b)" "(a\n  |b)"
       "(a b|c)" "(a b\n  |c)"
       )))
+
+(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ |1 2 3)")))
