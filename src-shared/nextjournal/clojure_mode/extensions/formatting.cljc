@@ -167,7 +167,8 @@
                       (u/iter-changed-lines tr
                                             (fn [^js line ^js changes]
                                               (format-line state context (.-from line) (.-text line) (.-number line) changes true)))))))]
-      (.. tr -startState (update (j/assoc! changes :filter false)))
+      (do #_(js/console.log :changes changes)
+          (.. tr -startState (update (j/assoc! changes :filter false))))
       tr)))
 
 (defn format [state]
