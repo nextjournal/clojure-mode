@@ -1171,9 +1171,16 @@ source-map@^0.5.6:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
-"squint-cljs@link:../squint":
+squint-cljs@^0.4.54:
+  version "0.4.54"
+  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.4.54.tgz#95df2b9d89cf97bcd40f7ff4b828484843c7f2cb"
+  integrity sha512-zw5rxaA7FnEImEtlaeSH7YUaTL71UFwlLTaoENe4Hicrn+9AuStfL9/yc24z0XeXvh3F3HR9FqIIvYDYfiqwTA==
+  dependencies:
+    chokidar "^3.5.3"
+
+"squint-macros@https://github.com/squint-cljs/squint-macros":
   version "0.0.0"
-  uid ""
+  resolved "https://github.com/squint-cljs/squint-macros#57cb4e2f71cd74294139872ef7ba60ab946960dd"
 
 stream-browserify@^2.0.1:
   version "2.0.2"
