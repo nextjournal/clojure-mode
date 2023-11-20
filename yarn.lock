@@ -1177,7 +1177,7 @@ source-map@^0.5.6:
 
 "squint-macros@https://github.com/squint-cljs/squint-macros":
   version "0.0.0"
-  resolved "https://github.com/squint-cljs/squint-macros#57cb4e2f71cd74294139872ef7ba60ab946960dd"
+  resolved "https://github.com/squint-cljs/squint-macros#e26bb235f63c3f2defdfaf3cb22241ba1158d98c"
 
 stream-browserify@^2.0.1:
   version "2.0.2"

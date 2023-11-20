@@ -96,7 +96,9 @@
 (defn ^boolean prefix? [n] (prefix-type? (type n)))
 (defn ^boolean prefix-edge? [n] (prefix-edge-type? (type n)))
 (defn ^boolean prefix-container? [n] (prefix-container-type? (type n)))
-(defn ^boolean same-edge? [n] (same-edge-type? (type n)))
+(defn ^boolean same-edge? [n]
+  (js/console.log (type n))
+  (same-edge-type? (type n)))
 (defn ^boolean start-edge? [n]
   (start-edge-type? (type n)))
 (defn ^boolean end-edge? [n] (end-edge-type? (type n)))

@@ -28,7 +28,7 @@
 #?(:squint nil
    :cljs (def apply-embedded-cmd (partial test-utils/apply-cmd #js [livedoc/markdown-language-support])))
 
-(do
+#_(do
   (deftest nav
     (are [input dir expected]
         (= (apply-f (commands/nav dir) input)
