@@ -28,7 +28,7 @@
 #?(:squint nil
    :cljs (def apply-embedded-cmd (partial test-utils/apply-cmd #js [livedoc/markdown-language-support])))
 
-#_(do
+(do
   (deftest nav
     (are [input dir expected]
         (= (apply-f (commands/nav dir) input)
@@ -325,4 +325,4 @@
       "(a b|c)" "(a b\n  |c)"
       )))
 
-(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ |1 2 3)")))
+#_(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ |1 2 3)")))

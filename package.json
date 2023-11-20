@@ -23,7 +23,7 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
-    "squint-cljs": "link:../squint",
+    "squint-cljs": "0.4.55",
     "squint-macros": "https://github.com/squint-cljs/squint-macros",
     "w3c-keyname": "^2.2.4"
   },

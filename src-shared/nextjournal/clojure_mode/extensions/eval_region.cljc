@@ -27,9 +27,6 @@
 (defn node-at-cursor
   ([state] (node-at-cursor state (j/get (main-selection state) :from)))
   ([^js state from]
-   (js/console.log "from" from)
-   (js/console.log "nearest touching" (n/nearest-touching state from -1))
-   (js/console.log "----")
    (some->> (n/nearest-touching state from -1)
             (#(when (or (n/terminal-type? (n/type %))
                         (<= (n/start %) from)
@@ -149,7 +146,6 @@
       (.. EditorView -decorations (from region-field))])
 
 (defn cursor-node-string [^js state]
-  #_(js/console.log (node-at-cursor state))
   (u/guard (some->> (node-at-cursor state)
                     (u/range-str state))
            (complement str/blank?)))
