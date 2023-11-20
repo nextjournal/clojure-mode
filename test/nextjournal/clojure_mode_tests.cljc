@@ -328,5 +328,7 @@
   (deftest eval-region-test
     (are [input f expected]
         (= (f (test-utils/make-state extensions input)) expected)
-      "(+ |1 2 3)" eval-region/cursor-node-string "1")))
+      "(+ |1 2 3)" eval-region/cursor-node-string "1"
+      "(+ |(+ 1 2) 2 3)" eval-region/cursor-node-string "(+ 1 2)"
+      "(+ (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)")))
 
