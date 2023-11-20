@@ -6,13 +6,14 @@
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.commands :as commands]
             [nextjournal.clojure-mode.extensions.formatting :as format]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             #?@(:squint []
                 :cljs [[nextjournal.livedoc :as livedoc]])
             #?(:squint ["assert" :as assert]))
   #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing]])))
 
 (def extensions
-  cm-clojure/default-extensions
+  (.concat cm-clojure/default-extensions (eval-region/extension #js {}))
   ;; optionally test with live grammar
   #_
   #js[(cm-clojure/syntax live-grammar/parser)
