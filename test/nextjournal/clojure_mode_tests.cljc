@@ -21,7 +21,7 @@
 (def apply-f (partial test-utils/apply-f extensions))
 (def apply-cmd (partial test-utils/apply-cmd extensions))
 
-(js/console.log (test-utils/apply-f (.concat cm-clojure/default-extensions
+#_#_#_#_(js/console.log (test-utils/apply-f (.concat cm-clojure/default-extensions
                                              #js [(eval-region/extension {:modified "Meta"})])
                                     (commands/nav 1) "[[|]]"))
 
@@ -340,3 +340,4 @@
 
   (deftest eval-region-test
     ))
+(prn :fini)

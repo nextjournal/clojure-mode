@@ -31,7 +31,7 @@
                                (j/push! extensions))})))
 
 (defn state-str [^js state]
-  (js/console.log "state!!" (some? state))
+  #_(js/console.log "state!!" (some? state))
   (let [doc (str (.-doc state))]
     (->> (.. state -selection -ranges)
          reverse
@@ -59,10 +59,10 @@
   {:pre [(array? extensions)
          (fn? cmd)
          (string? doc)]}
-  (js/console.log "cmd" cmd)
+  #_(js/console.log "cmd" cmd)
   (let [state (make-state extensions doc)
         tr (cmd state)]
-    (js/console.log "tr" tr)
+    #_#_#_(js/console.log "tr" tr)
     (js/console.log "sSTTTTTTTT" (.-state tr))
     (js/console.log "!!!!!!!" (if tr (.-state tr) state))
     (state-str (if tr (.-state tr) state))))

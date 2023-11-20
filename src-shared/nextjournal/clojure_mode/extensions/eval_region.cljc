@@ -26,7 +26,7 @@
 (defn node-at-cursor
   ([state] (node-at-cursor state (j/get (main-selection state) :from)))
   ([^js state from]
-   (prn :?state (some? state))
+   #_(prn :?state (some? state))
    (some->> (n/nearest-touching state from -1)
             (#(when (or (n/terminal-type? (n/type %))
                         (<= (n/start %) from)
