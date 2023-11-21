@@ -102,8 +102,9 @@ jobs:
         run: |
           yarn build
 
-      - name: 🧶 Yarn Build
+      - name: 🧶 Squint Build
         run: |
+          yarn squint compile
           yarn vite:build
 
       - name: 📠 Copy static build to bucket under SHA
