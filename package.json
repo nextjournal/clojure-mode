@@ -58,6 +58,7 @@
     "vite": "^4.4.9"
   },
   "exports": {
-    ".": "./dist/nextjournal/clojure_mode.mjs"
+    ".": "./dist/nextjournal/clojure_mode.mjs",
+    "./extensions/eval_region": "./dist/nextjournal/clojure_mode/extensions/eval_region.mjs"
   }
 }

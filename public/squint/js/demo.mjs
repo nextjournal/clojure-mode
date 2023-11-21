@@ -1,4 +1,5 @@
 import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
+import { extension as eval_ext } from '@nextjournal/clojure-mode/extensions/eval_region';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
@@ -23,11 +24,22 @@ let theme = EditorView.theme({
   "&.cm-focused .cm-cursor": {visibility: "visible"}
 });
 
+let evalDoc = (opts) => {
+  console.log('evalopts', opts.state.doc.toString());
+}
+
+let squintExtension = ( opts ) => {
+  console.log('opts', opts);
+  return keymap.of([{key: "Alt-Enter", run: evalDoc}])
+}
+
 let extensions = [ theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
                    drawSelection(),
                    keymap.of(complete_keymap),
-                   ...default_extensions
+                   ...default_extensions,
+                   eval_ext({modifier: "Meta"}),
+                   squintExtension({modifier: "Meta"})
                  ];
 
 let state = EditorState.create( {doc: `(comment
