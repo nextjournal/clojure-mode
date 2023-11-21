@@ -29,12 +29,21 @@ let evalCell = (opts) => {
   console.log('evalopts', opts.state.doc.toString());
 }
 
+function JSONstringify(json) {
+  json = JSON.stringify(json, function(key, value) {
+    if (value && typeof value === 'object' && value.constructor != Object) {
+      return `#object[${value.constructor.name}]`;
+    } else {
+      return value;
+    }
+  });
+  return json;
+}
+
 let evalCode = async function (code) {
-  console.log('code', code);
-  let js = compileString(code, {repl: true,
-                                context: 'return',
-                                "elide-exports": true})
-  console.log('js', js);
+  let js = compileString(`(do ${code})`, {repl: true,
+                                          context: 'return',
+                                          "elide-exports": true})
   let result;
   try {
     result = {value: await eval(`(async function() { ${js} })()`)};
@@ -45,7 +54,7 @@ let evalCode = async function (code) {
   if (result.error) {
     document.getElementById("result").innerText = result.ex;
   } else {
-    document.getElementById("result").innerText = JSON.stringify(result.value, null, 2);
+    document.getElementById("result").innerText = '' + JSONstringify(result.value);
   }
 }
 
@@ -70,7 +79,7 @@ let extensions = [ theme, foldGutter(),
                    squintExtension({modifier: "Meta"})
                  ];
 
-let state = EditorState.create( {doc: `(comment
+export let doc = `(comment
   (fizz-buzz 1)
   (fizz-buzz 3)
   (fizz-buzz 5)
@@ -83,13 +92,14 @@ let state = EditorState.create( {doc: `(comment
     15 "fizzbuzz"
     3  "fizz"
     5  "buzz"
-    n))`,
-                                 extensions: extensions });
+    n))`  ;
 
-console.log(state.doc.toString());
-evalCode(state.doc.toString());
+evalCode(doc);
+
+let state = EditorState.create( {doc: doc,
+                                 extensions: extensions });
 
 let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
                              parent: editorElt,
-                             extensions: extensions });
+                             extensions: extensions })
