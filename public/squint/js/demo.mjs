@@ -94,7 +94,7 @@ let extensions = [ theme, foldGutter(),
                    squintExtension({modifier: "Meta"})
                  ];
 
-export let doc = `(comment
+let doc = `(comment
   (fizz-buzz 1)
   (fizz-buzz 3)
   (fizz-buzz 5)
@@ -151,6 +151,4 @@ document.querySelectorAll(".mod,.alt,.ctrl").forEach(node => {
   if (symbol) {
     node.innerHTML = symbol;
   }
-}
-
-)
+});
