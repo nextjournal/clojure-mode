@@ -50,7 +50,12 @@ let evalCell = (opts) => {
 
 function JSONstringify(json) {
   json = JSON.stringify(json, function(key, value) {
-    if (value && typeof value === 'object' && value.constructor != Object) {
+    if (!value) return value;
+    if (Array.isArray(value) || value.constructor === Object) return value;
+    if (value[Symbol.iterator]) {
+      return [...value];
+    }
+    if (typeof value === 'object') {
       return `#object[${value.constructor.name}]`;
     } else {
       return value;
