@@ -29,20 +29,37 @@ let evalCell = (opts) => {
   console.log('evalopts', opts.state.doc.toString());
 }
 
-let evalAtCursor = async function (opts) {
-  let state = opts.state;
-  let code = cursor_node_string(state);
+let evalCode = async function (code) {
+  console.log('code', code);
   let js = compileString(code, {repl: true,
                                 context: 'return',
-                                "elide-exports": true});
-  console.log(js);
-  console.log('evalAtCursor', await eval(`(async function() { ${js} })()`));
+                                "elide-exports": true})
+  console.log('js', js);
+  let result;
+  try {
+    result = {value: await eval(`(async function() { ${js} })()`)};
+  }
+  catch (e) {
+    result = {error: true, ex: e};
+  }
+  if (result.error) {
+    document.getElementById("result").innerText = result.ex;
+  } else {
+    document.getElementById("result").innerText = JSON.stringify(result.value, null, 2);
+  }
+}
+
+let evalAtCursor = function (opts) {
+  let state = opts.state;
+  let code = cursor_node_string(state);
+  evalCode(code);
 }
 
 let squintExtension = ( opts ) => {
   return keymap.of([{key: "Alt-Enter", run: evalCell},
                     {key: opts.modifier + "-Enter",
                      run: evalAtCursor}])}
+
 
 let extensions = [ theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
@@ -68,6 +85,10 @@ let state = EditorState.create( {doc: `(comment
     5  "buzz"
     n))`,
                                  extensions: extensions });
+
+console.log(state.doc.toString());
+evalCode(state.doc.toString());
+
 let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
                              parent: editorElt,
