@@ -1,8 +1,9 @@
 import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
-import { extension as eval_ext } from '@nextjournal/clojure-mode/extensions/eval_region';
+import { extension as eval_ext, cursor_node_string } from '@nextjournal/clojure-mode/extensions/eval_region';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
+import { compileString } from 'squint-cljs';
 
 let theme = EditorView.theme({
   ".cm-content": {whitespace: "pre-wrap",
@@ -24,14 +25,24 @@ let theme = EditorView.theme({
   "&.cm-focused .cm-cursor": {visibility: "visible"}
 });
 
-let evalDoc = (opts) => {
+let evalCell = (opts) => {
   console.log('evalopts', opts.state.doc.toString());
 }
 
-let squintExtension = ( opts ) => {
-  console.log('opts', opts);
-  return keymap.of([{key: "Alt-Enter", run: evalDoc}])
+let evalAtCursor = async function (opts) {
+  let state = opts.state;
+  let code = cursor_node_string(state);
+  let js = compileString(code, {repl: true,
+                                context: 'return',
+                                "elide-exports": true});
+  console.log(js);
+  console.log('evalAtCursor', await eval(`(async function() { ${js} })()`));
 }
+
+let squintExtension = ( opts ) => {
+  return keymap.of([{key: "Alt-Enter", run: evalCell},
+                    {key: opts.modifier + "-Enter",
+                     run: evalAtCursor}])}
 
 let extensions = [ theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
