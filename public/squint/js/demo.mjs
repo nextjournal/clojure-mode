@@ -101,9 +101,11 @@ export let doc = `(comment
     5  "buzz"
     n))
 
-
 (require '["https://esm.sh/canvas-confetti@1.6.0$default" :as confetti])
-(confetti)
+
+(do
+  (js-await (confetti))
+  (+ 1 2 3))
 `  ;
 
 evalCode(doc);
