@@ -25,21 +25,6 @@ let theme = EditorView.theme({
   "&.cm-focused .cm-cursor": {visibility: "visible"}
 });
 
-let evalCell = (opts) => {
-  console.log('evalopts', opts.state.doc.toString());
-}
-
-function JSONstringify(json) {
-  json = JSON.stringify(json, function(key, value) {
-    if (value && typeof value === 'object' && value.constructor != Object) {
-      return `#object[${value.constructor.name}]`;
-    } else {
-      return value;
-    }
-  });
-  return json;
-}
-
 let evalCode = async function (code) {
   let js = compileString(`(do ${code})`, {repl: true,
                                           context: 'return',
@@ -56,6 +41,22 @@ let evalCode = async function (code) {
   } else {
     document.getElementById("result").innerText = '' + JSONstringify(result.value);
   }
+}
+
+let evalCell = (opts) => {
+  let code = opts.state.doc.toString();
+  evalCode(code);
+}
+
+function JSONstringify(json) {
+  json = JSON.stringify(json, function(key, value) {
+    if (value && typeof value === 'object' && value.constructor != Object) {
+      return `#object[${value.constructor.name}]`;
+    } else {
+      return value;
+    }
+  });
+  return json;
 }
 
 let evalAtCursor = function (opts) {
