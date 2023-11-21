@@ -1,7 +1,8 @@
 (ns nextjournal.clojure-mode-tests
   (:require #?@(:squint []
-                :cljs [[cljs.test :refer [are testing deftest]]])
+                :cljs [[cljs.test :refer [are testing deftest is]]])
             [nextjournal.clojure-mode :as cm-clojure]
+            [nextjournal.clojure-mode.util :as util]
             [nextjournal.clojure-mode.test-utils :as test-utils]
             [nextjournal.clojure-mode.extensions.close-brackets :as close-brackets]
             [nextjournal.clojure-mode.commands :as commands]
@@ -10,7 +11,7 @@
             #?@(:squint []
                 :cljs [[nextjournal.livedoc :as livedoc]])
             #?(:squint ["assert" :as assert]))
-  #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing]])))
+  #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing is]])))
 
 (def extensions
   (.concat cm-clojure/default-extensions (eval-region/extension #js {}))
@@ -330,6 +331,9 @@
         (= (f (test-utils/make-state extensions input)) expected)
       "(+ |1 2 3)" eval-region/cursor-node-string "1"
       "(+ |(+ 1 2) 2 3)" eval-region/cursor-node-string "(+ 1 2)"
-      "(+ (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)")))
+      "(+ (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)")
+    (let [state (test-utils/make-state extensions ";; dude\n|{:a 1}")]
+      (is (= "{:a 1}" (->> (eval-region/top-level-node state)
+                           (util/range-str state)))))))
 
 #_(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ (+ 1 2)| 2 3)")))

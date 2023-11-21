@@ -74,3 +74,10 @@
       `(do ~@processed))
     #?(:clj (throw (IllegalArgumentException. "The number of args doesn't match are's argv."))
        :cljs (throw (js/Error "The number of args doesn't match are's argv.")))))
+
+(defmacro is
+  [expr & _]
+  (if (and (seq? expr)
+           (= '= (first expr)))
+    (list* 'assert.equal (rest expr))
+    expr))
