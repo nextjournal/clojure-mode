@@ -92,7 +92,12 @@ export let doc = `(comment
     15 "fizzbuzz"
     3  "fizz"
     5  "buzz"
-    n))`  ;
+    n))
+
+
+(require '["https://esm.sh/canvas-confetti@1.6.0$default" :as confetti])
+(confetti)
+`  ;
 
 evalCode(doc);
 
