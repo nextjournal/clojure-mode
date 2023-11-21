@@ -117,3 +117,32 @@ let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
                              parent: editorElt,
                              extensions: extensions })
+
+let keys = {"ArrowUp": "↑",
+            "ArrowDown": "↓",
+            "ArrowRight": "→",
+            "ArrowLeft": "←",
+            "Mod": "Ctrl"}
+
+let macKeys = {"Alt": "⌥",
+                "Shift": "⇧",
+                "Enter": "⏎",
+                "Ctrl": "⌃",
+               "Mod": "⌘"}
+
+let mac;
+
+if (/^(Mac)|(iPhone)|(iPad)|(iPod)$/.test(window.navigator.platform.substring(0,3))) {
+  mac = true;
+  Object.assign(keys, macKeys);
+}
+
+document.querySelectorAll(".mod,.alt,.ctrl").forEach(node => {
+  let k = node.innerHTML;
+  let symbol = keys[k];
+  if (symbol) {
+    node.innerHTML = symbol;
+  }
+}
+
+)
