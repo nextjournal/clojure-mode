@@ -1,5 +1,5 @@
 import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
-import { extension as eval_ext, cursor_node_string } from '@nextjournal/clojure-mode/extensions/eval_region';
+import { extension as eval_ext, cursor_node_string, top_level_string } from '@nextjournal/clojure-mode/extensions/eval_region';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
@@ -48,6 +48,12 @@ let evalCell = (opts) => {
   evalCode(code);
 }
 
+let evalToplevel = function (opts) {
+  let state = opts.state;
+  let code = top_level_string(state);
+  evalCode(code);
+}
+
 function JSONstringify(json) {
   json = JSON.stringify(json, function(key, value) {
     if (!value) return value;
@@ -74,7 +80,9 @@ let evalAtCursor = function (opts) {
 let squintExtension = ( opts ) => {
   return keymap.of([{key: "Alt-Enter", run: evalCell},
                     {key: opts.modifier + "-Enter",
-                     run: evalAtCursor}])}
+                     run: evalAtCursor,
+                     shift: evalToplevel
+                    }])}
 
 
 let extensions = [ theme, foldGutter(),
