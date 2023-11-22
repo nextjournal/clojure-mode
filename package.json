@@ -1,5 +1,8 @@
-{ "name": "@nextjournal/clojure-mode",
-  "files": ["dist"],
+{
+  "name": "@nextjournal/clojure-mode",
+  "files": [
+    "dist"
+  ],
   "version": "0.2.0",
   "license": "EPL-2.0",
   "repository": {
@@ -20,9 +23,8 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
-    "squint-cljs": "0.3.36",
-    "w3c-keyname": "^2.2.4",
-    "squint-macros": "https://github.com/squint-cljs/squint-macros"
+    "squint-cljs": "0.4.58",
+    "w3c-keyname": "^2.2.4"
   },
   "comments": {
     "to run squint as a local dependency:": "bb yarn-install:squint-dev"
@@ -52,9 +54,11 @@
     "react-dom": "^17.0.2",
     "rollup-plugin-analyzer": "^4.0.0",
     "shadow-cljs": "2.19.5",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "@squint-cljs/macros": "0.1.0"
   },
   "exports": {
-    ".": "./dist/nextjournal/clojure_mode.mjs"
+    ".": "./dist/nextjournal/clojure_mode.mjs",
+    "./extensions/eval-region": "./dist/nextjournal/clojure_mode/extensions/eval_region.mjs"
   }
 }

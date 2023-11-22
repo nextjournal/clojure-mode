@@ -1,7 +1,9 @@
 import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
+import { extension as eval_ext, cursor_node_string, top_level_string } from '@nextjournal/clojure-mode/extensions/eval-region';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
+import { compileString } from 'squint-cljs';
 
 let theme = EditorView.theme({
   ".cm-content": {whitespace: "pre-wrap",
@@ -23,14 +25,79 @@ let theme = EditorView.theme({
   "&.cm-focused .cm-cursor": {visibility: "visible"}
 });
 
+let evalCode = async function (code) {
+  let js = compileString(`(do ${code})`, {repl: true,
+                                          context: 'return',
+                                          "elide-exports": true})
+  let result;
+  try {
+    result = {value: await eval(`(async function() { ${js} })()`)};
+  }
+  catch (e) {
+    result = {error: true, ex: e};
+  }
+  if (result.error) {
+    document.getElementById("result").innerText = result.ex;
+  } else {
+    document.getElementById("result").innerText = '' + JSONstringify(result.value);
+  }
+}
+
+let evalCell = (opts) => {
+  let code = opts.state.doc.toString();
+  evalCode(code);
+  return true;
+}
+
+let evalToplevel = function (opts) {
+  let state = opts.state;
+  let code = top_level_string(state);
+  evalCode(code);
+  return true;
+}
+
+function JSONstringify(json) {
+  json = JSON.stringify(json, function(key, value) {
+    if (!value) return value;
+    if (typeof value === 'string') return value;
+    if (Array.isArray(value) || value.constructor === Object) return value;
+    if (value[Symbol.iterator]) {
+      return [...value];
+    }
+    if (typeof value === 'object') {
+      return `#object[${value.constructor.name}]`;
+    } else {
+      return value;
+    }
+  });
+  return json;
+}
+
+let evalAtCursor = function (opts) {
+  let state = opts.state;
+  let code = cursor_node_string(state);
+  evalCode(code);
+  return true;
+}
+
+let squintExtension = ( opts ) => {
+  return keymap.of([{key: "Alt-Enter", run: evalCell},
+                    {key: opts.modifier + "-Enter",
+                     run: evalAtCursor,
+                     shift: evalToplevel
+                    }])}
+
+
 let extensions = [ theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
                    drawSelection(),
                    keymap.of(complete_keymap),
-                   ...default_extensions
+                   ...default_extensions,
+                   eval_ext({modifier: "Meta"}),
+                   squintExtension({modifier: "Meta"})
                  ];
 
-let state = EditorState.create( {doc: `(comment
+let doc = `(comment
   (fizz-buzz 1)
   (fizz-buzz 3)
   (fizz-buzz 5)
@@ -43,9 +110,48 @@ let state = EditorState.create( {doc: `(comment
     15 "fizzbuzz"
     3  "fizz"
     5  "buzz"
-    n))`,
+    n))
+
+(require '["https://esm.sh/canvas-confetti@1.6.0$default" :as confetti])
+
+(do
+  (js-await (confetti))
+  (+ 1 2 3))
+`  ;
+
+evalCode(doc);
+
+let state = EditorState.create( {doc: doc,
                                  extensions: extensions });
+
 let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
                              parent: editorElt,
-                             extensions: extensions });
+                             extensions: extensions })
+
+let keys = {"ArrowUp": "↑",
+            "ArrowDown": "↓",
+            "ArrowRight": "→",
+            "ArrowLeft": "←",
+            "Mod": "Ctrl"}
+
+let macKeys = {"Alt": "⌥",
+                "Shift": "⇧",
+                "Enter": "⏎",
+                "Ctrl": "⌃",
+               "Mod": "⌘"}
+
+let mac;
+
+if (/^(Mac)|(iPhone)|(iPad)|(iPod)$/.test(window.navigator.platform.substring(0,3))) {
+  mac = true;
+  Object.assign(keys, macKeys);
+}
+
+document.querySelectorAll(".mod,.alt,.ctrl").forEach(node => {
+  let k = node.innerHTML;
+  let symbol = keys[k];
+  if (symbol) {
+    node.innerHTML = symbol;
+  }
+});

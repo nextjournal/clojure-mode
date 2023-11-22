@@ -3,10 +3,11 @@
    ["@codemirror/state" :as state :refer [StateEffect StateField]]
    ["@codemirror/view" :as view :refer [EditorView Decoration keymap]]
    ["w3c-keyname" :refer [keyName]]
-   [applied-science.js-interop :as j]
+   #?@(:squint [] :cljs [[applied-science.js-interop :as j]])
    [nextjournal.clojure-mode.util :as u]
    [nextjournal.clojure-mode.node :as n]
-   [clojure.string :as str]))
+   [clojure.string :as str])
+  #?(:squint (:require-macros [applied-science.js-interop :as j])))
 
 (defn uppermost-edge-here
   "Returns node or its highest ancestor that starts or ends at the cursor position."
@@ -19,7 +20,8 @@
       node))
 
 (defn main-selection [state]
-  (-> (j/call-in state [:selection :asSingle])
+  (->
+   (j/call-in state [:selection :asSingle])
       (j/get-in [:ranges 0])))
 
 (defn node-at-cursor
@@ -45,6 +47,7 @@
 
 ;; Modifier field
 (defonce modifier-effect (.define StateEffect))
+
 (defonce modifier-field
          (.define StateField
                   (j/lit {:create (constantly {})
@@ -55,7 +58,7 @@
 
 (defn get-modifier-field [^js state] (.field state modifier-field))
 
-(j/defn set-modifier-field! [^:js {:as view :keys [dispatch state]} value]
+(j/defn set-modifier-field! [^:js {:as _view :keys [dispatch]} value]
   (dispatch #js{:effects (.of modifier-effect value)
                 :userEvent "evalregion"}))
 
@@ -118,7 +121,7 @@
                              (when (not= prev next)
                                (set-modifier-field! view next))
                              false))
-        handle-backspace (j/fn [^:js {:as view :keys [state dispatch]}]
+        handle-backspace (j/fn [^:js {:as _view :keys [state dispatch]}]
                            (j/let [^:js {:keys [from to]} (current-range state)]
                              (when (not= from to)
                                (dispatch (j/lit {:changes {:from from :to to :insert ""}
