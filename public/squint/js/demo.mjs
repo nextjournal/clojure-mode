@@ -46,12 +46,14 @@ let evalCode = async function (code) {
 let evalCell = (opts) => {
   let code = opts.state.doc.toString();
   evalCode(code);
+  return true;
 }
 
 let evalToplevel = function (opts) {
   let state = opts.state;
   let code = top_level_string(state);
   evalCode(code);
+  return true;
 }
 
 function JSONstringify(json) {
@@ -75,6 +77,7 @@ let evalAtCursor = function (opts) {
   let state = opts.state;
   let code = cursor_node_string(state);
   evalCode(code);
+  return true;
 }
 
 let squintExtension = ( opts ) => {
