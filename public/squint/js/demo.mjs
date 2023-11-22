@@ -1,5 +1,5 @@
 import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
-import { extension as eval_ext, cursor_node_string, top_level_string } from '@nextjournal/clojure-mode/extensions/eval_region';
+import { extension as eval_ext, cursor_node_string, top_level_string } from '@nextjournal/clojure-mode/extensions/eval-region';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';

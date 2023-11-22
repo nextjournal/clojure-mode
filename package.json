@@ -59,6 +59,6 @@
   },
   "exports": {
     ".": "./dist/nextjournal/clojure_mode.mjs",
-    "./extensions/eval_region": "./dist/nextjournal/clojure_mode/extensions/eval_region.mjs"
+    "./extensions/eval-region": "./dist/nextjournal/clojure_mode/extensions/eval_region.mjs"
   }
 }
