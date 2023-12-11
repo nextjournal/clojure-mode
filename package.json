@@ -23,7 +23,7 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
-    "squint-cljs": "0.4.58",
+    "squint-cljs": "0.4.81",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {
@@ -40,6 +40,7 @@
   "devDependencies": {
     "@codemirror/lang-javascript": "^6.0.0",
     "@nextjournal/clojure-mode": "link:.",
+    "@squint-cljs/macros": "0.1.0",
     "d3-require": "^1.2.4",
     "emoji-regex": "^10.0.0",
     "framer-motion": "^6.2.8",
@@ -54,8 +55,7 @@
     "react-dom": "^17.0.2",
     "rollup-plugin-analyzer": "^4.0.0",
     "shadow-cljs": "2.19.5",
-    "vite": "^4.4.9",
-    "@squint-cljs/macros": "0.1.0"
+    "vite": "^4.4.9"
   },
   "exports": {
     ".": "./dist/nextjournal/clojure_mode.mjs",

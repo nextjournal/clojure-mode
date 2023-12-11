@@ -3,7 +3,7 @@ import { extension as eval_ext, cursor_node_string, top_level_string } from '@ne
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
-import { compileString } from 'squint-cljs';
+import { compileStringEx } from 'squint-cljs';
 
 let theme = EditorView.theme({
   ".cm-content": {whitespace: "pre-wrap",
@@ -24,11 +24,12 @@ let theme = EditorView.theme({
   ".cm-cursor": {visibility: "hidden"},
   "&.cm-focused .cm-cursor": {visibility: "visible"}
 });
-
+let compilerState = null;
 let evalCode = async function (code) {
-  let js = compileString(`(do ${code})`, {repl: true,
-                                          context: 'return',
-                                          "elide-exports": true})
+  compilerState = compileStringEx(`(do ${code})`, {repl: true,
+                                                   context: 'return',
+                                                   "elide-exports": true}, compilerState)
+  let js = compilerState.javascript;
   let result;
   try {
     result = {value: await eval(`(async function() { ${js} })()`)};
