@@ -4,6 +4,7 @@ import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 import { javascript } from '@codemirror/lang-javascript';
+import { history, historyKeymap } from '@codemirror/commands';
 
 let theme = EditorView.theme({
   ".cm-content": {whitespace: "pre-wrap",
@@ -25,12 +26,13 @@ let theme = EditorView.theme({
   "&.cm-focused .cm-cursor": {visibility: "visible"}
 });
 
-let extensions = [
+let extensions = [ history(),
                    theme,
                    foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
                    drawSelection(),
                    keymap.of(complete_keymap),
+                   keymap.of(historyKeymap),
                    ...default_extensions
                  ];
 
