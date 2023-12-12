@@ -2,6 +2,7 @@ import { default_extensions, complete_keymap } from '@nextjournal/clojure-mode';
 import { extension as eval_ext, cursor_node_string, top_level_string } from '@nextjournal/clojure-mode/extensions/eval-region';
 import { EditorView, drawSelection, keymap } from  '@codemirror/view';
 import { EditorState } from  '@codemirror/state';
+import { history, historyKeymap } from '@codemirror/commands';
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter } from '@codemirror/language';
 import { compileStringEx } from 'squint-cljs';
 
@@ -89,10 +90,11 @@ let squintExtension = ( opts ) => {
                     }])}
 
 
-let extensions = [ theme, foldGutter(),
+let extensions = [ history(), theme, foldGutter(),
                    syntaxHighlighting(defaultHighlightStyle),
                    drawSelection(),
                    keymap.of(complete_keymap),
+                   keymap.of(historyKeymap),
                    ...default_extensions,
                    eval_ext({modifier: "Meta"}),
                    squintExtension({modifier: "Meta"})
@@ -120,6 +122,8 @@ let doc = `(comment
   (+ 1 2 3))
 `  ;
 
+// doc = `(do #_#_1 (+ 1 2 3) )`
+
 evalCode(doc);
 
 let state = EditorState.create( {doc: doc,
@@ -129,6 +133,7 @@ let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
                              parent: editorElt,
                              extensions: extensions })
+globalThis.editor = editor;
 
 let keys = {"ArrowUp": "↑",
             "ArrowDown": "↓",
