@@ -32,11 +32,12 @@
                         (<= (n/start %) from)
                         (<= (n/end %) from))
                 (cond-> %
-                  (or (n/top? %)
-                      (and (not (n/terminal-type? (n/type %)))
-                           (< (n/start %) from (n/end %))))
+                  (or
+                   (n/top? %)
+                   (and (not (n/terminal-type? (n/type %)))
+                        (< (n/start %) from (n/end %))))
                   (-> (n/children from -1) first))))
-            (uppermost-edge-here from)
+            #_(uppermost-edge-here from)
             (n/balanced-range state))))
 
 (defn top-level-node [state]

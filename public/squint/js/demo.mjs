@@ -129,6 +129,7 @@ let editorElt = document.querySelector('#editor');
 let editor = new EditorView({state: state,
                              parent: editorElt,
                              extensions: extensions })
+globalThis.editor = editor;
 
 let keys = {"ArrowUp": "↑",
             "ArrowDown": "↓",
