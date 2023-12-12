@@ -12,12 +12,15 @@
 (defn uppermost-edge-here
   "Returns node or its highest ancestor that starts or ends at the cursor position."
   [pos node]
-  (or (->> (iterate n/up node)
-           (take-while (every-pred (complement n/top?)
-                                   #(or (= pos (n/end %) (n/end node))
-                                        (= pos (n/start %) (n/start node)))))
-           (last))
-      node))
+  (let [node (or (->> (iterate n/up node)
+                      (take-while (every-pred (complement n/top?)
+                                              #(or (= pos (n/end %) (n/end node))
+                                                   (= pos (n/start %) (n/start node)))))
+                      (last))
+                 node)]
+    (if (= "Discard" (n/name node))
+      (last (n/children node))
+      node)))
 
 (defn main-selection [state]
   (->
@@ -37,7 +40,7 @@
                    (and (not (n/terminal-type? (n/type %)))
                         (< (n/start %) from (n/end %))))
                   (-> (n/children from -1) first))))
-            #_(uppermost-edge-here from)
+            (uppermost-edge-here from)
             (n/balanced-range state))))
 
 (defn top-level-node [state]

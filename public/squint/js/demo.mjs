@@ -120,6 +120,8 @@ let doc = `(comment
   (+ 1 2 3))
 `  ;
 
+// doc = `(do #_#_1 (+ 1 2 3) )`
+
 evalCode(doc);
 
 let state = EditorState.create( {doc: doc,

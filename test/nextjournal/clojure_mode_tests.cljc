@@ -331,7 +331,9 @@
         (= (f (test-utils/make-state extensions input)) expected)
       "(+ |1 2 3)" eval-region/cursor-node-string "1"
       "(+ |(+ 1 2) 2 3)" eval-region/cursor-node-string "(+ 1 2)"
-      "(+ (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)")
+      "(+ (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)"
+      "(+ #_(+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)"
+      "(+ #_#_1 (+ 1 2)| 2 3)" eval-region/cursor-node-string "(+ 1 2)")
     (let [state (test-utils/make-state extensions ";; dude\n|{:a 1}")]
       (is (= "{:a 1}" (->> (eval-region/top-level-node state)
                            (util/range-str state)))))))
