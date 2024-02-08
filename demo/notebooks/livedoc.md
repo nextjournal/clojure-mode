@@ -20,8 +20,36 @@ Here's some of Clerk's API in action
        :projection {:type "albersUsa"}
        :encoding {:color {:field "rate" :type "quantitative"}}})
 ```
+## Usage
 
-Compose results layout with `v/row` and `v/col`
+Use livedoc `editor` function as a reagent component in your cljs application
+
+    [nextjournal.clojure-mode.livedoc/editor opts]
+
+this puts together an instance of CodeMirror with markdown and clojure mixed language support with a set of extensions configurable via an `opts` map with keys:
+
+* `:doc` (required) a markdown string
+
+* `:render` a function taking a reagent state atom, returning hiccup. Such state holds a map with:
+  * `:text` the block's text
+  * `:type` with values `:code` or `:markdown`
+  * `:selected?`
+
+* `:eval-fn!` will be called on selected block states when evaluation is triggered
+
+* `:tooltip` customises tooltip view
+
+* `:extensions` extra CodeMirror extensions to be added along livedoc ones
+
+* `:focus?` should editor acquire focus when loaded
+
+## Keybindings
+
+* `ESC`: toggles edit-one / edit-all / preview & select block
+* `ALT`: pressed while in edit mode toggles a tooltip with eval-at-cursor results
+* Arrow keys move selection up/down
+* `CMD + Enter` : Evaluate selected cell or leave edit mode
+* `CMD + Shift + Enter`: Evaluates all cells
 
 ```clojure
 (def pie
@@ -82,37 +110,6 @@ The following example is taken from this [Observable notebook](https://observabl
 ```clojure
 (v/plotly {:data [{:y (shuffle (range -100 100))}]})
 ```
-
-## Usage
-
-Use livedoc `editor` function as a reagent component in your cljs application
-
-    [nextjournal.clojure-mode.livedoc/editor opts]
-
-this puts together an instance of CodeMirror with markdown and clojure mixed language support with a set of extensions configurable via an `opts` map with keys:
-
-* `:doc` (required) a markdown string
-
-* `:render` a function taking a reagent state atom, returning hiccup. Such state holds a map with:
-    * `:text` the block's text
-    * `:type` with values `:code` or `:markdown`
-    * `:selected?`
-
-* `:eval-fn!` will be called on selected block states when evaluation is triggered
-
-* `:tooltip` customises tooltip view
-
-* `:extensions` extra CodeMirror extensions to be added along livedoc ones
-
-* `:focus?` should editor acquire focus when loaded
-
-## Keybindings
-
-* `ESC`: toggles edit-one / edit-all / preview & select block
-* `ALT`: pressed while in edit mode toggles a tooltip with eval-at-cursor results
-* Arrow keys move selection up/down
-* `CMD + Enter` : Evaluate selected cell or leave edit mode
-* `CMD + Shift + Enter`: Evaluates all cells
 
 ```clojure
 (defonce state (atom 0))
