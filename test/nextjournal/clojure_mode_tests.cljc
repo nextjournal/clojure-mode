@@ -123,6 +123,8 @@
         "\"| \"" "\"| \""                                   ;; do not delete string with whitespace
         ":x  :a |" ":x  :a|"                                ;; do not format on backspace
         "\"[|]\"" "\"|]\""                                  ;; normal deletion inside strings
+        "( ;;\n|)" "( ;;|\n)"                               ;; don't put paren behind line comment
+        "( ;|\n)" "( |\n)"
         ))
 
     #?(:squint nil

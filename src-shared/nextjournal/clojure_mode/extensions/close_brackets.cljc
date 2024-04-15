@@ -74,7 +74,7 @@
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (cond
           (in-string? state from)
-          (if (= open \")
+          (if (= \" open)
             (u/insertion head "\\\"")
             (u/insertion from to open))
           ;; allow typing escaped bracket
