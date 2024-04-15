@@ -49,7 +49,7 @@
 (defn line-content-at [state from]
   (-> state
       (j/call-in [:doc :lineAt] from)
-      (j/call :slice)))
+      (j/get :text)))
 
 (defn map-cursor [^js original-range ^js state update-map]
   {:pre [(map? update-map)]}
