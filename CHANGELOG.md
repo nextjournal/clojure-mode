@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.2
 
 - Bump squint to 0.7.105
 - Fix [#49](https://github.com/nextjournal/clojure-mode/issues/49): bug with hitting backspace after line comment
