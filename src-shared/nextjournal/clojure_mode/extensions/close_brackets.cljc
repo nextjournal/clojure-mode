@@ -15,13 +15,15 @@
   (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
 
 (defn backspace-backoff [state from to]
+  #_(js/console.log (some-> (n/|node state from) (u/guard n/line-comment?)))
   (if
    ;; handle line-comments (backspace should not drag forms up into line comments)
    (and
-    ;; we are directly in front of a line-comment
+    ;; we are directly in right of a line-comment
     (some-> (n/node| state (dec from)) (u/guard n/line-comment?))
-    ;; current line is blank
-    (not (str/blank? (u/line-content-at state from))))
+    ;; current line is blank or we're left of a line-comment
+    (not (or (str/blank? (u/line-content-at state from))
+             (some-> (n/|node state from) (u/guard n/line-comment?)))))
     {:cursor (dec from)}
     (u/deletion from to)))
 

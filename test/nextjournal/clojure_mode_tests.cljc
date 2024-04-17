@@ -125,8 +125,7 @@
         "\"[|]\"" "\"|]\""                                  ;; normal deletion inside strings
         "( ;;\n|)" "( ;;|\n)"                               ;; don't put paren behind line comment
         "( ;|\n)" "( |\n)"
-        "(;;\n|;;\n)" "(;;|\n;;\n)"
-        ))
+        "(;;\n|;;\n)" "(;;|;;\n)"))
 
     #?(:squint nil
        :cljs (testing "handle backspace (embedded)"
