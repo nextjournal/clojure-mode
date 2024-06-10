@@ -249,7 +249,7 @@
       "(<a) b>" "<(a) b>"
       ))
 
-  (deftest slurp
+  (deftest slurp-test
     (are [input dir expected]
         (= (apply-f (commands/slurp dir) input) expected)
       "(|) a" 1 "(|a)"
@@ -273,7 +273,7 @@
       "('xy|z 1) 2" 1 "('xy|z 1 2)"
       "'ab|c 1" 1 "'ab|c 1"
 
-      "\"x|\" 1" 1 "\"x1\""))
+      "\"x|\" 1" 1 "\"x| 1\""))
 
   #?(:squint nil
      :cljs

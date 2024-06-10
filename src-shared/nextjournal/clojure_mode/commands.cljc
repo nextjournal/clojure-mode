@@ -136,6 +136,9 @@
 
 (def log js/console.log)
 
+(defn ->str [x]
+  (js/JSON.stringify (str x)))
+
 (defn slurp [direction]
   (fn [^js state]
     (u/update-ranges state
@@ -151,7 +154,6 @@
             (let [str? (n/string? parent)]
               (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
                                       -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
-                (js/console.log :target target)
                 {:cursor/mapped from
                  :changes (case direction
                             1
