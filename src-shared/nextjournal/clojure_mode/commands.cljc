@@ -167,9 +167,9 @@
                             -1
                             (let [^string edge (n/left-edge-with-prefix state parent)
                                   start (n/start (n/with-prefix parent))]
-                              [{:from start
-                                :to (+ start (count edge))
-                                :insert " "}
+                              [(cond-> {:from start
+                                       :to (+ start (count edge))}
+                                 (not str?) (j/assoc! :insert " "))
                                {:from (n/start target)
                                 :insert edge}]))}))))))))
 
