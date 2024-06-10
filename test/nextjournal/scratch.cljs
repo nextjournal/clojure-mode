@@ -1,4 +1,4 @@
-(ns nextjournal.clojure-mode.scratch
+(ns nextjournal.scratch
   (:require [nextjournal.clojure-mode.commands :as commands]
             [nextjournal.clojure-mode :as cm-clojure]
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
@@ -9,6 +9,6 @@
 
 (def apply-f (partial test-utils/apply-f extensions))
 
-(js/console.log "\"|\" 1")
-(js/console.log (apply-f (commands/slurp 1) "\"|\" 1"))
+(js/console.log "a ;; hello\n(|)")
+(js/console.log (apply-f (commands/slurp -1) "a ;; hello\n(|)"))
 

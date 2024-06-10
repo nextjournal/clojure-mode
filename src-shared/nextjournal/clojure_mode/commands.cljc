@@ -152,6 +152,7 @@
                                                         1 (some-> % n/with-prefix n/right n/end-edge?)
                                                         -1 (some-> % n/with-prefix n/left n/start-edge?)))))]
             (let [str? (n/string? parent)]
+              (prn :parent (n/string state parent) :str str?)
               (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
                                       -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
                 {:cursor/mapped from
@@ -163,12 +164,13 @@
                                (-> edge
                                    n/from-to
                                    (cond->
-                                       (not str?) (j/assoc! :insert " ")))])
+                                       true #_(not str?) (j/assoc! :insert " ")))])
                             -1
                             (let [^string edge (n/left-edge-with-prefix state parent)
                                   start (n/start (n/with-prefix parent))]
                               [(cond-> {:from start
-                                       :to (+ start (count edge))}
+                                        :to (+ start (count edge))
+                                        #_#_:insert " "}
                                  (not str?) (j/assoc! :insert " "))
                                {:from (n/start target)
                                 :insert edge}]))}))))))))
