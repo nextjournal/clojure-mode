@@ -139,37 +139,41 @@
 (defn slurp [direction]
   (fn [^js state]
     (u/update-ranges state
-      (j/fn [^:js {:as range :keys [from to empty]}]
+      (j/fn [^:js {:keys [from empty]}]
         (when empty
           (when-let [parent (n/closest (n/tree state from)
-                                       (every-pred n/coll?
+                                       (every-pred (some-fn n/coll?
+                                                            n/string?)
                                                    #(not
                                                      (case direction
                                                         1 (some-> % n/with-prefix n/right n/end-edge?)
-                                                       -1 (some-> % n/with-prefix n/left n/start-edge?)))))]
-            (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
-                                              -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
-              {:cursor/mapped from
-               :changes (case direction
-                          1
-                          (let [edge (n/down-last parent)]
-                            [{:from (-> target n/end)
-                              :insert (n/name edge)}
-                             (-> edge
-                                 n/from-to
-                                 (j/assoc! :insert " "))])
-                          -1
-                          (let [^string edge (n/left-edge-with-prefix state parent)
-                                start (n/start (n/with-prefix parent))]
-                            [{:from start
-                              :to (+ start (count edge))
-                              :insert " "}
-                             {:from (n/start target)
-                              :insert edge}]))})))))))
+                                                        -1 (some-> % n/with-prefix n/left n/start-edge?)))))]
+            (let [str? (n/string? parent)]
+              (when-let [target (case direction 1 (first (remove n/line-comment? (n/rights (n/with-prefix parent))))
+                                      -1 (first (remove n/line-comment? (n/lefts (n/with-prefix parent)))))]
+                (js/console.log :target target)
+                {:cursor/mapped from
+                 :changes (case direction
+                            1
+                            (let [edge (n/down-last parent)]
+                              [{:from (-> target n/end)
+                                :insert (n/name edge)}
+                               (-> edge
+                                   n/from-to
+                                   (cond->
+                                       (not str?) (j/assoc! :insert " ")))])
+                            -1
+                            (let [^string edge (n/left-edge-with-prefix state parent)
+                                  start (n/start (n/with-prefix parent))]
+                              [{:from start
+                                :to (+ start (count edge))
+                                :insert " "}
+                               {:from (n/start target)
+                                :insert edge}]))}))))))))
 
 (defn barf [direction]
   (fn [^js state]
-    (->> (j/fn [^:js {:as range :keys [from to empty]}]
+    (->> (j/fn [^:js {:keys [from empty]}]
            (when empty
              (when-let [parent (-> (n/tree state from)
                                    (n/closest n/coll?))]

@@ -272,7 +272,8 @@
       "('is-d|ata) :x" 1 "('is-d|ata :x)"
       "('xy|z 1) 2" 1 "('xy|z 1 2)"
       "'ab|c 1" 1 "'ab|c 1"
-      ))
+
+      "\"x|\" 1" 1 "\"x1\""))
 
   #?(:squint nil
      :cljs
