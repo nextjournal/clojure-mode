@@ -134,11 +134,6 @@
       (when-not empty
         {:range (n/balanced-range state from to)}))))
 
-(def log js/console.log)
-
-(defn ->str [x]
-  (js/JSON.stringify (str x)))
-
 (defn slurp [direction]
   (fn [^js state]
     (u/update-ranges state
