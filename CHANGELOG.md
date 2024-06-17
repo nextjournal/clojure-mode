@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Fix [#54](https://github.com/nextjournal/clojure-mode/issues/54): support slurping from within string literal
+
 ## 0.3.2
 
 - Bump squint to 0.7.105

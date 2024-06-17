@@ -8,10 +8,13 @@
             [nextjournal.clojure-mode.commands :as commands]
             [nextjournal.clojure-mode.extensions.formatting :as format]
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
+            [nextjournal.scratch]
             #?@(:squint []
                 :cljs [[nextjournal.livedoc :as livedoc]])
             #?(:squint ["assert" :as assert]))
   #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing is]])))
+
+#_(js/process.exit 0)
 
 (def extensions
   (.concat cm-clojure/default-extensions (eval-region/extension #js {}))
@@ -249,7 +252,7 @@
       "(<a) b>" "<(a) b>"
       ))
 
-  (deftest slurp
+  (deftest slurp-test
     (are [input dir expected]
         (= (apply-f (commands/slurp dir) input) expected)
       "(|) a" 1 "(|a)"
@@ -272,7 +275,9 @@
       "('is-d|ata) :x" 1 "('is-d|ata :x)"
       "('xy|z 1) 2" 1 "('xy|z 1 2)"
       "'ab|c 1" 1 "'ab|c 1"
-      ))
+
+      "\"x|\" 1" 1 "\"x| 1\""
+      "1 \"x|\"" -1 "\"1 x|\""))
 
   #?(:squint nil
      :cljs
