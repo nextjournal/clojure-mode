@@ -14,8 +14,6 @@
             #?(:squint ["assert" :as assert]))
   #?(:squint (:require-macros [nextjournal.clojure-mode-tests.macros :refer [deftest are testing is]])))
 
-#_(js/process.exit 0)
-
 (def extensions
   (.concat cm-clojure/default-extensions (eval-region/extension #js {}))
   ;; optionally test with live grammar
