@@ -4,15 +4,15 @@ Enabling a decent Clojure/Script editor experience in the browser. Built for and
 
 * **[🤹‍♀️ Live demo with in-browser eval](https://nextjournal.github.io/clojure-mode/)**
 * [🐢 Try it in Nextjournal](https://nextjournal.com/try/clojure?cm6=1)
-* [📦 Use it in your project](#use-it-in-your-project)
+* [📦 Use it in your project](#-use-it-in-your-project)
 
 ## ✨ Features
 
 **⚡️ Lightning-fast thanks to [lezer incremental parsing](https://lezer.codemirror.net/)**
 * Try pasting [`clojure/core.clj`](https://raw.githubusercontent.com/clojure/clojure/master/src/clj/clojure/core.clj) into the [live demo](https://nextjournal.github.io/clojure-mode/).
 
-**🥤 Slurping & 🤮 Barfing**  
-* Forward: <kbd>Ctrl</kbd> + <kbd>←</kbd> / <kbd>→</kbd> or <kbd>Mod</kbd> + <kbd>⇧</kbd> + <kbd>J</kbd> / <kbd>K</kbd>  
+**🥤 Slurping & 🤮 Barfing**
+* Forward: <kbd>Ctrl</kbd> + <kbd>←</kbd> / <kbd>→</kbd> or <kbd>Mod</kbd> + <kbd>⇧</kbd> + <kbd>J</kbd> / <kbd>K</kbd>
 * Backward: <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>←</kbd> / <kbd>→</kbd>
 
 **💗 Semantic Selections**
