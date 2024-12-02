@@ -58,7 +58,8 @@
                 from-to
                 range
                 changes]} (guard update-map map?)
-        change-desc (when changes (.changes state (clj->js changes)))]
+        change-desc (when changes (.changes state (-> changes
+                                                      clj->js)))]
     (cond-> #js{:range (or range
                            (cond mapped (sel/cursor (.mapPos change-desc mapped))
                                  cursor (sel/cursor cursor)
