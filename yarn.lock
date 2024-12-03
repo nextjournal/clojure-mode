@@ -1103,10 +1103,10 @@ source-map@^0.5.6:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
-squint-cljs@0.8.128:
-  version "0.8.128"
-  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.8.128.tgz#9ef9a98ab89e568eee339fd01a24479049523ac4"
-  integrity sha512-+5MQORcOpGEPE4gDWafrwSpdlsxfWHYMyQEwrF9jdy5g12TmkKe9qe/OVoFLc6325P/jKeof/xjnbiXGHjfr7A==
+squint-cljs@0.8.129:
+  version "0.8.129"
+  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.8.129.tgz#04a3f1ca899e6fb7e2ba30b882efb791741caff0"
+  integrity sha512-cgTKzOorBX2wuli+6BNnioPYslAqyGP+C4W5W/B2ddlBXCTUPfc9nCrxkz5hP1vOt6bPJNZDdKjcXkfRlO62/g==
   dependencies:
     chokidar "^4.0.1"
 

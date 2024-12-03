@@ -24,7 +24,7 @@
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
     "markdown-it-footnote": "^3.0.3",
-    "squint-cljs": "0.8.128",
+    "squint-cljs": "0.8.129",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {
