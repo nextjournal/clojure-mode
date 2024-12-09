@@ -23,7 +23,8 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0",
     "@nextjournal/lezer-clojure": "1.0.0",
-    "squint-cljs": "0.7.111",
+    "markdown-it-footnote": "^3.0.3",
+    "squint-cljs": "0.8.129",
     "w3c-keyname": "^2.2.4"
   },
   "comments": {
@@ -59,6 +60,7 @@
   },
   "exports": {
     ".": "./dist/nextjournal/clojure_mode.mjs",
-    "./extensions/eval-region": "./dist/nextjournal/clojure_mode/extensions/eval_region.mjs"
+    "./extensions/eval-region": "./dist/nextjournal/clojure_mode/extensions/eval_region.mjs",
+    "./extensions/formatting": "./dist/nextjournal/clojure_mode/extensions/formatting.mjs"
   }
 }

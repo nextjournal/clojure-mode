@@ -21,22 +21,23 @@
       :List coll-span})))
 
 (def style-tags
-  (clj->js {:NS (.-keyword tags)
-            :DefLike (.-keyword tags)
-            "Operator/Symbol" (.-keyword tags)
-            "VarName/Symbol" (.definition tags (.-variableName tags))
-            :Boolean (.-atom tags)
-            "DocString/..." (.-emphasis tags)
-            :Discard! (.-comment tags)
-            :Number (.-number tags)
-            :StringContent (.-string tags)
-            ;; need to pass something, that returns " when being parsed as JSON
-            ;; also #js doesn't treat this correctly, hence clj->js above
-            "\"\\\"\"" (.-string tags)
-            :Keyword (.-atom tags)
-            :Nil (.-null tags)
-            :LineComment (.-lineComment tags)
-            :RegExp (.-regexp tags)}))
+  (clj->js
+   {:NS (.-keyword tags)
+    :DefLike (.-keyword tags)
+    "Operator/Symbol" (.-keyword tags)
+    "VarName/Symbol" (.definition tags (.-variableName tags))
+    :Boolean (.-atom tags)
+    "DocString/..." (.-emphasis tags)
+    :Discard! (.-comment tags)
+    :Number (.-number tags)
+    :StringContent (.-string tags)
+    ;; need to pass something, that returns " when being parsed as JSON
+    ;; also #js doesn't treat this correctly, hence clj->js above
+    "\"\\\"\"" (.-string tags)
+    :Keyword (.-atom tags)
+    :Nil (.-null tags)
+    :LineComment (.-lineComment tags)
+    :RegExp (.-regexp tags)}))
 
 (def parser lezer-clj/parser)
 
