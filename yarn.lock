@@ -443,10 +443,10 @@ builtin-status-codes@^3.0.0:
   resolved "https://registry.npmjs.org/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
 
-chokidar@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-4.0.1.tgz#4a6dff66798fb0f72a94f616abbd7e1a19f31d41"
-  integrity sha512-n8enUVCED/KVRQlab1hr3MVpcVMvxtZjmEa956u+4YijlmQED223XMSYj2tLuKvr4jcCTzNNMpQDUer72MMmzA==
+chokidar@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-4.0.3.tgz#7be37a4c03c9aee1ecfe862a4a23b2c70c205d30"
+  integrity sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==
   dependencies:
     readdirp "^4.0.1"
 
@@ -1103,12 +1103,12 @@ source-map@^0.5.6:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
-squint-cljs@0.8.129:
-  version "0.8.129"
-  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.8.129.tgz#04a3f1ca899e6fb7e2ba30b882efb791741caff0"
-  integrity sha512-cgTKzOorBX2wuli+6BNnioPYslAqyGP+C4W5W/B2ddlBXCTUPfc9nCrxkz5hP1vOt6bPJNZDdKjcXkfRlO62/g==
+squint-cljs@0.11.187:
+  version "0.11.187"
+  resolved "https://registry.yarnpkg.com/squint-cljs/-/squint-cljs-0.11.187.tgz#6bfa181ca0f9d392224d7397361fbafd0ac2ec50"
+  integrity sha512-nSx9MfbvbyRgunal/FV4yDHN/bjxRbK8lvY9sErp2Yqsok52nOS/5wWjBSpGNSnjxGAznxy1/NXyWPToHrYjzg==
   dependencies:
-    chokidar "^4.0.1"
+    chokidar "^4.0.3"
 
 stream-browserify@^2.0.1:
   version "2.0.2"
