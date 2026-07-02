@@ -340,6 +340,8 @@
       (is (= "{:a 1}" (->> (eval-region/top-level-node state)
                            (util/range-str state)))))))
 
-#?(:squint (t/run-tests))
+#?(:squint (let [{:keys [fail error]} (t/run-tests)]
+             (when (pos? (+ (or fail 0) (or error 0)))
+               (js/process.exit 1))))
 
 #_(prn (eval-region/cursor-node-string (test-utils/make-state extensions "(+ (+ 1 2)| 2 3)")))
