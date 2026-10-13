@@ -102,6 +102,8 @@
    :unwrap
    [{:key "Alt-s"
      :doc "Lift contents of collection into parent"
+     :preventDefault true}
+    {:mac "Alt-\u00df"
      :preventDefault true}]
    :kill
    [{:key "Ctrl-k"
