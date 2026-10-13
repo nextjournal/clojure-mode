@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Make Option+S run `unwrap` on macOS with `@codemirror/view` 6.38.1 or later
+
 ## 0.3.3
 
 - Fix [#54](https://github.com/nextjournal/clojure-mode/issues/54): support slurping from within string literal
