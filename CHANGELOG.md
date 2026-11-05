@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Make Option+S run `unwrap` on macOS with `@codemirror/view` 6.38.1 or later
+- Make Backspace delete an escape sequence in a string as a whole, instead of leaving a backslash that escapes the closing quote
 
 ## 0.3.3
 

@@ -14,6 +14,29 @@
 (defn escaped? [state pos]
   (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
 
+(defn backslashes-before
+  "Number of backslashes in a row right before pos"
+  [state pos]
+  (loop [n 0]
+    (if (escaped? state (- pos n))
+      (recur (inc n))
+      n)))
+
+(defn string-deletion
+  "Deletes the character before pos in a string, or the whole escape sequence
+   when it's part of one, so that a lone backslash doesn't escape what follows"
+  [state pos]
+  (cond
+    ;; between a backslash and the character it escapes
+    (odd? (backslashes-before state pos))
+    {:cursor (dec pos)
+     :changes {:from (dec pos) :to (min (inc pos) (.. state -doc -length))}}
+    ;; right after an escape sequence
+    (odd? (backslashes-before state (dec pos)))
+    (u/deletion (- pos 2) pos)
+    :else
+    (u/deletion pos pos)))
+
 (defn backspace-backoff [state from to]
   #_(js/console.log (some-> (n/|node state from) (u/guard n/line-comment?)))
   (if
@@ -43,9 +66,11 @@
           (cond
 
             (or (not empty)                                 ;; selection
-                (= "StringContent" (n/name (n/tree state from -1))) ;; inside a string
                 (and parent (not (n/balanced? parent)) (n/left-edge? node|))) ;; unbalanced left-paren
             (u/deletion from to)
+
+            (= "StringContent" (n/name (n/tree state from -1))) ;; inside a string
+            (string-deletion state from)
 
             ;; entering right edge of collection - skip
             (and (n/right-edge? node|) (== from (n/end parent)))
