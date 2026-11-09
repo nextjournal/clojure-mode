@@ -11,8 +11,22 @@
 (defn in-string? [state pos]
   (contains? #{"StringContent" "String"} (n/name (n/tree state pos))))
 
-(defn escaped? [state pos]
-  (= \\ (.. state -doc (slice (max 0 (dec pos)) pos) toString)))
+(defn escaped?
+  "Returns true if pos is preceded by an odd number of backslashes."
+  [state pos]
+  (let [doc (.-doc state)]
+    (loop [i pos n 0]
+      (if (and (pos? i) (= \\ (.. doc (slice (dec i) i) toString)))
+        (recur (dec i) (inc n))
+        (odd? n)))))
+
+(defn at-string-end?
+  "Returns true if pos is right before the closing quote of a string."
+  [state pos]
+  (when-let [string (n/closest (n/tree state pos) n/string?)]
+    (and (= (inc pos) (n/end string))
+         (= \" (.. state -doc (slice pos (inc pos)) toString))
+         (not (escaped? state pos)))))
 
 (defn backspace-backoff [state from to]
   #_(js/console.log (some-> (n/|node state from) (u/guard n/line-comment?)))
@@ -75,13 +89,15 @@
       #js{:annotations (u/user-event-annotation "input")}
       (j/fn [^:js {:keys [from to head anchor empty]}]
         (cond
-          (in-string? state from)
-          (if (= \" open)
-            (u/insertion head "\\\"")
-            (u/insertion from to open))
-          ;; allow typing escaped bracket
+          ;; allow typing escaped bracket or quote
           (escaped? state from)
           (u/insertion from to open)
+          (in-string? state from)
+          (cond
+            (not= \" open) (u/insertion from to open)
+            ;; step over the closing quote
+            (and empty (at-string-end? state from)) {:cursor (inc from)}
+            :else (u/insertion head "\\\""))
           :else
           (if empty
             {:changes {:insert (str open close)

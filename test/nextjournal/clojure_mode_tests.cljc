@@ -100,7 +100,13 @@
       (are [input expected]
           (= (apply-f #(close-brackets/handle-open % \") input) expected)
         "|" "\"|\""                                         ;; auto-close strings
-        "\"|\"" "\"\\\"|\""                                 ;; insert quoted " inside strings
+        "\"|\"" "\"\"|"                                     ;; step over the closing quote
+        "\"abc|\"" "\"abc\"|"
+        "(\"abc|\")" "(\"abc\"|)"
+        "\"a|bc\"" "\"a\\\"|bc\""                           ;; escape a quote inside strings
+        "\"a\\|\"" "\"a\\\"|\""                             ;; typed escape is not escaped again
+        "\"a\\\\|\"" "\"a\\\\\"|"                           ;; escaped backslash does not escape the quote
+        "\\\\|" "\\\\\"|\""                                 ;; backslash char literal does not escape the quote
         ))
 
     (testing "handle-backspace"
