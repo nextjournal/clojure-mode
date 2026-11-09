@@ -5,6 +5,7 @@
 - Make Option+S run `unwrap` on macOS with `@codemirror/view` 6.38.1 or later
 - Fix [#63](https://github.com/nextjournal/clojure-mode/issues/63): typing `"` before the closing quote of a string moves past it
 - Handle a bracket typed after the `\\` character literal as code
+- Fix wrapping a selection in brackets with the squint build
 
 ## 0.3.3
 

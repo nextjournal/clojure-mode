@@ -74,6 +74,8 @@
         "#|" \(  "#(|)"
         "\"|\"" \( "\"(|\""                                 ;; no auto-close inside strings
         "\\\\|" \( "\\\\(|)"                                ;; backslash char literal does not escape the bracket
+        "(a <b>)" \( "(a (<b>))"                            ;; wrap selection
+        "<a b>" \[ "[<a b>]"
         ))
 
     (testing "handle-close"
