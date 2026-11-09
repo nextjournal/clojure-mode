@@ -13,7 +13,7 @@
 
 (defn escaped?
   "Returns true if pos is preceded by an odd number of backslashes."
-  [state pos]
+  [^js state pos]
   (let [doc (.-doc state)]
     (loop [i pos n 0]
       (if (and (pos? i) (= \\ (.. doc (slice (dec i) i) toString)))
@@ -22,7 +22,7 @@
 
 (defn at-string-end?
   "Returns true if pos is right before the closing quote of a string."
-  [state pos]
+  [^js state pos]
   (when-let [string (n/closest (n/tree state pos) n/string?)]
     (and (= (inc pos) (n/end string))
          (= \" (.. state -doc (slice pos (inc pos)) toString))
