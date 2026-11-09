@@ -16,7 +16,7 @@
   [^js state pos]
   (let [doc (.-doc state)]
     (loop [i pos n 0]
-      (if (and (pos? i) (= \\ (.. doc (slice (dec i) i) toString)))
+      (if (and (pos? i) (= \\ (.sliceString doc (dec i) i)))
         (recur (dec i) (inc n))
         (odd? n)))))
 
@@ -25,7 +25,7 @@
   [^js state pos]
   (when-let [string (n/closest (n/tree state pos) n/string?)]
     (and (= (inc pos) (n/end string))
-         (= \" (.. state -doc (slice pos (inc pos)) toString))
+         (= \" (.. state -doc (sliceString pos (inc pos))))
          (not (escaped? state pos)))))
 
 (defn backspace-backoff [state from to]
