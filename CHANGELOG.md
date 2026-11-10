@@ -7,6 +7,7 @@
 - Fix [#63](https://github.com/nextjournal/clojure-mode/issues/63): typing `"` before the closing quote of a string moves past it
 - Handle a bracket typed after the `\\` character literal as code
 - Fix wrapping a selection in brackets with the squint build
+- Insert a closing bracket typed in a line comment, instead of dropping it and jumping to the next closing bracket after the comment
 
 ## 0.3.3
 

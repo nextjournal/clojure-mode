@@ -28,6 +28,9 @@
          (= \" (.. state -doc (sliceString pos (inc pos))))
          (not (escaped? state pos)))))
 
+(defn in-line-comment? [state pos]
+  (n/line-comment? (n/tree state pos -1)))
+
 (defn string-deletion
   "Deletes the character before pos in a string, or the whole escape sequence
    when it's part of one, so that a lone backslash doesn't escape what follows"
@@ -130,6 +133,7 @@
     #js{:annotations (u/user-event-annotation "input")}
     (j/fn [^:js {:as _range :keys [empty head from to]}]
       (if (or (in-string? state from)
+              (in-line-comment? state from)
               (escaped? state from))
         (u/insertion from to key-name)
         (when empty
