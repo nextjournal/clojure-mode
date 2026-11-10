@@ -63,7 +63,7 @@
     (cond-> #js{:range (or range
                            (cond mapped (sel/cursor (.mapPos change-desc mapped))
                                  cursor (sel/cursor cursor)
-                                 from-to (sel/range (from-to 0) (from-to 1)))
+                                 from-to (sel/range (nth from-to 0) (nth from-to 1)))
                            original-range)}
       change-desc (j/!set :changes change-desc))))
 

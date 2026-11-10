@@ -73,6 +73,9 @@
         "|)" \(  "(|))"
         "#|" \(  "#(|)"
         "\"|\"" \( "\"(|\""                                 ;; no auto-close inside strings
+        "\\\\|" \( "\\\\(|)"                                ;; backslash char literal does not escape the bracket
+        "(a <b>)" \( "(a (<b>))"                            ;; wrap selection
+        "<a b>" \[ "[<a b>]"
         ))
 
     (testing "handle-close"
@@ -92,6 +95,7 @@
         "((|)" \] "(()|"                                    ;; non-matching bracket doesn't close ancestor
         "((|)" \) "(())|"                                   ;; a bit weird - it finds an unclosed ancestor, and closes that.
         "\"|\"" \) "\")|\""                                 ;; normal behaviour inside strings
+        "(\\\\|)" \) "(\\\\)|"                              ;; backslash char literal does not escape the bracket
         ))
 
 
@@ -100,7 +104,14 @@
       (are [input expected]
           (= (apply-f #(close-brackets/handle-open % \") input) expected)
         "|" "\"|\""                                         ;; auto-close strings
-        "\"|\"" "\"\\\"|\""                                 ;; insert quoted " inside strings
+        "\"|\"" "\"\"|"                                     ;; step over the closing quote
+        "\"abc|\"" "\"abc\"|"
+        "(\"abc|\")" "(\"abc\"|)"
+        "#\"a|\"" "#\"a\"|"                                 ;; step over the closing quote of a regex
+        "\"a|bc\"" "\"a\\\"|bc\""                           ;; escape a quote inside strings
+        "\"a\\|\"" "\"a\\\"|\""                             ;; typed escape is not escaped again
+        "\"a\\\\|\"" "\"a\\\\\"|"                           ;; escaped backslash does not escape the quote
+        "\\\\|" "\\\\\"|\""                                 ;; backslash char literal does not escape the quote
         ))
 
     (testing "handle-backspace"
