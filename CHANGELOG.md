@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Bump `squint-cljs` to `0.15.212`
+- Depend on `@codemirror/lang-markdown` `^6.0.0` instead of exactly `6.0.0`
 
 ## 0.3.4
 
