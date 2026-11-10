@@ -96,6 +96,9 @@
         "((|)" \) "(())|"                                   ;; a bit weird - it finds an unclosed ancestor, and closes that.
         "\"|\"" \) "\")|\""                                 ;; normal behaviour inside strings
         "(\\\\|)" \) "(\\\\)|"                              ;; backslash char literal does not escape the bracket
+        "(a ;; |\n)" \) "(a ;; )|\n)"                       ;; and inside line comments
+        ";; (a|" \) ";; (a)|"
+        "(a ;; b\n|)" \) "(a ;; b\n)|"                       ;; the line after a comment is code again
         ))
 
 
