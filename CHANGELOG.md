@@ -2,12 +2,13 @@
 
 ## 0.3.4
 
-- Make Option+S run `unwrap` on macOS with `@codemirror/view` 6.38.1 or later
-- Make Backspace delete an escape sequence in a string as a whole, instead of leaving a backslash that escapes the closing quote
+- Make Option+S run `unwrap` on macOS with `@codemirror/view` 6.38.1 or later ([#62](https://github.com/nextjournal/clojure-mode/pull/62))
+- Make Backspace delete an escape sequence in a string as a whole, instead of leaving a backslash that escapes the closing quote ([@bbatsov](https://github.com/bbatsov))
 - Fix [#63](https://github.com/nextjournal/clojure-mode/issues/63): typing `"` before the closing quote of a string moves past it
-- Handle a bracket typed after the `\\` character literal as code
-- Fix wrapping a selection in brackets with the squint build
-- Insert a closing bracket typed in a line comment, instead of dropping it and jumping to the next closing bracket after the comment
+- Handle a bracket typed after the `\\` character literal as code ([#66](https://github.com/nextjournal/clojure-mode/pull/66))
+- Fix wrapping a selection in brackets with the squint build ([#67](https://github.com/nextjournal/clojure-mode/pull/67))
+- Insert a closing bracket typed in a line comment, instead of dropping it and jumping to the next closing bracket after the comment ([@bbatsov](https://github.com/bbatsov))
+- Bump `squint-cljs` to `0.11.188`
 
 ## 0.3.3
 
