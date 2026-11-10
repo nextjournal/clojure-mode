@@ -28,25 +28,17 @@
          (= \" (.. state -doc (sliceString pos (inc pos))))
          (not (escaped? state pos)))))
 
-(defn backslashes-before
-  "Number of backslashes in a row right before pos"
-  [state pos]
-  (loop [n 0]
-    (if (escaped? state (- pos n))
-      (recur (inc n))
-      n)))
-
 (defn string-deletion
   "Deletes the character before pos in a string, or the whole escape sequence
    when it's part of one, so that a lone backslash doesn't escape what follows"
   [state pos]
   (cond
     ;; between a backslash and the character it escapes
-    (odd? (backslashes-before state pos))
+    (escaped? state pos)
     {:cursor (dec pos)
      :changes {:from (dec pos) :to (min (inc pos) (.. state -doc -length))}}
     ;; right after an escape sequence
-    (odd? (backslashes-before state (dec pos)))
+    (escaped? state (dec pos))
     (u/deletion (- pos 2) pos)
     :else
     (u/deletion pos pos)))
