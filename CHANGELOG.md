@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Bump `squint-cljs` to `0.15.212`
+
 ## 0.3.4
 
 - Make Option+S run `unwrap` on macOS with `@codemirror/view` 6.38.1 or later ([#62](https://github.com/nextjournal/clojure-mode/pull/62))
