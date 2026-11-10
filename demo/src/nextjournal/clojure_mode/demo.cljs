@@ -54,18 +54,27 @@
                         (.of view/keymap cm-clj/complete-keymap)
                         (.of view/keymap historyKeymap)])
 
+(defn linux? []
+  (some? (re-find #"(Linux)|(X11)" js/navigator.userAgent)))
+
+(defn mac? []
+  (and (not (linux?))
+       (some? (re-find #"(Mac)|(iPhone)|(iPad)|(iPod)" js/navigator.platform))))
 
 (defn editor [source {:keys [eval?]}]
   (r/with-let [!view (r/atom nil)
                last-result (when eval? (r/atom (demo.sci/eval-string source)))
+               modifier (if (mac?)
+                          "Meta"
+                          "Ctrl")
                mount! (fn [el]
                         (when el
                           (reset! !view (new EditorView
                                              (j/obj :state
                                                     (test-utils/make-state
                                                      (cond-> #js [extensions]
-                                                       eval? (.concat #js [(eval-region/extension {:modifier "Meta"})
-                                                                           (demo.sci/extension {:modifier "Meta"
+                                                       eval? (.concat #js [(eval-region/extension {:modifier modifier})
+                                                                           (demo.sci/extension {:modifier modifier
                                                                                                 :on-result (partial reset! last-result)})]))
                                                      source)
                                                     :parent el)))))]
@@ -120,13 +129,6 @@
     5  \"buzz\"
     n))"]]
           [editor source {:eval? true}])))
-
-(defn linux? []
-  (some? (re-find #"(Linux)|(X11)" js/navigator.userAgent)))
-
-(defn mac? []
-  (and (not (linux?))
-       (some? (re-find #"(Mac)|(iPhone)|(iPad)|(iPod)" js/navigator.platform))))
 
 (defn key-mapping []
   (cond-> {"ArrowUp" "↑"
